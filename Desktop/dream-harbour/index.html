@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Login</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- LEFT SIDE - BLUE SECTION WITH COMPANY INFO -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>Dream Harbour</h1>
+                <p class="tagline">Professional Billing & Invoice Management</p>
+                
+                <div class="services-list">
+                    <h3>Our Services</h3>
+                    <ul id="servicesList">
+                        <li>📄 Photostat & Printing</li>
+                        <li>🏦 Aadhaar-PAN Linking</li>
+                        <li>📝 Registration Services</li>
+                        <li>🚗 Driving Licence Assistance</li>
+                        <li>💰 Nepal Money Transfer</li>
+                        <li>🌐 Online Certificates</li>
+                        <li>And more...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE - LOGIN FORM -->
+        <div class="form-section">
+            <div class="form-container">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Sign in to access your dashboard</p>
+
+                <!-- PHONE NUMBER FORM -->
+                <form id="phoneForm" class="auth-form">
+                    <div class="input-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input 
+                            type="tel" 
+                            id="phoneNumber" 
+                            placeholder="Enter 10-digit mobile number" 
+                            maxlength="10"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn-primary">Continue</button>
+                </form>
+
+                <!-- PIN FORM (Hidden at first) -->
+                <form id="pinForm" class="auth-form" style="display: none;">
+                    <div class="input-group">
+                        <label for="pinNumber">Enter PIN</label>
+                        <input 
+                            type="password" 
+                            id="pinNumber" 
+                            placeholder="Enter 6-digit PIN" 
+                            maxlength="6"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn-primary">Login</button>
+                    <button type="button" class="btn-secondary" onclick="backToPhone()">Back</button>
+                </form>
+
+                <!-- ERROR MESSAGE -->
+                <div id="errorMessage" class="error-message"></div>
+                
+                <!-- LOADING SPINNER -->
+                <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+                <!-- SECURITY MESSAGE -->
+                <div class="security-note">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1Z" 
+                              stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <span>Your data is encrypted and secure</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Supabase library from internet -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Load our configuration file -->
+    <script src="js/supabase-config.js"></script>
+    
+    <!-- Load our authentication logic -->
+    <script src="js/auth.js"></script>
+</body>
+</html>
