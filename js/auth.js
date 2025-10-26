@@ -1,85 +1,154 @@
-// js/auth.js - Authentication Management
+// js/auth.js - Authentication Handler
 
 console.log('✓ auth.js loaded');
 
-// CHECK IF ALREADY LOGGED IN
-window.addEventListener('load', function() {
-    console.log('📍 Checking authentication...');
+let savedPhone = '';
+
+// HANDLE PHONE FORM SUBMISSION
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✓ DOM ready - Setting up form handlers');
     
-    const currentPage = window.location.pathname;
-    console.log('Current page:', currentPage);
+    const phoneForm = document.getElementById('phoneForm');
+    const pinForm = document.getElementById('pinForm');
     
-    const session = localStorage.getItem('userSession');
-    console.log('Session found:', !!session);
-    
-    // If on login page and already logged in
-    if (currentPage.includes('index.html') || currentPage === '/') {
-        if (session) {
-            console.log('✅ Already logged in - redirecting to dashboard');
-            window.location.href = 'dashboard.html';
-        }
+    if (phoneForm) {
+        console.log('✓ Found phoneForm - attaching submit handler');
+        phoneForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handlePhoneSubmit();
+        });
+    } else {
+        console.error('❌ phoneForm not found!');
     }
     
-    // If on dashboard and NOT logged in
-    if (currentPage.includes('dashboard.html')) {
-        if (!session) {
-            console.log('❌ Not logged in - redirecting to login');
-            window.location.href = 'index.html';
-        }
+    if (pinForm) {
+        console.log('✓ Found pinForm - attaching submit handler');
+        pinForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handlePinSubmit();
+        });
+    } else {
+        console.error('❌ pinForm not found!');
     }
 });
 
-// LOGIN FUNCTION
-async function login() {
-    const phone = document.getElementById('phone')?.value?.trim();
-    const pin = document.getElementById('pin')?.value?.trim();
+// HANDLE PHONE FORM SUBMISSION
+function handlePhoneSubmit() {
+    const phone = document.getElementById('phoneNumber').value.trim();
+    const errorDiv = document.getElementById('errorMessage');
     
-    console.log('🔐 Attempting login with phone:', phone);
+    console.log('📱 Phone form submitted with:', phone);
     
-    if (!phone || !pin) {
-        alert('Enter both phone and PIN');
+    // Clear error
+    errorDiv.textContent = '';
+    errorDiv.style.color = 'red';
+    
+    // Validate
+    if (!phone) {
+        errorDiv.textContent = '⚠️ Enter phone number';
         return;
     }
     
     if (!/^\d{10}$/.test(phone)) {
-        alert('Enter valid 10-digit phone number');
+        errorDiv.textContent = '⚠️ Enter valid 10-digit phone number';
         return;
     }
     
+    // Save phone and show PIN form
+    savedPhone = phone;
+    console.log('✅ Phone valid, switching to PIN form');
+    
+    document.getElementById('phoneForm').style.display = 'none';
+    document.getElementById('pinForm').style.display = 'block';
+    document.getElementById('pinNumber').focus();
+}
+
+// HANDLE PIN FORM SUBMISSION
+async function handlePinSubmit() {
+    const pin = document.getElementById('pinNumber').value.trim();
+    const errorDiv = document.getElementById('errorMessage');
+    const spinner = document.getElementById('loadingSpinner');
+    
+    console.log('🔐 PIN form submitted');
+    console.log('Phone:', savedPhone);
+    console.log('PIN:', pin);
+    
+    // Clear error
+    errorDiv.textContent = '';
+    errorDiv.style.color = 'red';
+    
+    // Validate
+    if (!pin) {
+        errorDiv.textContent = '⚠️ Enter PIN';
+        return;
+    }
+    
+    if (!/^\d{4,6}$/.test(pin)) {
+        errorDiv.textContent = '⚠️ Enter valid PIN (4-6 digits)';
+        return;
+    }
+    
+    // Show loading
+    if (spinner) spinner.style.display = 'block';
+    
     try {
-        // Verify against Supabase
-        const { data: users, error } = await supabase
+        console.log('📡 Querying Supabase for credentials...');
+        console.log('Query: phone=' + savedPhone + ', pin=' + pin);
+        
+        // Query database
+        const { data: user, error } = await supabase
             .from('app_users')
             .select('*')
-            .eq('phone_number', phone)
+            .eq('phone_number', savedPhone)
             .eq('pin', pin)
             .single();
         
-        if (error || !users) {
-            console.error('❌ Login failed:', error);
-            alert('❌ Invalid phone or PIN');
+        if (spinner) spinner.style.display = 'none';
+        
+        if (error) {
+            console.error('❌ Query error:', error);
+            errorDiv.textContent = '❌ Invalid phone or PIN';
             return;
         }
         
-        // SAVE SESSION
-        localStorage.setItem('userSession', JSON.stringify({
-            phone: phone,
-            loginTime: new Date().toISOString(),
-            id: users.id
-        }));
+        if (!user) {
+            console.error('❌ No user found');
+            errorDiv.textContent = '❌ Invalid phone or PIN';
+            return;
+        }
         
-        localStorage.setItem('userPhone', phone);
+        console.log('✅ Login successful!', user);
         
-        console.log('✅ Login successful for:', phone);
-        console.log('🔄 Redirecting to dashboard...');
+        // Save session
+        localStorage.setItem('userSession', 'true');
+        localStorage.setItem('userPhone', savedPhone);
         
-        // REDIRECT TO DASHBOARD
-        window.location.href = 'dashboard.html';
+        // Show success
+        errorDiv.style.color = 'green';
+        errorDiv.textContent = '✅ Login successful! Redirecting...';
+        
+        // Redirect after short delay
+        setTimeout(() => {
+            console.log('🔄 Redirecting to dashboard...');
+            window.location.href = 'dashboard.html';
+        }, 1000);
         
     } catch (error) {
-        console.error('❌ Error:', error);
-        alert('Error during login: ' + error.message);
+        console.error('❌ Catch error:', error);
+        if (spinner) spinner.style.display = 'none';
+        errorDiv.textContent = '❌ Error: ' + error.message;
     }
+}
+
+// GO BACK TO PHONE
+function backToPhone() {
+    console.log('🔙 Going back to phone screen');
+    
+    document.getElementById('phoneForm').style.display = 'block';
+    document.getElementById('pinForm').style.display = 'none';
+    document.getElementById('errorMessage').textContent = '';
+    document.getElementById('pinNumber').value = '';
+    document.getElementById('phoneNumber').focus();
 }
 
 console.log('✓ auth.js initialized');
