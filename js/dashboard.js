@@ -1,22 +1,38 @@
-// js/dashboard.js - Session & Page Routing Management
+// js/dashboard.js - Dashboard Session Management
 
 console.log('✓ dashboard.js loaded');
 
-// CHECK SESSION ON PAGE LOAD
-window.addEventListener('load', async function() {
-    console.log('📍 Page loaded - checking session...');
-    
+// SIMPLE SESSION CHECK
+function checkSession() {
     const session = localStorage.getItem('userSession');
+    
     if (!session) {
         console.log('❌ No session - redirecting to login');
         window.location.href = 'index.html';
+        return false;
+    }
+    
+    console.log('✅ Session valid');
+    return true;
+}
+
+// LOAD DASHBOARD
+window.addEventListener('load', function() {
+    console.log('📍 Dashboard loading...');
+    
+    // Check session first
+    if (!checkSession()) {
         return;
     }
     
-    console.log('✅ Session found - loading dashboard');
+    // Show dashboard
+    console.log('✅ Showing dashboard');
     showPage('dashboard');
     updateDateTime();
     setInterval(updateDateTime, 1000);
+    
+    // Load services for invoice page
+    loadServices();
 });
 
 // PAGE ROUTING
@@ -34,17 +50,6 @@ function showPage(pageName) {
         pageElement.classList.add('active');
         console.log('✅ Page displayed:', pageName);
     }
-    
-    // Update menu highlighting
-    document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    event.target.classList.add('active');
-    
-    // Initialize page-specific functions
-    if (pageName === 'invoice') {
-        loadServices();
-    }
 }
 
 // UPDATE DATE & TIME
@@ -58,7 +63,10 @@ function updateDateTime() {
         hour: '2-digit',
         minute: '2-digit'
     };
-    document.getElementById('date-display').textContent = now.toLocaleDateString('en-IN', options);
+    const dateDisplay = document.getElementById('date-display');
+    if (dateDisplay) {
+        dateDisplay.textContent = now.toLocaleDateString('en-IN', options);
+    }
 }
 
 // LOGOUT
@@ -66,6 +74,7 @@ function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userSession');
         localStorage.removeItem('userPhone');
+        console.log('🔓 Logged out');
         window.location.href = 'index.html';
     }
 }
