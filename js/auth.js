@@ -103,7 +103,7 @@ async function handlePinSubmit() {
         const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
-                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyZXd0ZWNpYmVpa3Z3aGVuayIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzI3OTExNjc5LCJleHAiOjE4ODU2Nzc2Nzl9.O1PGEZGQYKsEV6mRcO0r-e-d9-5v9nlx7xqT0EcH58E',
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyZXd0ZWNpYmVpa3d3aGVuayIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzI3OTExNjc5LCJleHAiOjE4ODU2Nzc2Nzl9.O1PGEZGQYKsEV6mRcO0r-e-d9-5v9nlx7xqT0EcH58E',
                 'Content-Type': 'application/json'
             }
         });
