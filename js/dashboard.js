@@ -16,6 +16,44 @@ function checkSession() {
     return true;
 }
 
+// LOAD SERVICES (Required by dashboard.html)
+function loadServices() {
+    console.log('📍 Loading services...');
+    // Demo services - will integrate with database later
+    const services = [
+        { id: 1, name: 'Photocopy & Printing', price: '₹5', description: 'Per page' },
+        { id: 2, name: 'Aadhaar-PAN Linking', price: '₹100', description: 'One time' },
+        { id: 3, name: 'Document Certification', price: '₹50', description: 'Per document' },
+        { id: 4, name: 'Money Transfer', price: 'Variable', description: 'Based on amount' },
+        { id: 5, name: 'Online Certificates', price: '₹0-500', description: 'Various types' },
+        { id: 6, name: 'GST Compliance', price: 'Consultation', description: 'Variable' }
+    ];
+    
+    console.log('✅ Services loaded:', services);
+    return services;
+}
+
+// LOAD DASHBOARD DATA
+function loadDashboard() {
+    console.log('📊 Loading dashboard...');
+    return {
+        totalInvoices: 24,
+        totalEarnings: '₹45,320',
+        todayEarnings: '₹2,850',
+        activeServices: 6
+    };
+}
+
+// LOAD INVOICES
+function loadInvoices() {
+    console.log('📄 Loading invoices...');
+    return [
+        { id: 'INV-001', customer: 'Acme Corp', amount: '₹2,500', date: '2025-10-26', status: 'Paid' },
+        { id: 'INV-002', customer: 'Tech Solutions', amount: '₹1,850', date: '2025-10-25', status: 'Pending' },
+        { id: 'INV-003', customer: 'Global Services', amount: '₹3,200', date: '2025-10-24', status: 'Paid' }
+    ];
+}
+
 // LOAD DASHBOARD
 window.addEventListener('load', function() {
     console.log('📍 Dashboard loading...');
@@ -31,7 +69,7 @@ window.addEventListener('load', function() {
     updateDateTime();
     setInterval(updateDateTime, 1000);
     
-    // Load services for invoice page
+    // Load services (this is what was missing!)
     loadServices();
 });
 
@@ -49,6 +87,8 @@ function showPage(pageName) {
     if (pageElement) {
         pageElement.classList.add('active');
         console.log('✅ Page displayed:', pageName);
+    } else {
+        console.warn('⚠️ Page element not found:', pageName + '-page');
     }
 }
 
