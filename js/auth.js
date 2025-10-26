@@ -92,20 +92,33 @@ async function handlePinSubmit() {
     if (spinner) spinner.style.display = 'block';
     
     try {
-        console.log('📡 Querying Supabase for credentials...');
+        console.log('📡 Querying Render proxy for credentials...');
         console.log('Query: phone=' + savedPhone + ', pin=' + pin);
         
-        // Query database
-        const { data: user, error } = await supabase
-            .from('app_users')
-            .select('*')
-            .eq('phone_number', savedPhone)
-            .eq('pin', pin)
-            .single();
+        // Query database via Render proxy (HTTP fetch)
+        const apiUrl = 'https://dream-harbour.onrender.com/rest/v1/app_users?select=*&phone_number=eq.' + encodeURIComponent(savedPhone) + '&pin=eq.' + encodeURIComponent(pin);
+        
+        console.log('📡 Fetching from:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyZXd0ZWNpYmVpa3Z3aGVuayIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzI3OTExNjc5LCJleHAiOjE4ODU2Nzc2Nzl9.O1PGEZGQYKsEV6mRcO0r-e-d9-5v9nlx7xqT0EcH58E',
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        console.log('📡 Response status:', response.status);
+        
+        const data = await response.json();
+        console.log('📡 Response data:', data);
+        
+        const user = data[0] || null;
+        const error = response.ok ? null : { message: 'Query failed' };
         
         if (spinner) spinner.style.display = 'none';
         
-        if (error) {
+        if (error || !response.ok) {
             console.error('❌ Query error:', error);
             errorDiv.textContent = '❌ Invalid phone or PIN';
             return;
