@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: dream-harbour-proxy
+    env: node
+    buildCommand: npm install
+    startCommand: node proxy-server.js
+    plan: free
