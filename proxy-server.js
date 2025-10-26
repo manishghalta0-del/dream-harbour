@@ -4,13 +4,13 @@ const https = require('https');
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  // ✅ CRITICAL: Add CORS headers FIRST
+  // Set CORS headers FIRST and CORRECTLY
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, apikey');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, apikey, x-client-info');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Type');
   res.setHeader('Access-Control-Max-Age', '86400');
   
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(200);
     res.end();
