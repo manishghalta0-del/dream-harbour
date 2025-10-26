@@ -94,8 +94,7 @@ async function handlePinSubmit() {
     try {
         console.log('📡 Demo mode - Validating credentials (no database)...');
         
-        // DEMO: Simple hardcoded validation (for testing purposes)
-        // In production, this would query the database
+        // DEMO: Simple hardcoded validation
         const validUsers = [
             { phone: '9873329494', pin: '474200', name: 'Manish' },
             { phone: '9876543210', pin: '123456', name: 'Test User' }
