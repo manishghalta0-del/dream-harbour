@@ -1,4 +1,4 @@
-// js/auth.js - Authentication Handler
+// js/auth.js - Authentication Handler (Demo Mode - No Database)
 
 console.log('✓ auth.js loaded');
 
@@ -63,7 +63,7 @@ function handlePhoneSubmit() {
     document.getElementById('pinNumber').focus();
 }
 
-// HANDLE PIN FORM SUBMISSION
+// HANDLE PIN FORM SUBMISSION (DEMO MODE - No Database Calls)
 async function handlePinSubmit() {
     const pin = document.getElementById('pinNumber').value.trim();
     const errorDiv = document.getElementById('errorMessage');
@@ -92,40 +92,22 @@ async function handlePinSubmit() {
     if (spinner) spinner.style.display = 'block';
     
     try {
-        console.log('📡 Querying Render proxy for credentials...');
-        console.log('Query: phone=' + savedPhone + ', pin=' + pin);
+        console.log('📡 Demo mode - Validating credentials (no database)...');
         
-        // Query database via Render proxy (HTTP fetch)
-        const apiUrl = 'https://dream-harbour.onrender.com/rest/v1/app_users?select=*&phone_number=eq.' + encodeURIComponent(savedPhone) + '&pin=eq.' + encodeURIComponent(pin);
+        // DEMO: Simple hardcoded validation (for testing purposes)
+        // In production, this would query the database
+        const validUsers = [
+            { phone: '9873329494', pin: '474200', name: 'Manish' },
+            { phone: '9876543210', pin: '123456', name: 'Test User' }
+        ];
         
-        console.log('📡 Fetching from:', apiUrl);
-        
-        const response = await fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyZXd0ZWNpYmVpa3d3aGVuayIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzI3OTExNjc5LCJleHAiOjE4ODU2Nzc2Nzl9.O1PGEZGQYKsEV6mRcO0r-e-d9-5v9nlx7xqT0EcH58E',
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        console.log('📡 Response status:', response.status);
-        
-        const data = await response.json();
-        console.log('📡 Response data:', data);
-        
-        const user = data[0] || null;
-        const error = response.ok ? null : { message: 'Query failed' };
+        // Find user
+        const user = validUsers.find(u => u.phone === savedPhone && u.pin === pin);
         
         if (spinner) spinner.style.display = 'none';
         
-        if (error || !response.ok) {
-            console.error('❌ Query error:', error);
-            errorDiv.textContent = '❌ Invalid phone or PIN';
-            return;
-        }
-        
         if (!user) {
-            console.error('❌ No user found');
+            console.error('❌ Invalid credentials');
             errorDiv.textContent = '❌ Invalid phone or PIN';
             return;
         }
@@ -135,6 +117,7 @@ async function handlePinSubmit() {
         // Save session
         localStorage.setItem('userSession', 'true');
         localStorage.setItem('userPhone', savedPhone);
+        localStorage.setItem('userName', user.name);
         
         // Show success
         errorDiv.style.color = 'green';
@@ -147,7 +130,7 @@ async function handlePinSubmit() {
         }, 1000);
         
     } catch (error) {
-        console.error('❌ Catch error:', error);
+        console.error('❌ Error:', error);
         if (spinner) spinner.style.display = 'none';
         errorDiv.textContent = '❌ Error: ' + error.message;
     }
@@ -164,4 +147,4 @@ function backToPhone() {
     document.getElementById('phoneNumber').focus();
 }
 
-console.log('✓ auth.js initialized');
+console.log('✓ auth.js initialized (demo mode)');
