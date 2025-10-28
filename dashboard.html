@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #1e40af;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn {
+            padding: 8px 20px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            color: #6b7280;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            color: #1f2937;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .welcome-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .welcome-box h2 {
+            color: #1e40af;
+            margin-bottom: 20px;
+        }
+        
+        .welcome-box p {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌊 Dream Harbour</h1>
+        <div class="user-info">
+            <span id="userName">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value" id="totalRevenue">₹0</div>
+            </div>
+            <div class="stat-card">
+                <h3>GST Collected</h3>
+                <div class="value" id="gstCollected">₹0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Invoices</h3>
+                <div class="value" id="totalInvoices">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Customers</h3>
+                <div class="value" id="totalCustomers">0</div>
+            </div>
+        </div>
+        
+        <div class="welcome-box">
+            <h2>Welcome to Dream Harbour! 🎉</h2>
+            <p>Your professional billing and invoicing system is ready.</p>
+            <p style="margin-top: 10px;">We're setting up your invoice generation system and analytics.</p>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Check if user is logged in
+        const userData = localStorage.getItem('dreamHarbourUser');
+        
+        if (!userData) {
+            window.location.href = 'index.html';
+        } else {
+            const user = JSON.parse(userData);
+            document.getElementById('userName').textContent = user.name;
+        }
+        
+        function logout() {
+            localStorage.removeItem('dreamHarbourUser');
+            window.location.href = 'index.html';
+        }
+        
+        // Load dashboard data
+        const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        async function loadDashboardData() {
+            try {
+                // Load invoices count
+                const { count: invoiceCount } = await supabase
+                    .from('invoices')
+                    .select('*', { count: 'exact', head: true });
+                
+                document.getElementById('totalInvoices').textContent = invoiceCount || 0;
+                
+                // Load customers count
+                const { count: customerCount } = await supabase
+                    .from('customers')
+                    .select('*', { count: 'exact', head: true });
+                
+                document.getElementById('totalCustomers').textContent = customerCount || 0;
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        loadDashboardData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #1e40af;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .logo p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .login-btn:hover {
+            background: #1e3a8a;
+        }
+        
+        .error-message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            border-radius: 6px;
+            color: #dc2626;
+            font-size: 14px;
+        }
+        
+        .security-note {
+            margin-top: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="logo">
+            <h1>🌊 Dream Harbour</h1>
+            <p>Professional Billing System</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Mobile Number</label>
+                <input 
+                    type="text" 
+                    id="phoneNumber" 
+                    placeholder="Enter 10-digit mobile number"
+                    maxlength="10"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label>PIN</label>
+                <input 
+                    type="password" 
+                    id="pin" 
+                    placeholder="Enter 6-digit PIN"
+                    maxlength="6"
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="login-btn">Sign In</button>
+            
+            <div id="errorMessage" class="error-message"></div>
+        </form>
+        
+        <div class="security-note">
+            🔒 Your data is encrypted and secure
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Handle login form
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phoneNumber').value;
+            const pin = document.getElementById('pin').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Validate
+            if (phone.length !== 10) {
+                errorDiv.textContent = 'Please enter 10-digit mobile number';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (pin.length !== 6) {
+                errorDiv.textContent = 'Please enter 6-digit PIN';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Try to login
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('phone_number', phone)
+                    .eq('pin', pin)
+                    .single();
+                
+                if (error || !data) {
+                    errorDiv.textContent = 'Invalid mobile number or PIN';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                // Success! Save user data
+                localStorage.setItem('dreamHarbourUser', JSON.stringify({
+                    id: data.id,
+                    name: data.full_name,
+                    phone: data.phone_number,
+                    role: data.role
+                }));
+                
+                // Go to dashboard
+                window.location.href = 'dashboard.html';
+                
+            } catch (err) {
+                errorDiv.textContent = 'Error: ' + err.message;
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
