@@ -41,7 +41,9 @@ function showTab(tabName) {
     document.getElementById(tabName).classList.add('active');
     
     // Activate nav button
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
 }
 
 // Logout function
@@ -62,14 +64,16 @@ async function loadServices() {
         servicesData = data;
         
         const serviceSelect = document.getElementById('serviceType');
-        serviceSelect.innerHTML = '<option value="">-- Select Service --</option>';
-        
-        data.forEach(service => {
-            const option = document.createElement('option');
-            option.value = service.id;
-            option.textContent = service.service_name;
-            serviceSelect.appendChild(option);
-        });
+        if (serviceSelect) {
+            serviceSelect.innerHTML = '<option value="">-- Select Service --</option>';
+            
+            data.forEach(service => {
+                const option = document.createElement('option');
+                option.value = service.id;
+                option.textContent = service.service_name;
+                serviceSelect.appendChild(option);
+            });
+        }
         
     } catch (error) {
         console.error('Error loading services:', error);
@@ -77,77 +81,152 @@ async function loadServices() {
 }
 
 // When service is selected, populate rate
-document.getElementById('serviceType')?.addEventListener('change', function() {
-    const serviceId = this.value;
-    const service = servicesData.find(s => s.id === serviceId);
-    
-    if (service) {
-        document.getElementById('serviceRate').value = service.base_rate || 0;
-    } else {
-        document.getElementById('serviceRate').value = '';
-    }
-});
+if (document.getElementById('serviceType')) {
+    document.getElementById('serviceType').addEventListener('change', function() {
+        const serviceId = this.value;
+        const service = servicesData.find(s => s.id === serviceId);
+        
+        if (service) {
+            document.getElementById('serviceRate').value = service.base_rate || 0;
+        } else {
+            document.getElementById('serviceRate').value = '';
+        }
+    });
+}
 
 // Check mobile number for existing customer
-document.getElementById('customerMobile')?.addEventListener('blur', async function() {
-    const mobile = this.value;
-    
-    if (mobile.length === 10) {
-        try {
-            const { data, error } = await supabase
-                .from('customers')
-                .select('*')
-                .eq('mobile_no', mobile)
-                .single();
-            
-            if (data) {
-                // Customer exists - auto-fill
-                document.getElementById('customerName').value = data.full_name;
-                document.getElementById('customerEmail').value = data.email || '';
-                document.getElementById('customerGSTIN').value = data.gstin || '';
-                document.getElementById('customerAddress').value = data.address || '';
+if (document.getElementById('customerMobile')) {
+    document.getElementById('customerMobile').addEventListener('blur', async function() {
+        const mobile = this.value;
+        
+        if (mobile.length === 10) {
+            try {
+                const { data, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('mobile_no', mobile)
+                    .single();
                 
-                showAlert('Customer found! Details auto-filled.', 'success');
+                if (data) {
+                    // Customer exists - auto-fill
+                    document.getElementById('customerName').value = data.full_name;
+                    document.getElementById('customerEmail').value = data.email || '';
+                    document.getElementById('customerGSTIN').value = data.gstin || '';
+                    document.getElementById('customerAddress').value = data.address || '';
+                    
+                    showAlert('Customer found! Details auto-filled.', 'success');
+                }
+            } catch (error) {
+                // Customer not found - that's okay
+                console.log('New customer');
             }
-        } catch (error) {
-            // Customer not found - that's okay
-            console.log('New customer');
         }
-    }
-});
+    });
+}
 
 // Add service to list
 function addService() {
     const serviceId = document.getElementById('serviceType').value;
-    const quantity = parseInt(document.getElementById('serviceQuantity').value);
-    const rate = parseFloat(document.getElementById('serviceRate').value);
+    const quantityInput = document.getElementById('serviceQuantity').value;
+    const rateInput = document.getElementById('serviceRate').value;
     
     if (!serviceId) {
         showAlert('Please select a service', 'error');
         return;
     }
     
+    const service = servicesData.find(s => s.id === serviceId);
+    let quantity = parseInt(quantityInput) || 1;
+    let rate = parseFloat(rateInput) || 0;
+    
     if (quantity < 1) {
         showAlert('Quantity must be at least 1', 'error');
         return;
     }
     
-    const service = servicesData.find(s => s.id === serviceId);
-    const amount = quantity * rate;
-    const gstAmount = (amount * service.gst_percentage) / 100;
-    const totalAmount = amount + gstAmount;
+    // Handle services that require manual amount input
+    if (service.requires_manual_amount && rate === 0) {
+        const manualRate = window.prompt(`Enter the service fee amount for ${service.service_name}:`);
+        if (manualRate === null || manualRate === '' || parseFloat(manualRate) <= 0) {
+            showAlert('Please enter a valid amount', 'error');
+            return;
+        }
+        rate = parseFloat(manualRate);
+    }
     
-    selectedServices.push({
-        id: serviceId,
+    // Create service items array
+    let itemsToAdd = [];
+    
+    // If service has government fee
+    if (service.has_government_fee) {
+        let govFeeAmount = service.government_fee_amount;
+        
+        // If government fee needs to be entered manually
+        if (service.requires_manual_amount && govFeeAmount === 0) {
+            const govFee = window.prompt(`Enter the Government/Statutory fee for ${service.service_name}:`);
+            if (govFee !== null && govFee !== '') {
+                govFeeAmount = parseFloat(govFee);
+            }
+        }
+        
+        // Add government fee as first item (if amount > 0)
+        if (govFeeAmount > 0) {
+            itemsToAdd.push({
+                id: serviceId + '_gov_' + Date.now(),
+                name: getGovernmentFeeName(service.service_name),
+                sac_code: 'N/A',
+                quantity: quantity,
+                rate: govFeeAmount,
+                gst_percentage: 0,
+                amount: govFeeAmount * quantity,
+                gst_amount: 0,
+                total: govFeeAmount * quantity,
+                is_government_fee: true
+            });
+        }
+    }
+    
+    // Add main service
+    const serviceAmount = quantity * rate;
+    const gstAmount = (serviceAmount * service.gst_percentage) / 100;
+    const totalAmount = serviceAmount + gstAmount;
+    
+    itemsToAdd.push({
+        id: serviceId + '_' + Date.now(),
         name: service.service_name,
         sac_code: service.sac_code,
         quantity: quantity,
         rate: rate,
         gst_percentage: service.gst_percentage,
-        amount: amount,
+        amount: serviceAmount,
         gst_amount: gstAmount,
-        total: totalAmount
+        total: totalAmount,
+        is_government_fee: false
     });
+    
+    // For Affidavit/Application and Deed Writing - add document handling fee
+    const serviceNameLower = service.service_name.toLowerCase();
+    if (serviceNameLower.includes('affidavit') || serviceNameLower.includes('deed')) {
+        const handlingFee = window.prompt(`Enter the Document Handling/Processing Fee (without GST):`);
+        if (handlingFee !== null && handlingFee !== '' && parseFloat(handlingFee) > 0) {
+            const handlingAmount = parseFloat(handlingFee) * quantity;
+            itemsToAdd.push({
+                id: serviceId + '_handling_' + Date.now(),
+                name: 'Document Handling / Processing Fee',
+                sac_code: 'N/A',
+                quantity: quantity,
+                rate: parseFloat(handlingFee),
+                gst_percentage: 0,
+                amount: handlingAmount,
+                gst_amount: 0,
+                total: handlingAmount,
+                is_government_fee: false
+            });
+        }
+    }
+    
+    // Add all items to selected services
+    itemsToAdd.forEach(item => selectedServices.push(item));
     
     displaySelectedServices();
     
@@ -155,6 +234,25 @@ function addService() {
     document.getElementById('serviceType').value = '';
     document.getElementById('serviceQuantity').value = 1;
     document.getElementById('serviceRate').value = '';
+}
+
+// Helper function to get government fee name
+function getGovernmentFeeName(serviceName) {
+    const feeNames = {
+        'Aadhaar Pan Linking': 'Government Fee (Paid to Income Tax Dept.)',
+        'Pan Card and Others': 'Government Fee (Paid to Income Tax Dept.)',
+        'Registration Fees': 'Government Fee (Paid to IG of Registration)',
+        'Driving Licence': 'Government Fee',
+        'E-Stamping': 'E-Stamp Paper Fees',
+        'Jamabandi': 'Government Statutory Fee',
+        'Online Certificates': 'Government Statutory Fee',
+        'Online Internet Services': 'Statutory Fee',
+        'Nepal Money Transfer': 'Remitted Money',
+        'Affidavit/Application': 'Affidavit/Application Typing',
+        'Deed Writing': 'Deed Typing'
+    };
+    
+    return feeNames[serviceName] || 'Government Fee';
 }
 
 // Display selected services
@@ -319,7 +417,7 @@ async function saveInvoice() {
         if (invoiceError) throw invoiceError;
         
         // Save invoice items
-        const items = selectedServices.map(service => ({
+        const items = selectedServices.map((service, index) => ({
             invoice_id: invoiceData.id,
             description: service.name,
             sac_code: service.sac_code,
@@ -380,10 +478,12 @@ function clearForm() {
 // Show alert
 function showAlert(message, type) {
     const container = document.getElementById('alertContainer');
-    container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
-    setTimeout(() => {
-        container.innerHTML = '';
-    }, 5000);
+    if (container) {
+        container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        setTimeout(() => {
+            container.innerHTML = '';
+        }, 5000);
+    }
 }
 
 // Load dashboard stats
@@ -394,14 +494,20 @@ async function loadDashboardStats() {
             .from('invoices')
             .select('*', { count: 'exact', head: true });
         
-        document.getElementById('totalInvoices').textContent = invoiceCount || 0;
+        const totalInvoicesElement = document.getElementById('totalInvoices');
+        if (totalInvoicesElement) {
+            totalInvoicesElement.textContent = invoiceCount || 0;
+        }
         
         // Total customers
         const { count: customerCount } = await supabase
             .from('customers')
             .select('*', { count: 'exact', head: true });
         
-        document.getElementById('totalCustomers').textContent = customerCount || 0;
+        const totalCustomersElement = document.getElementById('totalCustomers');
+        if (totalCustomersElement) {
+            totalCustomersElement.textContent = customerCount || 0;
+        }
         
         // Total revenue and GST
         const { data: invoices } = await supabase
@@ -418,8 +524,15 @@ async function loadDashboardStats() {
             });
         }
         
-        document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
-        document.getElementById('gstCollected').textContent = '₹' + totalGST.toFixed(2);
+        const totalRevenueElement = document.getElementById('totalRevenue');
+        if (totalRevenueElement) {
+            totalRevenueElement.textContent = '₹' + totalRevenue.toFixed(2);
+        }
+        
+        const gstCollectedElement = document.getElementById('gstCollected');
+        if (gstCollectedElement) {
+            gstCollectedElement.textContent = '₹' + totalGST.toFixed(2);
+        }
         
     } catch (error) {
         console.error('Error loading stats:', error);
@@ -437,6 +550,7 @@ async function loadCustomers() {
         if (error) throw error;
         
         const table = document.getElementById('customersTable');
+        if (!table) return;
         
         if (!data || data.length === 0) {
             table.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 30px;">No customers yet</td></tr>';
