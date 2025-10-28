@@ -1274,7 +1274,16 @@
                 successDiv.classList.add('show');
                 successDiv.textContent = '✓ Login successful! Redirecting...';
 
+                // SAVE TO dreamHarbourUser (your existing storage)
                 localStorage.setItem('dreamHarbourUser', JSON.stringify({
+                    id: data.id,
+                    phone: data.phone_number,
+                    name: data.full_name,
+                    role: data.role
+                }));
+
+                // SAVE TO userSession (what dashboard.html needs)
+                localStorage.setItem('userSession', JSON.stringify({
                     id: data.id,
                     phone: data.phone_number,
                     name: data.full_name,
@@ -1289,6 +1298,7 @@
                 announcement.style.left = '-10000px';
                 document.body.appendChild(announcement);
 
+                // REDIRECT TO DASHBOARD
                 setTimeout(() => {
                     window.location.href = 'dashboard.html';
                 }, 1500);
@@ -1313,8 +1323,10 @@
 
                 if (!error && data && data.length > 0) {
                     const servicesList = document.getElementById('servicesList');
-                    const items = data.map(service => `<li role="listitem">✓ ${service.service_name}</li>`).join('');
-                    servicesList.innerHTML = items;
+                    if (servicesList) {
+                        const items = data.map(service => `<li role="listitem">✓ ${service.service_name}</li>`).join('');
+                        servicesList.innerHTML = items;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading services:', error);
