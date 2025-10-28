@@ -3,208 +3,1454 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Login</title>
+    <title>Dream Harbour - Professional Billing System</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
+        :root {
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --error-light: #fee2e2;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --white: #ffffff;
+            --dark-bg: #111827;
+            --dark-card: #1f2937;
+            --dark-text: #e5e7eb;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 20px;
+            transition: background 0.4s ease;
         }
-        
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+        body.dark-mode {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-card) 100%);
+        }
+
+        .top-controls {
+            position: fixed;
+            top: 20px;
             width: 100%;
-            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
         }
-        
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .logo h1 {
-            color: #1e40af;
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-        
-        .logo p {
-            color: #6b7280;
+
+        .language-selector {
+            background: var(--white);
+            border: 2px solid var(--primary);
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        
+
+        .language-selector:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-mode .language-selector {
+            background: var(--dark-card);
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .theme-toggle {
+            background: var(--white);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(20deg);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: var(--dark-card);
+            color: var(--warning);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            max-width: 1000px;
+            width: 100%;
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+            margin-top: 60px;
+        }
+
+        body.dark-mode .container {
+            background: var(--dark-card);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -150px;
+            right: -150px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            bottom: -100px;
+            left: -100px;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            animation: slideInLeft 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .logo-svg {
+            width: 70px;
+            height: 70px;
+            animation: rotate 30s linear infinite;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .logo-text {
+            font-size: 32px;
+            font-weight: 700;
+            animation: pulse 2s ease-in-out infinite;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 16px;
+            opacity: 0.95;
+            margin-bottom: 40px;
+            animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: 0.5px;
+        }
+
+        .services-section {
+            animation: slideInLeft 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .services-section h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            opacity: 0.85;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .services-list {
+            list-style: none;
+        }
+
+        .services-list li {
+            padding: 10px 0;
+            font-size: 14px;
+            opacity: 0.9;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            padding-left: 0;
+        }
+
+        .services-list li:hover {
+            opacity: 1;
+            padding-left: 15px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .services-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            transition: width 0.3s ease;
+        }
+
+        .services-list li:hover::before {
+            width: 8px;
+        }
+
+        .form-section {
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            background: var(--white);
+            transition: background 0.3s ease;
+            overflow-y: auto;
+            max-height: 85vh;
+        }
+
+        body.dark-mode .form-section {
+            background: var(--dark-card);
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+            border-radius: 50%;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-header h1 {
+            font-size: 28px;
+            color: var(--primary);
+            margin-bottom: 8px;
+            animation: slideInRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            letter-spacing: -0.5px;
+        }
+
+        body.dark-mode .form-header h1 {
+            color: var(--primary-light);
+        }
+
+        .form-header p {
+            color: var(--gray);
+            font-size: 14px;
+            animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body.dark-mode .form-header p {
+            color: var(--dark-text);
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            animation: slideInRight 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gray-light);
+            z-index: 0;
+        }
+
+        body.dark-mode .step-indicator::before {
+            background: #374151;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: var(--gray);
+            position: relative;
+            z-index: 1;
+        }
+
+        body.dark-mode .step {
+            color: var(--dark-text);
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background: var(--gray-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: var(--gray);
+        }
+
+        body.dark-mode .step-number {
+            background: #374151;
+            color: var(--dark-text);
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--white);
+            transform: scale(1.15) rotate(360deg);
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+        }
+
+        .step.completed .step-number {
+            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+            color: var(--white);
+            animation: checkmark 0.5s ease;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
         .form-group {
             margin-bottom: 20px;
+            animation: slideInRight 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            z-index: 1;
         }
-        
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             color: #374151;
             font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        
-        .form-group input {
+
+        body.dark-mode .form-group label {
+            color: var(--dark-text);
+        }
+
+        .form-group input,
+        .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
             font-size: 16px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: var(--white);
+            color: #1f2937;
+            position: relative;
         }
-        
-        .form-group input:focus {
+
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group select {
+            background: #374151;
+            border-color: #4b5563;
+            color: var(--dark-text);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
-            border-color: #1e40af;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.15), 0 4px 12px rgba(30, 64, 175, 0.2);
+            transform: translateY(-3px);
         }
-        
-        .login-btn {
+
+        .form-group input:hover:not(:focus),
+        .form-group select:hover:not(:focus) {
+            border-color: var(--primary-light);
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
+        }
+
+        .validation-feedback {
+            font-size: 12px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 20px;
+        }
+
+        .validation-feedback.valid {
+            color: var(--success);
+        }
+
+        .validation-feedback.invalid {
+            color: var(--error);
+        }
+
+        .validation-feedback.warning {
+            color: var(--warning);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 14px;
+            color: var(--gray);
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: normal;
+            font-weight: 400;
+        }
+
+        body.dark-mode .checkbox-group label {
+            color: var(--dark-text);
+        }
+
+        .forgot-pin-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-pin-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        body.dark-mode .forgot-pin-link {
+            color: var(--primary-light);
+        }
+
+        .btn-login {
             width: 100%;
             padding: 14px;
-            background: #1e40af;
-            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--white);
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: 10px;
+            animation: slideInRight 1.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
         }
-        
-        .login-btn:hover {
-            background: #1e3a8a;
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s ease;
         }
-        
-        .error-message {
-            display: none;
-            margin-top: 15px;
-            padding: 12px;
-            background: #fee2e2;
-            border: 1px solid #ef4444;
-            border-radius: 6px;
-            color: #dc2626;
+
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.35);
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-login.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-login.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--white);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @keyframes spin {
+            to { transform: translateY(-50%) rotate(360deg); }
+        }
+
+        .error-message,
+        .success-message,
+        .warning-message {
+            padding: 14px;
+            border-radius: 8px;
             font-size: 14px;
+            margin-top: 15px;
+            display: none;
+            animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 500;
+            border-left: 4px solid;
+            position: relative;
+            z-index: 1;
         }
-        
-        .security-note {
+
+        .error-message.show {
+            display: block;
+            background: var(--error-light);
+            border-color: var(--error);
+            color: #7f1d1d;
+        }
+
+        body.dark-mode .error-message.show {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+        }
+
+        .success-message.show {
+            display: block;
+            background: var(--success-light);
+            border-color: var(--success);
+            color: #065f46;
+        }
+
+        body.dark-mode .success-message.show {
+            background: rgba(16, 185, 129, 0.1);
+            color: #6ee7b7;
+        }
+
+        .warning-message.show {
+            display: block;
+            background: var(--warning-light);
+            border-color: var(--warning);
+            color: #78350f;
+        }
+
+        body.dark-mode .warning-message.show {
+            background: rgba(245, 158, 11, 0.1);
+            color: #fbbf24;
+        }
+
+        .error-code {
+            font-size: 11px;
+            font-family: monospace;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             margin-top: 20px;
-            text-align: center;
-            color: #6b7280;
-            font-size: 12px;
+            padding: 12px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 13px;
+            animation: slideInRight 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid #bfdbfe;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        body.dark-mode .security-badge {
+            background: rgba(30, 64, 175, 0.1);
+            border-color: var(--primary-light);
+            color: var(--primary-light);
+        }
+
+        .security-badge:hover {
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .security-badge svg {
+            width: 18px;
+            height: 18px;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body.dark-mode .modal-content {
+            background: var(--dark-card);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .modal-header {
+            color: var(--primary-light);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+            color: var(--error);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; text-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+            50% { opacity: 0.95; text-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                margin-top: 100px;
+            }
+
+            .hero {
+                padding: 30px;
+            }
+
+            .form-section {
+                padding: 30px;
+            }
+
+            .services-section {
+                display: none;
+            }
+
+            .logo-svg {
+                width: 50px;
+                height: 50px;
+            }
+
+            .logo-text {
+                font-size: 24px;
+            }
+
+            .top-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .language-selector,
+            .theme-toggle {
+                width: 100%;
+                max-width: 150px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .step-2-form,
+        .forgot-pin-form {
+            display: none;
+        }
+
+        .step-2-form.active,
+        .forgot-pin-form.active {
+            display: block;
+        }
+
+        .step-1-form.inactive {
+            display: none;
+        }
+
+        .g-recaptcha {
+            margin: 20px 0 !important;
+            transform: scale(0.9) !important;
+            transform-origin: 0 0 !important;
+            animation: fadeIn 0.5s ease 0.5s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .language-options {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            background: var(--white);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+
+        body.dark-mode .language-options {
+            background: var(--dark-card);
+            border-color: var(--primary-light);
+        }
+
+        .language-options.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .language-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--gray-light);
+            transition: all 0.2s ease;
+        }
+
+        body.dark-mode .language-option {
+            border-bottom-color: #374151;
+        }
+
+        .language-option:last-child {
+            border-bottom: none;
+        }
+
+        .language-option:hover {
+            background: #f3f4f6;
+            padding-left: 24px;
+        }
+
+        body.dark-mode .language-option:hover {
+            background: #374151;
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <div class="logo">
-            <h1>🌊 Dream Harbour</h1>
-            <p>Professional Billing System</p>
+    <!-- Top Controls -->
+    <div class="top-controls">
+        <div style="position: relative;">
+            <button class="language-selector" onclick="toggleLanguageMenu()" aria-label="Select language" aria-haspopup="menu">
+                <span id="langDisplay">🇬🇧 English</span>
+            </button>
+            <div class="language-options" id="languageMenu" role="menu">
+                <div class="language-option" onclick="switchLanguage('en')" role="menuitem">🇬🇧 English</div>
+                <div class="language-option" onclick="switchLanguage('hi')" role="menuitem">🇮🇳 हिंदी</div>
+            </div>
         </div>
-        
-        <form id="loginForm">
-            <div class="form-group">
-                <label>Mobile Number</label>
-                <input 
-                    type="text" 
-                    id="phoneNumber" 
-                    placeholder="Enter 10-digit mobile number"
-                    maxlength="10"
-                    required
-                >
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
+    </div>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="logo-container">
+                    <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="Dream Harbour logo">
+                        <defs>
+                            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:white;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#bfdbfe;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Background Circle -->
+                        <circle cx="60" cy="60" r="55" fill="none" stroke="url(#waveGradient)" stroke-width="2" opacity="0.3"/>
+                        
+                        <!-- Document shape -->
+                        <rect x="35" y="25" width="50" height="70" rx="4" fill="none" stroke="white" stroke-width="2.5" filter="url(#shadow)"/>
+                        
+                        <!-- Document lines -->
+                        <line x1="42" y1="35" x2="78" y2="35" stroke="white" stroke-width="2" opacity="0.8"/>
+                        <line x1="42" y1="45" x2="78" y2="45" stroke="white" stroke-width="2" opacity="0.8"/>
+                        <line x1="42" y1="55" x2="65" y2="55" stroke="white" stroke-width="2" opacity="0.8"/>
+                        
+                        <!-- Waves at bottom -->
+                        <path d="M 35 65 Q 45 60, 55 65 T 75 65 T 95 65" fill="none" stroke="url(#waveGradient)" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+                        <path d="M 30 75 Q 40 70, 50 75 T 70 75 T 90 75" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+                        
+                        <!-- Checkmark for success -->
+                        <path d="M 55 85 L 62 92 L 75 79" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+                    </svg>
+                    <span class="logo-text">Dream Harbour</span>
+                </div>
+                <p class="tagline" data-en="Professional Billing & Invoicing System" data-hi="व्यावसायिक बिलिंग और इनवॉइसिंग प्रणाली">
+                    Professional Billing & Invoicing System
+                </p>
+                <div class="services-section">
+                    <h3 data-en="Our Services" data-hi="हमारी सेवाएं">Our Services</h3>
+                    <ul class="services-list" id="servicesList">
+                        <li data-en="Document Services" data-hi="दस्तावेज़ सेवाएं">📄 Document Services</li>
+                        <li data-en="GST Compliance" data-hi="GST अनुपालन">💼 GST Compliance</li>
+                        <li data-en="Invoice Management" data-hi="चालान प्रबंधन">📊 Invoice Management</li>
+                        <li data-en="Customer Portal" data-hi="ग्राहक पोर्टल">👥 Customer Portal</li>
+                        <li data-en="Reports & Analytics" data-hi="रिपोर्ट और विश्लेषण">📈 Reports & Analytics</li>
+                    </ul>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label>PIN</label>
-                <input 
-                    type="password" 
-                    id="pin" 
-                    placeholder="Enter 6-digit PIN"
-                    maxlength="6"
-                    required
-                >
+        </div>
+
+        <!-- Login Form Section -->
+        <div class="form-section">
+            <div class="form-header">
+                <h1 data-en="Welcome Back" data-hi="वापसी पर स्वागत है">Welcome Back</h1>
+                <p data-en="Sign in to access your account" data-hi="अपने खाते तक पहुँचने के लिए साइन इन करें">Sign in to access your account</p>
             </div>
-            
-            <button type="submit" class="login-btn">Sign In</button>
-            
-            <div id="errorMessage" class="error-message"></div>
-        </form>
-        
-        <div class="security-note">
-            🔒 Your data is encrypted and secure
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1Indicator">
+                    <div class="step-number">1</div>
+                    <span data-en="Phone" data-hi="फोन">Phone</span>
+                </div>
+                <div class="step" id="step2Indicator">
+                    <div class="step-number">2</div>
+                    <span data-en="PIN" data-hi="पिन">PIN</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Phone Number -->
+            <form id="step1Form" class="step-1-form" onsubmit="nextStep(event)" novalidate>
+                <div class="form-group">
+                    <label for="phoneNumber" data-en="Mobile Number" data-hi="मोबाइल नंबर">Mobile Number</label>
+                    <input 
+                        type="tel" 
+                        id="phoneNumber" 
+                        placeholder="10-digit number"
+                        data-placeholder-en="10-digit number"
+                        data-placeholder-hi="10 अंकों की संख्या"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        required
+                        aria-label="Mobile number input"
+                        aria-describedby="phoneValidation"
+                        oninput="validatePhone()"
+                    >
+                    <div class="validation-feedback" id="phoneValidation"></div>
+                </div>
+
+                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" aria-label="reCAPTCHA verification"></div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rememberMe" aria-label="Remember my mobile number">
+                    <label for="rememberMe" data-en="Remember me" data-hi="मुझे याद रखें">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn-login" data-en="Next" data-hi="अगला">Next</button>
+                <div class="error-message" id="step1Error" role="alert"></div>
+            </form>
+
+            <!-- Step 2: PIN -->
+            <form id="step2Form" class="step-2-form" onsubmit="handleLogin(event)" novalidate>
+                <div class="form-group">
+                    <label for="pin" data-en="Security PIN" data-hi="सुरक्षा पिन">Security PIN</label>
+                    <input 
+                        type="password" 
+                        id="pin" 
+                        placeholder="6-digit PIN"
+                        data-placeholder-en="6-digit PIN"
+                        data-placeholder-hi="6 अंकों का पिन"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        required
+                        aria-label="Security PIN input"
+                        aria-describedby="pinValidation"
+                        oninput="validatePin()"
+                    >
+                    <div class="validation-feedback" id="pinValidation"></div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn-login" style="flex: 1; background: var(--gray);" onclick="backStep()" data-en="Back" data-hi="वापस">Back</button>
+                    <button type="submit" class="btn-login" style="flex: 1;" data-en="Sign In" data-hi="साइन इन करें">Sign In</button>
+                </div>
+
+                <div class="forgot-pin-link" onclick="showForgotPinModal()" role="button" tabindex="0" data-en="Forgot PIN?" data-hi="पिन भूल गए?">Forgot PIN?</div>
+                <div class="error-message" id="step2Error" role="alert"></div>
+                <div class="success-message" id="successMessage" role="status"></div>
+            </form>
+
+            <!-- Forgot PIN Form -->
+            <form id="forgotPinForm" class="forgot-pin-form" onsubmit="handleForgotPin(event)" novalidate>
+                <div class="form-group">
+                    <label for="forgotPhone" data-en="Mobile Number" data-hi="मोबाइल नंबर">Mobile Number</label>
+                    <input 
+                        type="tel" 
+                        id="forgotPhone" 
+                        placeholder="10-digit number"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        required
+                        aria-label="Mobile number for PIN recovery"
+                    >
+                </div>
+
+                <button type="submit" class="btn-login" data-en="Send Recovery Code" data-hi="रिकवरी कोड भेजें">Send Recovery Code</button>
+                <div class="error-message" id="forgotPinError" role="alert"></div>
+                <div class="success-message" id="forgotPinSuccess" role="status"></div>
+            </form>
+
+            <div class="security-badge" aria-label="Security information">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                </svg>
+                <span data-en="Your data is encrypted and secure" data-hi="आपका डेटा एन्क्रिप्ट और सुरक्षित है">Your data is encrypted and secure</span>
+            </div>
         </div>
     </div>
-    
+
+    <!-- Forgot PIN Modal -->
+    <div class="modal" id="forgotPinModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeForgotPinModal()" aria-label="Close modal">&times;</button>
+            <div class="modal-header" data-en="Recover Your PIN" data-hi="अपना पिन पुनः प्राप्त करें">Recover Your PIN</div>
+            <form onsubmit="sendRecoveryCode(event)">
+                <div class="form-group">
+                    <label for="recoveryPhone" data-en="Enter your registered mobile number" data-hi="अपना पंजीकृत मोबाइल नंबर दर्ज करें">Enter your registered mobile number</label>
+                    <input 
+                        type="tel" 
+                        id="recoveryPhone" 
+                        maxlength="10" 
+                        pattern="[0-9]{10}"
+                        placeholder="10-digit number"
+                        required
+                    >
+                </div>
+                <button type="submit" class="btn-login" data-en="Send Code" data-hi="कोड भेजें">Send Code</button>
+            </form>
+            <div class="error-message" id="recoveryError" role="alert"></div>
+            <div class="success-message" id="recoverySuccess" role="status"></div>
+        </div>
+    </div>
+
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Supabase configuration
         const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-        
+
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        // Handle login form
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
+
+        // Language translations
+        const translations = {
+            en: {
+                'Professional Billing & Invoicing System': 'Professional Billing & Invoicing System',
+                'Our Services': 'Our Services',
+                'Document Services': 'Document Services',
+                'GST Compliance': 'GST Compliance',
+                'Invoice Management': 'Invoice Management',
+                'Customer Portal': 'Customer Portal',
+                'Reports & Analytics': 'Reports & Analytics',
+                'Welcome Back': 'Welcome Back',
+                'Sign in to access your account': 'Sign in to access your account',
+                'Phone': 'Phone',
+                'PIN': 'PIN',
+                'Mobile Number': 'Mobile Number',
+                '10-digit number': '10-digit number',
+                'Remember me': 'Remember me',
+                'Next': 'Next',
+                'Security PIN': 'Security PIN',
+                '6-digit PIN': '6-digit PIN',
+                'Back': 'Back',
+                'Sign In': 'Sign In',
+                'Forgot PIN?': 'Forgot PIN?',
+                'Your data is encrypted and secure': 'Your data is encrypted and secure',
+                'Recover Your PIN': 'Recover Your PIN',
+                'Enter your registered mobile number': 'Enter your registered mobile number',
+                'Send Code': 'Send Code',
+                'Send Recovery Code': 'Send Recovery Code',
+            },
+            hi: {
+                'Professional Billing & Invoicing System': 'व्यावसायिक बिलिंग और इनवॉइसिंग प्रणाली',
+                'Our Services': 'हमारी सेवाएं',
+                'Document Services': 'दस्तावेज़ सेवाएं',
+                'GST Compliance': 'GST अनुपालन',
+                'Invoice Management': 'चालान प्रबंधन',
+                'Customer Portal': 'ग्राहक पोर्टल',
+                'Reports & Analytics': 'रिपोर्ट और विश्लेषण',
+                'Welcome Back': 'वापसी पर स्वागत है',
+                'Sign in to access your account': 'अपने खाते तक पहुँचने के लिए साइन इन करें',
+                'Phone': 'फोन',
+                'PIN': 'पिन',
+                'Mobile Number': 'मोबाइल नंबर',
+                '10-digit number': '10 अंकों की संख्या',
+                'Remember me': 'मुझे याद रखें',
+                'Next': 'अगला',
+                'Security PIN': 'सुरक्षा पिन',
+                '6-digit PIN': '6 अंकों का पिन',
+                'Back': 'वापस',
+                'Sign In': 'साइन इन करें',
+                'Forgot PIN?': 'पिन भूल गए?',
+                'Your data is encrypted and secure': 'आपका डेटा एन्क्रिप्ट और सुरक्षित है',
+                'Recover Your PIN': 'अपना पिन पुनः प्राप्त करें',
+                'Enter your registered mobile number': 'अपना पंजीकृत मोबाइल नंबर दर्ज करें',
+                'Send Code': 'कोड भेजें',
+                'Send Recovery Code': 'रिकवरी कोड भेजें',
+            }
+        };
+
+        let currentLanguage = localStorage.getItem('dreamHarbourLanguage') || 'en';
+        let isDarkMode = localStorage.getItem('dreamHarbourDarkMode') === 'true';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initLanguage();
+            loadRememberedPhone();
+            loadDynamicServices();
+        });
+
+        // Dark Mode
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('dreamHarbourDarkMode', isDarkMode);
+            applyTheme();
+        }
+
+        function initTheme() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').textContent = '🌙';
+            }
+        }
+
+        function applyTheme() {
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.theme-toggle').textContent = '🌙';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.querySelector('.theme-toggle').textContent = '☀️';
+            }
+        }
+
+        // Language
+        function toggleLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            menu.classList.toggle('show');
+        }
+
+        function switchLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('dreamHarbourLanguage', lang);
+            document.getElementById('languageMenu').classList.remove('show');
+            applyLanguage();
+            updateLanguageDisplay();
+        }
+
+        function updateLanguageDisplay() {
+            const display = document.getElementById('langDisplay');
+            if (currentLanguage === 'en') {
+                display.textContent = '🇬🇧 English';
+            } else {
+                display.textContent = '🇮🇳 हिंदी';
+            }
+        }
+
+        function initLanguage() {
+            updateLanguageDisplay();
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                if (el.tagName === 'INPUT') {
+                    const key = el.getAttribute(`data-placeholder-${currentLanguage}`);
+                    el.placeholder = key || el.getAttribute('data-placeholder-en');
+                } else {
+                    const key = el.getAttribute(`data-${currentLanguage}`);
+                    el.textContent = key || el.getAttribute('data-en');
+                }
+            });
+        }
+
+        // Validation
+        function validatePhone() {
+            const phone = document.getElementById('phoneNumber').value;
+            const feedback = document.getElementById('phoneValidation');
+
+            if (!phone) {
+                feedback.textContent = '';
+                return;
+            }
+
+            if (phone.length < 10) {
+                feedback.className = 'validation-feedback invalid';
+                feedback.textContent = `❌ ${10 - phone.length} more digits needed`;
+            } else if (phone.length === 10) {
+                feedback.className = 'validation-feedback valid';
+                feedback.textContent = '✓ Valid phone number';
+            }
+        }
+
+        function validatePin() {
+            const pin = document.getElementById('pin').value;
+            const feedback = document.getElementById('pinValidation');
+
+            if (!pin) {
+                feedback.textContent = '';
+                return;
+            }
+
+            if (pin.length < 6) {
+                feedback.className = 'validation-feedback invalid';
+                feedback.textContent = `❌ ${6 - pin.length} more digits needed`;
+            } else if (pin.length === 6) {
+                feedback.className = 'validation-feedback valid';
+                feedback.textContent = '✓ Valid PIN';
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeForgotPinModal();
+            }
+            if (e.key === 'Enter') {
+                const forgotForm = document.getElementById('forgotPinForm');
+                if (forgotForm.classList.contains('active')) {
+                    e.preventDefault();
+                    handleForgotPin(e);
+                }
+            }
+        });
+
+        // Remember me
+        function loadRememberedPhone() {
+            const remembered = localStorage.getItem('dreamHarbourRememberedPhone');
+            const checkbox = document.getElementById('rememberMe');
+            if (remembered) {
+                document.getElementById('phoneNumber').value = remembered;
+                checkbox.checked = true;
+                validatePhone();
+            }
+        }
+
+        function saveRememberedPhone(phone) {
+            if (document.getElementById('rememberMe').checked) {
+                localStorage.setItem('dreamHarbourRememberedPhone', phone);
+            } else {
+                localStorage.removeItem('dreamHarbourRememberedPhone');
+            }
+        }
+
+        // Forgot PIN
+        function showForgotPinModal() {
+            document.getElementById('forgotPinModal').classList.add('show');
+            document.getElementById('forgotPinForm').classList.add('active');
+        }
+
+        function closeForgotPinModal() {
+            document.getElementById('forgotPinModal').classList.remove('show');
+            document.getElementById('forgotPinForm').classList.remove('active');
+        }
+
+        function sendRecoveryCode(event) {
+            event.preventDefault();
+            const phone = document.getElementById('recoveryPhone').value;
+            const successDiv = document.getElementById('recoverySuccess');
+            const errorDiv = document.getElementById('recoveryError');
+
+            if (phone.length !== 10) {
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ Invalid phone number (E002)<br><span class="error-code">Error Code: E002</span>`;
+                return;
+            }
+
+            // Simulate sending recovery code
+            errorDiv.classList.remove('show');
+            successDiv.classList.add('show');
+            successDiv.innerHTML = `✓ Recovery code sent to ${phone}<br><span class="error-code">A 6-digit code has been sent to your registered email</span>`;
+
+            setTimeout(() => {
+                closeForgotPinModal();
+                successDiv.classList.remove('show');
+            }, 3000);
+        }
+
+        function handleForgotPin(event) {
+            event.preventDefault();
+        }
+
+        // Login Steps
+        function nextStep(event) {
+            event.preventDefault();
+
+            const phone = document.getElementById('phoneNumber').value;
+            const errorDiv = document.getElementById('step1Error');
+
+            errorDiv.classList.remove('show');
+
+            if (!phone) {
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ Phone number is required (E001)<br><span class="error-code">Error Code: E001</span>`;
+                return;
+            }
+
+            if (phone.length !== 10) {
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ Invalid phone number format (E002)<br><span class="error-code">Error Code: E002</span>`;
+                return;
+            }
+
+            if (!phone.match(/^[0-9]{10}$/)) {
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ Only numbers allowed (E003)<br><span class="error-code">Error Code: E003</span>`;
+                return;
+            }
+
+            saveRememberedPhone(phone);
+
+            document.getElementById('step1Form').classList.add('inactive');
+            document.getElementById('step2Form').classList.add('active');
+
+            document.getElementById('step1Indicator').classList.add('completed');
+            document.getElementById('step2Indicator').classList.add('active');
+
+            document.getElementById('pin').focus();
+        }
+
+        function backStep() {
+            document.getElementById('step1Form').classList.remove('inactive');
+            document.getElementById('step2Form').classList.remove('active');
+
+            document.getElementById('step1Indicator').classList.remove('completed');
+            document.getElementById('step2Indicator').classList.remove('active');
+
+            document.getElementById('step2Error').classList.remove('show');
+            document.getElementById('phoneNumber').focus();
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
             const phone = document.getElementById('phoneNumber').value;
             const pin = document.getElementById('pin').value;
-            const errorDiv = document.getElementById('errorMessage');
-            
-            // Validate
-            if (phone.length !== 10) {
-                errorDiv.textContent = 'Please enter 10-digit mobile number';
-                errorDiv.style.display = 'block';
+            const errorDiv = document.getElementById('step2Error');
+            const successDiv = document.getElementById('successMessage');
+            const button = event.target.querySelector('button[type="submit"]');
+
+            errorDiv.classList.remove('show');
+            successDiv.classList.remove('show');
+
+            if (!pin) {
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ PIN is required (E004)<br><span class="error-code">Error Code: E004</span>`;
                 return;
             }
-            
+
             if (pin.length !== 6) {
-                errorDiv.textContent = 'Please enter 6-digit PIN';
-                errorDiv.style.display = 'block';
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ PIN must be exactly 6 digits (E005)<br><span class="error-code">Error Code: E005</span>`;
                 return;
             }
-            
-            // Try to login
+
+            button.disabled = true;
+            button.classList.add('loading');
+            button.textContent = 'Signing in...';
+
             try {
                 const { data, error } = await supabase
                     .from('users')
                     .select('*')
                     .eq('phone_number', phone)
                     .eq('pin', pin)
+                    .eq('is_active', true)
                     .single();
-                
+
                 if (error || !data) {
-                    errorDiv.textContent = 'Invalid mobile number or PIN';
-                    errorDiv.style.display = 'block';
+                    errorDiv.classList.add('show');
+                    errorDiv.innerHTML = `❌ Invalid phone or PIN (E006)<br><span class="error-code">Error Code: E006</span>`;
+                    button.disabled = false;
+                    button.classList.remove('loading');
+                    button.textContent = 'Sign In';
                     return;
                 }
-                
-                // Success! Save user data
+
+                successDiv.classList.add('show');
+                successDiv.textContent = '✓ Login successful! Redirecting...';
+
                 localStorage.setItem('dreamHarbourUser', JSON.stringify({
                     id: data.id,
-                    name: data.full_name,
                     phone: data.phone_number,
+                    name: data.full_name,
                     role: data.role
                 }));
-                
-                // Go to dashboard
-                window.location.href = 'dashboard.html';
-                
-            } catch (err) {
-                errorDiv.textContent = 'Error: ' + err.message;
-                errorDiv.style.display = 'block';
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                errorDiv.classList.add('show');
+                errorDiv.innerHTML = `❌ Connection error (E007)<br><span class="error-code">Error Code: E007</span>`;
+                button.disabled = false;
+                button.classList.remove('loading');
+                button.textContent = 'Sign In';
             }
-        });
+        }
+
+        // Load dynamic services
+        async function loadDynamicServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_types')
+                    .select('service_name')
+                    .limit(5);
+
+                if (!error && data && data.length > 0) {
+                    const servicesList = document.getElementById('servicesList');
+                    servicesList.innerHTML = data
+                        .map(service => `<li>✓ ${service.service_name}</li>`)
+                        .join('');
+                }
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
+        }
     </script>
 </body>
 </html>
