@@ -22,11 +22,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     await loadServices();
     await loadDashboardStats();
+    await loadCharts();
     await loadCustomers();
 });
 
 // Tab switching
-function showTab(tabName) {
+function showTab(tabName, element) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -41,8 +42,8 @@ function showTab(tabName) {
     document.getElementById(tabName).classList.add('active');
     
     // Activate nav button
-    if (event && event.target) {
-        event.target.classList.add('active');
+    if (element) {
+        element.classList.add('active');
     }
 }
 
@@ -88,13 +89,11 @@ if (document.getElementById('serviceType')) {
         const rateField = document.getElementById('serviceRate');
         
         if (service) {
-            // If service needs manual amount, leave field empty and editable
             if (service.requires_manual_amount) {
                 rateField.value = '';
                 rateField.placeholder = 'Enter amount';
                 rateField.readOnly = false;
             } else {
-                // Auto-populate for standard services
                 rateField.value = service.base_rate || 0;
                 rateField.readOnly = true;
             }
@@ -119,7 +118,6 @@ if (document.getElementById('customerMobile')) {
                     .single();
                 
                 if (data) {
-                    // Customer exists - auto-fill
                     document.getElementById('customerName').value = data.full_name;
                     document.getElementById('customerEmail').value = data.email || '';
                     document.getElementById('customerGSTIN').value = data.gstin || '';
@@ -128,7 +126,6 @@ if (document.getElementById('customerMobile')) {
                     showAlert('Customer found! Details auto-filled.', 'success');
                 }
             } catch (error) {
-                // Customer not found - that's okay
                 console.log('New customer');
             }
         }
@@ -155,46 +152,28 @@ function addService() {
         return;
     }
     
-    // Handle services that require manual amount input
     if (service.requires_manual_amount && rate === 0) {
-        showAlert('Please enter the service fee amount in "Rate per Unit" field', 'error');
+        showAlert('Please enter the amount in Rate field', 'error');
         return;
     }
-
     
-    // Create service items array
     let itemsToAdd = [];
     
-    // If service has government fee
-    if (service.has_government_fee) {
-        let govFeeAmount = service.government_fee_amount;
-        
-        // If government fee needs to be entered manually
-        if (service.requires_manual_amount && govFeeAmount === 0) {
-            const govFee = window.prompt(`Enter the Government/Statutory fee for ${service.service_name}:`);
-            if (govFee !== null && govFee !== '') {
-                govFeeAmount = parseFloat(govFee);
-            }
-        }
-        
-        // Add government fee as first item (if amount > 0)
-        if (govFeeAmount > 0) {
-            itemsToAdd.push({
-                id: serviceId + '_gov_' + Date.now(),
-                name: getGovernmentFeeName(service.service_name),
-                sac_code: 'N/A',
-                quantity: quantity,
-                rate: govFeeAmount,
-                gst_percentage: 0,
-                amount: govFeeAmount * quantity,
-                gst_amount: 0,
-                total: govFeeAmount * quantity,
-                is_government_fee: true
-            });
-        }
+    if (service.has_government_fee && service.government_fee_amount > 0) {
+        itemsToAdd.push({
+            id: serviceId + '_gov_' + Date.now(),
+            name: getGovernmentFeeName(service.service_name),
+            sac_code: 'N/A',
+            quantity: quantity,
+            rate: service.government_fee_amount,
+            gst_percentage: 0,
+            amount: service.government_fee_amount * quantity,
+            gst_amount: 0,
+            total: service.government_fee_amount * quantity,
+            is_government_fee: true
+        });
     }
     
-    // Add main service
     const serviceAmount = quantity * rate;
     const gstAmount = (serviceAmount * service.gst_percentage) / 100;
     const totalAmount = serviceAmount + gstAmount;
@@ -212,33 +191,10 @@ function addService() {
         is_government_fee: false
     });
     
-    // For Affidavit/Application and Deed Writing - add document handling fee
-    const serviceNameLower = service.service_name.toLowerCase();
-    if (serviceNameLower.includes('affidavit') || serviceNameLower.includes('deed')) {
-        const handlingFee = window.prompt(`Enter the Document Handling/Processing Fee (without GST):`);
-        if (handlingFee !== null && handlingFee !== '' && parseFloat(handlingFee) > 0) {
-            const handlingAmount = parseFloat(handlingFee) * quantity;
-            itemsToAdd.push({
-                id: serviceId + '_handling_' + Date.now(),
-                name: 'Document Handling / Processing Fee',
-                sac_code: 'N/A',
-                quantity: quantity,
-                rate: parseFloat(handlingFee),
-                gst_percentage: 0,
-                amount: handlingAmount,
-                gst_amount: 0,
-                total: handlingAmount,
-                is_government_fee: false
-            });
-        }
-    }
-    
-    // Add all items to selected services
     itemsToAdd.forEach(item => selectedServices.push(item));
     
     displaySelectedServices();
     
-    // Reset form
     document.getElementById('serviceType').value = '';
     document.getElementById('serviceQuantity').value = 1;
     document.getElementById('serviceRate').value = '';
@@ -318,7 +274,6 @@ function generateInvoice() {
         return;
     }
     
-    // Calculate totals
     let subtotal = 0;
     let totalGST = 0;
     
@@ -331,11 +286,9 @@ function generateInvoice() {
     const sgst = totalGST / 2;
     const grandTotal = subtotal + totalGST;
     
-    // Generate invoice number
     const invoiceNumber = 'DH-' + Date.now();
     const invoiceDate = new Date().toLocaleDateString('en-IN');
     
-    // Fill preview
     document.getElementById('invoiceNumber').textContent = invoiceNumber;
     document.getElementById('invoiceDate').textContent = invoiceDate;
     document.getElementById('previewCustomerName').textContent = name;
@@ -344,7 +297,6 @@ function generateInvoice() {
     document.getElementById('previewCustomerGSTIN').textContent = document.getElementById('customerGSTIN').value ? 'GSTIN: ' + document.getElementById('customerGSTIN').value : '';
     document.getElementById('previewCustomerAddress').textContent = document.getElementById('customerAddress').value || '';
     
-    // Fill items table
     let tableHTML = '';
     selectedServices.forEach((service, index) => {
         tableHTML += `
@@ -361,13 +313,11 @@ function generateInvoice() {
     });
     document.getElementById('invoiceItemsTable').innerHTML = tableHTML;
     
-    // Fill totals
     document.getElementById('previewSubtotal').textContent = '₹' + subtotal.toFixed(2);
     document.getElementById('previewCGST').textContent = '₹' + cgst.toFixed(2);
     document.getElementById('previewSGST').textContent = '₹' + sgst.toFixed(2);
     document.getElementById('previewGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
     
-    // Show preview
     document.getElementById('invoicePreview').classList.remove('hidden');
     document.getElementById('invoicePreview').scrollIntoView({ behavior: 'smooth' });
 }
@@ -381,7 +331,6 @@ async function saveInvoice() {
         const gstin = document.getElementById('customerGSTIN').value;
         const address = document.getElementById('customerAddress').value;
         
-        // First, save or update customer
         const { data: customerData, error: customerError } = await supabase
             .from('customers')
             .upsert({
@@ -396,7 +345,6 @@ async function saveInvoice() {
         
         if (customerError) throw customerError;
         
-        // Calculate totals
         let subtotal = 0;
         let totalGST = 0;
         
@@ -408,7 +356,6 @@ async function saveInvoice() {
         const grandTotal = subtotal + totalGST;
         const invoiceNumber = document.getElementById('invoiceNumber').textContent;
         
-        // Save invoice
         const { data: invoiceData, error: invoiceError } = await supabase
             .from('invoices')
             .insert({
@@ -424,7 +371,6 @@ async function saveInvoice() {
         
         if (invoiceError) throw invoiceError;
         
-        // Save invoice items
         const items = selectedServices.map((service, index) => ({
             invoice_id: invoiceData.id,
             description: service.name,
@@ -443,8 +389,8 @@ async function saveInvoice() {
         
         showAlert('Invoice saved successfully!', 'success');
         
-        // Reload stats
         await loadDashboardStats();
+        await loadCharts();
         
     } catch (error) {
         console.error('Error saving invoice:', error);
@@ -497,7 +443,6 @@ function showAlert(message, type) {
 // Load dashboard stats
 async function loadDashboardStats() {
     try {
-        // Total invoices
         const { count: invoiceCount } = await supabase
             .from('invoices')
             .select('*', { count: 'exact', head: true });
@@ -507,7 +452,6 @@ async function loadDashboardStats() {
             totalInvoicesElement.textContent = invoiceCount || 0;
         }
         
-        // Total customers
         const { count: customerCount } = await supabase
             .from('customers')
             .select('*', { count: 'exact', head: true });
@@ -517,7 +461,6 @@ async function loadDashboardStats() {
             totalCustomersElement.textContent = customerCount || 0;
         }
         
-        // Total revenue and GST
         const { data: invoices } = await supabase
             .from('invoices')
             .select('total_amount, total_gst');
@@ -547,7 +490,179 @@ async function loadDashboardStats() {
     }
 }
 
-// Load customers list
+// Load charts
+async function loadCharts() {
+    try {
+        const { data: invoices, error: invoiceError } = await supabase
+            .from('invoices')
+            .select('*');
+        
+        if (invoiceError) throw invoiceError;
+        
+        const { data: items, error: itemsError } = await supabase
+            .from('invoice_items')
+            .select('*');
+        
+        if (itemsError) throw itemsError;
+        
+        // Service-wise revenue
+        const serviceRevenue = {};
+        
+        items.forEach(item => {
+            if (!serviceRevenue[item.description]) {
+                serviceRevenue[item.description] = 0;
+            }
+            serviceRevenue[item.description] += item.amount;
+        });
+        
+        const ctx1 = document.getElementById('serviceRevenueChart');
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(serviceRevenue),
+                    datasets: [{
+                        data: Object.values(serviceRevenue),
+                        backgroundColor: [
+                            '#1e40af', '#3b82f6', '#60a5fa', '#93c5fd',
+                            '#ef4444', '#f87171', '#fca5a5', '#fecaca',
+                            '#10b981', '#34d399', '#6ee7b7', '#a7f3d0',
+                            '#f59e0b', '#fbbf24'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Monthly revenue
+        const monthlyData = {};
+        invoices.forEach(inv => {
+            const date = new Date(inv.created_at);
+            const monthKey = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+            
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = 0;
+            }
+            monthlyData[monthKey] += inv.total_amount;
+        });
+        
+        const ctx2 = document.getElementById('monthlyRevenueChart');
+        if (ctx2) {
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(monthlyData),
+                    datasets: [{
+                        label: 'Monthly Revenue (₹)',
+                        data: Object.values(monthlyData),
+                        borderColor: '#1e40af',
+                        backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#1e40af'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        await loadInvoiceHistory();
+        
+    } catch (error) {
+        console.error('Error loading charts:', error);
+    }
+}
+
+// Load invoice history
+async function loadInvoiceHistory() {
+    try {
+        const { data: invoices, error } = await supabase
+            .from('invoices')
+            .select('invoice_number, customer_id, created_at, total_amount, total_gst')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        const table = document.getElementById('invoiceHistoryTable');
+        
+        if (!invoices || invoices.length === 0) {
+            table.innerHTML = '<tr><td colspan="5" style="padding: 20px; text-align: center;">No invoices yet</td></tr>';
+            return;
+        }
+        
+        const { data: customers } = await supabase.from('customers').select('*');
+        
+        let html = '';
+        invoices.forEach(inv => {
+            const customer = customers.find(c => c.id === inv.customer_id);
+            const date = new Date(inv.created_at).toLocaleDateString('en-IN');
+            
+            html += `
+                <tr>
+                    <td>${inv.invoice_number}</td>
+                    <td>${customer ? customer.full_name : 'Unknown'}</td>
+                    <td>${date}</td>
+                    <td>₹${inv.total_amount.toFixed(2)}</td>
+                    <td>₹${inv.total_gst.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+        
+        table.innerHTML = html;
+        
+    } catch (error) {
+        console.error('Error loading invoice history:', error);
+    }
+}
+
+// Sort table
+function sortTable(tableId, columnIndex) {
+    const table = document.getElementById(tableId);
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const rows = Array.from(tbody.getElementsByTagName('tr'));
+    
+    rows.sort((a, b) => {
+        const aValue = a.getElementsByTagName('td')[columnIndex].textContent;
+        const bValue = b.getElementsByTagName('td')[columnIndex].textContent;
+        
+        const aNum = parseFloat(aValue.replace('₹', ''));
+        const bNum = parseFloat(bValue.replace('₹', ''));
+        
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return aNum - bNum;
+        }
+        
+        return aValue.localeCompare(bValue);
+    });
+    
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Load customers
 async function loadCustomers() {
     try {
         const { data, error } = await supabase
