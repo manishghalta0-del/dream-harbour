@@ -80,16 +80,27 @@ async function loadServices() {
     }
 }
 
-// When service is selected, populate rate
+// When service is selected, populate rate or make it editable
 if (document.getElementById('serviceType')) {
     document.getElementById('serviceType').addEventListener('change', function() {
         const serviceId = this.value;
         const service = servicesData.find(s => s.id === serviceId);
+        const rateField = document.getElementById('serviceRate');
         
         if (service) {
-            document.getElementById('serviceRate').value = service.base_rate || 0;
+            // If service needs manual amount, leave field empty and editable
+            if (service.requires_manual_amount) {
+                rateField.value = '';
+                rateField.placeholder = 'Enter amount';
+                rateField.readOnly = false;
+            } else {
+                // Auto-populate for standard services
+                rateField.value = service.base_rate || 0;
+                rateField.readOnly = true;
+            }
         } else {
-            document.getElementById('serviceRate').value = '';
+            rateField.value = '';
+            rateField.readOnly = false;
         }
     });
 }
@@ -146,13 +157,10 @@ function addService() {
     
     // Handle services that require manual amount input
     if (service.requires_manual_amount && rate === 0) {
-        const manualRate = window.prompt(`Enter the service fee amount for ${service.service_name}:`);
-        if (manualRate === null || manualRate === '' || parseFloat(manualRate) <= 0) {
-            showAlert('Please enter a valid amount', 'error');
-            return;
-        }
-        rate = parseFloat(manualRate);
+        showAlert('Please enter the service fee amount in "Rate per Unit" field', 'error');
+        return;
     }
+
     
     // Create service items array
     let itemsToAdd = [];
