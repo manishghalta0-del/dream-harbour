@@ -102,37 +102,6 @@
             color: #1e40af;
         }
 
-        .nav-tabs {
-            display: flex;
-            gap: 5px;
-            padding: 15px 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e0e0e0;
-            flex-wrap: wrap;
-        }
-
-        .nav-tab {
-            padding: 10px 20px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-
-        .nav-tab.active {
-            background: #1e40af;
-            color: white;
-            border-color: #1e40af;
-        }
-
-        .nav-tab:hover {
-            border-color: #1e40af;
-        }
-
         .content {
             padding: 30px;
         }
@@ -610,6 +579,15 @@
             background: rgba(0, 0, 0, 0.4);
         }
 
+        .nav-link-disabled {
+            color: white;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -667,7 +645,7 @@
                 </div>
             </div>
             <div class="header-right">
-                <a href="settings.html" class="nav-link">⚙️ Settings</a>
+                <span class="nav-link-disabled">⚙️ Settings (Coming Soon)</span>
                 <button class="btn btn-secondary" onclick="exportDashboardPDF()">📥 Export Report</button>
                 <button class="btn btn-primary" onclick="logout()">🚪 Logout</button>
             </div>
@@ -675,17 +653,17 @@
 
         <div class="content">
             <div class="quick-actions">
-                <button class="action-btn" onclick="navigateTo('create-invoice')">
-                    <span class="action-icon">📝</span>
-                    Create Invoice
-                </button>
-                <button class="action-btn" onclick="navigateTo('add-customer')">
-                    <span class="action-icon">👤</span>
-                    Add Customer
-                </button>
                 <button class="action-btn" onclick="window.location.href='invoices.html'">
+                    <span class="action-icon">📊</span>
+                    Invoice Management
+                </button>
+                <button class="action-btn" onclick="window.location.href='settings.html'">
+                    <span class="action-icon">⚙️</span>
+                    Configuration & Services
+                </button>
+                <button class="action-btn" onclick="navigateTo('view-reports')">
                     <span class="action-icon">📋</span>
-                    View Invoices
+                    View Reports
                 </button>
             </div>
 
@@ -986,7 +964,7 @@
                     <td><strong>${inv.invoice_number || 'N/A'}</strong></td>
                     <td>${inv.customer_name || 'Unknown'}</td>
                     <td>₹${fmt(inv.total_amount || 0)}</td>
-                    <td>₹${fmt((inv.total_amount * 0.18) || 0)}</td>
+                    <td>₹${fmt((inv.gst_amount || 0))}</td>
                     <td>${new Date(inv.created_at).toLocaleDateString('en-IN')}</td>
                     <td><span style="background: ${inv.status === 'paid' ? '#10b981' : '#fbbf24'}; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">${inv.status || 'pending'}</span></td>
                     <td><button class="btn-action" onclick="viewInvoice('${inv.id}')">View</button></td>
@@ -1026,7 +1004,7 @@
             const max = sorted[0]?.[1] || 1;
             const list = document.getElementById('serviceList');
             if (sorted.length === 0) {
-                list.innerHTML = '<li class="service-item"><span class="service-name">No data</span></li>';
+                list.innerHTML = '<li class="empty-state">No data</li>';
                 return;
             }
             list.innerHTML = sorted.map(([s, a]) => `
@@ -1126,13 +1104,11 @@
         }
 
         function navigateTo(page) {
-            if (page === 'create-invoice') {
-                window.location.href = 'invoices.html';
-            }
+            alert('Feature coming soon: ' + page);
         }
 
         function viewInvoice(id) {
-            window.location.href = 'invoices.html?view=' + id;
+            alert('Viewing: ' + id);
         }
 
         function completeInvoice(id) {
