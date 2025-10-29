@@ -363,6 +363,19 @@
             margin: 20px 0;
         }
 
+        .line-items-header {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f0f9ff;
+            border-radius: 5px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            font-weight: 600;
+        }
+
         .line-item {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
@@ -377,6 +390,10 @@
             border: 2px solid #e0e0e0;
             border-radius: 5px;
             font-size: 13px;
+        }
+
+        .line-item select {
+            background: white;
         }
 
         .line-item-remove {
@@ -685,7 +702,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .line-item {
+            .line-item, .line-items-header {
                 grid-template-columns: 1fr;
             }
 
@@ -807,9 +824,14 @@
 
                 <!-- Line Items with Service Selection -->
                 <div class="line-items">
-                    <h3 style="margin-bottom: 15px; color: #333;">📋 Services/Items</h3>
-                    <div style="font-size: 12px; color: #666; margin-bottom: 10px; padding: 10px; background: #f0f9ff; border-radius: 5px;">
-                        Service | Qty | HSN/SAC | Rate | GST% | Amount
+                    <h3 style="margin-bottom: 10px; color: #333;">📋 Services/Items</h3>
+                    <div class="line-items-header">
+                        <span>Service</span>
+                        <span>Qty</span>
+                        <span>HSN/SAC</span>
+                        <span>Rate</span>
+                        <span>GST%</span>
+                        <span>Action</span>
                     </div>
                     <div id="lineItemsContainer"></div>
                     <button type="button" class="add-line-item" onclick="addLineItem()">+ Add Item</button>
@@ -906,10 +928,12 @@
                 const { data, error } = await supabase
                     .from('services')
                     .select('*')
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .order('service_name');
 
                 if (error) throw error;
                 allServices = data || [];
+                console.log('Services loaded:', allServices);
             } catch (error) {
                 console.error('Error loading services:', error);
             }
@@ -1004,7 +1028,7 @@
             const search = document.getElementById('customerSearch').value.toLowerCase();
             const suggestionsDiv = document.getElementById('customerSuggestions');
 
-            if (!search) {
+            if (!search || search.length < 2) {
                 suggestionsDiv.classList.remove('show');
                 return;
             }
@@ -1039,6 +1063,7 @@
         function openCreateInvoiceModal() {
             document.getElementById('invoiceForm').reset();
             lineItemsData = [];
+            document.getElementById('lineItemsContainer').innerHTML = '';
             addLineItem();
             document.getElementById('createInvoiceModal').classList.add('show');
             document.getElementById('customerSearch').focus();
@@ -1052,7 +1077,7 @@
 
         function addLineItem() {
             const itemId = lineItemsData.length;
-            lineItemsData.push({ service: '', quantity: 1, rate: 0, hsn_sac: '', gst: 18 });
+            lineItemsData.push({ service: '', quantity: 1, rate: 0, hsn_sac: '', gst: 18, service_id: null });
 
             const container = document.getElementById('lineItemsContainer');
             const itemDiv = document.createElement('div');
@@ -1060,35 +1085,59 @@
             itemDiv.id = `lineItem-${itemId}`;
             
             let serviceOptions = '<option value="">Select Service</option>';
-            allServices.forEach(svc => {
-                serviceOptions += `<option value="${svc.id}" data-hsn="${svc.hsn_sac || ''}" data-gst="${svc.gst_percentage || 18}">${svc.service_name}</option>`;
-            });
+            
+            // BUILD SERVICE OPTIONS FROM DATABASE
+            if (allServices && allServices.length > 0) {
+                allServices.forEach(svc => {
+                    serviceOptions += `<option value="${svc.id}" data-service="${svc.service_name}" data-hsn="${svc.hsn_sac || 'N/A'}" data-gst="${svc.gst_percentage || 18}" data-price="${svc.price || 0}">${svc.service_name} - ₹${fmt(svc.price || 0)}</option>`;
+                });
+            } else {
+                serviceOptions += '<option value="">Loading services...</option>';
+            }
 
             itemDiv.innerHTML = `
-                <select onchange="updateLineItem(${itemId}, 'service', this.value)">
+                <select onchange="updateLineItemFromService(${itemId}, this)">
                     ${serviceOptions}
                 </select>
                 <input type="number" placeholder="Qty" value="1" min="1" onchange="updateLineItem(${itemId}, 'quantity', this.value)">
                 <input type="text" placeholder="HSN/SAC" readonly style="background: #f8f9fa;">
                 <input type="number" placeholder="Rate" value="0" min="0" step="0.01" onchange="updateLineItem(${itemId}, 'rate', this.value)">
-                <input type="number" placeholder="GST%" value="18" min="0" max="100" onchange="updateLineItem(${itemId}, 'gst', this.value)">
-                <input type="text" readonly value="₹0" style="background: #f8f9fa; font-weight: bold; text-align: right;">
+                <input type="number" placeholder="GST%" value="18" min="0" max="100" step="0.01" onchange="updateLineItem(${itemId}, 'gst', this.value)">
                 <button type="button" class="line-item-remove" onclick="removeLineItem(${itemId})">Remove</button>
             `;
             container.appendChild(itemDiv);
             calculateInvoiceTotals();
         }
 
+        function updateLineItemFromService(itemId, selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const serviceId = selectedOption.value;
+            
+            if (!serviceId) {
+                lineItemsData[itemId].service = '';
+                lineItemsData[itemId].hsn_sac = '';
+                lineItemsData[itemId].gst = 18;
+                lineItemsData[itemId].rate = 0;
+                return;
+            }
+            
+            const serviceName = selectedOption.getAttribute('data-service');
+            const hsn = selectedOption.getAttribute('data-hsn');
+            const gst = selectedOption.getAttribute('data-gst');
+            const price = selectedOption.getAttribute('data-price');
+            
+            lineItemsData[itemId].service_id = serviceId;
+            lineItemsData[itemId].service = serviceName;
+            lineItemsData[itemId].hsn_sac = hsn;
+            lineItemsData[itemId].gst = parseFloat(gst) || 18;
+            lineItemsData[itemId].rate = parseFloat(price) || 0;
+            
+            calculateInvoiceTotals();
+            updateLineItemDisplay(itemId);
+        }
+
         function updateLineItem(itemId, field, value) {
-            if (field === 'service') {
-                const selectedService = allServices.find(s => s.id == value);
-                if (selectedService) {
-                    lineItemsData[itemId].service = selectedService.service_name;
-                    lineItemsData[itemId].hsn_sac = selectedService.hsn_sac || '';
-                    lineItemsData[itemId].gst = selectedService.gst_percentage || 18;
-                    lineItemsData[itemId].rate = selectedService.price || 0;
-                }
-            } else if (field === 'quantity') {
+            if (field === 'quantity') {
                 lineItemsData[itemId].quantity = parseInt(value) || 0;
             } else if (field === 'rate') {
                 lineItemsData[itemId].rate = parseFloat(value) || 0;
@@ -1100,13 +1149,12 @@
         }
 
         function updateLineItemDisplay(itemId) {
-            const amount = lineItemsData[itemId].quantity * lineItemsData[itemId].rate;
             const itemDiv = document.getElementById(`lineItem-${itemId}`);
             if (itemDiv) {
                 const inputs = itemDiv.querySelectorAll('input, select');
-                inputs[2].value = lineItemsData[itemId].hsn_sac;
+                inputs[2].value = lineItemsData[itemId].hsn_sac || 'N/A';
+                inputs[3].value = lineItemsData[itemId].rate;
                 inputs[4].value = lineItemsData[itemId].gst || 18;
-                inputs[5].value = '₹' + fmt(amount);
             }
         }
 
