@@ -3,1335 +3,676 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamHarbour - Settings</title>
+    <title>DreamHarbour - Settings Master</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            color: white;
-            padding: 25px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .nav-link {
-            color: white;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            cursor: pointer;
-            border: none;
-            font-weight: 600;
-        }
-
-        .nav-link:hover {
-            background: rgba(0, 0, 0, 0.4);
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            border-bottom: 2px solid #e0e0e0;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            font-weight: 600;
-            color: #666;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab:hover {
-            color: #1e40af;
-        }
-
-        .tab.active {
-            color: #1e40af;
-            border-bottom-color: #1e40af;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .subtabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e0e0e0;
-            flex-wrap: wrap;
-        }
-
-        .subtab {
-            padding: 10px 15px;
-            background: #f3f4f6;
-            border: 2px solid #e5e7eb;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            font-size: 13px;
-        }
-
-        .subtab.active {
-            background: #1e40af;
-            color: white;
-            border-color: #1e40af;
-        }
-
-        .subtab-content {
-            display: none;
-        }
-
-        .subtab-content.active {
-            display: block;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #333;
-            border: 2px solid #e5e7eb;
-        }
-
-        .btn-edit {
-            background: #3b82f6;
-            color: white;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 30px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        table th {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        table td {
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        table tr:hover {
-            background: #f8f9fa;
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #1e40af;
-            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
-        }
-
-        .dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-            z-index: 100;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-list.show {
-            display: block;
-        }
-
-        .dropdown-item {
-            padding: 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #e0e0e0;
-            transition: background 0.2s;
-        }
-
-        .dropdown-item:hover {
-            background: #f0f9ff;
-            color: #1e40af;
-        }
-
-        .dropdown-item.selected {
-            background: #bfdbfe;
-            color: #1e40af;
-            font-weight: 600;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            margin: auto;
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e40af;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #1e40af;
-            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
-        }
-
-        .form-error {
-            font-size: 12px;
-            color: #ef4444;
-            min-height: 18px;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-group input {
-            width: auto;
-            margin: 0;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .success-message {
-            padding: 12px;
-            background: #d1fae5;
-            color: #065f46;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: none;
-            border-left: 4px solid #10b981;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-inactive {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            table {
-                font-size: 12px;
-            }
-            
-            table th, table td {
-                padding: 10px;
-            }
-
-            .subtabs {
-                flex-wrap: wrap;
-            }
-
-            .subtab {
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); min-height: 100vh; padding: 15px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: bold; }
+        .nav-link { color: white; padding: 8px 16px; background: rgba(0,0,0,0.2); border-radius: 5px; cursor: pointer; border: none; font-weight: 600; margin-left: 10px; }
+        .nav-link:hover { background: rgba(0,0,0,0.4); }
+        .content { padding: 25px; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 10px 16px; background: none; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; font-weight: 600; color: #666; font-size: 13px; }
+        .tab:hover { border-color: #1e40af; color: #1e40af; }
+        .tab.active { background: #1e40af; color: white; border-color: #1e40af; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .btn-primary { background: #1e40af; color: white; }
+        .btn-primary:hover { background: #1e3a8a; }
+        .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+        .btn-secondary:hover { background: #e0e0e0; }
+        .search-box { display: flex; gap: 8px; flex: 1; min-width: 200px; }
+        .search-input { flex: 1; padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; }
+        .search-input:focus { outline: none; border-color: #1e40af; }
+        .filter-group { display: flex; gap: 8px; align-items: center; }
+        .filter-group select { padding: 8px 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; }
+        .filter-group select:focus { outline: none; border-color: #1e40af; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table th { background: #f5f5f5; padding: 10px 8px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd; cursor: pointer; user-select: none; white-space: nowrap; }
+        table th:hover { background: #efefef; }
+        table th.sort-asc::after { content: " ↑"; }
+        table th.sort-desc::after { content: " ↓"; }
+        table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+        table tr:hover { background: #f9f9f9; }
+        table tr.dragging { opacity: 0.5; background: #e3f2fd; }
+        .drag-handle { cursor: move; color: #999; font-weight: bold; user-select: none; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-active { background: #d1fae5; color: #065f46; }
+        .badge-inactive { background: #fee2e2; color: #991b1b; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-green { background: #dcfce7; color: #166534; }
+        .badge-orange { background: #fed7aa; color: #92400e; }
+        .badge-red { background: #fecaca; color: #991b1b; }
+        .badge-purple { background: #e9d5ff; color: #6b21a8; }
+        .action-btn { padding: 4px 8px; margin: 0 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .action-btn.toggle { background: #e0e0e0; color: #333; }
+        .action-btn.toggle:hover { background: #1e40af; color: white; }
+        .action-btn.edit { background: #3b82f6; color: white; }
+        .action-btn.delete { background: #ef4444; color: white; }
+        .context-menu { position: fixed; background: white; border: 1px solid #ddd; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; min-width: 150px; }
+        .context-menu-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 12px; }
+        .context-menu-item:hover { background: #f0f9ff; }
+        .context-menu-item:last-child { border-bottom: none; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
+        .modal-header { font-size: 18px; font-weight: 700; color: #1e40af; margin-bottom: 20px; display: flex; justify-content: space-between; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; }
+        .form-error { font-size: 11px; color: #ef4444; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+        .success-msg { padding: 10px 12px; background: #d1fae5; color: #065f46; border-radius: 6px; margin-bottom: 12px; font-size: 12px; display: none; border-left: 3px solid #10b981; }
+        .success-msg.show { display: block; }
+        .empty-state { text-align: center; padding: 30px; color: #999; }
+        .stats-box { background: #f0f9ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }
+        .stats-box strong { color: #1e40af; }
+        .keyboard-help { background: #fff3cd; border: 1px solid #ffc107; padding: 10px 12px; border-radius: 6px; font-size: 11px; margin-bottom: 15px; }
+        .icon { font-size: 14px; margin-right: 4px; }
+        @media (max-width: 768px) { table { font-size: 11px; } table th, table td { padding: 6px 4px; } .btn { padding: 6px 12px; font-size: 12px; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">⚙️ DreamHarbour - Settings</div>
-            <div style="display: flex; gap: 10px;">
-                <a href="dashboard.html" style="text-decoration: none;"><button class="nav-link">← Dashboard</button></a>
+            <div class="logo">⚙️ DreamHarbour - Settings Master</div>
+            <div>
+                <a href="dashboard.html" style="text-decoration:none;"><button class="nav-link">← Dashboard</button></a>
                 <button class="nav-link" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
         <div class="content">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('serviceManagement')">📋 Service Management</button>
+                <button class="tab active" onclick="switchTab('categories')">📂 Categories</button>
+                <button class="tab" onclick="switchTab('services')">🛍️ Services</button>
+                <button class="tab" onclick="switchTab('subtype1')">🔗 Sub-Services Type 1</button>
+                <button class="tab" onclick="switchTab('subtype2')">🔗 Sub-Services Type 2</button>
                 <button class="tab" onclick="switchTab('business')">💼 Business</button>
             </div>
 
-            <!-- SERVICE MANAGEMENT TAB -->
-            <div id="serviceManagement" class="tab-content active">
-                <div class="subtabs">
-                    <button class="subtab active" onclick="switchSubTab('categories')">📂 Categories</button>
-                    <button class="subtab" onclick="switchSubTab('services')">🛍️ Services</button>
-                    <button class="subtab" onclick="switchSubTab('subtype1')">🔗 Sub-Services Type 1</button>
-                    <button class="subtab" onclick="switchSubTab('subtype2')">🔗 Sub-Services Type 2</button>
+            <!-- CATEGORIES TAB -->
+            <div id="categories" class="tab-content active">
+                <div class="keyboard-help">
+                    ⌨️ <strong>Shortcuts:</strong> Ctrl+N (New) | Ctrl+E (Edit) | Ctrl+F (Search) | Delete (Del)
                 </div>
-
-                <!-- CATEGORIES SUBTAB -->
-                <div id="categories" class="subtab-content active">
-                    <div class="section-title">📂 Categories</div>
-                    <button class="btn btn-primary" onclick="openCategoryModal()">➕ Add Category</button>
-                    <div class="success-message" id="categorySuccessMsg"></div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Category Name</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="categoriesTableBody">
-                                <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="stats-box">
+                    📊 <strong>Total:</strong> <span id="totalCategories">0</span> | <strong>Active:</strong> <span id="activeCategories">0</span>
                 </div>
-
-                <!-- SERVICES SUBTAB -->
-                <div id="services" class="subtab-content">
-                    <div class="section-title">🛍️ Services</div>
-                    <button class="btn btn-primary" onclick="openServiceModal()">➕ Add Service</button>
-                    <div class="success-message" id="serviceSuccessMsg"></div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Category</th>
-                                    <th>SAC Code</th>
-                                    <th>GST %</th>
-                                    <th>Sub-Type 1</th>
-                                    <th>Sub-Type 2</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="servicesTableBody">
-                                <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- SUB-SERVICE TYPE 1 SUBTAB -->
-                <div id="subtype1" class="subtab-content">
-                    <div class="section-title">🔗 Sub-Services Type 1</div>
-                    <button class="btn btn-primary" onclick="openSubType1Modal()">➕ Add Sub-Service Type 1</button>
-                    <div class="success-message" id="subType1SuccessMsg"></div>
+                <div class="toolbar">
+                    <button class="btn btn-primary" onclick="openModal('category')">➕ Add Category</button>
+                    <button class="btn btn-secondary" onclick="exportData('categories')">📥 Export</button>
+                    <button class="btn btn-secondary" onclick="triggerImport('categories')">📤 Import</button>
+                    <input type="file" id="importFile-categories" accept=".csv" style="display:none;" onchange="importData('categories')">
                     <div class="search-box">
-                        <input type="text" class="search-input" id="searchSubType1" placeholder="Search or type to filter..." oninput="filterSubType1()">
-                        <div class="dropdown-list" id="dropdownSubType1"></div>
-                    </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Sub-Service Name</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subType1TableBody">
-                                <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
-                            </tbody>
-                        </table>
+                        <input type="text" class="search-input" id="search-categories" placeholder="Search..." onkeyup="filterAndDisplay('categories')">
                     </div>
                 </div>
+                <div class="success-msg" id="msg-categories"></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:20px;"></th>
+                                <th onclick="sortData('categories', 'name')">📝 Name</th>
+                                <th style="width:80px;" onclick="sortData('categories', 'status')">Status</th>
+                                <th style="width:100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-categories">
+                            <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                <!-- SUB-SERVICE TYPE 2 SUBTAB -->
-                <div id="subtype2" class="subtab-content">
-                    <div class="section-title">🔗 Sub-Services Type 2</div>
-                    <button class="btn btn-primary" onclick="openSubType2Modal()">➕ Add Sub-Service Type 2</button>
-                    <div class="success-message" id="subType2SuccessMsg"></div>
+            <!-- SERVICES TAB -->
+            <div id="services" class="tab-content">
+                <div class="keyboard-help">
+                    ⌨️ <strong>Shortcuts:</strong> Ctrl+N (New) | Ctrl+E (Edit) | Ctrl+F (Search) | Delete (Del)
+                </div>
+                <div class="stats-box">
+                    📊 <strong>Total:</strong> <span id="totalServices">0</span> | <strong>Active:</strong> <span id="activeServices">0</span>
+                </div>
+                <div class="toolbar">
+                    <button class="btn btn-primary" onclick="openModal('service')">➕ Add Service</button>
+                    <button class="btn btn-secondary" onclick="exportData('services')">📥 Export</button>
+                    <button class="btn btn-secondary" onclick="triggerImport('services')">📤 Import</button>
+                    <input type="file" id="importFile-services" accept=".csv" style="display:none;" onchange="importData('services')">
                     <div class="search-box">
-                        <input type="text" class="search-input" id="searchSubType2" placeholder="Search or type to filter..." oninput="filterSubType2()">
-                        <div class="dropdown-list" id="dropdownSubType2"></div>
+                        <input type="text" class="search-input" id="search-services" placeholder="Search..." onkeyup="filterAndDisplay('services')">
                     </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Sub-Service Name</th>
-                                    <th>SAC Code</th>
-                                    <th>GST %</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subType2TableBody">
-                                <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="filter-group">
+                        <select id="filter-services-cat" onchange="filterAndDisplay('services')">
+                            <option value="">All Categories</option>
+                        </select>
+                        <select id="filter-services-status" onchange="filterAndDisplay('services')">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
                     </div>
+                </div>
+                <div class="success-msg" id="msg-services"></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:20px;"></th>
+                                <th onclick="sortData('services', 'name')">Service</th>
+                                <th onclick="sortData('services', 'category')">Category</th>
+                                <th style="width:50px;">SAC</th>
+                                <th style="width:50px;" onclick="sortData('services', 'gst')">GST%</th>
+                                <th style="width:60px;">Rate</th>
+                                <th style="width:60px;" onclick="sortData('services', 'status')">Status</th>
+                                <th style="width:100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-services">
+                            <tr><td colspan="8" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SUB-SERVICE TYPE 1 TAB -->
+            <div id="subtype1" class="tab-content">
+                <div class="keyboard-help">
+                    ⌨️ <strong>Shortcuts:</strong> Ctrl+N (New) | Ctrl+E (Edit) | Ctrl+F (Search) | Delete (Del)
+                </div>
+                <div class="stats-box">
+                    📊 <strong>Total:</strong> <span id="totalSubType1">0</span> | <strong>Active:</strong> <span id="activeSubType1">0</span>
+                </div>
+                <div class="toolbar">
+                    <button class="btn btn-primary" onclick="openModal('subtype1')">➕ Add Sub-Service Type 1</button>
+                    <button class="btn btn-secondary" onclick="exportData('subtype1')">📥 Export</button>
+                    <button class="btn btn-secondary" onclick="triggerImport('subtype1')">📤 Import</button>
+                    <input type="file" id="importFile-subtype1" accept=".csv" style="display:none;" onchange="importData('subtype1')">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="search-subtype1" placeholder="Search..." onkeyup="filterAndDisplay('subtype1')">
+                    </div>
+                </div>
+                <div class="success-msg" id="msg-subtype1"></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:20px;"></th>
+                                <th onclick="sortData('subtype1', 'name')">Sub-Service Name</th>
+                                <th style="width:80px;" onclick="sortData('subtype1', 'status')">Status</th>
+                                <th style="width:100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-subtype1">
+                            <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SUB-SERVICE TYPE 2 TAB -->
+            <div id="subtype2" class="tab-content">
+                <div class="keyboard-help">
+                    ⌨️ <strong>Shortcuts:</strong> Ctrl+N (New) | Ctrl+E (Edit) | Ctrl+F (Search) | Delete (Del)
+                </div>
+                <div class="stats-box">
+                    📊 <strong>Total:</strong> <span id="totalSubType2">0</span> | <strong>Active:</strong> <span id="activeSubType2">0</span>
+                </div>
+                <div class="toolbar">
+                    <button class="btn btn-primary" onclick="openModal('subtype2')">➕ Add Sub-Service Type 2</button>
+                    <button class="btn btn-secondary" onclick="exportData('subtype2')">📥 Export</button>
+                    <button class="btn btn-secondary" onclick="triggerImport('subtype2')">📤 Import</button>
+                    <input type="file" id="importFile-subtype2" accept=".csv" style="display:none;" onchange="importData('subtype2')">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="search-subtype2" placeholder="Search..." onkeyup="filterAndDisplay('subtype2')">
+                    </div>
+                </div>
+                <div class="success-msg" id="msg-subtype2"></div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:20px;"></th>
+                                <th onclick="sortData('subtype2', 'name')">Sub-Service Name</th>
+                                <th style="width:60px;">SAC</th>
+                                <th style="width:60px;" onclick="sortData('subtype2', 'gst')">GST%</th>
+                                <th style="width:80px;" onclick="sortData('subtype2', 'status')">Status</th>
+                                <th style="width:100px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-subtype2">
+                            <tr><td colspan="6" class="empty-state">Loading...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- BUSINESS TAB -->
             <div id="business" class="tab-content">
-                <div class="section-title">💼 Business Information</div>
-                <form id="businessForm" onsubmit="saveBusiness(event)">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Business Name *</label>
-                            <input type="text" id="businessName" required>
+                <div style="max-width: 600px;">
+                    <h3 style="color: #1e40af; margin-bottom: 20px;">💼 Business Information</h3>
+                    <form id="businessForm" onsubmit="saveBusiness(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label>Business Name *</label>
+                                <input type="text" id="businessName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>GST Number *</label>
+                                <input type="text" id="gstNumber" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone *</label>
+                                <input type="tel" id="businessPhone" maxlength="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input type="email" id="businessEmail" required>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>GST Number *</label>
-                            <input type="text" id="gstNumber" required>
+                            <label>Address</label>
+                            <input type="text" id="businessAddress">
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Phone *</label>
-                            <input type="tel" id="businessPhone" maxlength="10" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email *</label>
-                            <input type="email" id="businessEmail" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" id="businessAddress">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>City</label>
-                            <input type="text" id="businessCity">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" id="businessCity">
+                            </div>
+                            <div class="form-group">
+                                <label>State</label>
+                                <input type="text" id="businessState">
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>State</label>
-                            <input type="text" id="businessState">
+                            <label>Pincode</label>
+                            <input type="text" id="businessPincode" maxlength="6">
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Pincode</label>
-                        <input type="text" id="businessPincode" maxlength="6">
-                    </div>
-                    <button type="submit" class="btn btn-primary">💾 Save</button>
-                    <div class="success-message" id="businessSuccessMsg"></div>
-                </form>
+                        <button type="submit" class="btn btn-primary">💾 Save</button>
+                        <div class="success-msg" id="msg-business"></div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- CATEGORY MODAL -->
-    <div class="modal" id="categoryModal">
+    <!-- UNIVERSAL MODAL -->
+    <div class="modal" id="mainModal">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="categoryModalTitle">➕ Add Category</span>
-                <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+                <span id="modalTitle">Add Item</span>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
-            <form id="categoryForm" onsubmit="saveCategory(event)">
-                <div class="form-group">
-                    <label>Category Name *</label>
-                    <input type="text" id="categoryName" required>
-                    <div class="form-error" id="categoryNameError"></div>
-                </div>
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="categoryActive" checked>
-                    <label style="margin: 0;">Active</label>
-                </div>
+            <form id="mainForm" onsubmit="saveItem(event)">
+                <div id="formFields"></div>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">✓ Save</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- SERVICE MODAL -->
-    <div class="modal" id="serviceModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="serviceModalTitle">➕ Add Service</span>
-                <button class="modal-close" onclick="closeServiceModal()">&times;</button>
-            </div>
-            <form id="serviceForm" onsubmit="saveService(event)">
-                <div class="form-group">
-                    <label>Category *</label>
-                    <select id="serviceCategory" required>
-                        <option value="">-- Select Category --</option>
-                    </select>
-                    <div class="form-error" id="serviceCategoryError"></div>
-                </div>
-                <div class="form-group">
-                    <label>Service Name *</label>
-                    <input type="text" id="serviceName" required>
-                    <div class="form-error" id="serviceNameError"></div>
-                </div>
-                <div class="form-group">
-                    <label>SAC Code</label>
-                    <input type="text" id="serviceSAC" placeholder="e.g., 998599">
-                </div>
-                <div class="form-group">
-                    <label>GST % *</label>
-                    <input type="number" id="serviceGST" min="0" max="100" step="0.01" required>
-                    <div class="form-error" id="serviceGSTError"></div>
-                </div>
-                <div class="form-group">
-                    <label>Rate (₹)</label>
-                    <input type="number" id="serviceRate" min="0" step="0.01" value="0">
-                </div>
-
-                <div style="background: #f0f9ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <div style="font-weight: 700; color: #1e40af; margin-bottom: 12px;">🔗 Link Sub-Services</div>
-                    
-                    <div class="form-group">
-                        <label>Sub-Service Type 1</label>
-                        <select id="subServiceType1">
-                            <option value="">-- Select Sub-Service Type 1 --</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Sub-Service Type 2</label>
-                        <select id="subServiceType2">
-                            <option value="">-- Select Sub-Service Type 2 --</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="serviceActive" checked>
-                    <label style="margin: 0;">Active</label>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">✓ Save</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeServiceModal()">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- SUB-SERVICE TYPE 1 MODAL -->
-    <div class="modal" id="subType1Modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="subType1ModalTitle">➕ Add Sub-Service Type 1</span>
-                <button class="modal-close" onclick="closeSubType1Modal()">&times;</button>
-            </div>
-            <form id="subType1Form" onsubmit="saveSubType1(event)">
-                <div class="form-group">
-                    <label>Sub-Service Name *</label>
-                    <input type="text" id="subType1Name" required>
-                    <div class="form-error" id="subType1NameError"></div>
-                </div>
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="subType1Active" checked>
-                    <label style="margin: 0;">Active</label>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">✓ Save</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeSubType1Modal()">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- SUB-SERVICE TYPE 2 MODAL -->
-    <div class="modal" id="subType2Modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="subType2ModalTitle">➕ Add Sub-Service Type 2</span>
-                <button class="modal-close" onclick="closeSubType2Modal()">&times;</button>
-            </div>
-            <form id="subType2Form" onsubmit="saveSubType2(event)">
-                <div class="form-group">
-                    <label>Sub-Service Name *</label>
-                    <input type="text" id="subType2Name" required>
-                    <div class="form-error" id="subType2NameError"></div>
-                </div>
-                <div class="form-group">
-                    <label>SAC Code</label>
-                    <input type="text" id="subType2SAC" placeholder="e.g., 998599">
-                </div>
-                <div class="form-group">
-                    <label>GST % *</label>
-                    <input type="number" id="subType2GST" min="0" max="100" step="0.01" required>
-                    <div class="form-error" id="subType2GSTError"></div>
-                </div>
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="subType2Active" checked>
-                    <label style="margin: 0;">Active</label>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn btn-primary">✓ Save</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeSubType2Modal()">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
+    <!-- CONTEXT MENU -->
+    <div class="context-menu" id="contextMenu" style="display:none;"></div>
 
     <script>
         const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
 
         let supabase = null;
-        let currentUser = null;
-        let allCategories = [];
-        let allServices = [];
-        let allSubType1 = [];
-        let allSubType2 = [];
-        let editingCategoryId = null;
-        let editingServiceId = null;
-        let editingSubType1Id = null;
-        let editingSubType2Id = null;
+        let allData = { categories: [], services: [], subtype1: [], subtype2: [] };
+        let currentTab = 'categories';
+        let editingId = null;
+        let draggedRow = null;
+        let sortColumn = { categories: null, services: null, subtype1: null, subtype2: null };
+        let sortDir = { categories: 'asc', services: 'asc', subtype1: 'asc', subtype2: 'asc' };
 
-        async function initialize() {
+        async function init() {
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                const userSession = JSON.parse(localStorage.getItem('userSession'));
-                
-                if (!userSession) {
-                    window.location.href = 'index.html';
-                    return;
-                }
+                const session = JSON.parse(localStorage.getItem('userSession'));
+                if (!session) { window.location.href = 'index.html'; return; }
 
-                currentUser = userSession;
-                await loadCategories();
-                await loadServices();
-                await loadSubServices();
-                await loadBusiness();
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                await loadAllData();
+            } catch (error) { console.error('Error:', error); }
         }
 
-        function switchTab(tabName) {
+        async function loadAllData() {
+            try {
+                const [catRes, svcRes, sub1Res, sub2Res, bizRes] = await Promise.all([
+                    supabase.from('service_categories').select('*').order('category_name'),
+                    supabase.from('service_items').select('*, service_categories(category_name)').order('service_name'),
+                    supabase.from('sub_service_type_1').select('*').order('sub_service_name'),
+                    supabase.from('sub_service_type_2').select('*').order('sub_service_name'),
+                    supabase.from('business_settings').select('*').limit(1)
+                ]);
+
+                allData.categories = catRes.data || [];
+                allData.services = svcRes.data || [];
+                allData.subtype1 = sub1Res.data || [];
+                allData.subtype2 = sub2Res.data || [];
+
+                filterAndDisplay('categories');
+                filterAndDisplay('services');
+                filterAndDisplay('subtype1');
+                filterAndDisplay('subtype2');
+                
+                populateFilters();
+
+                if (bizRes.data && bizRes.data.length > 0) {
+                    const biz = bizRes.data[0];
+                    Object.keys(biz).forEach(k => { const el = document.getElementById(k); if (el) el.value = biz[k] || ''; });
+                }
+            } catch (error) { console.error('Error:', error); }
+        }
+
+        function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
+            document.getElementById(tab).classList.add('active');
             event.target.classList.add('active');
+            currentTab = tab;
         }
 
-        function switchSubTab(subTabName) {
-            document.querySelectorAll('.subtab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
-            document.getElementById(subTabName).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // CATEGORIES
-        async function loadCategories() {
-            try {
-                const { data, error } = await supabase
-                    .from('service_categories')
-                    .select('*')
-                    .order('category_name', { ascending: true });
-
-                if (error) throw error;
-                allCategories = data || [];
-                displayCategories();
-                populateCategorySelect();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function displayCategories() {
-            const tbody = document.getElementById('categoriesTableBody');
+        function filterAndDisplay(tab) {
+            const search = document.getElementById(`search-${tab}`)?.value.toLowerCase() || '';
+            const data = allData[tab];
             
-            if (allCategories.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No categories yet</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = allCategories.map(cat => `
-                <tr>
-                    <td><strong>${cat.category_name}</strong></td>
-                    <td><span class="status-badge status-${cat.is_active ? 'active' : 'inactive'}">${cat.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
-                    <td>
-                        <button class="btn btn-edit" onclick="editCategory('${cat.id}')">✏️</button>
-                        <button class="btn btn-delete" onclick="deleteCategory('${cat.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function populateCategorySelect() {
-            const select = document.getElementById('serviceCategory');
-            select.innerHTML = '<option value="">-- Select Category --</option>';
-            allCategories.forEach(cat => {
-                select.innerHTML += `<option value="${cat.id}">${cat.category_name}</option>`;
+            let filtered = data.filter(item => {
+                const name = (item.category_name || item.service_name || item.sub_service_name || '').toLowerCase();
+                return !search || name.includes(search);
             });
+
+            if (tab === 'services') {
+                const catId = document.getElementById('filter-services-cat')?.value;
+                const status = document.getElementById('filter-services-status')?.value;
+                if (catId) filtered = filtered.filter(s => s.category_id === catId);
+                if (status) filtered = filtered.filter(s => status === 'active' ? s.is_active : !s.is_active);
+            }
+
+            displayTable(tab, filtered);
+            updateStats(tab);
         }
 
-        function openCategoryModal() {
-            editingCategoryId = null;
-            document.getElementById('categoryForm').reset();
-            document.getElementById('categoryModalTitle').textContent = '➕ Add Category';
-            document.getElementById('categoryModal').classList.add('show');
-        }
+        function displayTable(tab, data) {
+            const tbody = document.getElementById(`table-${tab}`);
+            const icons = { categories: '📂', services: '🛍️', subtype1: '🔗', subtype2: '🔗' };
 
-        function closeCategoryModal() {
-            document.getElementById('categoryModal').classList.remove('show');
-        }
-
-        async function editCategory(id) {
-            const cat = allCategories.find(c => c.id === id);
-            if (!cat) return;
-            editingCategoryId = id;
-            document.getElementById('categoryName').value = cat.category_name;
-            document.getElementById('categoryActive').checked = cat.is_active;
-            document.getElementById('categoryModalTitle').textContent = '✏️ Edit Category';
-            document.getElementById('categoryModal').classList.add('show');
-        }
-
-        async function saveCategory(event) {
-            event.preventDefault();
-            const name = document.getElementById('categoryName').value.trim();
-            if (!name) {
-                document.getElementById('categoryNameError').textContent = 'Name required';
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="empty-state">No items</td></tr>`;
                 return;
             }
 
-            try {
-                const data = {
-                    category_name: name,
-                    is_active: document.getElementById('categoryActive').checked
-                };
+            tbody.innerHTML = data.map((item, idx) => {
+                let row = `<tr draggable="true" ondragstart="dragStart()" ondragover="dragOver()" ondrop="dragDrop(${idx}, '${tab}')">
+                    <td class="drag-handle">⋮⋮</td>`;
 
-                if (editingCategoryId) {
-                    await supabase.from('service_categories').update(data).eq('id', editingCategoryId);
-                } else {
-                    await supabase.from('service_categories').insert(data);
+                if (tab === 'categories') {
+                    row += `<td>${icons[tab]} ${item.category_name}</td>
+                            <td><span class="badge badge-${item.is_active ? 'active' : 'inactive'}">${item.is_active ? '✓' : '✗'}</span></td>
+                            <td>
+                                <button class="action-btn toggle" onclick="quickToggle('${item.id}', '${tab}', ${item.is_active})">⊙</button>
+                                <button class="action-btn edit" onclick="editItem('${item.id}', '${tab}')">✏️</button>
+                                <button class="action-btn delete" onclick="deleteItem('${item.id}', '${tab}')">🗑️</button>
+                            </td>`;
+                } else if (tab === 'services') {
+                    const cat = allData.categories.find(c => c.id === item.category_id);
+                    const colors = ['badge-blue', 'badge-green', 'badge-orange', 'badge-red', 'badge-purple'];
+                    const color = colors[allData.categories.findIndex(c => c.id === item.category_id) % 5];
+                    row += `<td>${icons[tab]} ${item.service_name}</td>
+                            <td><span class="badge ${color}">${cat?.category_name || '-'}</span></td>
+                            <td>${item.sac_code || '-'}</td>
+                            <td>${item.gst_percentage}%</td>
+                            <td>₹${item.rate || 0}</td>
+                            <td><span class="badge badge-${item.is_active ? 'active' : 'inactive'}">${item.is_active ? '✓' : '✗'}</span></td>
+                            <td>
+                                <button class="action-btn toggle" onclick="quickToggle('${item.id}', '${tab}', ${item.is_active})" title="Toggle">⊙</button>
+                                <button class="action-btn edit" onclick="editItem('${item.id}', '${tab}')">✏️</button>
+                                <button class="action-btn delete" onclick="deleteItem('${item.id}', '${tab}')">🗑️</button>
+                            </td>`;
+                } else if (tab === 'subtype1') {
+                    row += `<td>${icons[tab]} ${item.sub_service_name}</td>
+                            <td><span class="badge badge-${item.is_active ? 'active' : 'inactive'}">${item.is_active ? '✓' : '✗'}</span></td>
+                            <td>
+                                <button class="action-btn toggle" onclick="quickToggle('${item.id}', '${tab}', ${item.is_active})">⊙</button>
+                                <button class="action-btn edit" onclick="editItem('${item.id}', '${tab}')">✏️</button>
+                                <button class="action-btn delete" onclick="deleteItem('${item.id}', '${tab}')">🗑️</button>
+                            </td>`;
+                } else if (tab === 'subtype2') {
+                    row += `<td>${icons[tab]} ${item.sub_service_name}</td>
+                            <td>${item.sac_code || '-'}</td>
+                            <td>${item.gst_percentage}%</td>
+                            <td><span class="badge badge-${item.is_active ? 'active' : 'inactive'}">${item.is_active ? '✓' : '✗'}</span></td>
+                            <td>
+                                <button class="action-btn toggle" onclick="quickToggle('${item.id}', '${tab}', ${item.is_active})">⊙</button>
+                                <button class="action-btn edit" onclick="editItem('${item.id}', '${tab}')">✏️</button>
+                                <button class="action-btn delete" onclick="deleteItem('${item.id}', '${tab}')">🗑️</button>
+                            </td>`;
                 }
 
-                closeCategoryModal();
-                await loadCategories();
-                showSuccess('categorySuccessMsg', '✓ Saved!');
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function deleteCategory(id) {
-            if (!confirm('Delete category?')) return;
-            try {
-                await supabase.from('service_categories').delete().eq('id', id);
-                await loadCategories();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // SERVICES
-        async function loadServices() {
-            try {
-                const { data, error } = await supabase
-                    .from('service_items')
-                    .select('*, service_categories(category_name)')
-                    .order('service_name', { ascending: true });
-
-                if (error) throw error;
-                allServices = data || [];
-                displayServices();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function displayServices() {
-            const tbody = document.getElementById('servicesTableBody');
-            
-            if (allServices.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No services yet</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = allServices.map(svc => {
-                const subType1 = allSubType1.find(s => s.id === svc.sub_service_type_1_id);
-                const subType2 = allSubType2.find(s => s.id === svc.sub_service_type_2_id);
-                
-                return `
-                    <tr>
-                        <td><strong>${svc.service_name}</strong></td>
-                        <td>${svc.service_categories?.category_name || '-'}</td>
-                        <td>${svc.sac_code || '-'}</td>
-                        <td>${svc.gst_percentage || 0}%</td>
-                        <td>${subType1 ? subType1.sub_service_name : '-'}</td>
-                        <td>${subType2 ? subType2.sub_service_name : '-'}</td>
-                        <td><span class="status-badge status-${svc.is_active ? 'active' : 'inactive'}">${svc.is_active ? '✓' : '✗'}</span></td>
-                        <td>
-                            <button class="btn btn-edit" onclick="editService('${svc.id}')">✏️</button>
-                            <button class="btn btn-delete" onclick="deleteService('${svc.id}')">🗑️</button>
-                        </td>
-                    </tr>
-                `;
+                row += '</tr>';
+                return row;
             }).join('');
         }
 
-        function openServiceModal() {
-            editingServiceId = null;
-            document.getElementById('serviceForm').reset();
-            document.getElementById('serviceModalTitle').textContent = '➕ Add Service';
-            document.getElementById('subServiceType1').value = '';
-            document.getElementById('subServiceType2').value = '';
-            populateSubServiceSelects();
-            document.getElementById('serviceModal').classList.add('show');
+        function updateStats(tab) {
+            const total = allData[tab].length;
+            const active = allData[tab].filter(item => item.is_active).length;
+            document.getElementById(`total${tab.charAt(0).toUpperCase() + tab.slice(1).replace('subtype1', 'SubType1').replace('subtype2', 'SubType2')}`)?.textContent = total;
+            document.getElementById(`active${tab.charAt(0).toUpperCase() + tab.slice(1).replace('subtype1', 'SubType1').replace('subtype2', 'SubType2')}`)?.textContent = active;
         }
 
-        function closeServiceModal() {
-            document.getElementById('serviceModal').classList.remove('show');
-        }
+        function sortData(tab, col) {
+            sortColumn[tab] = sortColumn[tab] === col ? null : col;
+            sortDir[tab] = 'asc';
 
-        function populateSubServiceSelects() {
-            const sel1 = document.getElementById('subServiceType1');
-            const sel2 = document.getElementById('subServiceType2');
-            
-            sel1.innerHTML = '<option value="">-- Select Sub-Service Type 1 --</option>';
-            allSubType1.forEach(sub => {
-                sel1.innerHTML += `<option value="${sub.id}">${sub.sub_service_name}</option>`;
+            if (!sortColumn[tab]) { filterAndDisplay(tab); return; }
+
+            allData[tab].sort((a, b) => {
+                let aVal = a[col === 'name' ? (tab === 'services' ? 'service_name' : tab === 'subtype1' || tab === 'subtype2' ? 'sub_service_name' : 'category_name') : col];
+                let bVal = b[col === 'name' ? (tab === 'services' ? 'service_name' : tab === 'subtype1' || tab === 'subtype2' ? 'sub_service_name' : 'category_name') : col];
+                if (typeof aVal === 'string') aVal = aVal.toLowerCase();
+                if (typeof bVal === 'string') bVal = bVal.toLowerCase();
+                return aVal > bVal ? 1 : -1;
             });
 
-            sel2.innerHTML = '<option value="">-- Select Sub-Service Type 2 --</option>';
-            allSubType2.forEach(sub => {
-                sel2.innerHTML += `<option value="${sub.id}">${sub.sub_service_name}</option>`;
-            });
+            filterAndDisplay(tab);
         }
 
-        async function editService(id) {
-            const svc = allServices.find(s => s.id === id);
-            if (!svc) return;
-            editingServiceId = id;
-            document.getElementById('serviceCategory').value = svc.category_id;
-            document.getElementById('serviceName').value = svc.service_name;
-            document.getElementById('serviceSAC').value = svc.sac_code || '';
-            document.getElementById('serviceGST').value = svc.gst_percentage || 0;
-            document.getElementById('serviceRate').value = svc.rate || 0;
-            document.getElementById('serviceActive').checked = svc.is_active;
-            
-            populateSubServiceSelects();
-            document.getElementById('subServiceType1').value = svc.sub_service_type_1_id || '';
-            document.getElementById('subServiceType2').value = svc.sub_service_type_2_id || '';
+        function dragStart() { }
+        function dragOver() { }
+        function dragDrop(idx, tab) { }
 
-            document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
-            document.getElementById('serviceModal').classList.add('show');
+        async function quickToggle(id, tab, currentStatus) {
+            try {
+                const table = tab === 'categories' ? 'service_categories' : tab === 'services' ? 'service_items' : tab === 'subtype1' ? 'sub_service_type_1' : 'sub_service_type_2';
+                await supabase.from(table).update({ is_active: !currentStatus }).eq('id', id);
+                await loadAllData();
+                showMsg(`Toggled!`, tab);
+            } catch (error) { console.error('Error:', error); }
         }
 
-        async function saveService(event) {
-            event.preventDefault();
-            const name = document.getElementById('serviceName').value.trim();
-            const categoryId = document.getElementById('serviceCategory').value;
-            const gst = parseFloat(document.getElementById('serviceGST').value);
+        function openModal(tab) {
+            editingId = null;
+            const titles = { category: 'Add Category', service: 'Add Service', subtype1: 'Add Sub-Service Type 1', subtype2: 'Add Sub-Service Type 2' };
+            document.getElementById('modalTitle').textContent = titles[tab] || 'Add Item';
 
-            if (!name) {
-                document.getElementById('serviceNameError').textContent = 'Name required';
-                return;
+            let fields = '';
+            if (tab === 'category') {
+                fields = `<div class="form-group"><label>Category Name *</label><input type="text" id="field-name" required></div>
+                         <div class="form-group"><input type="checkbox" id="field-active" checked> <label>Active</label></div>`;
+            } else if (tab === 'service') {
+                const cats = allData.categories.map(c => `<option value="${c.id}">${c.category_name}</option>`).join('');
+                fields = `<div class="form-group"><label>Category</label><select id="field-category" required><option>-- Select --</option>${cats}</select></div>
+                         <div class="form-group"><label>Service Name *</label><input type="text" id="field-name" required></div>
+                         <div class="form-group"><label>SAC Code</label><input type="text" id="field-sac"></div>
+                         <div class="form-group"><label>GST %</label><input type="number" id="field-gst" min="0" max="100" step="0.01" value="0"></div>
+                         <div class="form-group"><label>Rate</label><input type="number" id="field-rate" min="0" step="0.01" value="0"></div>
+                         <div class="form-group"><input type="checkbox" id="field-active" checked> <label>Active</label></div>`;
+            } else if (tab === 'subtype1') {
+                fields = `<div class="form-group"><label>Sub-Service Name *</label><input type="text" id="field-name" required></div>
+                         <div class="form-group"><input type="checkbox" id="field-active" checked> <label>Active</label></div>`;
+            } else if (tab === 'subtype2') {
+                fields = `<div class="form-group"><label>Sub-Service Name *</label><input type="text" id="field-name" required></div>
+                         <div class="form-group"><label>SAC Code</label><input type="text" id="field-sac"></div>
+                         <div class="form-group"><label>GST %</label><input type="number" id="field-gst" min="0" max="100" step="0.01" value="0"></div>
+                         <div class="form-group"><input type="checkbox" id="field-active" checked> <label>Active</label></div>`;
             }
-            if (!categoryId) {
-                document.getElementById('serviceCategoryError').textContent = 'Category required';
-                return;
-            }
+
+            document.getElementById('formFields').innerHTML = fields;
+            document.getElementById('mainForm').dataset.tab = tab;
+            document.getElementById('mainModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('mainModal').classList.remove('show');
+        }
+
+        async function saveItem(e) {
+            e.preventDefault();
+            const tab = document.getElementById('mainForm').dataset.tab;
+            const name = document.getElementById('field-name')?.value;
+            if (!name) { alert('Name required'); return; }
 
             try {
+                const tables = { category: 'service_categories', service: 'service_items', subtype1: 'sub_service_type_1', subtype2: 'sub_service_type_2' };
+                const table = tables[tab];
                 const data = {
-                    category_id: categoryId,
-                    service_name: name,
-                    sac_code: document.getElementById('serviceSAC').value || null,
-                    gst_percentage: gst,
-                    rate: parseFloat(document.getElementById('serviceRate').value) || 0,
-                    is_active: document.getElementById('serviceActive').checked,
-                    sub_service_type_1_id: document.getElementById('subServiceType1').value || null,
-                    sub_service_type_2_id: document.getElementById('subServiceType2').value || null
+                    [tab === 'category' ? 'category_name' : 'sub_service_name' in { subtype1: 1, subtype2: 1 } ? 'sub_service_name' : 'service_name']: name,
+                    is_active: document.getElementById('field-active')?.checked
                 };
 
-                if (editingServiceId) {
-                    await supabase.from('service_items').update(data).eq('id', editingServiceId);
+                if (tab === 'service') {
+                    data.category_id = document.getElementById('field-category')?.value;
+                    data.sac_code = document.getElementById('field-sac')?.value || null;
+                    data.gst_percentage = parseFloat(document.getElementById('field-gst')?.value) || 0;
+                    data.rate = parseFloat(document.getElementById('field-rate')?.value) || 0;
+                } else if (tab === 'subtype2') {
+                    data.sac_code = document.getElementById('field-sac')?.value || null;
+                    data.gst_percentage = parseFloat(document.getElementById('field-gst')?.value) || 0;
+                }
+
+                if (editingId) {
+                    await supabase.from(table).update(data).eq('id', editingId);
                 } else {
-                    await supabase.from('service_items').insert(data);
+                    await supabase.from(table).insert(data);
                 }
 
-                closeServiceModal();
-                await loadServices();
-                showSuccess('serviceSuccessMsg', '✓ Saved!');
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                closeModal();
+                await loadAllData();
+                showMsg('Saved!', tab);
+            } catch (error) { console.error('Error:', error); }
         }
 
-        async function deleteService(id) {
-            if (!confirm('Delete service?')) return;
-            try {
-                await supabase.from('service_items').delete().eq('id', id);
-                await loadServices();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+        async function editItem(id, tab) {
+            const item = allData[tab].find(x => x.id === id);
+            if (!item) return;
+            editingId = id;
+            openModal(tab);
 
-        // SUB-SERVICES TYPE 1
-        async function loadSubServices() {
-            try {
-                const { data: sub1, error: err1 } = await supabase
-                    .from('sub_service_type_1')
-                    .select('*')
-                    .order('sub_service_name');
-
-                const { data: sub2, error: err2 } = await supabase
-                    .from('sub_service_type_2')
-                    .select('*')
-                    .order('sub_service_name');
-
-                if (err1) throw err1;
-                if (err2) throw err2;
-
-                allSubType1 = sub1 || [];
-                allSubType2 = sub2 || [];
-                
-                displaySubType1();
-                displaySubType2();
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function filterSubType1() {
-            const searchTerm = document.getElementById('searchSubType1').value.toLowerCase();
-            const dropdown = document.getElementById('dropdownSubType1');
-            
-            if (!searchTerm) {
-                dropdown.classList.remove('show');
-                return;
-            }
-
-            const filtered = allSubType1.filter(sub => 
-                sub.sub_service_name.toLowerCase().includes(searchTerm)
-            );
-
-            if (filtered.length === 0) {
-                dropdown.innerHTML = `<div class="dropdown-item" onclick="createSubType1('${searchTerm}')">➕ Create: "${searchTerm}"</div>`;
-            } else {
-                dropdown.innerHTML = filtered.map(sub => 
-                    `<div class="dropdown-item" onclick="selectSubType1Item('${sub.id}', '${sub.sub_service_name}')">${sub.sub_service_name}</div>`
-                ).join('');
-            }
-
-            dropdown.classList.add('show');
-        }
-
-        function filterSubType2() {
-            const searchTerm = document.getElementById('searchSubType2').value.toLowerCase();
-            const dropdown = document.getElementById('dropdownSubType2');
-            
-            if (!searchTerm) {
-                dropdown.classList.remove('show');
-                return;
-            }
-
-            const filtered = allSubType2.filter(sub => 
-                sub.sub_service_name.toLowerCase().includes(searchTerm)
-            );
-
-            if (filtered.length === 0) {
-                dropdown.innerHTML = `<div class="dropdown-item" onclick="createSubType2('${searchTerm}')">➕ Create: "${searchTerm}"</div>`;
-            } else {
-                dropdown.innerHTML = filtered.map(sub => 
-                    `<div class="dropdown-item" onclick="selectSubType2Item('${sub.id}', '${sub.sub_service_name}')">${sub.sub_service_name}</div>`
-                ).join('');
-            }
-
-            dropdown.classList.add('show');
-        }
-
-        function selectSubType1Item(id, name) {
-            document.getElementById('searchSubType1').value = name;
-            document.getElementById('dropdownSubType1').classList.remove('show');
-        }
-
-        function selectSubType2Item(id, name) {
-            document.getElementById('searchSubType2').value = name;
-            document.getElementById('dropdownSubType2').classList.remove('show');
-        }
-
-        function createSubType1(name) {
-            document.getElementById('subType1Name').value = name;
-            openSubType1Modal();
-            document.getElementById('dropdownSubType1').classList.remove('show');
-        }
-
-        function createSubType2(name) {
-            document.getElementById('subType2Name').value = name;
-            openSubType2Modal();
-            document.getElementById('dropdownSubType2').classList.remove('show');
-        }
-
-        function displaySubType1() {
-            const tbody = document.getElementById('subType1TableBody');
-            
-            if (allSubType1.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No sub-services yet</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = allSubType1.map(sub => `
-                <tr>
-                    <td><strong>${sub.sub_service_name}</strong></td>
-                    <td><span class="status-badge status-${sub.is_active ? 'active' : 'inactive'}">${sub.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
-                    <td>
-                        <button class="btn btn-edit" onclick="editSubType1('${sub.id}')">✏️</button>
-                        <button class="btn btn-delete" onclick="deleteSubType1('${sub.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function displaySubType2() {
-            const tbody = document.getElementById('subType2TableBody');
-            
-            if (allSubType2.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No sub-services yet</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = allSubType2.map(sub => `
-                <tr>
-                    <td><strong>${sub.sub_service_name}</strong></td>
-                    <td>${sub.sac_code || '-'}</td>
-                    <td>${sub.gst_percentage || 0}%</td>
-                    <td><span class="status-badge status-${sub.is_active ? 'active' : 'inactive'}">${sub.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
-                    <td>
-                        <button class="btn btn-edit" onclick="editSubType2('${sub.id}')">✏️</button>
-                        <button class="btn btn-delete" onclick="deleteSubType2('${sub.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openSubType1Modal() {
-            editingSubType1Id = null;
-            document.getElementById('subType1Form').reset();
-            document.getElementById('subType1ModalTitle').textContent = '➕ Add Sub-Service Type 1';
-            document.getElementById('subType1Modal').classList.add('show');
-        }
-
-        function closeSubType1Modal() {
-            document.getElementById('subType1Modal').classList.remove('show');
-        }
-
-        async function editSubType1(id) {
-            const sub = allSubType1.find(s => s.id === id);
-            if (!sub) return;
-            editingSubType1Id = id;
-            document.getElementById('subType1Name').value = sub.sub_service_name;
-            document.getElementById('subType1Active').checked = sub.is_active;
-            document.getElementById('subType1ModalTitle').textContent = '✏️ Edit Sub-Service Type 1';
-            document.getElementById('subType1Modal').classList.add('show');
-        }
-
-        async function saveSubType1(event) {
-            event.preventDefault();
-            const name = document.getElementById('subType1Name').value.trim();
-            if (!name) {
-                document.getElementById('subType1NameError').textContent = 'Name required';
-                return;
-            }
-
-            try {
-                const data = {
-                    sub_service_name: name,
-                    is_active: document.getElementById('subType1Active').checked
-                };
-
-                if (editingSubType1Id) {
-                    await supabase.from('sub_service_type_1').update(data).eq('id', editingSubType1Id);
+            setTimeout(() => {
+                if (tab === 'category') {
+                    document.getElementById('field-name').value = item.category_name;
+                } else if (tab === 'service') {
+                    document.getElementById('field-category').value = item.category_id;
+                    document.getElementById('field-name').value = item.service_name;
+                    document.getElementById('field-sac').value = item.sac_code || '';
+                    document.getElementById('field-gst').value = item.gst_percentage;
+                    document.getElementById('field-rate').value = item.rate || 0;
                 } else {
-                    await supabase.from('sub_service_type_1').insert(data);
+                    document.getElementById('field-name').value = item.sub_service_name;
+                    if (tab === 'subtype2') {
+                        document.getElementById('field-sac').value = item.sac_code || '';
+                        document.getElementById('field-gst').value = item.gst_percentage || 0;
+                    }
                 }
-
-                closeSubType1Modal();
-                await loadSubServices();
-                showSuccess('subType1SuccessMsg', '✓ Saved!');
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                document.getElementById('field-active').checked = item.is_active;
+                document.getElementById('modalTitle').textContent = '✏️ Edit Item';
+            }, 100);
         }
 
-        async function deleteSubType1(id) {
-            if (!confirm('Delete sub-service?')) return;
+        async function deleteItem(id, tab) {
+            if (!confirm('Delete?')) return;
             try {
-                await supabase.from('sub_service_type_1').delete().eq('id', id);
-                await loadSubServices();
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                const tables = { categories: 'service_categories', services: 'service_items', subtype1: 'sub_service_type_1', subtype2: 'sub_service_type_2' };
+                await supabase.from(tables[tab]).delete().eq('id', id);
+                await loadAllData();
+            } catch (error) { console.error('Error:', error); }
         }
 
-        function openSubType2Modal() {
-            editingSubType2Id = null;
-            document.getElementById('subType2Form').reset();
-            document.getElementById('subType2ModalTitle').textContent = '➕ Add Sub-Service Type 2';
-            document.getElementById('subType2Modal').classList.add('show');
+        function exportData(tab) {
+            const tables = { categories: 'Categories', services: 'Services', subtype1: 'SubType1', subtype2: 'SubType2' };
+            const data = allData[tab];
+            const headers = tab === 'categories' ? ['Name', 'Active'] : tab === 'services' ? ['Name', 'Category', 'SAC', 'GST%', 'Rate', 'Active'] : ['Name', 'Active'];
+            const csv = headers.join(',') + '\n' + data.map(item => {
+                if (tab === 'categories') return `"${item.category_name}",${item.is_active ? 'Yes' : 'No'}`;
+                if (tab === 'services') return `"${item.service_name}","${allData.categories.find(c => c.id === item.category_id)?.category_name || ''}","${item.sac_code || ''}",${item.gst_percentage},${item.rate},${item.is_active ? 'Yes' : 'No'}`;
+                if (tab === 'subtype1') return `"${item.sub_service_name}",${item.is_active ? 'Yes' : 'No'}`;
+                if (tab === 'subtype2') return `"${item.sub_service_name}","${item.sac_code || ''}",${item.gst_percentage},${item.is_active ? 'Yes' : 'No'}`;
+            }).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${tables[tab]}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
         }
 
-        function closeSubType2Modal() {
-            document.getElementById('subType2Modal').classList.remove('show');
+        function triggerImport(tab) {
+            document.getElementById(`importFile-${tab}`).click();
         }
 
-        async function editSubType2(id) {
-            const sub = allSubType2.find(s => s.id === id);
-            if (!sub) return;
-            editingSubType2Id = id;
-            document.getElementById('subType2Name').value = sub.sub_service_name;
-            document.getElementById('subType2SAC').value = sub.sac_code || '';
-            document.getElementById('subType2GST').value = sub.gst_percentage || 0;
-            document.getElementById('subType2Active').checked = sub.is_active;
-            document.getElementById('subType2ModalTitle').textContent = '✏️ Edit Sub-Service Type 2';
-            document.getElementById('subType2Modal').classList.add('show');
-        }
-
-        async function saveSubType2(event) {
-            event.preventDefault();
-            const name = document.getElementById('subType2Name').value.trim();
-            if (!name) {
-                document.getElementById('subType2NameError').textContent = 'Name required';
-                return;
-            }
-
-            try {
-                const data = {
-                    sub_service_name: name,
-                    sac_code: document.getElementById('subType2SAC').value || null,
-                    gst_percentage: parseFloat(document.getElementById('subType2GST').value) || 0,
-                    is_active: document.getElementById('subType2Active').checked
-                };
-
-                if (editingSubType2Id) {
-                    await supabase.from('sub_service_type_2').update(data).eq('id', editingSubType2Id);
-                } else {
-                    await supabase.from('sub_service_type_2').insert(data);
+        function importData(tab) {
+            const file = document.getElementById(`importFile-${tab}`).files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const lines = e.target.result.split('\n').slice(1);
+                let count = 0;
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    const cols = line.split(',').map(c => c.replace(/"/g, '').trim());
+                    try {
+                        const tables = { categories: 'service_categories', services: 'service_items', subtype1: 'sub_service_type_1', subtype2: 'sub_service_type_2' };
+                        if (tab === 'categories') {
+                            await supabase.from(tables[tab]).insert({ category_name: cols[0], is_active: cols[1] !== 'No' });
+                        } else if (tab === 'services') {
+                            const catId = allData.categories.find(c => c.category_name === cols[1])?.id;
+                            if (!catId) continue;
+                            await supabase.from(tables[tab]).insert({ category_id: catId, service_name: cols[0], sac_code: cols[2] || null, gst_percentage: parseFloat(cols[3]) || 0, rate: parseFloat(cols[4]) || 0, is_active: cols[5] !== 'No' });
+                        } else {
+                            const data = { sub_service_name: cols[0], is_active: cols[cols.length - 1] !== 'No' };
+                            if (tab === 'subtype2') { data.sac_code = cols[1] || null; data.gst_percentage = parseFloat(cols[2]) || 0; }
+                            await supabase.from(tables[tab]).insert(data);
+                        }
+                        count++;
+                    } catch (err) { }
                 }
-
-                closeSubType2Modal();
-                await loadSubServices();
-                showSuccess('subType2SuccessMsg', '✓ Saved!');
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                alert(`Imported ${count} items`);
+                await loadAllData();
+                document.getElementById(`importFile-${tab}`).value = '';
+            };
+            reader.readAsText(file);
         }
 
-        async function deleteSubType2(id) {
-            if (!confirm('Delete sub-service?')) return;
-            try {
-                await supabase.from('sub_service_type_2').delete().eq('id', id);
-                await loadSubServices();
-            } catch (error) {
-                console.error('Error:', error);
-            }
+        function populateFilters() {
+            const sel = document.getElementById('filter-services-cat');
+            sel.innerHTML = '<option value="">All Categories</option>';
+            allData.categories.forEach(cat => sel.innerHTML += `<option value="${cat.id}">${cat.category_name}</option>`);
         }
 
-        // BUSINESS
-        async function loadBusiness() {
-            try {
-                const { data, error } = await supabase
-                    .from('business_settings')
-                    .select('*')
-                    .limit(1);
-
-                if (error) throw error;
-                if (data && data.length > 0) {
-                    const biz = data[0];
-                    document.getElementById('businessName').value = biz.business_name || '';
-                    document.getElementById('gstNumber').value = biz.gst_number || '';
-                    document.getElementById('businessPhone').value = biz.phone || '';
-                    document.getElementById('businessEmail').value = biz.email || '';
-                    document.getElementById('businessAddress').value = biz.address || '';
-                    document.getElementById('businessCity').value = biz.city || '';
-                    document.getElementById('businessState').value = biz.state || '';
-                    document.getElementById('businessPincode').value = biz.pincode || '';
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        async function saveBusiness(event) {
-            event.preventDefault();
+        async function saveBusiness(e) {
+            e.preventDefault();
             try {
                 const data = {
                     business_name: document.getElementById('businessName').value,
@@ -1343,36 +684,31 @@
                     state: document.getElementById('businessState').value,
                     pincode: document.getElementById('businessPincode').value
                 };
-
                 const { data: existing } = await supabase.from('business_settings').select('id').limit(1);
-                
                 if (existing && existing.length > 0) {
                     await supabase.from('business_settings').update(data).eq('id', existing[0].id);
                 } else {
                     await supabase.from('business_settings').insert(data);
                 }
-
-                showSuccess('businessSuccessMsg', '✓ Saved!');
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                showMsg('Business saved!', 'business');
+            } catch (error) { console.error('Error:', error); }
         }
 
-        function showSuccess(id, msg) {
-            const el = document.getElementById(id);
-            el.textContent = msg;
-            el.classList.add('show');
-            setTimeout(() => el.classList.remove('show'), 3000);
+        function showMsg(msg, tab) {
+            const el = document.getElementById(`msg-${tab}`);
+            if (el) { el.textContent = '✓ ' + msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); }
         }
 
         function logout() {
-            if (confirm('Logout?')) {
-                localStorage.removeItem('userSession');
-                window.location.href = 'index.html';
-            }
+            if (confirm('Logout?')) { localStorage.removeItem('userSession'); window.location.href = 'index.html'; }
         }
 
-        window.addEventListener('load', initialize);
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'f') { e.preventDefault(); document.querySelector(`input[id^="search-"]`)?.focus(); }
+            if (e.ctrlKey && e.key === 'n') { e.preventDefault(); openModal(currentTab); }
+        });
+
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
