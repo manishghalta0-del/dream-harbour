@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamHarbour - Advanced Settings</title>
+    <title>DreamHarbour - Settings</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -35,8 +35,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
         }
 
         .logo {
@@ -46,14 +44,12 @@
 
         .nav-link {
             color: white;
-            text-decoration: none;
             padding: 10px 20px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 5px;
             cursor: pointer;
             border: none;
             font-weight: 600;
-            transition: all 0.3s ease;
         }
 
         .nav-link:hover {
@@ -69,19 +65,16 @@
             gap: 10px;
             border-bottom: 2px solid #e0e0e0;
             margin-bottom: 30px;
-            flex-wrap: wrap;
         }
 
         .tab {
             padding: 12px 20px;
             background: none;
             border: none;
-            font-size: 14px;
             font-weight: 600;
             color: #666;
             cursor: pointer;
             border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
         }
 
         .tab:hover {
@@ -99,28 +92,14 @@
 
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .section-title {
             font-size: 20px;
             font-weight: bold;
-            color: #333;
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #e0e0e0;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
         }
 
         .btn {
@@ -130,7 +109,6 @@
             cursor: pointer;
             font-weight: 600;
             font-size: 14px;
-            transition: all 0.3s ease;
         }
 
         .btn-primary {
@@ -149,32 +127,18 @@
             border: 2px solid #e5e7eb;
         }
 
-        .btn-secondary:hover {
-            background: #e5e7eb;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            margin-right: 5px;
-        }
-
         .btn-edit {
             background: #3b82f6;
             color: white;
-        }
-
-        .btn-edit:hover {
-            background: #2563eb;
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
         .btn-delete {
             background: #ef4444;
             color: white;
-        }
-
-        .btn-delete:hover {
-            background: #dc2626;
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
         .table-container {
@@ -185,7 +149,6 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
         }
 
         table th {
@@ -193,16 +156,12 @@
             padding: 15px;
             text-align: left;
             font-weight: 600;
-            color: #333;
             border-bottom: 2px solid #e0e0e0;
-            font-size: 13px;
-            text-transform: uppercase;
         }
 
         table td {
             padding: 15px;
             border-bottom: 1px solid #e0e0e0;
-            color: #666;
         }
 
         table tr:hover {
@@ -220,8 +179,6 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(2px);
-            overflow-y: auto;
             padding: 20px;
         }
 
@@ -233,7 +190,7 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
         }
@@ -253,35 +210,27 @@
             border: none;
             font-size: 28px;
             cursor: pointer;
-            color: #999;
-        }
-
-        .modal-close:hover {
-            color: #333;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
             margin-bottom: 15px;
         }
 
         .form-group label {
+            display: block;
             font-weight: 600;
-            color: #333;
-            font-size: 14px;
+            margin-bottom: 8px;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
+            width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
-            transition: all 0.3s ease;
         }
 
         .form-group input:focus,
@@ -296,6 +245,17 @@
             font-size: 12px;
             color: #ef4444;
             min-height: 18px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin: 0;
         }
 
         .modal-actions {
@@ -334,14 +294,8 @@
 
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
+            padding: 40px 20px;
             color: #999;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
         }
 
         .status-badge {
@@ -349,7 +303,6 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-            display: inline-block;
         }
 
         .status-active {
@@ -362,75 +315,23 @@
             color: #991b1b;
         }
 
-        .info-box {
-            background: #f0f9ff;
-            border: 1px solid #bfdbfe;
-            border-left: 4px solid #1e40af;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .info-box h4 {
-            color: #1e40af;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .info-box p {
-            color: #333;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .sub-items-list {
-            background: #f9fafb;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .sub-item {
-            padding: 8px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 4px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .sub-item-remove {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         @media (max-width: 768px) {
-            .content {
-                padding: 15px;
+            .form-row {
+                grid-template-columns: 1fr;
             }
-
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .table-container {
+            
+            table {
                 font-size: 12px;
             }
-
+            
             table th, table td {
                 padding: 10px;
-            }
-
-            .modal-content {
-                max-width: 95%;
             }
         }
     </style>
@@ -438,9 +339,9 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">🏢 DreamHarbour - Advanced Settings</div>
+            <div class="logo">⚙️ DreamHarbour - Settings</div>
             <div style="display: flex; gap: 10px;">
-                <a href="dashboard.html" class="nav-link">← Dashboard</a>
+                <a href="dashboard.html" style="text-decoration: none;"><button class="nav-link">← Dashboard</button></a>
                 <button class="nav-link" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
@@ -449,152 +350,83 @@
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('categories')">📂 Categories</button>
                 <button class="tab" onclick="switchTab('services')">🛍️ Services</button>
-                <button class="tab" onclick="switchTab('subservices')">🔗 Sub-Services</button>
-                <button class="tab" onclick="switchTab('business')">💼 Business Info</button>
+                <button class="tab" onclick="switchTab('business')">💼 Business</button>
             </div>
 
-            <!-- ========== TAB 1: CATEGORIES ========== -->
+            <!-- CATEGORIES TAB -->
             <div id="categories" class="tab-content active">
-                <div class="section-title">📂 Service Categories Management</div>
-                
-                <div class="info-box">
-                    <h4>ℹ️ About Categories</h4>
-                    <p>Categories group related services together. Each category can have multiple services and sub-services. Examples: Photocopy/Printing, Document Writing, E-Stamping, etc.</p>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="openCategoryModal()">➕ Add New Category</button>
-                </div>
-
+                <div class="section-title">📂 Categories</div>
+                <button class="btn btn-primary" onclick="openCategoryModal()">➕ Add Category</button>
                 <div class="success-message" id="categorySuccessMsg"></div>
-                <div class="error-message" id="categoryErrorMsg"></div>
-
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
                                 <th>Category Name</th>
-                                <th>Description</th>
-                                <th>Order</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="categoriesTableBody">
-                            <tr><td colspan="5" style="text-align: center;">Loading categories...</td></tr>
+                            <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ========== TAB 2: SERVICES ========== -->
+            <!-- SERVICES TAB -->
             <div id="services" class="tab-content">
-                <div class="section-title">🛍️ Services Management</div>
-
-                <div class="info-box">
-                    <h4>ℹ️ About Services</h4>
-                    <p>Services are the individual offerings under each category. Each service has its own SAC code, GST rate, and pricing. Services can have sub-services that auto-expand when selected.</p>
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="openServiceModal()">➕ Add New Service</button>
-                </div>
-
+                <div class="section-title">🛍️ Services</div>
+                <button class="btn btn-primary" onclick="openServiceModal()">➕ Add Service</button>
                 <div class="success-message" id="serviceSuccessMsg"></div>
-                <div class="error-message" id="serviceErrorMsg"></div>
-
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Service Name</th>
+                                <th>Service</th>
                                 <th>Category</th>
                                 <th>SAC Code</th>
-                                <th>Rate</th>
                                 <th>GST %</th>
-                                <th>Sub-Items</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="servicesTableBody">
-                            <tr><td colspan="8" style="text-align: center;">Loading services...</td></tr>
+                            <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- ========== TAB 3: SUB-SERVICES ========== -->
-            <div id="subservices" class="tab-content">
-                <div class="section-title">🔗 Sub-Services Configuration</div>
-
-                <div class="info-box">
-                    <h4>ℹ️ About Sub-Services</h4>
-                    <p>Sub-services are secondary items that automatically appear when a primary service is selected. For example, when "Deed Writing" is selected, it auto-adds "Deed Writing Fee" + "Specialized office support services".</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="serviceSelector">Select Service to Configure Sub-Items:</label>
-                    <select id="serviceSelector" onchange="loadServiceSubItems()">
-                        <option value="">-- Choose Service --</option>
-                    </select>
-                </div>
-
-                <div id="subItemsConfig" style="display: none;">
-                    <div class="section-title" style="margin-top: 20px;">Configure Sub-Items</div>
-                    
-                    <div class="info-box">
-                        <h4>Current Sub-Items for: <span id="selectedServiceName"></span></h4>
-                        <div id="subItemsList" class="sub-items-list">
-                            <p style="color: #999; text-align: center;">No sub-items configured yet</p>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subServiceSelector">Add Sub-Service Item:</label>
-                        <select id="subServiceSelector">
-                            <option value="">-- Select Service to Add --</option>
-                        </select>
-                    </div>
-
-                    <button class="btn btn-primary" onclick="addSubItem()" style="margin-top: 10px;">➕ Add Sub-Item</button>
-                    <button class="btn btn-secondary" onclick="closeSubItemsConfig()" style="margin-top: 10px;">Done</button>
-
-                    <div class="success-message" id="subItemSuccessMsg"></div>
-                    <div class="error-message" id="subItemErrorMsg"></div>
-                </div>
-            </div>
-
-            <!-- ========== TAB 4: BUSINESS INFO ========== -->
+            <!-- BUSINESS TAB -->
             <div id="business" class="tab-content">
                 <div class="section-title">💼 Business Information</div>
-
-                <form id="businessForm" onsubmit="saveBusinessInfo(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <form id="businessForm" onsubmit="saveBusiness(event)">
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Business Name *</label>
                             <input type="text" id="businessName" required>
-                            <div class="form-error" id="businessNameError"></div>
                         </div>
                         <div class="form-group">
                             <label>GST Number *</label>
                             <input type="text" id="gstNumber" required>
-                            <div class="form-error" id="gstNumberError"></div>
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Phone *</label>
                             <input type="tel" id="businessPhone" maxlength="10" required>
-                            <div class="form-error" id="businessPhoneError"></div>
                         </div>
                         <div class="form-group">
                             <label>Email *</label>
                             <input type="email" id="businessEmail" required>
-                            <div class="form-error" id="businessEmailError"></div>
                         </div>
-                        <div class="form-group" style="grid-column: 1/-1;">
-                            <label>Address</label>
-                            <input type="text" id="businessAddress">
-                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="businessAddress">
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label>City</label>
                             <input type="text" id="businessCity">
@@ -603,78 +435,50 @@
                             <label>State</label>
                             <input type="text" id="businessState">
                         </div>
-                        <div class="form-group">
-                            <label>Pincode</label>
-                            <input type="text" id="businessPincode" maxlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label>Default GST %</label>
-                            <input type="number" id="defaultGST" min="0" max="100" step="0.01" value="18">
-                        </div>
                     </div>
-
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn btn-primary">💾 Save Business Info</button>
-                        <button type="reset" class="btn btn-secondary">🔄 Reset</button>
+                    <div class="form-group">
+                        <label>Pincode</label>
+                        <input type="text" id="businessPincode" maxlength="6">
                     </div>
-
+                    <button type="submit" class="btn btn-primary">💾 Save</button>
                     <div class="success-message" id="businessSuccessMsg"></div>
-                    <div class="error-message" id="businessErrorMsg"></div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- ========== CATEGORY MODAL ========== -->
+    <!-- CATEGORY MODAL -->
     <div class="modal" id="categoryModal">
         <div class="modal-content">
             <div class="modal-header">
                 <span id="categoryModalTitle">➕ Add Category</span>
                 <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
             </div>
-
             <form id="categoryForm" onsubmit="saveCategory(event)">
                 <div class="form-group">
                     <label>Category Name *</label>
                     <input type="text" id="categoryName" required>
                     <div class="form-error" id="categoryNameError"></div>
                 </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="categoryDescription" rows="3"></textarea>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="categoryActive" checked>
+                    <label style="margin: 0;">Active</label>
                 </div>
-
-                <div class="form-group">
-                    <label>Display Order</label>
-                    <input type="number" id="categoryOrder" value="0" min="0">
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="categoryActive" checked>
-                        Active
-                    </label>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-primary">✓ Save Category</button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">✓ Save</button>
                     <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
                 </div>
-
-                <div class="form-error" id="categoryFormError" style="margin-top: 15px;"></div>
             </form>
         </div>
     </div>
 
-    <!-- ========== SERVICE MODAL ========== -->
+    <!-- SERVICE MODAL -->
     <div class="modal" id="serviceModal">
         <div class="modal-content">
             <div class="modal-header">
                 <span id="serviceModalTitle">➕ Add Service</span>
                 <button class="modal-close" onclick="closeServiceModal()">&times;</button>
             </div>
-
             <form id="serviceForm" onsubmit="saveService(event)">
                 <div class="form-group">
                     <label>Category *</label>
@@ -683,72 +487,37 @@
                     </select>
                     <div class="form-error" id="serviceCategoryError"></div>
                 </div>
-
                 <div class="form-group">
                     <label>Service Name *</label>
                     <input type="text" id="serviceName" required>
                     <div class="form-error" id="serviceNameError"></div>
                 </div>
-
                 <div class="form-group">
-                    <label>SAC Code (optional)</label>
+                    <label>SAC Code</label>
                     <input type="text" id="serviceSAC" placeholder="e.g., 998599">
                 </div>
-
-                <div class="form-group">
-                    <label>Rate (₹)</label>
-                    <input type="number" id="serviceRate" min="0" step="0.01" value="0">
-                </div>
-
                 <div class="form-group">
                     <label>GST % *</label>
                     <input type="number" id="serviceGST" min="0" max="100" step="0.01" required>
                     <div class="form-error" id="serviceGSTError"></div>
                 </div>
-
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="serviceDescription" rows="2"></textarea>
+                    <label>Rate (₹)</label>
+                    <input type="number" id="serviceRate" min="0" step="0.01" value="0">
                 </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="serviceIsPrimary" checked>
-                        Is Primary Fee (Main service fee)
-                    </label>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="serviceActive" checked>
+                    <label style="margin: 0;">Active</label>
                 </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="serviceQuantityBased">
-                        Quantity Based (e.g., per page)
-                    </label>
-                </div>
-
-                <div id="quantityUnitGroup" class="form-group" style="display: none;">
-                    <label>Quantity Unit</label>
-                    <input type="text" id="serviceQuantityUnit" placeholder="e.g., Page, Sheet, Item">
-                </div>
-
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="serviceActive" checked>
-                        Active
-                    </label>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-primary">✓ Save Service</button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">✓ Save</button>
                     <button type="button" class="btn btn-secondary" onclick="closeServiceModal()">Cancel</button>
                 </div>
-
-                <div class="form-error" id="serviceFormError" style="margin-top: 15px;"></div>
             </form>
         </div>
     </div>
 
     <script>
-        // SUPABASE CONFIG
         const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
 
@@ -758,7 +527,6 @@
         let allServices = [];
         let editingCategoryId = null;
         let editingServiceId = null;
-        let selectedServiceForSubItems = null;
 
         async function initialize() {
             try {
@@ -773,35 +541,33 @@
                 currentUser = userSession;
                 await loadCategories();
                 await loadServices();
-                await loadBusinessInfo();
+                await loadBusiness();
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        // ===== TAB SWITCHING =====
         function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
         }
 
-        // ===== CATEGORIES =====
+        // CATEGORIES
         async function loadCategories() {
             try {
                 const { data, error } = await supabase
                     .from('service_categories')
                     .select('*')
-                    .order('display_order', { ascending: true });
+                    .order('category_name', { ascending: true });
 
                 if (error) throw error;
                 allCategories = data || [];
                 displayCategories();
-                populateCategorySelectors();
+                populateCategorySelect();
             } catch (error) {
-                console.error('Error loading categories:', error);
+                console.error('Error:', error);
             }
         }
 
@@ -809,39 +575,27 @@
             const tbody = document.getElementById('categoriesTableBody');
             
             if (allCategories.length === 0) {
-                tbody.innerHTML = `<tr>
-                    <td colspan="5" style="text-align: center; padding: 30px;">
-                        <div class="empty-state">📂 No categories yet. Add one to get started!</div>
-                    </td>
-                </tr>`;
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No categories yet</td></tr>';
                 return;
             }
 
             tbody.innerHTML = allCategories.map(cat => `
                 <tr>
                     <td><strong>${cat.category_name}</strong></td>
-                    <td>${cat.description || '-'}</td>
-                    <td>${cat.display_order}</td>
                     <td><span class="status-badge status-${cat.is_active ? 'active' : 'inactive'}">${cat.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
                     <td>
-                        <button class="btn btn-small btn-edit" onclick="editCategory('${cat.id}')">✏️</button>
-                        <button class="btn btn-small btn-delete" onclick="deleteCategory('${cat.id}')">🗑️</button>
+                        <button class="btn btn-edit" onclick="editCategory('${cat.id}')">✏️</button>
+                        <button class="btn btn-delete" onclick="deleteCategory('${cat.id}')">🗑️</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function populateCategorySelectors() {
-            const selector = document.getElementById('serviceCategory');
-            selector.innerHTML = '<option value="">-- Select Category --</option>';
+        function populateCategorySelect() {
+            const select = document.getElementById('serviceCategory');
+            select.innerHTML = '<option value="">-- Select Category --</option>';
             allCategories.forEach(cat => {
-                selector.innerHTML += `<option value="${cat.id}">${cat.category_name}</option>`;
-            });
-
-            const subSelector = document.getElementById('subServiceSelector');
-            subSelector.innerHTML = '<option value="">-- Select Service to Add --</option>';
-            allServices.forEach(svc => {
-                subSelector.innerHTML += `<option value="${svc.id}">${svc.service_name}</option>`;
+                select.innerHTML += `<option value="${cat.id}">${cat.category_name}</option>`;
             });
         }
 
@@ -856,91 +610,67 @@
             document.getElementById('categoryModal').classList.remove('show');
         }
 
-        async function editCategory(categoryId) {
-            const category = allCategories.find(c => c.id === categoryId);
-            if (!category) return;
-
-            editingCategoryId = categoryId;
-            document.getElementById('categoryName').value = category.category_name;
-            document.getElementById('categoryDescription').value = category.description || '';
-            document.getElementById('categoryOrder').value = category.display_order || 0;
-            document.getElementById('categoryActive').checked = category.is_active !== false;
-
+        async function editCategory(id) {
+            const cat = allCategories.find(c => c.id === id);
+            if (!cat) return;
+            editingCategoryId = id;
+            document.getElementById('categoryName').value = cat.category_name;
+            document.getElementById('categoryActive').checked = cat.is_active;
             document.getElementById('categoryModalTitle').textContent = '✏️ Edit Category';
             document.getElementById('categoryModal').classList.add('show');
         }
 
         async function saveCategory(event) {
             event.preventDefault();
-
-            const categoryName = document.getElementById('categoryName').value.trim();
-            if (!categoryName) {
-                showError('categoryNameError', 'Category name is required');
+            const name = document.getElementById('categoryName').value.trim();
+            if (!name) {
+                document.getElementById('categoryNameError').textContent = 'Name required';
                 return;
             }
 
             try {
-                const categoryData = {
-                    category_name: categoryName,
-                    description: document.getElementById('categoryDescription').value,
-                    display_order: parseInt(document.getElementById('categoryOrder').value) || 0,
+                const data = {
+                    category_name: name,
                     is_active: document.getElementById('categoryActive').checked
                 };
 
                 if (editingCategoryId) {
-                    // UPDATE
-                    const { error } = await supabase
-                        .from('service_categories')
-                        .update(categoryData)
-                        .eq('id', editingCategoryId);
-                    if (error) throw error;
+                    await supabase.from('service_categories').update(data).eq('id', editingCategoryId);
                 } else {
-                    // INSERT
-                    const { error } = await supabase
-                        .from('service_categories')
-                        .insert(categoryData);
-                    if (error) throw error;
+                    await supabase.from('service_categories').insert(data);
                 }
 
                 closeCategoryModal();
                 await loadCategories();
-                showSuccess('categorySuccessMsg', editingCategoryId ? '✓ Category updated!' : '✓ Category added!');
-                setTimeout(() => document.getElementById('categorySuccessMsg').classList.remove('show'), 3000);
-
+                showSuccess('categorySuccessMsg', '✓ Saved!');
             } catch (error) {
-                showErrorMsg('categoryErrorMsg', 'Error: ' + error.message);
+                console.error('Error:', error);
             }
         }
 
-        async function deleteCategory(categoryId) {
-            if (!confirm('Delete this category? All services under it will be deleted too.')) return;
-
+        async function deleteCategory(id) {
+            if (!confirm('Delete category?')) return;
             try {
-                const { error } = await supabase
-                    .from('service_categories')
-                    .delete()
-                    .eq('id', categoryId);
-
-                if (error) throw error;
+                await supabase.from('service_categories').delete().eq('id', id);
                 await loadCategories();
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        // ===== SERVICES =====
+        // SERVICES
         async function loadServices() {
             try {
                 const { data, error } = await supabase
                     .from('service_items')
-                    .select('*')
-                    .order('display_order', { ascending: true });
+                    .select('*, service_categories(category_name)')
+                    .order('service_name', { ascending: true });
 
                 if (error) throw error;
                 allServices = data || [];
                 displayServices();
             } catch (error) {
-                console.error('Error loading services:', error);
+                console.error('Error:', error);
             }
         }
 
@@ -948,41 +678,29 @@
             const tbody = document.getElementById('servicesTableBody');
             
             if (allServices.length === 0) {
-                tbody.innerHTML = `<tr>
-                    <td colspan="8" style="text-align: center; padding: 30px;">
-                        <div class="empty-state">🛍️ No services yet. Add one to get started!</div>
-                    </td>
-                </tr>`;
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No services yet</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = allServices.map(svc => {
-                const category = allCategories.find(c => c.id === svc.category_id);
-                const subItemsCount = svc.linked_service_ids ? JSON.parse(svc.linked_service_ids || '[]').length : 0;
-                
-                return `
-                    <tr>
-                        <td><strong>${svc.service_name}</strong></td>
-                        <td>${category ? category.category_name : '-'}</td>
-                        <td>${svc.sac_code || '-'}</td>
-                        <td>₹${svc.rate || '0'}</td>
-                        <td>${svc.gst_percentage || '0'}%</td>
-                        <td>${subItemsCount > 0 ? `${subItemsCount} items` : '-'}</td>
-                        <td><span class="status-badge status-${svc.is_active ? 'active' : 'inactive'}">${svc.is_active ? '✓' : '✗'}</span></td>
-                        <td>
-                            <button class="btn btn-small btn-edit" onclick="editService('${svc.id}')">✏️</button>
-                            <button class="btn btn-small btn-delete" onclick="deleteService('${svc.id}')">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            tbody.innerHTML = allServices.map(svc => `
+                <tr>
+                    <td><strong>${svc.service_name}</strong></td>
+                    <td>${svc.service_categories?.category_name || '-'}</td>
+                    <td>${svc.sac_code || '-'}</td>
+                    <td>${svc.gst_percentage || 0}%</td>
+                    <td><span class="status-badge status-${svc.is_active ? 'active' : 'inactive'}">${svc.is_active ? '✓' : '✗'}</span></td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editService('${svc.id}')">✏️</button>
+                        <button class="btn btn-delete" onclick="deleteService('${svc.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         function openServiceModal() {
             editingServiceId = null;
             document.getElementById('serviceForm').reset();
             document.getElementById('serviceModalTitle').textContent = '➕ Add Service';
-            document.getElementById('quantityUnitGroup').style.display = 'none';
             document.getElementById('serviceModal').classList.add('show');
         }
 
@@ -990,219 +708,78 @@
             document.getElementById('serviceModal').classList.remove('show');
         }
 
-        async function editService(serviceId) {
-            const service = allServices.find(s => s.id === serviceId);
-            if (!service) return;
-
-            editingServiceId = serviceId;
-            document.getElementById('serviceCategory').value = service.category_id || '';
-            document.getElementById('serviceName').value = service.service_name;
-            document.getElementById('serviceSAC').value = service.sac_code || '';
-            document.getElementById('serviceRate').value = service.rate || '0';
-            document.getElementById('serviceGST').value = service.gst_percentage || '0';
-            document.getElementById('serviceDescription').value = service.description || '';
-            document.getElementById('serviceIsPrimary').checked = service.is_primary_fee !== false;
-            document.getElementById('serviceQuantityBased').checked = service.is_quantity_based === true;
-            document.getElementById('serviceQuantityUnit').value = service.quantity_unit || '';
-            document.getElementById('serviceActive').checked = service.is_active !== false;
-
-            if (service.is_quantity_based) {
-                document.getElementById('quantityUnitGroup').style.display = 'block';
-            }
-
+        async function editService(id) {
+            const svc = allServices.find(s => s.id === id);
+            if (!svc) return;
+            editingServiceId = id;
+            document.getElementById('serviceCategory').value = svc.category_id;
+            document.getElementById('serviceName').value = svc.service_name;
+            document.getElementById('serviceSAC').value = svc.sac_code || '';
+            document.getElementById('serviceGST').value = svc.gst_percentage || 0;
+            document.getElementById('serviceRate').value = svc.rate || 0;
+            document.getElementById('serviceActive').checked = svc.is_active;
             document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
             document.getElementById('serviceModal').classList.add('show');
         }
 
         async function saveService(event) {
             event.preventDefault();
-
-            const serviceName = document.getElementById('serviceName').value.trim();
+            const name = document.getElementById('serviceName').value.trim();
             const categoryId = document.getElementById('serviceCategory').value;
             const gst = parseFloat(document.getElementById('serviceGST').value);
 
-            if (!serviceName) {
-                showError('serviceNameError', 'Service name required');
+            if (!name) {
+                document.getElementById('serviceNameError').textContent = 'Name required';
                 return;
             }
             if (!categoryId) {
-                showError('serviceCategoryError', 'Category required');
-                return;
-            }
-            if (isNaN(gst) || gst < 0 || gst > 100) {
-                showError('serviceGSTError', 'GST must be 0-100');
+                document.getElementById('serviceCategoryError').textContent = 'Category required';
                 return;
             }
 
             try {
-                const serviceData = {
+                const data = {
                     category_id: categoryId,
-                    service_name: serviceName,
+                    service_name: name,
                     sac_code: document.getElementById('serviceSAC').value || null,
-                    rate: parseFloat(document.getElementById('serviceRate').value) || 0,
                     gst_percentage: gst,
-                    description: document.getElementById('serviceDescription').value || null,
-                    is_primary_fee: document.getElementById('serviceIsPrimary').checked,
-                    is_quantity_based: document.getElementById('serviceQuantityBased').checked,
-                    quantity_unit: document.getElementById('serviceQuantityUnit').value || null,
+                    rate: parseFloat(document.getElementById('serviceRate').value) || 0,
                     is_active: document.getElementById('serviceActive').checked
                 };
 
                 if (editingServiceId) {
-                    const { error } = await supabase
-                        .from('service_items')
-                        .update(serviceData)
-                        .eq('id', editingServiceId);
-                    if (error) throw error;
+                    await supabase.from('service_items').update(data).eq('id', editingServiceId);
                 } else {
-                    const { error } = await supabase
-                        .from('service_items')
-                        .insert(serviceData);
-                    if (error) throw error;
+                    await supabase.from('service_items').insert(data);
                 }
 
                 closeServiceModal();
                 await loadServices();
-                showSuccess('serviceSuccessMsg', editingServiceId ? '✓ Service updated!' : '✓ Service added!');
-                setTimeout(() => document.getElementById('serviceSuccessMsg').classList.remove('show'), 3000);
-
+                showSuccess('serviceSuccessMsg', '✓ Saved!');
             } catch (error) {
-                showErrorMsg('serviceErrorMsg', 'Error: ' + error.message);
+                console.error('Error:', error);
             }
         }
 
-        async function deleteService(serviceId) {
-            if (!confirm('Delete this service?')) return;
-
+        async function deleteService(id) {
+            if (!confirm('Delete service?')) return;
             try {
-                const { error } = await supabase
-                    .from('service_items')
-                    .delete()
-                    .eq('id', serviceId);
-
-                if (error) throw error;
+                await supabase.from('service_items').delete().eq('id', id);
                 await loadServices();
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        // ===== SUB-SERVICES =====
-        function loadServiceSubItems() {
-            const serviceId = document.getElementById('serviceSelector').value;
-            if (!serviceId) {
-                document.getElementById('subItemsConfig').style.display = 'none';
-                return;
-            }
-
-            const service = allServices.find(s => s.id === serviceId);
-            if (!service) return;
-
-            selectedServiceForSubItems = service;
-            document.getElementById('selectedServiceName').textContent = service.service_name;
-            document.getElementById('subItemsConfig').style.display = 'block';
-            
-            displaySubItems(service);
-        }
-
-        function displaySubItems(service) {
-            const subItemsList = document.getElementById('subItemsList');
-            const linkedIds = service.linked_service_ids ? JSON.parse(service.linked_service_ids) : [];
-
-            if (linkedIds.length === 0) {
-                subItemsList.innerHTML = '<p style="color: #999; text-align: center;">No sub-items configured yet</p>';
-                return;
-            }
-
-            subItemsList.innerHTML = linkedIds.map(linkedId => {
-                const linkedService = allServices.find(s => s.id === linkedId);
-                return `
-                    <div class="sub-item">
-                        <span>${linkedService ? linkedService.service_name : 'Unknown'}</span>
-                        <button class="sub-item-remove" onclick="removeSubItem('${linkedId}')">Remove</button>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        async function addSubItem() {
-            const subServiceId = document.getElementById('subServiceSelector').value;
-            if (!subServiceId || !selectedServiceForSubItems) return;
-
-            try {
-                const currentLinked = selectedServiceForSubItems.linked_service_ids 
-                    ? JSON.parse(selectedServiceForSubItems.linked_service_ids) 
-                    : [];
-
-                if (currentLinked.includes(subServiceId)) {
-                    showErrorMsg('subItemErrorMsg', 'This service is already added');
-                    return;
-                }
-
-                currentLinked.push(subServiceId);
-
-                const { error } = await supabase
-                    .from('service_items')
-                    .update({ linked_service_ids: JSON.stringify(currentLinked) })
-                    .eq('id', selectedServiceForSubItems.id);
-
-                if (error) throw error;
-
-                await loadServices();
-                document.getElementById('serviceSelector').value = selectedServiceForSubItems.id;
-                loadServiceSubItems();
-                
-                showSuccess('subItemSuccessMsg', '✓ Sub-item added!');
-                setTimeout(() => document.getElementById('subItemSuccessMsg').classList.remove('show'), 3000);
-
-            } catch (error) {
-                showErrorMsg('subItemErrorMsg', 'Error: ' + error.message);
-            }
-        }
-
-        async function removeSubItem(subServiceId) {
-            if (!selectedServiceForSubItems) return;
-
-            try {
-                const currentLinked = JSON.parse(selectedServiceForSubItems.linked_service_ids || '[]');
-                const index = currentLinked.indexOf(subServiceId);
-                if (index > -1) {
-                    currentLinked.splice(index, 1);
-                }
-
-                const { error } = await supabase
-                    .from('service_items')
-                    .update({ linked_service_ids: JSON.stringify(currentLinked) })
-                    .eq('id', selectedServiceForSubItems.id);
-
-                if (error) throw error;
-
-                await loadServices();
-                document.getElementById('serviceSelector').value = selectedServiceForSubItems.id;
-                loadServiceSubItems();
-
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        function closeSubItemsConfig() {
-            document.getElementById('serviceSelector').value = '';
-            document.getElementById('subItemsConfig').style.display = 'none';
-            selectedServiceForSubItems = null;
-        }
-
-        // ===== BUSINESS INFO =====
-        async function loadBusinessInfo() {
+        // BUSINESS
+        async function loadBusiness() {
             try {
                 const { data, error } = await supabase
                     .from('business_settings')
                     .select('*')
-                    .order('created_at', { ascending: true })
                     .limit(1);
 
                 if (error) throw error;
-
                 if (data && data.length > 0) {
                     const biz = data[0];
                     document.getElementById('businessName').value = biz.business_name || '';
@@ -1213,101 +790,45 @@
                     document.getElementById('businessCity').value = biz.city || '';
                     document.getElementById('businessState').value = biz.state || '';
                     document.getElementById('businessPincode').value = biz.pincode || '';
-                    document.getElementById('defaultGST').value = biz.default_gst_percentage || 18;
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
         }
 
-        async function saveBusinessInfo(event) {
+        async function saveBusiness(event) {
             event.preventDefault();
-
-            const businessName = document.getElementById('businessName').value.trim();
-            const gstNumber = document.getElementById('gstNumber').value.trim();
-            const phone = document.getElementById('businessPhone').value.trim();
-            const email = document.getElementById('businessEmail').value.trim();
-
-            if (!businessName) {
-                showError('businessNameError', 'Business name required');
-                return;
-            }
-            if (!gstNumber) {
-                showError('gstNumberError', 'GST number required');
-                return;
-            }
-            if (!phone || phone.length !== 10) {
-                showError('businessPhoneError', '10-digit phone required');
-                return;
-            }
-            if (!email || !email.includes('@')) {
-                showError('businessEmailError', 'Valid email required');
-                return;
-            }
-
             try {
-                const { data: existingData } = await supabase
-                    .from('business_settings')
-                    .select('id')
-                    .order('created_at', { ascending: true })
-                    .limit(1);
-
-                const businessData = {
-                    business_name: businessName,
-                    gst_number: gstNumber,
-                    phone: phone,
-                    email: email,
+                const data = {
+                    business_name: document.getElementById('businessName').value,
+                    gst_number: document.getElementById('gstNumber').value,
+                    phone: document.getElementById('businessPhone').value,
+                    email: document.getElementById('businessEmail').value,
                     address: document.getElementById('businessAddress').value,
                     city: document.getElementById('businessCity').value,
                     state: document.getElementById('businessState').value,
-                    pincode: document.getElementById('businessPincode').value,
-                    default_gst_percentage: parseFloat(document.getElementById('defaultGST').value) || 18
+                    pincode: document.getElementById('businessPincode').value
                 };
 
-                if (existingData && existingData.length > 0) {
-                    const { error } = await supabase
-                        .from('business_settings')
-                        .update(businessData)
-                        .eq('id', existingData[0].id);
-                    if (error) throw error;
+                const { data: existing } = await supabase.from('business_settings').select('id').limit(1);
+                
+                if (existing && existing.length > 0) {
+                    await supabase.from('business_settings').update(data).eq('id', existing[0].id);
                 } else {
-                    const { error } = await supabase
-                        .from('business_settings')
-                        .insert(businessData);
-                    if (error) throw error;
+                    await supabase.from('business_settings').insert(data);
                 }
 
-                showSuccess('businessSuccessMsg', '✓ Business info saved!');
-                setTimeout(() => document.getElementById('businessSuccessMsg').classList.remove('show'), 3000);
-
+                showSuccess('businessSuccessMsg', '✓ Saved!');
             } catch (error) {
-                showErrorMsg('businessErrorMsg', 'Error: ' + error.message);
+                console.error('Error:', error);
             }
         }
 
-        // ===== HELPERS =====
-        function showError(elementId, message) {
-            const errorDiv = document.getElementById(elementId);
-            if (errorDiv) {
-                errorDiv.textContent = message;
-            }
-        }
-
-        function showSuccess(elementId, message) {
-            const successDiv = document.getElementById(elementId);
-            if (successDiv) {
-                successDiv.textContent = message;
-                successDiv.classList.add('show');
-            }
-        }
-
-        function showErrorMsg(elementId, message) {
-            const errorDiv = document.getElementById(elementId);
-            if (errorDiv) {
-                errorDiv.textContent = message;
-                errorDiv.classList.add('show');
-                setTimeout(() => errorDiv.classList.remove('show'), 5000);
-            }
+        function showSuccess(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
         }
 
         function logout() {
@@ -1317,12 +838,6 @@
             }
         }
 
-        // Event listeners
-        document.getElementById('serviceQuantityBased').addEventListener('change', function() {
-            document.getElementById('quantityUnitGroup').style.display = this.checked ? 'block' : 'none';
-        });
-
-        // Initialize on load
         window.addEventListener('load', initialize);
     </script>
 </body>
