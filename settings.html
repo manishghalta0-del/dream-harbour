@@ -65,6 +65,7 @@
             gap: 10px;
             border-bottom: 2px solid #e0e0e0;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -321,6 +322,34 @@
             gap: 15px;
         }
 
+        .sub-item {
+            padding: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-item-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .sub-items-list {
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
         @media (max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
@@ -350,6 +379,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('categories')">📂 Categories</button>
                 <button class="tab" onclick="switchTab('services')">🛍️ Services</button>
+                <button class="tab" onclick="switchTab('subservices')">🔗 Sub-Services</button>
                 <button class="tab" onclick="switchTab('business')">💼 Business</button>
             </div>
 
@@ -395,6 +425,43 @@
                             <tr><td colspan="6" style="text-align: center;">Loading...</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- SUB-SERVICES TAB -->
+            <div id="subservices" class="tab-content">
+                <div class="section-title">🔗 Sub-Services Configuration</div>
+                
+                <div class="form-group">
+                    <label for="serviceSelector">Select Service to Configure:</label>
+                    <select id="serviceSelector" onchange="loadServiceSubItems()">
+                        <option value="">-- Choose Service --</option>
+                    </select>
+                </div>
+
+                <div id="subItemsConfig" style="display: none;">
+                    <div style="margin-top: 20px;">
+                        <div style="background: #f0f9ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                            <strong>Service:</strong> <span id="selectedServiceName"></span>
+                        </div>
+
+                        <div class="sub-items-list" id="subItemsList">
+                            <p style="color: #999; text-align: center;">No sub-items configured</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subServiceSelector">Add Sub-Service:</label>
+                            <select id="subServiceSelector">
+                                <option value="">-- Select Service to Add --</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="addSubItem()" style="margin-top: 10px;">➕ Add Sub-Item</button>
+                        <button class="btn btn-secondary" onclick="closeSubItemsConfig()" style="margin-top: 10px;">Done</button>
+
+                        <div class="success-message" id="subItemSuccessMsg"></div>
+                        <div class="error-message" id="subItemErrorMsg"></div>
+                    </div>
                 </div>
             </div>
 
@@ -527,6 +594,7 @@
         let allServices = [];
         let editingCategoryId = null;
         let editingServiceId = null;
+        let selectedServiceForSubItems = null;
 
         async function initialize() {
             try {
@@ -669,6 +737,7 @@
                 if (error) throw error;
                 allServices = data || [];
                 displayServices();
+                populateSubServiceSelect();
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -771,6 +840,122 @@
             }
         }
 
+        // SUB-SERVICES
+        function populateSubServiceSelect() {
+            const mainSelector = document.getElementById('serviceSelector');
+            mainSelector.innerHTML = '<option value="">-- Choose Service --</option>';
+            allServices.forEach(svc => {
+                mainSelector.innerHTML += `<option value="${svc.id}">${svc.service_name}</option>`;
+            });
+        }
+
+        function loadServiceSubItems() {
+            const serviceId = document.getElementById('serviceSelector').value;
+            if (!serviceId) {
+                document.getElementById('subItemsConfig').style.display = 'none';
+                return;
+            }
+
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) return;
+
+            selectedServiceForSubItems = service;
+            document.getElementById('selectedServiceName').textContent = service.service_name;
+            document.getElementById('subItemsConfig').style.display = 'block';
+            
+            displaySubItems(service);
+            populateSubServiceDropdown();
+        }
+
+        function displaySubItems(service) {
+            const subItemsList = document.getElementById('subItemsList');
+            const linkedIds = service.linked_service_ids ? JSON.parse(service.linked_service_ids) : [];
+
+            if (linkedIds.length === 0) {
+                subItemsList.innerHTML = '<p style="color: #999; text-align: center;">No sub-items configured</p>';
+                return;
+            }
+
+            subItemsList.innerHTML = linkedIds.map(linkedId => {
+                const linkedService = allServices.find(s => s.id === linkedId);
+                return `
+                    <div class="sub-item">
+                        <span>${linkedService ? linkedService.service_name : 'Unknown'}</span>
+                        <button class="sub-item-remove" onclick="removeSubItem('${linkedId}')">Remove</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function populateSubServiceDropdown() {
+            const subSelector = document.getElementById('subServiceSelector');
+            subSelector.innerHTML = '<option value="">-- Select Service to Add --</option>';
+            allServices.forEach(svc => {
+                subSelector.innerHTML += `<option value="${svc.id}">${svc.service_name}</option>`;
+            });
+        }
+
+        async function addSubItem() {
+            const subServiceId = document.getElementById('subServiceSelector').value;
+            if (!subServiceId || !selectedServiceForSubItems) return;
+
+            try {
+                const currentLinked = selectedServiceForSubItems.linked_service_ids 
+                    ? JSON.parse(selectedServiceForSubItems.linked_service_ids) 
+                    : [];
+
+                if (currentLinked.includes(subServiceId)) {
+                    showErrorMsg('subItemErrorMsg', 'Service already added');
+                    return;
+                }
+
+                currentLinked.push(subServiceId);
+
+                await supabase
+                    .from('service_items')
+                    .update({ linked_service_ids: JSON.stringify(currentLinked) })
+                    .eq('id', selectedServiceForSubItems.id);
+
+                await loadServices();
+                document.getElementById('serviceSelector').value = selectedServiceForSubItems.id;
+                loadServiceSubItems();
+                
+                showSuccess('subItemSuccessMsg', '✓ Sub-item added!');
+            } catch (error) {
+                showErrorMsg('subItemErrorMsg', 'Error: ' + error.message);
+            }
+        }
+
+        async function removeSubItem(subServiceId) {
+            if (!selectedServiceForSubItems) return;
+
+            try {
+                const currentLinked = JSON.parse(selectedServiceForSubItems.linked_service_ids || '[]');
+                const index = currentLinked.indexOf(subServiceId);
+                if (index > -1) {
+                    currentLinked.splice(index, 1);
+                }
+
+                await supabase
+                    .from('service_items')
+                    .update({ linked_service_ids: JSON.stringify(currentLinked) })
+                    .eq('id', selectedServiceForSubItems.id);
+
+                await loadServices();
+                document.getElementById('serviceSelector').value = selectedServiceForSubItems.id;
+                loadServiceSubItems();
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function closeSubItemsConfig() {
+            document.getElementById('serviceSelector').value = '';
+            document.getElementById('subItemsConfig').style.display = 'none';
+            selectedServiceForSubItems = null;
+        }
+
         // BUSINESS
         async function loadBusiness() {
             try {
@@ -829,6 +1014,13 @@
             el.textContent = msg;
             el.classList.add('show');
             setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        function showErrorMsg(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 5000);
         }
 
         function logout() {
