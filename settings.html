@@ -254,31 +254,11 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
         }
 
         .checkbox-group input {
             width: auto;
             margin: 0;
-        }
-
-        .checkbox-group label {
-            margin: 0;
-            font-weight: 500;
-        }
-
-        .sub-services-section {
-            background: #f0f9ff;
-            border: 2px solid #bfdbfe;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-
-        .sub-services-title {
-            font-weight: 700;
-            color: #1e40af;
-            margin-bottom: 12px;
         }
 
         .modal-actions {
@@ -298,20 +278,6 @@
         }
 
         .success-message.show {
-            display: block;
-        }
-
-        .error-message {
-            padding: 12px;
-            background: #fee2e2;
-            color: #991b1b;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            display: none;
-            border-left: 4px solid #ef4444;
-        }
-
-        .error-message.show {
             display: block;
         }
 
@@ -356,10 +322,6 @@
             table th, table td {
                 padding: 10px;
             }
-
-            .modal-content {
-                max-width: 95%;
-            }
         }
     </style>
 </head>
@@ -377,6 +339,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="switchTab('categories')">📂 Categories</button>
                 <button class="tab" onclick="switchTab('services')">🛍️ Services</button>
+                <button class="tab" onclick="switchTab('subservices')">🔗 Sub-Services</button>
                 <button class="tab" onclick="switchTab('business')">💼 Business</button>
             </div>
 
@@ -414,15 +377,65 @@
                                 <th>Category</th>
                                 <th>SAC Code</th>
                                 <th>GST %</th>
-                                <th>Sub-Items</th>
+                                <th>Sub-Type 1</th>
+                                <th>Sub-Type 2</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="servicesTableBody">
-                            <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                            <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- SUB-SERVICES TAB -->
+            <div id="subservices" class="tab-content">
+                <div class="section-title">🔗 Sub-Services Management</div>
+                
+                <!-- SUB-SERVICE TYPE 1 -->
+                <div style="margin-bottom: 40px;">
+                    <h3 style="color: #1e40af; margin-bottom: 15px;">Sub-Service Type 1 (Standard Fees - No SAC/GST)</h3>
+                    <button class="btn btn-primary" onclick="openSubType1Modal()">➕ Add Sub-Service Type 1</button>
+                    <div class="success-message" id="subType1SuccessMsg"></div>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sub-Service Name</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subType1TableBody">
+                                <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-SERVICE TYPE 2 -->
+                <div>
+                    <h3 style="color: #1e40af; margin-bottom: 15px;">Sub-Service Type 2 (Specialized Services - With SAC/GST)</h3>
+                    <button class="btn btn-primary" onclick="openSubType2Modal()">➕ Add Sub-Service Type 2</button>
+                    <div class="success-message" id="subType2SuccessMsg"></div>
+                    <div class="table-container" style="margin-top: 15px;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sub-Service Name</th>
+                                    <th>SAC Code</th>
+                                    <th>GST %</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subType2TableBody">
+                                <tr><td colspan="5" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -534,16 +547,21 @@
                     <input type="number" id="serviceRate" min="0" step="0.01" value="0">
                 </div>
 
-                <!-- SUB-SERVICES SECTION -->
-                <div class="sub-services-section">
-                    <div class="sub-services-title">🔗 Add Sub-Services</div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="subServiceSpecialized" data-sac="998599" data-gst="18">
-                        <label>Specialized Office Support (SAC: 998599, GST: 18%)</label>
+                <div style="background: #f0f9ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <div style="font-weight: 700; color: #1e40af; margin-bottom: 12px;">🔗 Link Sub-Services</div>
+                    
+                    <div class="form-group">
+                        <label>Sub-Service Type 1 (Standard Fees)</label>
+                        <select id="subServiceType1">
+                            <option value="">-- Select Sub-Service Type 1 --</option>
+                        </select>
                     </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="subServiceCharges" data-sac="997159" data-gst="18">
-                        <label>Charges (SAC: 997159, GST: 18%)</label>
+
+                    <div class="form-group">
+                        <label>Sub-Service Type 2 (Specialized)</label>
+                        <select id="subServiceType2">
+                            <option value="">-- Select Sub-Service Type 2 --</option>
+                        </select>
                     </div>
                 </div>
 
@@ -559,6 +577,65 @@
         </div>
     </div>
 
+    <!-- SUB-SERVICE TYPE 1 MODAL -->
+    <div class="modal" id="subType1Modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="subType1ModalTitle">➕ Add Sub-Service Type 1</span>
+                <button class="modal-close" onclick="closeSubType1Modal()">&times;</button>
+            </div>
+            <form id="subType1Form" onsubmit="saveSubType1(event)">
+                <div class="form-group">
+                    <label>Sub-Service Name *</label>
+                    <input type="text" id="subType1Name" required>
+                    <div class="form-error" id="subType1NameError"></div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="subType1Active" checked>
+                    <label style="margin: 0;">Active</label>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">✓ Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeSubType1Modal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUB-SERVICE TYPE 2 MODAL -->
+    <div class="modal" id="subType2Modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="subType2ModalTitle">➕ Add Sub-Service Type 2</span>
+                <button class="modal-close" onclick="closeSubType2Modal()">&times;</button>
+            </div>
+            <form id="subType2Form" onsubmit="saveSubType2(event)">
+                <div class="form-group">
+                    <label>Sub-Service Name *</label>
+                    <input type="text" id="subType2Name" required>
+                    <div class="form-error" id="subType2NameError"></div>
+                </div>
+                <div class="form-group">
+                    <label>SAC Code</label>
+                    <input type="text" id="subType2SAC" placeholder="e.g., 998599">
+                </div>
+                <div class="form-group">
+                    <label>GST % *</label>
+                    <input type="number" id="subType2GST" min="0" max="100" step="0.01" required>
+                    <div class="form-error" id="subType2GSTError"></div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="subType2Active" checked>
+                    <label style="margin: 0;">Active</label>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">✓ Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeSubType2Modal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
@@ -567,8 +644,12 @@
         let currentUser = null;
         let allCategories = [];
         let allServices = [];
+        let allSubType1 = [];
+        let allSubType2 = [];
         let editingCategoryId = null;
         let editingServiceId = null;
+        let editingSubType1Id = null;
+        let editingSubType2Id = null;
 
         async function initialize() {
             try {
@@ -583,6 +664,7 @@
                 currentUser = userSession;
                 await loadCategories();
                 await loadServices();
+                await loadSubServices();
                 await loadBusiness();
             } catch (error) {
                 console.error('Error:', error);
@@ -720,19 +802,22 @@
             const tbody = document.getElementById('servicesTableBody');
             
             if (allServices.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No services yet</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No services yet</td></tr>';
                 return;
             }
 
             tbody.innerHTML = allServices.map(svc => {
-                const subItemsCount = svc.linked_service_ids ? JSON.parse(svc.linked_service_ids || '[]').length : 0;
+                const subType1 = allSubType1.find(s => s.id === svc.sub_service_type_1_id);
+                const subType2 = allSubType2.find(s => s.id === svc.sub_service_type_2_id);
+                
                 return `
                     <tr>
                         <td><strong>${svc.service_name}</strong></td>
                         <td>${svc.service_categories?.category_name || '-'}</td>
                         <td>${svc.sac_code || '-'}</td>
                         <td>${svc.gst_percentage || 0}%</td>
-                        <td>${subItemsCount > 0 ? `${subItemsCount}` : '-'}</td>
+                        <td>${subType1 ? subType1.sub_service_name : '-'}</td>
+                        <td>${subType2 ? subType2.sub_service_name : '-'}</td>
                         <td><span class="status-badge status-${svc.is_active ? 'active' : 'inactive'}">${svc.is_active ? '✓' : '✗'}</span></td>
                         <td>
                             <button class="btn btn-edit" onclick="editService('${svc.id}')">✏️</button>
@@ -747,13 +832,29 @@
             editingServiceId = null;
             document.getElementById('serviceForm').reset();
             document.getElementById('serviceModalTitle').textContent = '➕ Add Service';
-            document.getElementById('subServiceSpecialized').checked = false;
-            document.getElementById('subServiceCharges').checked = false;
+            document.getElementById('subServiceType1').value = '';
+            document.getElementById('subServiceType2').value = '';
+            populateSubServiceSelects();
             document.getElementById('serviceModal').classList.add('show');
         }
 
         function closeServiceModal() {
             document.getElementById('serviceModal').classList.remove('show');
+        }
+
+        function populateSubServiceSelects() {
+            const sel1 = document.getElementById('subServiceType1');
+            const sel2 = document.getElementById('subServiceType2');
+            
+            sel1.innerHTML = '<option value="">-- Select Sub-Service Type 1 --</option>';
+            allSubType1.forEach(sub => {
+                sel1.innerHTML += `<option value="${sub.id}">${sub.sub_service_name}</option>`;
+            });
+
+            sel2.innerHTML = '<option value="">-- Select Sub-Service Type 2 --</option>';
+            allSubType2.forEach(sub => {
+                sel2.innerHTML += `<option value="${sub.id}">${sub.sub_service_name}</option>`;
+            });
         }
 
         async function editService(id) {
@@ -766,14 +867,10 @@
             document.getElementById('serviceGST').value = svc.gst_percentage || 0;
             document.getElementById('serviceRate').value = svc.rate || 0;
             document.getElementById('serviceActive').checked = svc.is_active;
-
-            // Check sub-services
-            const linkedIds = svc.linked_service_ids ? JSON.parse(svc.linked_service_ids) : [];
-            const specializedService = allServices.find(s => s.service_name === 'Specialized Office Support');
-            const chargesService = allServices.find(s => s.service_name === 'Charges');
             
-            document.getElementById('subServiceSpecialized').checked = specializedService ? linkedIds.includes(specializedService.id) : false;
-            document.getElementById('subServiceCharges').checked = chargesService ? linkedIds.includes(chargesService.id) : false;
+            populateSubServiceSelects();
+            document.getElementById('subServiceType1').value = svc.sub_service_type_1_id || '';
+            document.getElementById('subServiceType2').value = svc.sub_service_type_2_id || '';
 
             document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
             document.getElementById('serviceModal').classList.add('show');
@@ -795,17 +892,6 @@
             }
 
             try {
-                // Get selected sub-services
-                const linkedIds = [];
-                if (document.getElementById('subServiceSpecialized').checked) {
-                    const specializedService = allServices.find(s => s.service_name === 'Specialized Office Support');
-                    if (specializedService) linkedIds.push(specializedService.id);
-                }
-                if (document.getElementById('subServiceCharges').checked) {
-                    const chargesService = allServices.find(s => s.service_name === 'Charges');
-                    if (chargesService) linkedIds.push(chargesService.id);
-                }
-
                 const data = {
                     category_id: categoryId,
                     service_name: name,
@@ -813,7 +899,8 @@
                     gst_percentage: gst,
                     rate: parseFloat(document.getElementById('serviceRate').value) || 0,
                     is_active: document.getElementById('serviceActive').checked,
-                    linked_service_ids: linkedIds.length > 0 ? JSON.stringify(linkedIds) : null
+                    sub_service_type_1_id: document.getElementById('subServiceType1').value || null,
+                    sub_service_type_2_id: document.getElementById('subServiceType2').value || null
                 };
 
                 if (editingServiceId) {
@@ -835,6 +922,196 @@
             try {
                 await supabase.from('service_items').delete().eq('id', id);
                 await loadServices();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // SUB-SERVICES
+        async function loadSubServices() {
+            try {
+                const { data: sub1, error: err1 } = await supabase
+                    .from('sub_service_type_1')
+                    .select('*')
+                    .order('sub_service_name');
+
+                const { data: sub2, error: err2 } = await supabase
+                    .from('sub_service_type_2')
+                    .select('*')
+                    .order('sub_service_name');
+
+                if (err1) throw err1;
+                if (err2) throw err2;
+
+                allSubType1 = sub1 || [];
+                allSubType2 = sub2 || [];
+                
+                displaySubType1();
+                displaySubType2();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displaySubType1() {
+            const tbody = document.getElementById('subType1TableBody');
+            
+            if (allSubType1.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-state">No sub-services yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allSubType1.map(sub => `
+                <tr>
+                    <td><strong>${sub.sub_service_name}</strong></td>
+                    <td><span class="status-badge status-${sub.is_active ? 'active' : 'inactive'}">${sub.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editSubType1('${sub.id}')">✏️</button>
+                        <button class="btn btn-delete" onclick="deleteSubType1('${sub.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displaySubType2() {
+            const tbody = document.getElementById('subType2TableBody');
+            
+            if (allSubType2.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No sub-services yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allSubType2.map(sub => `
+                <tr>
+                    <td><strong>${sub.sub_service_name}</strong></td>
+                    <td>${sub.sac_code || '-'}</td>
+                    <td>${sub.gst_percentage || 0}%</td>
+                    <td><span class="status-badge status-${sub.is_active ? 'active' : 'inactive'}">${sub.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
+                    <td>
+                        <button class="btn btn-edit" onclick="editSubType2('${sub.id}')">✏️</button>
+                        <button class="btn btn-delete" onclick="deleteSubType2('${sub.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openSubType1Modal() {
+            editingSubType1Id = null;
+            document.getElementById('subType1Form').reset();
+            document.getElementById('subType1ModalTitle').textContent = '➕ Add Sub-Service Type 1';
+            document.getElementById('subType1Modal').classList.add('show');
+        }
+
+        function closeSubType1Modal() {
+            document.getElementById('subType1Modal').classList.remove('show');
+        }
+
+        async function editSubType1(id) {
+            const sub = allSubType1.find(s => s.id === id);
+            if (!sub) return;
+            editingSubType1Id = id;
+            document.getElementById('subType1Name').value = sub.sub_service_name;
+            document.getElementById('subType1Active').checked = sub.is_active;
+            document.getElementById('subType1ModalTitle').textContent = '✏️ Edit Sub-Service Type 1';
+            document.getElementById('subType1Modal').classList.add('show');
+        }
+
+        async function saveSubType1(event) {
+            event.preventDefault();
+            const name = document.getElementById('subType1Name').value.trim();
+            if (!name) {
+                document.getElementById('subType1NameError').textContent = 'Name required';
+                return;
+            }
+
+            try {
+                const data = {
+                    sub_service_name: name,
+                    is_active: document.getElementById('subType1Active').checked
+                };
+
+                if (editingSubType1Id) {
+                    await supabase.from('sub_service_type_1').update(data).eq('id', editingSubType1Id);
+                } else {
+                    await supabase.from('sub_service_type_1').insert(data);
+                }
+
+                closeSubType1Modal();
+                await loadSubServices();
+                showSuccess('subType1SuccessMsg', '✓ Saved!');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteSubType1(id) {
+            if (!confirm('Delete sub-service?')) return;
+            try {
+                await supabase.from('sub_service_type_1').delete().eq('id', id);
+                await loadSubServices();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function openSubType2Modal() {
+            editingSubType2Id = null;
+            document.getElementById('subType2Form').reset();
+            document.getElementById('subType2ModalTitle').textContent = '➕ Add Sub-Service Type 2';
+            document.getElementById('subType2Modal').classList.add('show');
+        }
+
+        function closeSubType2Modal() {
+            document.getElementById('subType2Modal').classList.remove('show');
+        }
+
+        async function editSubType2(id) {
+            const sub = allSubType2.find(s => s.id === id);
+            if (!sub) return;
+            editingSubType2Id = id;
+            document.getElementById('subType2Name').value = sub.sub_service_name;
+            document.getElementById('subType2SAC').value = sub.sac_code || '';
+            document.getElementById('subType2GST').value = sub.gst_percentage || 0;
+            document.getElementById('subType2Active').checked = sub.is_active;
+            document.getElementById('subType2ModalTitle').textContent = '✏️ Edit Sub-Service Type 2';
+            document.getElementById('subType2Modal').classList.add('show');
+        }
+
+        async function saveSubType2(event) {
+            event.preventDefault();
+            const name = document.getElementById('subType2Name').value.trim();
+            if (!name) {
+                document.getElementById('subType2NameError').textContent = 'Name required';
+                return;
+            }
+
+            try {
+                const data = {
+                    sub_service_name: name,
+                    sac_code: document.getElementById('subType2SAC').value || null,
+                    gst_percentage: parseFloat(document.getElementById('subType2GST').value) || 0,
+                    is_active: document.getElementById('subType2Active').checked
+                };
+
+                if (editingSubType2Id) {
+                    await supabase.from('sub_service_type_2').update(data).eq('id', editingSubType2Id);
+                } else {
+                    await supabase.from('sub_service_type_2').insert(data);
+                }
+
+                closeSubType2Modal();
+                await loadSubServices();
+                showSuccess('subType2SuccessMsg', '✓ Saved!');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteSubType2(id) {
+            if (!confirm('Delete sub-service?')) return;
+            try {
+                await supabase.from('sub_service_type_2').delete().eq('id', id);
+                await loadSubServices();
             } catch (error) {
                 console.error('Error:', error);
             }
