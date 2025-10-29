@@ -95,6 +95,40 @@
             display: block;
         }
 
+        .subtabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .subtab {
+            padding: 10px 15px;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .subtab.active {
+            background: #1e40af;
+            color: white;
+            border-color: #1e40af;
+        }
+
+        .subtab-content {
+            display: none;
+        }
+
+        .subtab-content.active {
+            display: block;
+        }
+
         .section-title {
             font-size: 20px;
             font-weight: bold;
@@ -167,6 +201,63 @@
 
         table tr:hover {
             background: #f8f9fa;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .dropdown-list.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f0f9ff;
+            color: #1e40af;
+        }
+
+        .dropdown-item.selected {
+            background: #bfdbfe;
+            color: #1e40af;
+            font-weight: 600;
         }
 
         .modal {
@@ -322,6 +413,15 @@
             table th, table td {
                 padding: 10px;
             }
+
+            .subtabs {
+                flex-wrap: wrap;
+            }
+
+            .subtab {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
         }
     </style>
 </head>
@@ -337,69 +437,76 @@
 
         <div class="content">
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('categories')">📂 Categories</button>
-                <button class="tab" onclick="switchTab('services')">🛍️ Services</button>
-                <button class="tab" onclick="switchTab('subservices')">🔗 Sub-Services</button>
+                <button class="tab active" onclick="switchTab('serviceManagement')">📋 Service Management</button>
                 <button class="tab" onclick="switchTab('business')">💼 Business</button>
             </div>
 
-            <!-- CATEGORIES TAB -->
-            <div id="categories" class="tab-content active">
-                <div class="section-title">📂 Categories</div>
-                <button class="btn btn-primary" onclick="openCategoryModal()">➕ Add Category</button>
-                <div class="success-message" id="categorySuccessMsg"></div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Category Name</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="categoriesTableBody">
-                            <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
-                        </tbody>
-                    </table>
+            <!-- SERVICE MANAGEMENT TAB -->
+            <div id="serviceManagement" class="tab-content active">
+                <div class="subtabs">
+                    <button class="subtab active" onclick="switchSubTab('categories')">📂 Categories</button>
+                    <button class="subtab" onclick="switchSubTab('services')">🛍️ Services</button>
+                    <button class="subtab" onclick="switchSubTab('subtype1')">🔗 Sub-Services Type 1</button>
+                    <button class="subtab" onclick="switchSubTab('subtype2')">🔗 Sub-Services Type 2</button>
                 </div>
-            </div>
 
-            <!-- SERVICES TAB -->
-            <div id="services" class="tab-content">
-                <div class="section-title">🛍️ Services</div>
-                <button class="btn btn-primary" onclick="openServiceModal()">➕ Add Service</button>
-                <div class="success-message" id="serviceSuccessMsg"></div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th>Category</th>
-                                <th>SAC Code</th>
-                                <th>GST %</th>
-                                <th>Sub-Type 1</th>
-                                <th>Sub-Type 2</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="servicesTableBody">
-                            <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
-                        </tbody>
-                    </table>
+                <!-- CATEGORIES SUBTAB -->
+                <div id="categories" class="subtab-content active">
+                    <div class="section-title">📂 Categories</div>
+                    <button class="btn btn-primary" onclick="openCategoryModal()">➕ Add Category</button>
+                    <div class="success-message" id="categorySuccessMsg"></div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Category Name</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoriesTableBody">
+                                <tr><td colspan="3" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            <!-- SUB-SERVICES TAB -->
-            <div id="subservices" class="tab-content">
-                <div class="section-title">🔗 Sub-Services Management</div>
-                
-                <!-- SUB-SERVICE TYPE 1 -->
-                <div style="margin-bottom: 40px;">
-                    <h3 style="color: #1e40af; margin-bottom: 15px;">Sub-Service Type 1 (Standard Fees - No SAC/GST)</h3>
+                <!-- SERVICES SUBTAB -->
+                <div id="services" class="subtab-content">
+                    <div class="section-title">🛍️ Services</div>
+                    <button class="btn btn-primary" onclick="openServiceModal()">➕ Add Service</button>
+                    <div class="success-message" id="serviceSuccessMsg"></div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th>Category</th>
+                                    <th>SAC Code</th>
+                                    <th>GST %</th>
+                                    <th>Sub-Type 1</th>
+                                    <th>Sub-Type 2</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesTableBody">
+                                <tr><td colspan="8" style="text-align: center;">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-SERVICE TYPE 1 SUBTAB -->
+                <div id="subtype1" class="subtab-content">
+                    <div class="section-title">🔗 Sub-Services Type 1</div>
                     <button class="btn btn-primary" onclick="openSubType1Modal()">➕ Add Sub-Service Type 1</button>
                     <div class="success-message" id="subType1SuccessMsg"></div>
-                    <div class="table-container" style="margin-top: 15px;">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchSubType1" placeholder="Search or type to filter..." oninput="filterSubType1()">
+                        <div class="dropdown-list" id="dropdownSubType1"></div>
+                    </div>
+                    <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
@@ -415,12 +522,16 @@
                     </div>
                 </div>
 
-                <!-- SUB-SERVICE TYPE 2 -->
-                <div>
-                    <h3 style="color: #1e40af; margin-bottom: 15px;">Sub-Service Type 2 (Specialized Services - With SAC/GST)</h3>
+                <!-- SUB-SERVICE TYPE 2 SUBTAB -->
+                <div id="subtype2" class="subtab-content">
+                    <div class="section-title">🔗 Sub-Services Type 2</div>
                     <button class="btn btn-primary" onclick="openSubType2Modal()">➕ Add Sub-Service Type 2</button>
                     <div class="success-message" id="subType2SuccessMsg"></div>
-                    <div class="table-container" style="margin-top: 15px;">
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchSubType2" placeholder="Search or type to filter..." oninput="filterSubType2()">
+                        <div class="dropdown-list" id="dropdownSubType2"></div>
+                    </div>
+                    <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
@@ -551,14 +662,14 @@
                     <div style="font-weight: 700; color: #1e40af; margin-bottom: 12px;">🔗 Link Sub-Services</div>
                     
                     <div class="form-group">
-                        <label>Sub-Service Type 1 (Standard Fees)</label>
+                        <label>Sub-Service Type 1</label>
                         <select id="subServiceType1">
                             <option value="">-- Select Sub-Service Type 1 --</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Sub-Service Type 2 (Specialized)</label>
+                        <label>Sub-Service Type 2</label>
                         <select id="subServiceType2">
                             <option value="">-- Select Sub-Service Type 2 --</option>
                         </select>
@@ -675,6 +786,13 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function switchSubTab(subTabName) {
+            document.querySelectorAll('.subtab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.subtab').forEach(t => t.classList.remove('active'));
+            document.getElementById(subTabName).classList.add('active');
             event.target.classList.add('active');
         }
 
@@ -927,7 +1045,7 @@
             }
         }
 
-        // SUB-SERVICES
+        // SUB-SERVICES TYPE 1
         async function loadSubServices() {
             try {
                 const { data: sub1, error: err1 } = await supabase
@@ -951,6 +1069,76 @@
             } catch (error) {
                 console.error('Error:', error);
             }
+        }
+
+        function filterSubType1() {
+            const searchTerm = document.getElementById('searchSubType1').value.toLowerCase();
+            const dropdown = document.getElementById('dropdownSubType1');
+            
+            if (!searchTerm) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            const filtered = allSubType1.filter(sub => 
+                sub.sub_service_name.toLowerCase().includes(searchTerm)
+            );
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = `<div class="dropdown-item" onclick="createSubType1('${searchTerm}')">➕ Create: "${searchTerm}"</div>`;
+            } else {
+                dropdown.innerHTML = filtered.map(sub => 
+                    `<div class="dropdown-item" onclick="selectSubType1Item('${sub.id}', '${sub.sub_service_name}')">${sub.sub_service_name}</div>`
+                ).join('');
+            }
+
+            dropdown.classList.add('show');
+        }
+
+        function filterSubType2() {
+            const searchTerm = document.getElementById('searchSubType2').value.toLowerCase();
+            const dropdown = document.getElementById('dropdownSubType2');
+            
+            if (!searchTerm) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            const filtered = allSubType2.filter(sub => 
+                sub.sub_service_name.toLowerCase().includes(searchTerm)
+            );
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = `<div class="dropdown-item" onclick="createSubType2('${searchTerm}')">➕ Create: "${searchTerm}"</div>`;
+            } else {
+                dropdown.innerHTML = filtered.map(sub => 
+                    `<div class="dropdown-item" onclick="selectSubType2Item('${sub.id}', '${sub.sub_service_name}')">${sub.sub_service_name}</div>`
+                ).join('');
+            }
+
+            dropdown.classList.add('show');
+        }
+
+        function selectSubType1Item(id, name) {
+            document.getElementById('searchSubType1').value = name;
+            document.getElementById('dropdownSubType1').classList.remove('show');
+        }
+
+        function selectSubType2Item(id, name) {
+            document.getElementById('searchSubType2').value = name;
+            document.getElementById('dropdownSubType2').classList.remove('show');
+        }
+
+        function createSubType1(name) {
+            document.getElementById('subType1Name').value = name;
+            openSubType1Modal();
+            document.getElementById('dropdownSubType1').classList.remove('show');
+        }
+
+        function createSubType2(name) {
+            document.getElementById('subType2Name').value = name;
+            openSubType2Modal();
+            document.getElementById('dropdownSubType2').classList.remove('show');
         }
 
         function displaySubType1() {
