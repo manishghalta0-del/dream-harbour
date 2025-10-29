@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamHarbour - Business Settings</title>
+    <title>DreamHarbour - Advanced Settings</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -39,34 +39,9 @@
             gap: 20px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
         .logo {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
-            letter-spacing: 2px;
-        }
-
-        .user-info {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .user-info strong {
-            display: block;
-            font-size: 16px;
-            margin-bottom: 3px;
-        }
-
-        .header-right {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
         }
 
         .nav-link {
@@ -76,10 +51,9 @@
             background: rgba(0, 0, 0, 0.2);
             border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
             border: none;
-            font-size: 14px;
             font-weight: 600;
+            transition: all 0.3s ease;
         }
 
         .nav-link:hover {
@@ -88,21 +62,6 @@
 
         .content {
             padding: 30px;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #333;
         }
 
         .tabs {
@@ -148,48 +107,20 @@
             to { opacity: 1; }
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-weight: 600;
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
             color: #333;
-            font-size: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #1e40af;
-            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
-        }
-
-        .form-error {
-            font-size: 12px;
-            color: #ef4444;
-            min-height: 18px;
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -222,46 +153,28 @@
             background: #e5e7eb;
         }
 
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 5px;
         }
 
-        .success-message {
-            padding: 12px;
-            background: #d1fae5;
-            color: #065f46;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: none;
-            border-left: 4px solid #10b981;
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
         }
 
-        .success-message.show {
-            display: block;
-            animation: slideDown 0.3s ease;
+        .btn-edit:hover {
+            background: #2563eb;
         }
 
-        .error-message {
-            padding: 12px;
-            background: #fee2e2;
-            color: #991b1b;
-            border-radius: 8px;
-            margin-top: 15px;
-            display: none;
-            border-left: 4px solid #ef4444;
+        .btn-delete {
+            background: #ef4444;
+            color: white;
         }
 
-        .error-message.show {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .btn-delete:hover {
+            background: #dc2626;
         }
 
         .table-container {
@@ -296,30 +209,6 @@
             background: #f8f9fa;
         }
 
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-            margin-right: 5px;
-        }
-
-        .btn-edit {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-edit:hover {
-            background: #2563eb;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-delete:hover {
-            background: #dc2626;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -344,10 +233,9 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            position: relative;
         }
 
         .modal-header {
@@ -355,22 +243,105 @@
             font-weight: 700;
             color: #1e40af;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
             background: none;
             border: none;
             font-size: 28px;
             cursor: pointer;
             color: #999;
-            transition: all 0.3s ease;
         }
 
         .modal-close:hover {
             color: #333;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+        }
+
+        .form-error {
+            font-size: 12px;
+            color: #ef4444;
+            min-height: 18px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .success-message {
+            padding: 12px;
+            background: #d1fae5;
+            color: #065f46;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #10b981;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .error-message {
+            padding: 12px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            border-left: 4px solid #ef4444;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
         }
 
         .status-badge {
@@ -391,76 +362,63 @@
             color: #991b1b;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #999;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .empty-state-text {
-            font-size: 16px;
-        }
-
         .info-box {
             background: #f0f9ff;
             border: 1px solid #bfdbfe;
             border-left: 4px solid #1e40af;
             padding: 15px;
             border-radius: 8px;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
 
         .info-box h4 {
             color: #1e40af;
             margin-bottom: 8px;
+            font-size: 14px;
         }
 
-        .info-box ul {
-            margin-left: 20px;
+        .info-box p {
             color: #333;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        .info-box li {
-            margin-bottom: 5px;
+        .sub-items-list {
+            background: #f9fafb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .sub-item {
+            padding: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sub-item-remove {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
         }
 
         @media (max-width: 768px) {
+            .content {
+                padding: 15px;
+            }
+
             .header {
                 flex-direction: column;
                 align-items: flex-start;
-            }
-
-            .header-right {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .nav-link {
-                width: 100%;
-                text-align: center;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .page-title {
-                font-size: 22px;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
             }
 
             .table-container {
@@ -480,97 +438,70 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-left">
-                <div class="logo">🏢 DreamHarbour</div>
-                <div class="user-info">
-                    <strong id="userName">Settings</strong>
-                    <span>Business Configuration</span>
-                </div>
-            </div>
-            <div class="header-right">
-                <a href="dashboard.html" class="nav-link">← Back to Dashboard</a>
+            <div class="logo">🏢 DreamHarbour - Advanced Settings</div>
+            <div style="display: flex; gap: 10px;">
+                <a href="dashboard.html" class="nav-link">← Dashboard</a>
                 <button class="nav-link" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
         <div class="content">
-            <div class="page-header">
-                <h1 class="page-title">⚙️ Business Settings</h1>
-            </div>
-
-            <!-- TABS -->
             <div class="tabs">
-                <button class="tab active" onclick="switchTab('business')">💼 Business Info</button>
+                <button class="tab active" onclick="switchTab('categories')">📂 Categories</button>
                 <button class="tab" onclick="switchTab('services')">🛍️ Services</button>
-                <button class="tab" onclick="switchTab('gst')">📊 GST Settings</button>
+                <button class="tab" onclick="switchTab('subservices')">🔗 Sub-Services</button>
+                <button class="tab" onclick="switchTab('business')">💼 Business Info</button>
             </div>
 
-            <!-- TAB 1: BUSINESS INFO -->
-            <div id="business" class="tab-content active">
-                <form id="businessForm" onsubmit="saveBusinessInfo(event)" novalidate>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="businessName">Business Name *</label>
-                            <input type="text" id="businessName" placeholder="Enter business name" required>
-                            <div class="form-error" id="businessNameError"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="gstNumber">GST Number *</label>
-                            <input type="text" id="gstNumber" placeholder="Enter GST number" required>
-                            <div class="form-error" id="gstNumberError"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="businessPhone">Phone *</label>
-                            <input type="tel" id="businessPhone" placeholder="10-digit phone" maxlength="10" required>
-                            <div class="form-error" id="businessPhoneError"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="businessEmail">Email *</label>
-                            <input type="email" id="businessEmail" placeholder="business@example.com" required>
-                            <div class="form-error" id="businessEmailError"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="businessAddress">Address</label>
-                            <input type="text" id="businessAddress" placeholder="Business address">
-                        </div>
-                        <div class="form-group">
-                            <label for="businessCity">City</label>
-                            <input type="text" id="businessCity" placeholder="City">
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="businessState">State</label>
-                            <input type="text" id="businessState" placeholder="State">
-                        </div>
-                        <div class="form-group">
-                            <label for="businessPincode">Pincode</label>
-                            <input type="text" id="businessPincode" placeholder="6-digit pincode" maxlength="6">
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
-                        <button type="reset" class="btn btn-secondary">🔄 Reset</button>
-                    </div>
-
-                    <div class="success-message" id="businessSuccessMsg"></div>
-                    <div class="error-message" id="businessErrorMsg"></div>
-                </form>
-            </div>
-
-            <!-- TAB 2: SERVICES -->
-            <div id="services" class="tab-content">
-                <div style="margin-bottom: 20px;">
-                    <button class="btn btn-primary" onclick="openAddServiceModal()">➕ Add New Service</button>
+            <!-- ========== TAB 1: CATEGORIES ========== -->
+            <div id="categories" class="tab-content active">
+                <div class="section-title">📂 Service Categories Management</div>
+                
+                <div class="info-box">
+                    <h4>ℹ️ About Categories</h4>
+                    <p>Categories group related services together. Each category can have multiple services and sub-services. Examples: Photocopy/Printing, Document Writing, E-Stamping, etc.</p>
                 </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openCategoryModal()">➕ Add New Category</button>
+                </div>
+
+                <div class="success-message" id="categorySuccessMsg"></div>
+                <div class="error-message" id="categoryErrorMsg"></div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Description</th>
+                                <th>Order</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <tr><td colspan="5" style="text-align: center;">Loading categories...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ========== TAB 2: SERVICES ========== -->
+            <div id="services" class="tab-content">
+                <div class="section-title">🛍️ Services Management</div>
+
+                <div class="info-box">
+                    <h4>ℹ️ About Services</h4>
+                    <p>Services are the individual offerings under each category. Each service has its own SAC code, GST rate, and pricing. Services can have sub-services that auto-expand when selected.</p>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="openServiceModal()">➕ Add New Service</button>
+                </div>
+
+                <div class="success-message" id="serviceSuccessMsg"></div>
+                <div class="error-message" id="serviceErrorMsg"></div>
 
                 <div class="table-container">
                     <table>
@@ -578,111 +509,236 @@
                             <tr>
                                 <th>Service Name</th>
                                 <th>Category</th>
-                                <th>HSN/SAC</th>
-                                <th>Price</th>
+                                <th>SAC Code</th>
+                                <th>Rate</th>
                                 <th>GST %</th>
+                                <th>Sub-Items</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="servicesTableBody">
-                            <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">Loading services...</td>
-                            </tr>
+                            <tr><td colspan="8" style="text-align: center;">Loading services...</td></tr>
                         </tbody>
                     </table>
                 </div>
-
-                <div class="success-message" id="serviceSuccessMsg"></div>
-                <div class="error-message" id="serviceErrorMsg"></div>
             </div>
 
-            <!-- TAB 3: GST SETTINGS -->
-            <div id="gst" class="tab-content">
-                <form id="gstForm" onsubmit="saveGSTSettings(event)" novalidate>
-                    <div class="form-group" style="max-width: 300px;">
-                        <label for="defaultGST">Default GST Percentage *</label>
-                        <input type="number" id="defaultGST" placeholder="18" min="0" max="100" step="0.01" required>
-                        <div class="form-error" id="defaultGSTError"></div>
-                    </div>
+            <!-- ========== TAB 3: SUB-SERVICES ========== -->
+            <div id="subservices" class="tab-content">
+                <div class="section-title">🔗 Sub-Services Configuration</div>
 
+                <div class="info-box">
+                    <h4>ℹ️ About Sub-Services</h4>
+                    <p>Sub-services are secondary items that automatically appear when a primary service is selected. For example, when "Deed Writing" is selected, it auto-adds "Deed Writing Fee" + "Specialized office support services".</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceSelector">Select Service to Configure Sub-Items:</label>
+                    <select id="serviceSelector" onchange="loadServiceSubItems()">
+                        <option value="">-- Choose Service --</option>
+                    </select>
+                </div>
+
+                <div id="subItemsConfig" style="display: none;">
+                    <div class="section-title" style="margin-top: 20px;">Configure Sub-Items</div>
+                    
                     <div class="info-box">
-                        <h4>📌 GST Information</h4>
-                        <ul>
-                            <li>Standard GST rates: 5%, 12%, 18%, 28%</li>
-                            <li>Current default GST: <strong id="currentGSTDisplay">18%</strong></li>
-                            <li>You can override GST per service</li>
-                            <li>Changes apply to future invoices only</li>
-                        </ul>
+                        <h4>Current Sub-Items for: <span id="selectedServiceName"></span></h4>
+                        <div id="subItemsList" class="sub-items-list">
+                            <p style="color: #999; text-align: center;">No sub-items configured yet</p>
+                        </div>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 Save Settings</button>
+                    <div class="form-group">
+                        <label for="subServiceSelector">Add Sub-Service Item:</label>
+                        <select id="subServiceSelector">
+                            <option value="">-- Select Service to Add --</option>
+                        </select>
                     </div>
 
-                    <div class="success-message" id="gstSuccessMsg"></div>
-                    <div class="error-message" id="gstErrorMsg"></div>
+                    <button class="btn btn-primary" onclick="addSubItem()" style="margin-top: 10px;">➕ Add Sub-Item</button>
+                    <button class="btn btn-secondary" onclick="closeSubItemsConfig()" style="margin-top: 10px;">Done</button>
+
+                    <div class="success-message" id="subItemSuccessMsg"></div>
+                    <div class="error-message" id="subItemErrorMsg"></div>
+                </div>
+            </div>
+
+            <!-- ========== TAB 4: BUSINESS INFO ========== -->
+            <div id="business" class="tab-content">
+                <div class="section-title">💼 Business Information</div>
+
+                <form id="businessForm" onsubmit="saveBusinessInfo(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Business Name *</label>
+                            <input type="text" id="businessName" required>
+                            <div class="form-error" id="businessNameError"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>GST Number *</label>
+                            <input type="text" id="gstNumber" required>
+                            <div class="form-error" id="gstNumberError"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone *</label>
+                            <input type="tel" id="businessPhone" maxlength="10" required>
+                            <div class="form-error" id="businessPhoneError"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" id="businessEmail" required>
+                            <div class="form-error" id="businessEmailError"></div>
+                        </div>
+                        <div class="form-group" style="grid-column: 1/-1;">
+                            <label>Address</label>
+                            <input type="text" id="businessAddress">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="businessCity">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" id="businessState">
+                        </div>
+                        <div class="form-group">
+                            <label>Pincode</label>
+                            <input type="text" id="businessPincode" maxlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label>Default GST %</label>
+                            <input type="number" id="defaultGST" min="0" max="100" step="0.01" value="18">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary">💾 Save Business Info</button>
+                        <button type="reset" class="btn btn-secondary">🔄 Reset</button>
+                    </div>
+
+                    <div class="success-message" id="businessSuccessMsg"></div>
+                    <div class="error-message" id="businessErrorMsg"></div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- ADD/EDIT SERVICE MODAL -->
-    <div class="modal" id="serviceModal">
+    <!-- ========== CATEGORY MODAL ========== -->
+    <div class="modal" id="categoryModal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeServiceModal()">&times;</button>
-            <h2 class="modal-header" id="serviceModalTitle">➕ Add New Service</h2>
+            <div class="modal-header">
+                <span id="categoryModalTitle">➕ Add Category</span>
+                <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+            </div>
 
-            <form id="serviceForm" onsubmit="saveService(event)" novalidate>
+            <form id="categoryForm" onsubmit="saveCategory(event)">
                 <div class="form-group">
-                    <label for="serviceName">Service Name *</label>
-                    <input type="text" id="serviceName" placeholder="Enter service name" required>
-                    <div class="form-error" id="serviceNameError"></div>
+                    <label>Category Name *</label>
+                    <input type="text" id="categoryName" required>
+                    <div class="form-error" id="categoryNameError"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="serviceCategory">Category *</label>
+                    <label>Description</label>
+                    <textarea id="categoryDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Display Order</label>
+                    <input type="number" id="categoryOrder" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="categoryActive" checked>
+                        Active
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary">✓ Save Category</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                </div>
+
+                <div class="form-error" id="categoryFormError" style="margin-top: 15px;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========== SERVICE MODAL ========== -->
+    <div class="modal" id="serviceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="serviceModalTitle">➕ Add Service</span>
+                <button class="modal-close" onclick="closeServiceModal()">&times;</button>
+            </div>
+
+            <form id="serviceForm" onsubmit="saveService(event)">
+                <div class="form-group">
+                    <label>Category *</label>
                     <select id="serviceCategory" required>
-                        <option value="">Select Category</option>
-                        <option value="Printing & Copying">Printing & Copying</option>
-                        <option value="Document Services">Document Services</option>
-                        <option value="E-Stamping">E-Stamping</option>
-                        <option value="Compliance">Compliance</option>
-                        <option value="Other">Other</option>
+                        <option value="">-- Select Category --</option>
                     </select>
                     <div class="form-error" id="serviceCategoryError"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="serviceHSN">HSN/SAC Code</label>
-                    <input type="text" id="serviceHSN" placeholder="e.g., 9985">
+                    <label>Service Name *</label>
+                    <input type="text" id="serviceName" required>
+                    <div class="form-error" id="serviceNameError"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="servicePrice">Price (₹)</label>
-                    <input type="number" id="servicePrice" placeholder="0" min="0" step="0.01">
+                    <label>SAC Code (optional)</label>
+                    <input type="text" id="serviceSAC" placeholder="e.g., 998599">
                 </div>
 
                 <div class="form-group">
-                    <label for="serviceGST">GST % *</label>
-                    <input type="number" id="serviceGST" placeholder="18" min="0" max="100" step="0.01" required>
+                    <label>Rate (₹)</label>
+                    <input type="number" id="serviceRate" min="0" step="0.01" value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>GST % *</label>
+                    <input type="number" id="serviceGST" min="0" max="100" step="0.01" required>
                     <div class="form-error" id="serviceGSTError"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="serviceDescription">Description</label>
-                    <textarea id="serviceDescription" placeholder="Service description" rows="3"></textarea>
+                    <label>Description</label>
+                    <textarea id="serviceDescription" rows="2"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="serviceIsPrimary" checked>
+                        Is Primary Fee (Main service fee)
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="serviceQuantityBased">
+                        Quantity Based (e.g., per page)
+                    </label>
+                </div>
+
+                <div id="quantityUnitGroup" class="form-group" style="display: none;">
+                    <label>Quantity Unit</label>
+                    <input type="text" id="serviceQuantityUnit" placeholder="e.g., Page, Sheet, Item">
                 </div>
 
                 <div class="form-group">
                     <label>
                         <input type="checkbox" id="serviceActive" checked>
-                        Active Service
+                        Active
                     </label>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-primary" id="serviceSubmitBtn">➕ Add Service</button>
+                    <button type="submit" class="btn btn-primary">✓ Save Service</button>
                     <button type="button" class="btn btn-secondary" onclick="closeServiceModal()">Cancel</button>
                 </div>
 
@@ -692,16 +748,19 @@
     </div>
 
     <script>
-        // SUPABASE CONFIGURATION
+        // SUPABASE CONFIG
         const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
 
         let supabase = null;
         let currentUser = null;
+        let allCategories = [];
         let allServices = [];
+        let editingCategoryId = null;
         let editingServiceId = null;
+        let selectedServiceForSubItems = null;
 
-        async function initializeSettings() {
+        async function initialize() {
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                 const userSession = JSON.parse(localStorage.getItem('userSession'));
@@ -712,12 +771,9 @@
                 }
 
                 currentUser = userSession;
-                document.getElementById('userName').textContent = `Welcome, ${currentUser.name || 'User'}!`;
-
-                await loadBusinessInfo();
+                await loadCategories();
                 await loadServices();
-                await loadGSTSettings();
-
+                await loadBusinessInfo();
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -725,17 +781,415 @@
 
         // ===== TAB SWITCHING =====
         function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected tab
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
+        }
+
+        // ===== CATEGORIES =====
+        async function loadCategories() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_categories')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) throw error;
+                allCategories = data || [];
+                displayCategories();
+                populateCategorySelectors();
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        function displayCategories() {
+            const tbody = document.getElementById('categoriesTableBody');
+            
+            if (allCategories.length === 0) {
+                tbody.innerHTML = `<tr>
+                    <td colspan="5" style="text-align: center; padding: 30px;">
+                        <div class="empty-state">📂 No categories yet. Add one to get started!</div>
+                    </td>
+                </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = allCategories.map(cat => `
+                <tr>
+                    <td><strong>${cat.category_name}</strong></td>
+                    <td>${cat.description || '-'}</td>
+                    <td>${cat.display_order}</td>
+                    <td><span class="status-badge status-${cat.is_active ? 'active' : 'inactive'}">${cat.is_active ? '✓ Active' : '✗ Inactive'}</span></td>
+                    <td>
+                        <button class="btn btn-small btn-edit" onclick="editCategory('${cat.id}')">✏️</button>
+                        <button class="btn btn-small btn-delete" onclick="deleteCategory('${cat.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function populateCategorySelectors() {
+            const selector = document.getElementById('serviceCategory');
+            selector.innerHTML = '<option value="">-- Select Category --</option>';
+            allCategories.forEach(cat => {
+                selector.innerHTML += `<option value="${cat.id}">${cat.category_name}</option>`;
+            });
+
+            const subSelector = document.getElementById('subServiceSelector');
+            subSelector.innerHTML = '<option value="">-- Select Service to Add --</option>';
+            allServices.forEach(svc => {
+                subSelector.innerHTML += `<option value="${svc.id}">${svc.service_name}</option>`;
+            });
+        }
+
+        function openCategoryModal() {
+            editingCategoryId = null;
+            document.getElementById('categoryForm').reset();
+            document.getElementById('categoryModalTitle').textContent = '➕ Add Category';
+            document.getElementById('categoryModal').classList.add('show');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryModal').classList.remove('show');
+        }
+
+        async function editCategory(categoryId) {
+            const category = allCategories.find(c => c.id === categoryId);
+            if (!category) return;
+
+            editingCategoryId = categoryId;
+            document.getElementById('categoryName').value = category.category_name;
+            document.getElementById('categoryDescription').value = category.description || '';
+            document.getElementById('categoryOrder').value = category.display_order || 0;
+            document.getElementById('categoryActive').checked = category.is_active !== false;
+
+            document.getElementById('categoryModalTitle').textContent = '✏️ Edit Category';
+            document.getElementById('categoryModal').classList.add('show');
+        }
+
+        async function saveCategory(event) {
+            event.preventDefault();
+
+            const categoryName = document.getElementById('categoryName').value.trim();
+            if (!categoryName) {
+                showError('categoryNameError', 'Category name is required');
+                return;
+            }
+
+            try {
+                const categoryData = {
+                    category_name: categoryName,
+                    description: document.getElementById('categoryDescription').value,
+                    display_order: parseInt(document.getElementById('categoryOrder').value) || 0,
+                    is_active: document.getElementById('categoryActive').checked
+                };
+
+                if (editingCategoryId) {
+                    // UPDATE
+                    const { error } = await supabase
+                        .from('service_categories')
+                        .update(categoryData)
+                        .eq('id', editingCategoryId);
+                    if (error) throw error;
+                } else {
+                    // INSERT
+                    const { error } = await supabase
+                        .from('service_categories')
+                        .insert(categoryData);
+                    if (error) throw error;
+                }
+
+                closeCategoryModal();
+                await loadCategories();
+                showSuccess('categorySuccessMsg', editingCategoryId ? '✓ Category updated!' : '✓ Category added!');
+                setTimeout(() => document.getElementById('categorySuccessMsg').classList.remove('show'), 3000);
+
+            } catch (error) {
+                showErrorMsg('categoryErrorMsg', 'Error: ' + error.message);
+            }
+        }
+
+        async function deleteCategory(categoryId) {
+            if (!confirm('Delete this category? All services under it will be deleted too.')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('service_categories')
+                    .delete()
+                    .eq('id', categoryId);
+
+                if (error) throw error;
+                await loadCategories();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ===== SERVICES =====
+        async function loadServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_items')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) throw error;
+                allServices = data || [];
+                displayServices();
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
+        }
+
+        function displayServices() {
+            const tbody = document.getElementById('servicesTableBody');
+            
+            if (allServices.length === 0) {
+                tbody.innerHTML = `<tr>
+                    <td colspan="8" style="text-align: center; padding: 30px;">
+                        <div class="empty-state">🛍️ No services yet. Add one to get started!</div>
+                    </td>
+                </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = allServices.map(svc => {
+                const category = allCategories.find(c => c.id === svc.category_id);
+                const subItemsCount = svc.linked_service_ids ? JSON.parse(svc.linked_service_ids || '[]').length : 0;
+                
+                return `
+                    <tr>
+                        <td><strong>${svc.service_name}</strong></td>
+                        <td>${category ? category.category_name : '-'}</td>
+                        <td>${svc.sac_code || '-'}</td>
+                        <td>₹${svc.rate || '0'}</td>
+                        <td>${svc.gst_percentage || '0'}%</td>
+                        <td>${subItemsCount > 0 ? `${subItemsCount} items` : '-'}</td>
+                        <td><span class="status-badge status-${svc.is_active ? 'active' : 'inactive'}">${svc.is_active ? '✓' : '✗'}</span></td>
+                        <td>
+                            <button class="btn btn-small btn-edit" onclick="editService('${svc.id}')">✏️</button>
+                            <button class="btn btn-small btn-delete" onclick="deleteService('${svc.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openServiceModal() {
+            editingServiceId = null;
+            document.getElementById('serviceForm').reset();
+            document.getElementById('serviceModalTitle').textContent = '➕ Add Service';
+            document.getElementById('quantityUnitGroup').style.display = 'none';
+            document.getElementById('serviceModal').classList.add('show');
+        }
+
+        function closeServiceModal() {
+            document.getElementById('serviceModal').classList.remove('show');
+        }
+
+        async function editService(serviceId) {
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) return;
+
+            editingServiceId = serviceId;
+            document.getElementById('serviceCategory').value = service.category_id || '';
+            document.getElementById('serviceName').value = service.service_name;
+            document.getElementById('serviceSAC').value = service.sac_code || '';
+            document.getElementById('serviceRate').value = service.rate || '0';
+            document.getElementById('serviceGST').value = service.gst_percentage || '0';
+            document.getElementById('serviceDescription').value = service.description || '';
+            document.getElementById('serviceIsPrimary').checked = service.is_primary_fee !== false;
+            document.getElementById('serviceQuantityBased').checked = service.is_quantity_based === true;
+            document.getElementById('serviceQuantityUnit').value = service.quantity_unit || '';
+            document.getElementById('serviceActive').checked = service.is_active !== false;
+
+            if (service.is_quantity_based) {
+                document.getElementById('quantityUnitGroup').style.display = 'block';
+            }
+
+            document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
+            document.getElementById('serviceModal').classList.add('show');
+        }
+
+        async function saveService(event) {
+            event.preventDefault();
+
+            const serviceName = document.getElementById('serviceName').value.trim();
+            const categoryId = document.getElementById('serviceCategory').value;
+            const gst = parseFloat(document.getElementById('serviceGST').value);
+
+            if (!serviceName) {
+                showError('serviceNameError', 'Service name required');
+                return;
+            }
+            if (!categoryId) {
+                showError('serviceCategoryError', 'Category required');
+                return;
+            }
+            if (isNaN(gst) || gst < 0 || gst > 100) {
+                showError('serviceGSTError', 'GST must be 0-100');
+                return;
+            }
+
+            try {
+                const serviceData = {
+                    category_id: categoryId,
+                    service_name: serviceName,
+                    sac_code: document.getElementById('serviceSAC').value || null,
+                    rate: parseFloat(document.getElementById('serviceRate').value) || 0,
+                    gst_percentage: gst,
+                    description: document.getElementById('serviceDescription').value || null,
+                    is_primary_fee: document.getElementById('serviceIsPrimary').checked,
+                    is_quantity_based: document.getElementById('serviceQuantityBased').checked,
+                    quantity_unit: document.getElementById('serviceQuantityUnit').value || null,
+                    is_active: document.getElementById('serviceActive').checked
+                };
+
+                if (editingServiceId) {
+                    const { error } = await supabase
+                        .from('service_items')
+                        .update(serviceData)
+                        .eq('id', editingServiceId);
+                    if (error) throw error;
+                } else {
+                    const { error } = await supabase
+                        .from('service_items')
+                        .insert(serviceData);
+                    if (error) throw error;
+                }
+
+                closeServiceModal();
+                await loadServices();
+                showSuccess('serviceSuccessMsg', editingServiceId ? '✓ Service updated!' : '✓ Service added!');
+                setTimeout(() => document.getElementById('serviceSuccessMsg').classList.remove('show'), 3000);
+
+            } catch (error) {
+                showErrorMsg('serviceErrorMsg', 'Error: ' + error.message);
+            }
+        }
+
+        async function deleteService(serviceId) {
+            if (!confirm('Delete this service?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('service_items')
+                    .delete()
+                    .eq('id', serviceId);
+
+                if (error) throw error;
+                await loadServices();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ===== SUB-SERVICES =====
+        function loadServiceSubItems() {
+            const serviceId = document.getElementById('serviceSelector').value;
+            if (!serviceId) {
+                document.getElementById('subItemsConfig').style.display = 'none';
+                return;
+            }
+
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) return;
+
+            selectedServiceForSubItems = service;
+            document.getElementById('selectedServiceName').textContent = service.service_name;
+            document.getElementById('subItemsConfig').style.display = 'block';
+            
+            displaySubItems(service);
+        }
+
+        function displaySubItems(service) {
+            const subItemsList = document.getElementById('subItemsList');
+            const linkedIds = service.linked_service_ids ? JSON.parse(service.linked_service_ids) : [];
+
+            if (linkedIds.length === 0) {
+                subItemsList.innerHTML = '<p style="color: #999; text-align: center;">No sub-items configured yet</p>';
+                return;
+            }
+
+            subItemsList.innerHTML = linkedIds.map(linkedId => {
+                const linkedService = allServices.find(s => s.id === linkedId);
+                return `
+                    <div class="sub-item">
+                        <span>${linkedService ? linkedService.service_name : 'Unknown'}</span>
+                        <button class="sub-item-remove" onclick="removeSubItem('${linkedId}')">Remove</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function addSubItem() {
+            const subServiceId = document.getElementById('subServiceSelector').value;
+            if (!subServiceId || !selectedServiceForSubItems) return;
+
+            try {
+                const currentLinked = selectedServiceForSubItems.linked_service_ids 
+                    ? JSON.parse(selectedServiceForSubItems.linked_service_ids) 
+                    : [];
+
+                if (currentLinked.includes(subServiceId)) {
+                    showErrorMsg('subItemErrorMsg', 'This service is already added');
+                    return;
+                }
+
+                currentLinked.push(subServiceId);
+
+                const { error } = await supabase
+                    .from('service_items')
+                    .update({ linked_service_ids: JSON.stringify(currentLinked) })
+                    .eq('id', selectedServiceForSubItems.id);
+
+                if (error) throw error;
+
+                await loadServices();
+                document.getElementById('serviceSelector').value = selectedServiceForSubItems.id;
+                loadServiceSubItems();
+                
+                showSuccess('subItemSuccessMsg', '✓ Sub-item added!');
+                setTimeout(() => document.getElementById('subItemSuccessMsg').classList.remove('show'), 3000);
+
+            } catch (error) {
+                showErrorMsg('subItemErrorMsg', 'Error: ' + error.message);
+            }
+        }
+
+        async function removeSubItem(subServiceId) {
+            if (!selectedServiceForSubItems) return;
+
+            try {
+                const currentLinked = JSON.parse(selectedServiceForSubItems.linked_service_ids || '[]');
+                const index = currentLinked.indexOf(subServiceId);
+                if (index > -1) {
+                    currentLinked.splice(index, 1);
+                }
+
+                const { error } = await supabase
+                    .from('service_items')
+                    .update({ linked_service_ids: JSON.stringify(currentLinked) })
+                    .eq('id', selectedServiceForSubItems.id);
+
+                if (error) throw error;
+
+                await loadServices();
+                document.getElementById('serviceSelector').value = selectedServiceForSubItems.id;
+                loadServiceSubItems();
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function closeSubItemsConfig() {
+            document.getElementById('serviceSelector').value = '';
+            document.getElementById('subItemsConfig').style.display = 'none';
+            selectedServiceForSubItems = null;
         }
 
         // ===== BUSINESS INFO =====
@@ -759,9 +1213,10 @@
                     document.getElementById('businessCity').value = biz.city || '';
                     document.getElementById('businessState').value = biz.state || '';
                     document.getElementById('businessPincode').value = biz.pincode || '';
+                    document.getElementById('defaultGST').value = biz.default_gst_percentage || 18;
                 }
             } catch (error) {
-                console.error('Error loading business info:', error);
+                console.error('Error:', error);
             }
         }
 
@@ -773,17 +1228,16 @@
             const phone = document.getElementById('businessPhone').value.trim();
             const email = document.getElementById('businessEmail').value.trim();
 
-            // Validation
             if (!businessName) {
-                showError('businessNameError', 'Business name is required');
+                showError('businessNameError', 'Business name required');
                 return;
             }
             if (!gstNumber) {
-                showError('gstNumberError', 'GST number is required');
+                showError('gstNumberError', 'GST number required');
                 return;
             }
             if (!phone || phone.length !== 10) {
-                showError('businessPhoneError', 'Valid 10-digit phone required');
+                showError('businessPhoneError', '10-digit phone required');
                 return;
             }
             if (!email || !email.includes('@')) {
@@ -792,291 +1246,42 @@
             }
 
             try {
-                // GET FIRST RECORD TO GET ITS ID
-                const { data: existingData, error: selectError } = await supabase
-                    .from('business_settings')
-                    .select('id')
-                    .order('created_at', { ascending: true })
-                    .limit(1);
-
-                if (selectError) throw selectError;
-
-                if (existingData && existingData.length > 0) {
-                    // UPDATE EXISTING RECORD
-                    const businessId = existingData[0].id;
-                    const { error } = await supabase
-                        .from('business_settings')
-                        .update({
-                            business_name: businessName,
-                            gst_number: gstNumber,
-                            phone: phone,
-                            email: email,
-                            address: document.getElementById('businessAddress').value,
-                            city: document.getElementById('businessCity').value,
-                            state: document.getElementById('businessState').value,
-                            pincode: document.getElementById('businessPincode').value,
-                            updated_at: new Date()
-                        })
-                        .eq('id', businessId);
-
-                    if (error) throw error;
-                } else {
-                    // CREATE NEW RECORD IF NONE EXISTS
-                    const { error } = await supabase
-                        .from('business_settings')
-                        .insert({
-                            business_name: businessName,
-                            gst_number: gstNumber,
-                            phone: phone,
-                            email: email,
-                            address: document.getElementById('businessAddress').value,
-                            city: document.getElementById('businessCity').value,
-                            state: document.getElementById('businessState').value,
-                            pincode: document.getElementById('businessPincode').value
-                        });
-
-                    if (error) throw error;
-                }
-
-                showSuccess('businessSuccessMsg', '✓ Business information saved successfully!');
-                setTimeout(() => {
-                    document.getElementById('businessSuccessMsg').classList.remove('show');
-                }, 3000);
-
-            } catch (error) {
-                showErrorMsg('businessErrorMsg', 'Failed to save business info: ' + error.message);
-            }
-        }
-
-        // ===== SERVICES =====
-        async function loadServices() {
-            try {
-                const { data, error } = await supabase
-                    .from('services')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                allServices = data || [];
-                displayServices();
-            } catch (error) {
-                console.error('Error loading services:', error);
-            }
-        }
-
-        function displayServices() {
-            const tbody = document.getElementById('servicesTableBody');
-
-            if (allServices.length === 0) {
-                tbody.innerHTML = `<tr>
-                    <td colspan="7">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">📭</div>
-                            <div class="empty-state-text">No services yet. Click "Add New Service" to create one.</div>
-                        </div>
-                    </td>
-                </tr>`;
-                return;
-            }
-
-            tbody.innerHTML = allServices.map(service => `
-                <tr>
-                    <td><strong>${service.service_name}</strong></td>
-                    <td>${service.category || '-'}</td>
-                    <td>${service.hsn_sac || '-'}</td>
-                    <td>₹${service.price || '0'}</td>
-                    <td>${service.gst_percentage || '18'}%</td>
-                    <td><span class="status-badge status-${service.is_active ? 'active' : 'inactive'}">${service.is_active ? 'Active' : 'Inactive'}</span></td>
-                    <td>
-                        <button class="btn btn-small btn-edit" onclick="editService('${service.id}')">✏️</button>
-                        <button class="btn btn-small btn-delete" onclick="deleteService('${service.id}')">🗑️</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openAddServiceModal() {
-            editingServiceId = null;
-            document.getElementById('serviceForm').reset();
-            document.getElementById('serviceModalTitle').textContent = '➕ Add New Service';
-            document.getElementById('serviceSubmitBtn').textContent = '➕ Add Service';
-            document.getElementById('serviceModal').classList.add('show');
-        }
-
-        function closeServiceModal() {
-            document.getElementById('serviceModal').classList.remove('show');
-            document.getElementById('serviceForm').reset();
-            editingServiceId = null;
-        }
-
-        async function editService(serviceId) {
-            const service = allServices.find(s => s.id === serviceId);
-            if (!service) return;
-
-            editingServiceId = serviceId;
-            document.getElementById('serviceName').value = service.service_name;
-            document.getElementById('serviceCategory').value = service.category || '';
-            document.getElementById('serviceHSN').value = service.hsn_sac || '';
-            document.getElementById('servicePrice').value = service.price || '0';
-            document.getElementById('serviceGST').value = service.gst_percentage || '18';
-            document.getElementById('serviceDescription').value = service.description || '';
-            document.getElementById('serviceActive').checked = service.is_active !== false;
-
-            document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
-            document.getElementById('serviceSubmitBtn').textContent = '✓ Update Service';
-            document.getElementById('serviceModal').classList.add('show');
-        }
-
-        async function saveService(event) {
-            event.preventDefault();
-
-            const serviceName = document.getElementById('serviceName').value.trim();
-            const serviceCategory = document.getElementById('serviceCategory').value;
-            const serviceGST = parseFloat(document.getElementById('serviceGST').value);
-
-            if (!serviceName) {
-                showError('serviceNameError', 'Service name is required');
-                return;
-            }
-            if (!serviceCategory) {
-                showError('serviceCategoryError', 'Category is required');
-                return;
-            }
-            if (isNaN(serviceGST) || serviceGST < 0 || serviceGST > 100) {
-                showError('serviceGSTError', 'GST must be between 0-100');
-                return;
-            }
-
-            try {
-                const serviceData = {
-                    service_name: serviceName,
-                    category: serviceCategory,
-                    hsn_sac: document.getElementById('serviceHSN').value || null,
-                    price: parseFloat(document.getElementById('servicePrice').value) || 0,
-                    gst_percentage: serviceGST,
-                    description: document.getElementById('serviceDescription').value || null,
-                    is_active: document.getElementById('serviceActive').checked
-                };
-
-                if (editingServiceId) {
-                    // UPDATE
-                    const { error } = await supabase
-                        .from('services')
-                        .update(serviceData)
-                        .eq('id', editingServiceId);
-
-                    if (error) throw error;
-                } else {
-                    // INSERT
-                    const { error } = await supabase
-                        .from('services')
-                        .insert(serviceData);
-
-                    if (error) throw error;
-                }
-
-                closeServiceModal();
-                await loadServices();
-                showSuccess('serviceSuccessMsg', editingServiceId ? '✓ Service updated!' : '✓ Service added!');
-                setTimeout(() => {
-                    document.getElementById('serviceSuccessMsg').classList.remove('show');
-                }, 3000);
-
-            } catch (error) {
-                showErrorMsg('serviceErrorMsg', 'Failed to save service: ' + error.message);
-            }
-        }
-
-        async function deleteService(serviceId) {
-            if (!confirm('Are you sure you want to delete this service?')) return;
-
-            try {
-                const { error } = await supabase
-                    .from('services')
-                    .delete()
-                    .eq('id', serviceId);
-
-                if (error) throw error;
-
-                await loadServices();
-            } catch (error) {
-                console.error('Error deleting service:', error);
-            }
-        }
-
-        // ===== GST SETTINGS =====
-        async function loadGSTSettings() {
-            try {
-                const { data, error } = await supabase
-                    .from('business_settings')
-                    .select('default_gst_percentage')
-                    .order('created_at', { ascending: true })
-                    .limit(1);
-
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    const gst = data[0].default_gst_percentage || 18;
-                    document.getElementById('defaultGST').value = gst;
-                    document.getElementById('currentGSTDisplay').textContent = gst + '%';
-                } else {
-                    document.getElementById('defaultGST').value = 18;
-                    document.getElementById('currentGSTDisplay').textContent = '18%';
-                }
-            } catch (error) {
-                console.error('Error loading GST settings:', error);
-            }
-        }
-
-        async function saveGSTSettings(event) {
-            event.preventDefault();
-
-            const defaultGST = parseFloat(document.getElementById('defaultGST').value);
-
-            if (isNaN(defaultGST) || defaultGST < 0 || defaultGST > 100) {
-                showError('defaultGSTError', 'GST must be between 0-100');
-                return;
-            }
-
-            try {
-                // GET FIRST RECORD
                 const { data: existingData } = await supabase
                     .from('business_settings')
                     .select('id')
                     .order('created_at', { ascending: true })
                     .limit(1);
 
+                const businessData = {
+                    business_name: businessName,
+                    gst_number: gstNumber,
+                    phone: phone,
+                    email: email,
+                    address: document.getElementById('businessAddress').value,
+                    city: document.getElementById('businessCity').value,
+                    state: document.getElementById('businessState').value,
+                    pincode: document.getElementById('businessPincode').value,
+                    default_gst_percentage: parseFloat(document.getElementById('defaultGST').value) || 18
+                };
+
                 if (existingData && existingData.length > 0) {
-                    // UPDATE
                     const { error } = await supabase
                         .from('business_settings')
-                        .update({
-                            default_gst_percentage: defaultGST,
-                            updated_at: new Date()
-                        })
+                        .update(businessData)
                         .eq('id', existingData[0].id);
-
                     if (error) throw error;
                 } else {
-                    // CREATE NEW
                     const { error } = await supabase
                         .from('business_settings')
-                        .insert({
-                            default_gst_percentage: defaultGST
-                        });
-
+                        .insert(businessData);
                     if (error) throw error;
                 }
 
-                document.getElementById('currentGSTDisplay').textContent = defaultGST + '%';
-                showSuccess('gstSuccessMsg', '✓ GST settings saved successfully!');
-                setTimeout(() => {
-                    document.getElementById('gstSuccessMsg').classList.remove('show');
-                }, 3000);
+                showSuccess('businessSuccessMsg', '✓ Business info saved!');
+                setTimeout(() => document.getElementById('businessSuccessMsg').classList.remove('show'), 3000);
 
             } catch (error) {
-                showErrorMsg('gstErrorMsg', 'Failed to save GST settings: ' + error.message);
+                showErrorMsg('businessErrorMsg', 'Error: ' + error.message);
             }
         }
 
@@ -1101,9 +1306,7 @@
             if (errorDiv) {
                 errorDiv.textContent = message;
                 errorDiv.classList.add('show');
-                setTimeout(() => {
-                    errorDiv.classList.remove('show');
-                }, 5000);
+                setTimeout(() => errorDiv.classList.remove('show'), 5000);
             }
         }
 
@@ -1114,7 +1317,13 @@
             }
         }
 
-        window.addEventListener('load', initializeSettings);
+        // Event listeners
+        document.getElementById('serviceQuantityBased').addEventListener('change', function() {
+            document.getElementById('quantityUnitGroup').style.display = this.checked ? 'block' : 'none';
+        });
+
+        // Initialize on load
+        window.addEventListener('load', initialize);
     </script>
 </body>
 </html>
