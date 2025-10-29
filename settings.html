@@ -833,7 +833,6 @@
                 const { error } = await supabase
                     .from('business_settings')
                     .upsert({
-                        id: 1,
                         business_name: businessName,
                         gst_number: gstNumber,
                         phone: phone,
