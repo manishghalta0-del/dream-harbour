@@ -27,18 +27,17 @@
         .inv-table .actions { display: flex; gap: 8px; }
         .btn-sm { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
         .btn-view { background: #3b82f6; color: white; }
-        .btn-edit { background: #f59e0b; color: white; }
         .btn-delete { background: #ef4444; color: white; }
         
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; }
         .modal.show { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
-        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 1200px; max-height: 90vh; overflow-y: auto; padding: 0; }
+        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 0; }
         
-        .form-header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+        .form-header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
         .close-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
         
         .form-body { padding: 24px; }
-        .section-title { color: #1e40af; font-size: 14px; font-weight: 700; margin: 16px 0 12px 0; text-transform: uppercase; }
+        .section-title { color: #1e40af; font-size: 14px; font-weight: 700; margin: 16px 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px; }
         
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
         .form-group { }
@@ -47,15 +46,24 @@
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
         .form-group input.locked { background: #f1f5f9; color: #64748b; cursor: not-allowed; }
         
-        .search-box { position: relative; margin-bottom: 12px; }
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; display: none; z-index: 100; }
+        .search-container { position: relative; margin-bottom: 12px; }
+        .search-wrapper { position: relative; display: flex; align-items: center; background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 0 12px; transition: all 0.2s; }
+        .search-wrapper:focus-within { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+        .search-icon { color: #64748b; font-size: 16px; margin-right: 8px; }
+        .search-wrapper input { flex: 1; border: none; padding: 10px 0; font-size: 13px; background: transparent; }
+        .search-wrapper input:focus { outline: none; }
+        
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-top: none; border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto; display: none; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
         .search-results.show { display: block; }
-        .search-item { padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; }
+        .search-item { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s; }
+        .search-item:last-child { border-bottom: none; }
         .search-item:hover, .search-item.selected { background: #f0f9ff; color: #1e40af; font-weight: 600; }
+        .search-item-name { flex: 1; }
+        .search-item-price { background: #1e40af; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         
         .service-block { background: #f8fafc; border: 2px solid #1e40af; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
         .service-header { background: #1e40af; color: white; padding: 12px 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .btn-remove { background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-remove { background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; transition: 0.2s; }
         .btn-remove:hover { background: rgba(255,255,255,0.4); }
         
         .sub-service { padding: 12px 16px; border-top: 1px solid #e2e8f0; }
@@ -68,24 +76,11 @@
         .line-row-val { padding: 6px; font-size: 10px; background: #f1f5f9; border-radius: 4px; font-weight: 600; color: #1e3a8a; }
         
         .gst-toggle { display: flex; gap: 6px; margin-top: 8px; }
-        .gst-btn { padding: 5px 10px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600; color: #475569; }
+        .gst-btn { padding: 5px 10px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600; color: #475569; transition: 0.2s; }
         .gst-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
         
-        .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
-        .preview-panel { background: #fafbfc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; }
-        .preview-header { font-size: 12px; font-weight: 700; color: #1e40af; margin-bottom: 12px; }
-        .preview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-        .stat-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; text-align: center; }
-        .stat-label { font-size: 9px; color: #475569; }
-        .stat-value { font-size: 14px; color: #1e40af; font-weight: 700; margin-top: 2px; }
-        
-        .inv-preview { font-size: 9px; background: white; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; }
-        .inv-preview table { width: 100%; border-collapse: collapse; }
-        .inv-preview th { background: #1e40af; color: white; padding: 6px; font-size: 8px; }
-        .inv-preview td { padding: 4px; border-bottom: 1px solid #e2e8f0; }
-        
-        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-        .btn-submit { background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+        .btn-submit { background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-submit:hover { background: #059669; }
         .btn-cancel { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
         
@@ -93,11 +88,6 @@
         .msg.show { display: block; }
         .success { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
         .error { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
-        
-        @media (max-width: 900px) {
-            .two-col { grid-template-columns: 1fr; }
-            .line-header, .line-row { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -139,107 +129,77 @@
                 <div class="msg success" id="msg-success"></div>
                 <div class="msg error" id="msg-error"></div>
 
-                <div class="two-col">
-                    <!-- FORM -->
-                    <div>
-                        <!-- CUSTOMER -->
-                        <div class="section-title">👤 Customer Details</div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Mobile *</label>
-                                <input type="tel" id="custPhone" maxlength="10" onchange="lookupCustomer()">
-                            </div>
-                            <div class="form-group">
-                                <label>Name *</label>
-                                <input type="text" id="custName" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" id="custEmail">
-                            </div>
-                            <div class="form-group">
-                                <label>Address</label>
-                                <input type="text" id="custAddr">
-                            </div>
-                            <div class="form-group">
-                                <label>Company</label>
-                                <input type="text" id="custCompany">
-                            </div>
-                            <div class="form-group">
-                                <label>GST</label>
-                                <input type="text" id="custGst">
-                            </div>
-                        </div>
-
-                        <!-- INVOICE -->
-                        <div class="section-title">📅 Invoice Details</div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Invoice #</label>
-                                <input type="text" id="invNum" class="locked" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>Date *</label>
-                                <input type="date" id="invDate" required>
-                            </div>
-                        </div>
-
-                        <!-- SERVICES -->
-                        <div class="section-title">🛍️ Select Service</div>
-                        <div class="search-box">
-                            <input type="text" id="serviceSearch" placeholder="Type service name..." onkeyup="searchServices()" onkeydown="handleSearchKeys(event)">
-                            <div id="searchResults" class="search-results"></div>
-                        </div>
-
-                        <!-- SERVICES LIST -->
-                        <div id="servicesHeader" style="display:none;"><div class="section-title">📦 Added Services</div></div>
-                        <div id="servicesContainer"></div>
-
-                        <!-- PAYMENT -->
-                        <div class="section-title">💳 Payment</div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>Status</label>
-                                <select id="payStatus">
-                                    <option value="pending">Pending</option>
-                                    <option value="paid">Paid</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="buttons">
-                            <button class="btn-submit" onclick="submitInvoice()">✓ Submit Invoice</button>
-                            <button class="btn-cancel" onclick="closeCreateForm()">Cancel</button>
-                        </div>
+                <!-- CUSTOMER -->
+                <div class="section-title">👤 Customer Details</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Mobile *</label>
+                        <input type="tel" id="custPhone" maxlength="10" onchange="lookupCustomer()">
                     </div>
-
-                    <!-- PREVIEW -->
-                    <div class="preview-panel">
-                        <div class="preview-header">👁️ Live Preview</div>
-                        <div class="preview-stats">
-                            <div class="stat-box">
-                                <div class="stat-label">Total (W/o GST)</div>
-                                <div class="stat-value">₹<span id="previewTotal">0.00</span></div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">Subtotal (W GST)</div>
-                                <div class="stat-value">₹<span id="previewSubtotal">0.00</span></div>
-                            </div>
-                        </div>
-                        <div class="inv-preview">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Service</th>
-                                        <th>Qty</th>
-                                        <th>Amount</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="previewItems"></tbody>
-                            </table>
-                        </div>
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="custName" required>
                     </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="custEmail">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="custAddr">
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="custCompany">
+                    </div>
+                    <div class="form-group">
+                        <label>GST</label>
+                        <input type="text" id="custGst">
+                    </div>
+                </div>
+
+                <!-- INVOICE -->
+                <div class="section-title">📅 Invoice Details</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Invoice #</label>
+                        <input type="text" id="invNum" class="locked" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Date *</label>
+                        <input type="date" id="invDate" required>
+                    </div>
+                </div>
+
+                <!-- SERVICES -->
+                <div class="section-title">🛍️ Select Service</div>
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="serviceSearch" placeholder="Type service name..." onkeyup="searchServices()" onkeydown="handleSearchKeys(event)">
+                    </div>
+                    <div id="searchResults" class="search-results"></div>
+                </div>
+
+                <!-- SERVICES LIST -->
+                <div id="servicesHeader" style="display:none;"><div class="section-title">📦 Added Services</div></div>
+                <div id="servicesContainer"></div>
+
+                <!-- PAYMENT -->
+                <div class="section-title">💳 Payment</div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="payStatus">
+                            <option value="pending">Pending</option>
+                            <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn-submit" onclick="submitInvoice()">✓ Submit Invoice</button>
+                    <button class="btn-cancel" onclick="closeCreateForm()">Cancel</button>
                 </div>
             </div>
         </div>
@@ -330,8 +290,8 @@
             const filtered = allServices.filter(s => s.service_name.toLowerCase().includes(query));
             resultsDiv.innerHTML = filtered.map(s => `
                 <div class="search-item" onclick="selectService('${s.id}')">
-                    <span>${s.service_name}</span>
-                    <span>₹${s.rate || 0}</span>
+                    <span class="search-item-name">${s.service_name}</span>
+                    <span class="search-item-price">₹${s.rate || 0}</span>
                 </div>
             `).join('');
             resultsDiv.classList.add('show');
@@ -391,15 +351,7 @@
                     sacCode: sub1.sac_code || '',
                     qty: 1,
                     gstMode: 'with'
-                } : (service.sac_code || service.hsncode ? {
-                    id: 'plain',
-                    name: service.service_name,
-                    rate: service.rate || 0,
-                    gstPct: service.gst_percentage || 0,
-                    sacCode: service.sac_code || '',
-                    qty: 1,
-                    gstMode: 'with'
-                } : null),
+                } : null,
                 sub2: sub2 ? {
                     id: sub2.id,
                     name: sub2.sub_service_name,
@@ -537,41 +489,23 @@
         }
 
         function updatePreview() {
-            let totalNoGst = 0, totalGst = 0;
-            let itemsHtml = '';
-
             selectedServices.forEach((svc, svcIdx) => {
                 if (svc.sub1) {
                     const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub1);
-                    totalNoGst += baseAmount;
-                    totalGst += gstAmount;
-                    
                     const el1 = document.getElementById(`gst-${svcIdx}-sub1`);
                     const el2 = document.getElementById(`total-${svcIdx}-sub1`);
                     if (el1) el1.textContent = '₹' + gstAmount.toFixed(2);
                     if (el2) el2.textContent = '₹' + totalAmount.toFixed(2);
-
-                    itemsHtml += `<tr><td>${svc.sub1.name}</td><td>${svc.sub1.qty}</td><td>₹${svc.sub1.rate.toFixed(2)}</td><td>₹${totalAmount.toFixed(2)}</td></tr>`;
                 }
 
                 if (svc.sub2) {
                     const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub2);
-                    totalNoGst += baseAmount;
-                    totalGst += gstAmount;
-                    
                     const el1 = document.getElementById(`gst-${svcIdx}-sub2`);
                     const el2 = document.getElementById(`total-${svcIdx}-sub2`);
                     if (el1) el1.textContent = '₹' + gstAmount.toFixed(2);
                     if (el2) el2.textContent = '₹' + totalAmount.toFixed(2);
-
-                    itemsHtml += `<tr><td>${svc.sub2.name}</td><td>${svc.sub2.qty}</td><td>₹${svc.sub2.rate.toFixed(2)}</td><td>₹${totalAmount.toFixed(2)}</td></tr>`;
                 }
             });
-
-            const totalWithGst = totalNoGst + totalGst;
-            document.getElementById('previewTotal').textContent = round(totalNoGst).toFixed(2);
-            document.getElementById('previewSubtotal').textContent = round(totalWithGst).toFixed(2);
-            document.getElementById('previewItems').innerHTML = itemsHtml;
         }
 
         function generateInvoiceNumber() {
@@ -625,19 +559,25 @@
                     invoice_date: document.getElementById('invDate').value,
                     customer_name: custName,
                     customer_phone: custPhone,
-                    customer_gst: document.getElementById('custGst').value,
-                    customer_address: document.getElementById('custAddr').value,
-                    customer_email: document.getElementById('custEmail').value,
-                    customer_company: document.getElementById('custCompany').value,
+                    customer_gst: document.getElementById('custGst').value || null,
+                    customer_address: document.getElementById('custAddr').value || null,
+                    customer_email: document.getElementById('custEmail').value || null,
+                    customer_company: document.getElementById('custCompany').value || null,
                     payment_status: document.getElementById('payStatus').value,
                     subtotal: round(totalNoGst + totalGst),
                     total_amount: round(totalNoGst)
                 };
 
-                const {data: inv} = await db.from('invoices').insert(invData).select().single();
+                const {data: inv, error: invError} = await db.from('invoices').insert(invData).select().single();
+
+                if (invError) {
+                    showError('Error creating invoice: ' + invError.message);
+                    console.error('Invoice error:', invError);
+                    return;
+                }
 
                 if (!inv || !inv.id) {
-                    showError('Failed to create invoice');
+                    showError('Failed to create invoice - invalid response');
                     return;
                 }
 
@@ -651,7 +591,7 @@
                             invoice_id: inv.id,
                             line_number: lineNum++,
                             description: svc.sub1.name,
-                            sac_code: svc.sub1.sacCode,
+                            sac_code: svc.sub1.sacCode || null,
                             quantity: svc.sub1.qty,
                             rate: svc.sub1.rate,
                             gst_percentage: svc.sub1.gstPct,
@@ -667,7 +607,7 @@
                             invoice_id: inv.id,
                             line_number: lineNum++,
                             description: svc.sub2.name,
-                            sac_code: svc.sub2.sacCode,
+                            sac_code: svc.sub2.sacCode || null,
                             quantity: svc.sub2.qty,
                             rate: svc.sub2.rate,
                             gst_percentage: svc.sub2.gstPct,
@@ -694,13 +634,22 @@
                     }
                 });
 
-                await db.from('invoice_items').insert(items);
+                const {error: itemsError} = await db.from('invoice_items').insert(items);
+
+                if (itemsError) {
+                    showError('Error saving items: ' + itemsError.message);
+                    console.error('Items error:', itemsError);
+                    return;
+                }
                 
                 showSuccess('Invoice created successfully!');
-                closeCreateForm();
-                loadInvoices();
+                setTimeout(() => {
+                    closeCreateForm();
+                    loadInvoices();
+                }, 1000);
             } catch(e) { 
                 showError('Error: ' + (e.message || 'Unknown error'));
+                console.error('Submit error:', e);
             }
         }
 
@@ -732,7 +681,6 @@
             selectedServices = [];
             document.getElementById('servicesContainer').innerHTML = '';
             document.getElementById('servicesHeader').style.display = 'none';
-            updatePreview();
         }
 
         function showSuccess(msg) {
