@@ -17,70 +17,81 @@
         }
         @media (min-width: 801px) and (max-width: 1200px) {
             .main-wrapper { grid-template-columns: 1fr !important; }
-            .preview-panel { max-height: 40vh !important; }
+            .preview-panel { max-height: 45vh !important; }
         }
         @media (min-width: 1201px) {
             .main-wrapper { grid-template-columns: 1.2fr 1fr; }
             .preview-panel { display: block !important; max-height: 100vh; }
         }
         
-        .main-wrapper { display: grid; gap: 15px; min-height: 100vh; padding: 15px; }
-        .form-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; }
-        .preview-panel { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; display: none; }
+        .main-wrapper { display: grid; gap: 12px; min-height: 100vh; padding: 12px; }
+        .form-panel { background: white; border-radius: 10px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; }
+        .preview-panel { background: white; border-radius: 10px; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; }
         
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 12px 15px; margin: -20px -20px 15px -20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 10px 12px; margin: -16px -16px 12px -16px; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
         .logo { font-weight: bold; }
-        .nav-btn { background: rgba(0,0,0,0.2); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .nav-btn { background: rgba(0,0,0,0.2); color: white; border: none; padding: 5px 8px; border-radius: 3px; cursor: pointer; font-size: 10px; }
         
-        h2 { color: #1e40af; font-size: 14px; margin: 12px 0 10px 0; font-weight: 600; }
-        .section { margin-bottom: 12px; }
-        .form-group { margin-bottom: 8px; }
-        .form-group label { display: block; font-weight: 600; font-size: 11px; color: #333; margin-bottom: 3px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 12px; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; }
+        h2 { color: #1e40af; font-size: 13px; margin: 10px 0 8px 0; font-weight: 600; }
+        .section { margin-bottom: 10px; }
+        .form-group { margin-bottom: 6px; }
+        .form-group label { display: block; font-weight: 600; font-size: 10px; color: #333; margin-bottom: 2px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 2px rgba(30,64,175,0.1); }
         
         .search-box { position: relative; }
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-radius: 4px; max-height: 150px; overflow-y: auto; display: none; z-index: 100; }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #1e40af; border-radius: 4px; max-height: 130px; overflow-y: auto; display: none; z-index: 100; }
         .search-results.show { display: block; }
-        .search-item { padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 11px; display: flex; justify-content: space-between; }
+        .search-item { padding: 6px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 10px; display: flex; justify-content: space-between; }
         .search-item:hover { background: #f0f9ff; }
+        .search-item-price { color: #1e40af; font-weight: 600; }
         
-        .add-service-btn { background: #1e40af; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; width: 100%; }
+        .add-service-btn { background: #1e40af; color: white; border: none; padding: 6px; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: 600; width: 100%; margin-top: 4px; }
         
-        .line-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e0e0e0; }
-        .line-item-title { font-weight: 600; font-size: 12px; color: #1e40af; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .line-item-remove { background: #ef4444; color: white; border: none; padding: 3px 6px; border-radius: 3px; cursor: pointer; font-size: 10px; }
+        .service-group { background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; overflow: hidden; }
+        .service-header { background: #1e40af; color: white; padding: 8px; font-weight: 600; font-size: 11px; display: flex; justify-content: space-between; }
+        .service-remove { background: rgba(255,255,255,0.3); color: white; border: none; padding: 2px 6px; border-radius: 2px; cursor: pointer; font-size: 9px; }
+        .service-remove:hover { background: rgba(255,255,255,0.5); }
         
-        .line-item-table { font-size: 10px; }
-        .line-item-header { display: grid; grid-template-columns: 0.6fr 0.8fr 0.6fr 0.8fr 0.8fr; gap: 6px; font-weight: 600; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; }
-        .line-item-row { display: grid; grid-template-columns: 0.6fr 0.8fr 0.6fr 0.8fr 0.8fr; gap: 6px; }
-        .line-item-row input { padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; }
-        .line-item-row-value { padding: 4px; font-size: 11px; color: #333; font-weight: 600; background: #f5f5f5; border-radius: 3px; }
-        .gst-toggle { display: flex; gap: 4px; margin-top: 6px; }
-        .gst-toggle-btn { padding: 3px 6px; border: 1px solid #ddd; background: white; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: 600; }
+        .sub-service { background: white; padding: 8px; border-top: 1px solid #eee; }
+        .sub-service-title { font-weight: 600; font-size: 10px; color: #333; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        
+        .line-item-table { font-size: 9px; }
+        .line-item-header { display: grid; grid-template-columns: 0.5fr 0.7fr 0.6fr 0.6fr 0.6fr; gap: 4px; font-weight: 600; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 3px; margin-bottom: 3px; }
+        .line-item-row { display: grid; grid-template-columns: 0.5fr 0.7fr 0.6fr 0.6fr 0.6fr; gap: 4px; }
+        .line-item-row input { padding: 3px; font-size: 9px; border: 1px solid #ddd; border-radius: 2px; }
+        .line-item-row-value { padding: 3px; font-size: 9px; color: #333; background: #f5f5f5; border-radius: 2px; }
+        
+        .gst-toggle { display: flex; gap: 3px; margin-top: 4px; }
+        .gst-toggle-btn { padding: 2px 4px; border: 1px solid #ddd; background: white; border-radius: 2px; cursor: pointer; font-size: 9px; font-weight: 600; }
         .gst-toggle-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
         
-        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; background: #1e40af; color: white; width: 100%; }
+        .btn { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; background: #1e40af; color: white; width: 100%; }
         .btn:hover { background: #1e3a8a; }
-        .btn-secondary { background: #f0f0f0; color: #333; margin-top: 6px; }
+        .btn-secondary { background: #f0f0f0; color: #333; margin-top: 4px; }
         .btn-secondary:hover { background: #e0e0e0; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
-        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-        .stat-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bfdbfe; padding: 8px; border-radius: 4px; text-align: center; }
-        .stat-label { font-size: 10px; color: #666; }
-        .stat-value { font-size: 14px; color: #1e40af; font-weight: 700; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+        .stat-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bfdbfe; padding: 6px; border-radius: 4px; text-align: center; }
+        .stat-label { font-size: 9px; color: #666; }
+        .stat-value { font-size: 12px; color: #1e40af; font-weight: 700; }
         
-        .invoice-preview { background: #f9f9f9; border: 1px solid #ddd; padding: 12px; border-radius: 4px; font-size: 10px; }
-        .invoice-header { text-align: center; margin-bottom: 8px; border-bottom: 1px solid #1e40af; padding-bottom: 6px; }
-        .invoice-company { font-size: 12px; font-weight: 700; color: #1e40af; }
-        .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 9px; }
-        .invoice-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9px; }
-        .invoice-table th { background: #1e40af; color: white; padding: 4px; text-align: left; font-weight: 600; }
-        .invoice-table td { padding: 4px; border-bottom: 1px solid #ddd; }
-        .invoice-total { text-align: right; padding: 6px 0; font-size: 10px; margin-top: 8px; border-top: 1px solid #1e40af; }
+        .invoice-preview { background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 4px; font-size: 9px; }
+        .invoice-header { text-align: center; margin-bottom: 6px; border-bottom: 1px solid #1e40af; padding-bottom: 4px; }
+        .invoice-company { font-size: 11px; font-weight: 700; color: #1e40af; }
+        .invoice-meta { font-size: 8px; color: #666; }
+        .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; font-size: 8px; }
         
-        .msg { padding: 8px 10px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; display: none; }
+        .invoice-service { background: white; border: 1px solid #ddd; border-radius: 3px; margin-bottom: 4px; padding: 6px; }
+        .invoice-service-name { font-weight: 600; font-size: 9px; color: #1e40af; margin-bottom: 3px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .invoice-sub { background: #f9f9f9; padding: 4px; margin-bottom: 2px; border-radius: 2px; font-size: 8px; }
+        .invoice-sub-name { font-weight: 600; color: #333; margin-bottom: 1px; }
+        .invoice-sub-row { display: grid; grid-template-columns: 0.4fr 0.5fr 0.4fr 0.35fr 0.35fr; gap: 2px; }
+        
+        .invoice-total { text-align: right; padding: 4px 0; font-size: 9px; margin-top: 6px; border-top: 1px solid #1e40af; }
+        .invoice-total-row { margin: 2px 0; }
+        
+        .msg { padding: 6px 8px; border-radius: 3px; margin-bottom: 8px; font-size: 10px; display: none; }
         .msg.show { display: block; }
         .success-msg { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
         .error-msg { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
@@ -89,8 +100,6 @@
         .submitted-state.show { display: block; }
         .form-state { display: block; }
         .form-state.hide { display: none; }
-        
-        .preview-toggle { display: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -110,7 +119,7 @@
                 <!-- CUSTOMER -->
                 <h2>👤 Customer</h2>
                 <div class="section">
-                    <div class="form-group"><label>Mobile</label><input type="tel" id="custPhone" placeholder="10 digits" maxlength="10" onchange="lookupCustomer()"></div>
+                    <div class="form-group"><label>Mobile</label><input type="tel" id="custPhone" maxlength="10" onchange="lookupCustomer()"></div>
                     <div class="form-group"><label>Name *</label><input type="text" id="custName" required></div>
                     <div class="form-group"><label>GST</label><input type="text" id="custGst"></div>
                 </div>
@@ -126,15 +135,14 @@
                 <h2>🛍️ Add Service</h2>
                 <div class="section">
                     <div class="search-box">
-                        <input type="text" id="serviceSearch" placeholder="Search & select..." onkeyup="searchServices()">
+                        <input type="text" id="serviceSearch" placeholder="Search service..." onkeyup="searchServices()">
                         <div id="searchResults" class="search-results"></div>
                     </div>
-                    <button class="add-service-btn" onclick="addBlankService()" style="margin-top: 6px;">+ Add Service</button>
                 </div>
 
-                <!-- LINE ITEMS -->
-                <h2 id="lineItemsHeader" style="display:none;">📋 Services</h2>
-                <div id="lineItemsContainer"></div>
+                <!-- SERVICES -->
+                <h2 id="servicesHeader" style="display:none;">📋 Services</h2>
+                <div id="servicesContainer"></div>
 
                 <!-- PAYMENT -->
                 <h2>💳 Payment</h2>
@@ -149,13 +157,13 @@
             <!-- SUBMITTED STATE -->
             <div class="submitted-state" id="submittedState">
                 <div class="header" style="margin-top: 0;">
-                    <div class="logo">✓ Invoice Submitted!</div>
+                    <div class="logo">✓ Submitted!</div>
                 </div>
-                <div style="padding: 15px; text-align: center;">
-                    <p style="color: #065f46; font-weight: 600; margin-bottom: 15px;">Invoice has been submitted successfully.</p>
+                <div style="padding: 12px; text-align: center;">
+                    <p style="color: #065f46; font-weight: 600; margin-bottom: 10px; font-size: 12px;">Invoice submitted successfully!</p>
                     <button class="btn" onclick="downloadPDF()">📄 Download PDF</button>
-                    <button class="btn" onclick="printInvoice()" style="margin-top: 8px;">🖨️ Print Invoice</button>
-                    <button class="btn btn-secondary" onclick="createAnother()" style="margin-top: 8px;">➕ Create Another</button>
+                    <button class="btn" onclick="printInvoice()" style="margin-top: 4px;">🖨️ Print</button>
+                    <button class="btn btn-secondary" onclick="createAnother()" style="margin-top: 4px;">➕ Another</button>
                 </div>
             </div>
         </div>
@@ -164,48 +172,44 @@
         <div class="preview-panel" id="previewPanel">
             <div class="header" style="margin-top: 0;">
                 <div class="logo">👁️ Preview</div>
-                <button class="preview-toggle" onclick="togglePreview()">✕</button>
             </div>
 
             <div class="stats">
                 <div class="stat-box">
                     <div class="stat-label">Total (W/o GST)</div>
-                    <div class="stat-value" style="font-size: 12px;">₹<span id="previewTotal">0</span></div>
+                    <div class="stat-value">₹<span id="previewTotal">0</span></div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">GST</div>
-                    <div class="stat-value" style="font-size: 12px;">₹<span id="previewGst">0</span></div>
+                    <div class="stat-value">₹<span id="previewGst">0</span></div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">Subtotal (W GST)</div>
-                    <div class="stat-value" style="font-size: 12px; color: #16a34a;">₹<span id="previewSubtotal">0</span></div>
+                    <div class="stat-value" style="color: #16a34a;">₹<span id="previewSubtotal">0</span></div>
                 </div>
             </div>
 
             <div class="invoice-preview">
                 <div class="invoice-header">
                     <div class="invoice-company">DreamHarbour Global</div>
+                    <div class="invoice-meta">Invoice #: <span id="previewInvNum">-</span></div>
                 </div>
 
                 <div class="invoice-details">
-                    <div><strong>Invoice #</strong><br><span id="previewInvNum">-</span></div>
-                    <div><strong>Bill To</strong><br><span id="previewCustName">-</span></div>
+                    <div><strong>Bill To:</strong> <span id="previewCustName">-</span></div>
+                    <div><strong>Date:</strong> <span id="previewInvDate">-</span></div>
                 </div>
 
-                <table class="invoice-table">
-                    <thead><tr><th>Service</th><th>Qty</th><th>Amount</th><th>GST</th><th>Total</th></tr></thead>
-                    <tbody id="previewItems"></tbody>
-                </table>
+                <div id="previewServices"></div>
 
                 <div class="invoice-total">
-                    <div>Total (W/o GST): ₹<span id="previewTotal2">0</span></div>
-                    <div>Subtotal (W GST): ₹<span id="previewSubtotal2">0</span></div>
+                    <div class="invoice-total-row"><strong>Total (W/o GST):</strong> ₹<span id="previewTotal2">0</span></div>
+                    <div class="invoice-total-row"><strong>GST:</strong> ₹<span id="previewGst2">0</span></div>
+                    <div class="invoice-total-row" style="color: #16a34a; font-weight: 600;"><strong>Subtotal (W GST):</strong> ₹<span id="previewSubtotal2">0</span></div>
                 </div>
             </div>
         </div>
     </div>
-
-    <button class="preview-toggle" id="previewToggleBtn" onclick="togglePreview()" style="position: fixed; bottom: 20px; right: 20px; padding: 12px 16px; background: #1e40af; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 20px; display: none; z-index: 1000;">👁️</button>
 
     <script>
         const SUPA_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
@@ -214,7 +218,7 @@
         let allServices = [];
         let allSubServices1 = [];
         let allSubServices2 = [];
-        let invoiceItems = [];
+        let selectedServices = [];
         let currentInvoiceId = null;
 
         function round(num) { return Math.round(num * 100) / 100; }
@@ -227,25 +231,6 @@
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
             await loadServices();
-            updateMediaQuery();
-            window.addEventListener('resize', updateMediaQuery);
-        }
-
-        function updateMediaQuery() {
-            const width = window.innerWidth;
-            const previewPanel = document.getElementById('previewPanel');
-            const previewBtn = document.getElementById('previewToggleBtn');
-            if (width <= 800) {
-                previewBtn.style.display = 'block';
-            } else {
-                previewBtn.style.display = 'none';
-                previewPanel.style.display = 'block';
-            }
-        }
-
-        function togglePreview() {
-            const panel = document.getElementById('previewPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
 
         async function loadServices() {
@@ -271,7 +256,7 @@
             resultsDiv.innerHTML = filtered.map(s => `
                 <div class="search-item" onclick="selectService('${s.id}')">
                     <span>${s.service_name}</span>
-                    <span>₹${s.rate || 0}</span>
+                    <span class="search-item-price">₹${s.rate || 0}</span>
                 </div>
             `).join('');
             resultsDiv.classList.add('show');
@@ -284,96 +269,146 @@
             document.getElementById('serviceSearch').value = '';
             document.getElementById('searchResults').classList.remove('show');
 
-            addServiceToInvoice(service);
-        }
+            const sub1 = allSubServices1.find(s => s.id === service.sub_service_type_1_id);
+            const sub2 = allSubServices2.find(s => s.id === service.sub_service_type_2_id);
 
-        function addBlankService() {
-            addServiceToInvoice(null);
-        }
+            if (!sub1 && !sub2) {
+                showError('Service has no sub-services configured');
+                return;
+            }
 
-        function addServiceToInvoice(service) {
-            const itemId = 'item-' + Date.now();
-            const item = {
-                id: itemId,
-                serviceId: service?.id,
-                serviceName: service?.service_name || 'Custom Service',
-                sub1: service ? allSubServices1.find(s => s.id === service.sub_service_type_1_id) : null,
-                sub2: service ? allSubServices2.find(s => s.id === service.sub_service_type_2_id) : null,
-                qty: 1,
-                rate: service?.rate || 0,
-                gstPct: service?.gst_percentage || 18,
-                gstMode: 'with'
+            const serviceItem = {
+                id: 'svc-' + Date.now(),
+                serviceId: service.id,
+                serviceName: service.service_name,
+                sub1: sub1 ? {
+                    id: sub1.id,
+                    name: sub1.sub_service_name,
+                    rate: sub1.rate,
+                    gstPct: sub1.gst_percentage,
+                    qty: 1,
+                    gstMode: 'with'
+                } : null,
+                sub2: sub2 ? {
+                    id: sub2.id,
+                    name: sub2.sub_service_name,
+                    rate: sub2.rate,
+                    gstPct: sub2.gst_percentage,
+                    qty: 1,
+                    gstMode: 'with'
+                } : null
             };
 
-            invoiceItems.push(item);
-            renderLineItems();
+            selectedServices.push(serviceItem);
+            renderServices();
         }
 
-        function renderLineItems() {
-            const container = document.getElementById('lineItemsContainer');
-            document.getElementById('lineItemsHeader').style.display = invoiceItems.length > 0 ? 'block' : 'none';
+        function renderServices() {
+            const container = document.getElementById('servicesContainer');
+            document.getElementById('servicesHeader').style.display = selectedServices.length > 0 ? 'block' : 'none';
             
-            container.innerHTML = invoiceItems.map((item, idx) => `
-                <div class="line-item">
-                    <div class="line-item-title">
-                        <span>${item.serviceName}</span>
-                        <button class="line-item-remove" onclick="removeService(${idx})">Remove</button>
+            container.innerHTML = selectedServices.map((svc, svcIdx) => `
+                <div class="service-group">
+                    <div class="service-header">
+                        <span>📌 ${svc.serviceName}</span>
+                        <button type="button" class="service-remove" onclick="removeService(${svcIdx})">Remove</button>
                     </div>
 
-                    <div class="line-item-table">
-                        <div class="line-item-header">
-                            <div>Qty</div>
-                            <div>Amount</div>
-                            <div>GST%</div>
-                            <div>GST Amt</div>
-                            <div>Total</div>
+                    ${svc.sub1 ? `
+                    <div class="sub-service">
+                        <div class="sub-service-title">
+                            <span>└─ ${svc.sub1.name}</span>
                         </div>
-                        <div class="line-item-row">
-                            <input type="number" value="${item.qty}" min="1" onchange="updateItemQty(${idx}, this.value)">
-                            <input type="number" value="${item.rate}" onchange="updateItemRate(${idx}, this.value)">
-                            <div class="line-item-row-value">${item.gstPct}%</div>
-                            <div class="line-item-row-value" id="gst-${idx}">₹0</div>
-                            <div class="line-item-row-value" id="total-${idx}">₹0</div>
+                        <div class="line-item-table">
+                            <div class="line-item-header">
+                                <div>Qty</div>
+                                <div>Amount</div>
+                                <div>GST%</div>
+                                <div>GST Amt</div>
+                                <div>Total</div>
+                            </div>
+                            <div class="line-item-row">
+                                <input type="number" value="${svc.sub1.qty}" min="1" onchange="updateSubQty(${svcIdx}, 'sub1', this.value); syncQty(${svcIdx});">
+                                <input type="number" value="${svc.sub1.rate}" onchange="updateSubRate(${svcIdx}, 'sub1', this.value)">
+                                <div class="line-item-row-value">${svc.sub1.gstPct}%</div>
+                                <div class="line-item-row-value" id="gst-${svcIdx}-sub1">₹0</div>
+                                <div class="line-item-row-value" id="total-${svcIdx}-sub1">₹0</div>
+                            </div>
+                        </div>
+                        <div class="gst-toggle">
+                            <button type="button" class="gst-toggle-btn ${svc.sub1.gstMode === 'with' ? 'active' : ''}" onclick="updateSubGstMode(${svcIdx}, 'sub1', 'with')">With GST</button>
+                            <button type="button" class="gst-toggle-btn ${svc.sub1.gstMode === 'without' ? 'active' : ''}" onclick="updateSubGstMode(${svcIdx}, 'sub1', 'without')">Without GST</button>
                         </div>
                     </div>
+                    ` : ''}
 
-                    <div class="gst-toggle">
-                        <button type="button" class="gst-toggle-btn ${item.gstMode === 'with' ? 'active' : ''}" onclick="toggleGstMode(${idx}, 'with')">With GST</button>
-                        <button type="button" class="gst-toggle-btn ${item.gstMode === 'without' ? 'active' : ''}" onclick="toggleGstMode(${idx}, 'without')">Without GST</button>
+                    ${svc.sub2 ? `
+                    <div class="sub-service">
+                        <div class="sub-service-title">
+                            <span>└─ ${svc.sub2.name}</span>
+                        </div>
+                        <div class="line-item-table">
+                            <div class="line-item-header">
+                                <div>Qty</div>
+                                <div>Amount</div>
+                                <div>GST%</div>
+                                <div>GST Amt</div>
+                                <div>Total</div>
+                            </div>
+                            <div class="line-item-row">
+                                <input type="number" value="${svc.sub2.qty}" min="1" onchange="updateSubQty(${svcIdx}, 'sub2', this.value); syncQty(${svcIdx});">
+                                <input type="number" value="${svc.sub2.rate}" onchange="updateSubRate(${svcIdx}, 'sub2', this.value)">
+                                <div class="line-item-row-value">${svc.sub2.gstPct}%</div>
+                                <div class="line-item-row-value" id="gst-${svcIdx}-sub2">₹0</div>
+                                <div class="line-item-row-value" id="total-${svcIdx}-sub2">₹0</div>
+                            </div>
+                        </div>
+                        <div class="gst-toggle">
+                            <button type="button" class="gst-toggle-btn ${svc.sub2.gstMode === 'with' ? 'active' : ''}" onclick="updateSubGstMode(${svcIdx}, 'sub2', 'with')">With GST</button>
+                            <button type="button" class="gst-toggle-btn ${svc.sub2.gstMode === 'without' ? 'active' : ''}" onclick="updateSubGstMode(${svcIdx}, 'sub2', 'without')">Without GST</button>
+                        </div>
                     </div>
+                    ` : ''}
                 </div>
             `).join('');
 
             updatePreview();
         }
 
-        function updateItemQty(idx, val) {
-            invoiceItems[idx].qty = Math.max(1, parseInt(val) || 1);
+        function syncQty(svcIdx) {
+            if (selectedServices[svcIdx].sub1 && selectedServices[svcIdx].sub2) {
+                selectedServices[svcIdx].sub2.qty = selectedServices[svcIdx].sub1.qty;
+                renderServices();
+            }
+        }
+
+        function updateSubQty(svcIdx, sub, val) {
+            selectedServices[svcIdx][sub].qty = Math.max(1, parseInt(val) || 1);
             updatePreview();
         }
 
-        function updateItemRate(idx, val) {
-            invoiceItems[idx].rate = parseFloat(val) || 0;
+        function updateSubRate(svcIdx, sub, val) {
+            selectedServices[svcIdx][sub].rate = parseFloat(val) || 0;
             updatePreview();
         }
 
-        function toggleGstMode(idx, mode) {
-            invoiceItems[idx].gstMode = mode;
-            updatePreview();
+        function updateSubGstMode(svcIdx, sub, mode) {
+            selectedServices[svcIdx][sub].gstMode = mode;
+            renderServices();
         }
 
         function removeService(idx) {
-            invoiceItems.splice(idx, 1);
-            renderLineItems();
+            selectedServices.splice(idx, 1);
+            renderServices();
         }
 
-        function calculateAmounts(item) {
-            const qty = item.qty;
-            const gstPct = item.gstPct;
-            const userAmount = item.rate;
+        function calculateAmounts(sub) {
+            const qty = sub.qty;
+            const gstPct = sub.gstPct;
+            const userAmount = sub.rate;
             let baseAmount, gstAmount, totalAmount;
 
-            if (item.gstMode === 'with') {
+            if (sub.gstMode === 'with') {
                 totalAmount = userAmount * qty;
                 baseAmount = totalAmount / (1 + gstPct / 100);
                 gstAmount = totalAmount - baseAmount;
@@ -387,37 +422,69 @@
         }
 
         function updatePreview() {
-            let totalWithoutGst = 0, totalGst = 0, totalWithGst = 0;
+            let totalWithoutGst = 0, totalGst = 0;
+            let servicesHtml = '';
 
-            const itemsHtml = invoiceItems.map((item, idx) => {
-                const { baseAmount, gstAmount, totalAmount } = calculateAmounts(item);
-                
-                document.getElementById(`gst-${idx}`).textContent = '₹' + gstAmount.toFixed(2);
-                document.getElementById(`total-${idx}`).textContent = '₹' + totalAmount.toFixed(2);
+            selectedServices.forEach((svc, svcIdx) => {
+                servicesHtml += `<div class="invoice-service"><div class="invoice-service-name">${svc.serviceName}</div>`;
 
-                totalWithoutGst += baseAmount;
-                totalGst += gstAmount;
-                totalWithGst += totalAmount;
+                if (svc.sub1) {
+                    const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub1);
+                    totalWithoutGst += baseAmount;
+                    totalGst += gstAmount;
+                    
+                    document.getElementById(`gst-${svcIdx}-sub1`).textContent = '₹' + gstAmount.toFixed(2);
+                    document.getElementById(`total-${svcIdx}-sub1`).textContent = '₹' + totalAmount.toFixed(2);
 
-                return `
-                    <tr>
-                        <td>${item.serviceName}</td>
-                        <td style="text-align:center">${item.qty}</td>
-                        <td style="text-align:right">₹${item.rate.toFixed(2)}</td>
-                        <td style="text-align:right">₹${gstAmount.toFixed(2)}</td>
-                        <td style="text-align:right">₹${totalAmount.toFixed(2)}</td>
-                    </tr>
-                `;
-            }).join('');
+                    servicesHtml += `
+                        <div class="invoice-sub">
+                            <div class="invoice-sub-name">${svc.sub1.name}</div>
+                            <div class="invoice-sub-row">
+                                <div>${svc.sub1.qty}</div>
+                                <div>₹${svc.sub1.rate}</div>
+                                <div>${svc.sub1.gstPct}%</div>
+                                <div>₹${gstAmount.toFixed(2)}</div>
+                                <div>₹${totalAmount.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
 
+                if (svc.sub2) {
+                    const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub2);
+                    totalWithoutGst += baseAmount;
+                    totalGst += gstAmount;
+                    
+                    document.getElementById(`gst-${svcIdx}-sub2`).textContent = '₹' + gstAmount.toFixed(2);
+                    document.getElementById(`total-${svcIdx}-sub2`).textContent = '₹' + totalAmount.toFixed(2);
+
+                    servicesHtml += `
+                        <div class="invoice-sub">
+                            <div class="invoice-sub-name">${svc.sub2.name}</div>
+                            <div class="invoice-sub-row">
+                                <div>${svc.sub2.qty}</div>
+                                <div>₹${svc.sub2.rate}</div>
+                                <div>${svc.sub2.gstPct}%</div>
+                                <div>₹${gstAmount.toFixed(2)}</div>
+                                <div>₹${totalAmount.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                servicesHtml += '</div>';
+            });
+
+            document.getElementById('previewServices').innerHTML = servicesHtml;
             document.getElementById('previewTotal').textContent = round(totalWithoutGst).toFixed(2);
             document.getElementById('previewGst').textContent = round(totalGst).toFixed(2);
-            document.getElementById('previewSubtotal').textContent = round(totalWithGst).toFixed(2);
+            document.getElementById('previewSubtotal').textContent = round(totalWithoutGst + totalGst).toFixed(2);
             document.getElementById('previewTotal2').textContent = round(totalWithoutGst).toFixed(2);
-            document.getElementById('previewSubtotal2').textContent = round(totalWithGst).toFixed(2);
+            document.getElementById('previewGst2').textContent = round(totalGst).toFixed(2);
+            document.getElementById('previewSubtotal2').textContent = round(totalWithoutGst + totalGst).toFixed(2);
             
-            document.getElementById('previewItems').innerHTML = itemsHtml;
             document.getElementById('previewInvNum').textContent = document.getElementById('invNum').value;
+            document.getElementById('previewInvDate').textContent = new Date(document.getElementById('invDate').value).toLocaleDateString('en-IN');
             document.getElementById('previewCustName').textContent = document.getElementById('custName').value || '-';
         }
 
@@ -446,17 +513,24 @@
             const custName = document.getElementById('custName').value.trim();
             const custPhone = document.getElementById('custPhone').value.trim();
 
-            if (!custName || !custPhone || invoiceItems.length === 0) {
+            if (!custName || !custPhone || selectedServices.length === 0) {
                 showError('Fill all required fields & add services');
                 return;
             }
 
             try {
                 let totalWithoutGst = 0, totalGst = 0;
-                invoiceItems.forEach(item => {
-                    const { baseAmount, gstAmount } = calculateAmounts(item);
-                    totalWithoutGst += baseAmount;
-                    totalGst += gstAmount;
+                selectedServices.forEach(svc => {
+                    if (svc.sub1) {
+                        const { baseAmount, gstAmount } = calculateAmounts(svc.sub1);
+                        totalWithoutGst += baseAmount;
+                        totalGst += gstAmount;
+                    }
+                    if (svc.sub2) {
+                        const { baseAmount, gstAmount } = calculateAmounts(svc.sub2);
+                        totalWithoutGst += baseAmount;
+                        totalGst += gstAmount;
+                    }
                 });
 
                 const invData = {
@@ -476,39 +550,82 @@
                 currentInvoiceId = inv.id;
 
                 const items = [];
-                invoiceItems.forEach((item, idx) => {
-                    const { baseAmount, gstAmount, totalAmount } = calculateAmounts(item);
-                    items.push({
-                        invoice_id: inv.id,
-                        line_number: idx + 1,
-                        description: item.serviceName,
-                        sac_code: '',
-                        quantity: item.qty,
-                        rate: item.rate,
-                        gst_percentage: item.gstPct,
-                        gst_amount: gstAmount,
-                        amount: totalAmount,
-                        is_service_header: false,
-                        is_sub_service: true
-                    });
+                let lineNum = 1;
+
+                selectedServices.forEach(svc => {
+                    if (svc.sub1) {
+                        const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub1);
+                        items.push({
+                            invoice_id: inv.id,
+                            line_number: lineNum++,
+                            description: svc.sub1.name,
+                            sac_code: '',
+                            quantity: svc.sub1.qty,
+                            rate: svc.sub1.rate,
+                            gst_percentage: svc.sub1.gstPct,
+                            gst_amount: gstAmount,
+                            amount: totalAmount,
+                            is_service_header: false,
+                            is_sub_service: true,
+                            sub_service_1: svc.sub1.name,
+                            sub_service_2: ''
+                        });
+                    }
+                    if (svc.sub2) {
+                        const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub2);
+                        items.push({
+                            invoice_id: inv.id,
+                            line_number: lineNum++,
+                            description: svc.sub2.name,
+                            sac_code: '',
+                            quantity: svc.sub2.qty,
+                            rate: svc.sub2.rate,
+                            gst_percentage: svc.sub2.gstPct,
+                            gst_amount: gstAmount,
+                            amount: totalAmount,
+                            is_service_header: false,
+                            is_sub_service: true,
+                            sub_service_1: '',
+                            sub_service_2: svc.sub2.name
+                        });
+                    }
+                    // Service header row (from Sub1 Qty)
+                    if (svc.sub1) {
+                        const { baseAmount, gstAmount, totalAmount } = calculateAmounts(svc.sub1);
+                        items.push({
+                            invoice_id: inv.id,
+                            line_number: 0,
+                            description: svc.serviceName,
+                            sac_code: '',
+                            quantity: svc.sub1.qty,
+                            rate: baseAmount,
+                            gst_percentage: 0,
+                            gst_amount: gstAmount,
+                            amount: totalAmount,
+                            is_service_header: true,
+                            is_sub_service: false,
+                            sub_service_1: '',
+                            sub_service_2: ''
+                        });
+                    }
                 });
 
                 await db.from('invoice_items').insert(items);
 
                 document.querySelector('.form-state').classList.add('hide');
                 document.getElementById('submittedState').classList.add('show');
-                showSuccess('Invoice submitted successfully!');
+                showSuccess('Invoice submitted!');
             } catch(e) { showError('Error: ' + e.message); }
         }
 
         function downloadPDF() {
             if (!currentInvoiceId) return;
-            alert('PDF download feature coming soon! Invoice ID: ' + currentInvoiceId);
+            alert('PDF download coming soon! Invoice: ' + currentInvoiceId);
         }
 
         function printInvoice() {
             if (!currentInvoiceId) return;
-            alert('Print feature coming soon! Invoice ID: ' + currentInvoiceId);
+            alert('Print feature coming soon! Invoice: ' + currentInvoiceId);
         }
 
         function createAnother() {
@@ -524,9 +641,9 @@
             document.getElementById('serviceSearch').value = '';
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
-            invoiceItems = [];
-            document.getElementById('lineItemsContainer').innerHTML = '';
-            document.getElementById('lineItemsHeader').style.display = 'none';
+            selectedServices = [];
+            document.getElementById('servicesContainer').innerHTML = '';
+            document.getElementById('servicesHeader').style.display = 'none';
             updatePreview();
         }
 
