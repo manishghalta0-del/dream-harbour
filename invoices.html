@@ -91,7 +91,8 @@
         .gst-btn:hover { border-color: #1e40af; }
         
         .payment-section { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .payment-section.hidden { display: none; }
+        .payment-type-group { display: none; }
+        .payment-type-group.show { display: block; }
         
         .buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 20px; }
         .btn-submit { background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
@@ -135,11 +136,11 @@
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         
-        .invoice-summary { margin-top: 20px; display: grid; grid-template-columns: auto auto; gap: 12px; justify-content: flex-end; width: 50%; margin-left: auto; }
-        .summary-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 6px 0; font-size: 12px; }
+        .invoice-summary { margin-top: 20px; display: flex; flex-direction: column; align-items: flex-end; width: 50%; margin-left: auto; }
+        .summary-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 6px 0; font-size: 12px; width: 100%; }
         .summary-label { font-weight: 600; color: #1e3a8a; }
         .summary-value { text-align: right; }
-        .grand-total { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 8px 12px; background: #1e40af; color: white; border-radius: 4px; font-weight: 700; font-size: 13px; margin-top: 8px; }
+        .grand-total { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 8px 12px; background: #1e40af; color: white; border-radius: 4px; font-weight: 700; font-size: 13px; margin-top: 8px; width: 100%; }
         
         .invoice-footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #64748b; }
     </style>
@@ -244,7 +245,7 @@
 
                 <!-- PAYMENT -->
                 <div class="section-title">💳 Payment</div>
-                <div class="payment-section" id="paymentSection">
+                <div class="payment-section">
                     <div class="form-group">
                         <label>Status</label>
                         <select id="payStatus" onchange="togglePaymentType()">
@@ -252,7 +253,7 @@
                             <option value="paid">Paid</option>
                         </select>
                     </div>
-                    <div class="form-group hidden" id="payTypeGroup">
+                    <div class="form-group payment-type-group" id="payTypeGroup">
                         <label>Payment Type</label>
                         <select id="payType">
                             <option value="">Select Type</option>
@@ -305,8 +306,8 @@
             currentUserId = user.id;
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
-            await loadServices();
             await loadBusinessDetails();
+            await loadServices();
             loadInvoices();
         }
 
@@ -397,8 +398,12 @@
         function togglePaymentType() {
             const status = document.getElementById('payStatus').value;
             const typeGroup = document.getElementById('payTypeGroup');
-            typeGroup.style.display = status === 'paid' ? 'block' : 'none';
-            if (status === 'pending') document.getElementById('payType').value = '';
+            if (status === 'paid') {
+                typeGroup.classList.add('show');
+            } else {
+                typeGroup.classList.remove('show');
+                document.getElementById('payType').value = '';
+            }
         }
 
         function searchServices() {
@@ -518,6 +523,7 @@
                                     <div>GST%</div>
                                     <div>GST Amt</div>
                                     <div>Total</div>
+                                    <div></div>
                                 </div>
                                 <div class="line-row">
                                     <input type="number" value="${svc.plainServiceQty}" min="1" onchange="updatePlainService(${svcIdx}, 'qty', this.value)">
@@ -527,6 +533,7 @@
                                     <div class="line-row-val">${svc.plainServiceGst}%</div>
                                     <div class="line-row-val" id="gst-${svcIdx}">₹0.00</div>
                                     <div class="line-row-val" id="total-${svcIdx}">₹0.00</div>
+                                    <div></div>
                                 </div>
                                 <div class="gst-toggle">
                                     <button type="button" class="gst-btn active" onclick="updatePlainService(${svcIdx}, 'gstMode', 'with'); updatePreview();">With GST</button>
@@ -555,6 +562,7 @@
                                 <div>GST%</div>
                                 <div>GST Amt</div>
                                 <div>Total</div>
+                                <div></div>
                             </div>
                             <div class="line-row">
                                 <input type="number" value="${svc.sub1.qty}" min="1" onchange="updateSub(${svcIdx}, 'sub1', 'qty', this.value); ${svc.sub2 ? 'syncQty(' + svcIdx + ');' : ''}">
@@ -564,6 +572,7 @@
                                 <div class="line-row-val">${svc.sub1.gstPct}%</div>
                                 <div class="line-row-val" id="gst-${svcIdx}-sub1">₹0.00</div>
                                 <div class="line-row-val" id="total-${svcIdx}-sub1">₹0.00</div>
+                                <div></div>
                             </div>
                             <div class="gst-toggle">
                                 <button type="button" class="gst-btn ${svc.sub1.gstMode === 'with' ? 'active' : ''}" onclick="updateSub(${svcIdx}, 'sub1', 'gstMode', 'with'); updatePreview();">With GST</button>
@@ -583,6 +592,7 @@
                                 <div>GST%</div>
                                 <div>GST Amt</div>
                                 <div>Total</div>
+                                <div></div>
                             </div>
                             <div class="line-row">
                                 <input type="number" value="${svc.sub2.qty}" min="1" onchange="updateSub(${svcIdx}, 'sub2', 'qty', this.value); syncQty(${svcIdx});">
@@ -592,6 +602,7 @@
                                 <div class="line-row-val">${svc.sub2.gstPct}%</div>
                                 <div class="line-row-val" id="gst-${svcIdx}-sub2">₹0.00</div>
                                 <div class="line-row-val" id="total-${svcIdx}-sub2">₹0.00</div>
+                                <div></div>
                             </div>
                             <div class="gst-toggle">
                                 <button type="button" class="gst-btn ${svc.sub2.gstMode === 'with' ? 'active' : ''}" onclick="updateSub(${svcIdx}, 'sub2', 'gstMode', 'with'); updatePreview();">With GST</button>
@@ -811,9 +822,10 @@
                     <div class="company-section">
                         <h2>${businessDetails.name || 'DreamHarbour Global'}</h2>
                         <p>${businessDetails.address || ''}</p>
-                        <p>${businessDetails.city || ''} ${businessDetails.state || ''}</p>
+                        <p>${[businessDetails.city, businessDetails.state].filter(x => x).join(' ')}</p>
                         ${businessDetails.gst ? `<p>GST: ${businessDetails.gst}</p>` : ''}
                         ${businessDetails.phone ? `<p>Phone: ${businessDetails.phone}</p>` : ''}
+                        ${businessDetails.email ? `<p>Email: ${businessDetails.email}</p>` : ''}
                     </div>
                     <div class="invoice-info">
                         <div class="invoice-info-item">
@@ -873,6 +885,7 @@
                 <div class="invoice-footer">
                     <p>Thank you for your business!</p>
                     <p>Payment Status: <strong>${document.getElementById('payStatus').value === 'paid' ? 'PAID' : 'PENDING'}</strong></p>
+                    ${document.getElementById('payType').value ? `<p>Payment Type: <strong>${document.getElementById('payType').value.toUpperCase()}</strong></p>` : ''}
                 </div>
             `;
 
@@ -962,11 +975,12 @@
                     return;
                 }
 
-                // STEP 2: Create Invoice (only with actual columns)
+                // STEP 2: Create Invoice
                 const invData = {
                     invoice_number: document.getElementById('invNum').value,
                     invoice_date: document.getElementById('invDate').value,
                     customer_id: customerId,
+                    customer_name: custName,
                     payment_status: document.getElementById('payStatus').value,
                     subtotal: round(totalNoGst),
                     total_gst: round(totalGst),
@@ -1116,13 +1130,14 @@
             document.getElementById('invDate').valueAsDate = new Date();
             document.getElementById('payStatus').value = 'pending';
             document.getElementById('payType').value = '';
-            document.getElementById('payTypeGroup').style.display = 'none';
+            document.getElementById('payTypeGroup').classList.remove('show');
             generateInvoiceNumber();
             selectedServices = [];
             document.getElementById('servicesContainer').innerHTML = '';
             document.getElementById('servicesHeader').style.display = 'none';
             document.getElementById('msg-success').classList.remove('show');
             document.getElementById('msg-error').classList.remove('show');
+            document.getElementById('searchResults').classList.remove('show');
         }
 
         function showSuccess(msg) {
