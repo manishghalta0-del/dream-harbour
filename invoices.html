@@ -3,255 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice - DreamHarbour</title>
+    <title>Invoice Management - DreamHarbour</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; line-height: 1.5; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; }
         
-        @media (max-width: 800px) {
-            .main-wrapper { grid-template-columns: 1fr !important; }
-            .preview-panel { display: none !important; }
-            .preview-toggle { display: inline-block !important; }
-        }
-        @media (min-width: 801px) and (max-width: 1200px) {
-            .main-wrapper { grid-template-columns: 1fr !important; }
-            .preview-panel { max-height: 50vh !important; }
-        }
-        @media (min-width: 1201px) {
-            .main-wrapper { grid-template-columns: 1.1fr 1fr; gap: 18px; }
-            .preview-panel { display: block !important; max-height: 100vh; }
-        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 20px; }
+        .btn-primary { background: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-primary:hover { background: #059669; }
         
-        .main-wrapper { display: grid; gap: 16px; min-height: 100vh; padding: 16px; }
-        .form-panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-y: auto; max-height: 100vh; }
-        .preview-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-y: auto; }
+        .dashboard { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .search-bar { margin-bottom: 20px; display: flex; gap: 10px; }
+        .search-bar input { flex: 1; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; }
         
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 16px 20px; margin: -24px -24px 20px -24px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 16px; font-weight: 700; }
-        .nav-btn { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
-        .nav-btn:hover { background: rgba(255,255,255,0.3); }
+        .inv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .inv-table th { background: #1e40af; color: white; padding: 12px; text-align: left; font-weight: 600; }
+        .inv-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        .inv-table tr:hover { background: #f8fafc; }
+        .inv-table .actions { display: flex; gap: 8px; }
+        .btn-sm { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .btn-view { background: #3b82f6; color: white; }
+        .btn-edit { background: #f59e0b; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
         
-        h2 { color: #1e40af; font-size: 14px; margin: 16px 0 12px 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .section { margin-bottom: 16px; }
-        .form-group { margin-bottom: 12px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; }
+        .modal.show { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
+        .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 1200px; max-height: 90vh; overflow-y: auto; padding: 0; }
+        
+        .form-header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; }
+        .close-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+        
+        .form-body { padding: 24px; }
+        .section-title { color: #1e40af; font-size: 14px; font-weight: 700; margin: 16px 0 12px 0; text-transform: uppercase; }
+        
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .form-group { }
         .form-group label { display: block; font-weight: 600; font-size: 12px; color: #1e3a8a; margin-bottom: 5px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px; font-family: inherit; transition: 0.2s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
-        .form-group input.locked { background: #f1f5f9; color: #64748b; cursor: not-allowed; border-color: #cbd5e1; }
-        .form-group input.locked::after { content: '🔒'; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 12px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+        .form-group input.locked { background: #f1f5f9; color: #64748b; cursor: not-allowed; }
         
         .search-box { position: relative; margin-bottom: 12px; }
-        .search-box input { padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px; width: 100%; }
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; display: none; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; display: none; z-index: 100; }
         .search-results.show { display: block; }
-        .search-item { padding: 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; align-items: center; transition: 0.1s; }
+        .search-item { padding: 10px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; }
         .search-item:hover, .search-item.selected { background: #f0f9ff; color: #1e40af; font-weight: 600; }
-        .search-item-price { color: #1e40af; font-weight: 700; }
         
         .service-block { background: #f8fafc; border: 2px solid #1e40af; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
-        .service-header { background: #1e40af; color: white; padding: 12px 16px; font-weight: 600; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-        .service-remove { background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.2s; }
-        .service-remove:hover { background: rgba(255,255,255,0.4); }
+        .service-header { background: #1e40af; color: white; padding: 12px 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .btn-remove { background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-remove:hover { background: rgba(255,255,255,0.4); }
         
-        .sub-service { padding: 14px 16px; border-top: 1px solid #e2e8f0; }
+        .sub-service { padding: 12px 16px; border-top: 1px solid #e2e8f0; }
         .sub-service:first-of-type { border-top: none; }
         .sub-name { font-weight: 600; font-size: 12px; color: #1e3a8a; margin-bottom: 10px; }
         
-        .line-header { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.6fr 0.6fr 0.4fr; gap: 8px; font-weight: 700; font-size: 11px; color: #64748b; margin-bottom: 8px; }
-        .line-row { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.6fr 0.6fr 0.4fr; gap: 8px; align-items: center; }
-        .line-row input { padding: 8px; font-size: 12px; border: 2px solid #e2e8f0; border-radius: 4px; }
-        .line-row input:focus { border-color: #1e40af; outline: none; }
-        .line-row-val { padding: 8px; font-size: 11px; background: #f1f5f9; border-radius: 4px; font-weight: 600; color: #1e3a8a; }
+        .line-header { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.4fr; gap: 6px; font-weight: 600; font-size: 10px; color: #64748b; margin-bottom: 8px; }
+        .line-row { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.4fr; gap: 6px; align-items: center; }
+        .line-row input { padding: 6px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; }
+        .line-row-val { padding: 6px; font-size: 10px; background: #f1f5f9; border-radius: 4px; font-weight: 600; color: #1e3a8a; }
         
         .gst-toggle { display: flex; gap: 6px; margin-top: 8px; }
-        .gst-btn { padding: 5px 10px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; transition: 0.2s; }
+        .gst-btn { padding: 5px 10px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600; color: #475569; }
         .gst-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
-        .gst-btn:hover { border-color: #1e40af; }
         
-        .btn { padding: 11px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; background: #1e40af; color: white; width: 100%; transition: 0.2s; margin-top: 8px; }
-        .btn:hover { background: #1e3a8a; }
-        .btn-secondary { background: #f1f5f9; color: #1e3a8a; border: 2px solid #cbd5e1; }
-        .btn-secondary:hover { background: #e2e8f0; }
+        .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+        .preview-panel { background: #fafbfc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; }
+        .preview-header { font-size: 12px; font-weight: 700; color: #1e40af; margin-bottom: 12px; }
+        .preview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .stat-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; text-align: center; }
+        .stat-label { font-size: 9px; color: #475569; }
+        .stat-value { font-size: 14px; color: #1e40af; font-weight: 700; margin-top: 2px; }
         
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-        .stat { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #bfdbfe; padding: 12px; border-radius: 8px; text-align: center; }
-        .stat-label { font-size: 11px; color: #475569; font-weight: 600; }
-        .stat-val { font-size: 18px; color: #1e40af; font-weight: 700; margin-top: 4px; }
+        .inv-preview { font-size: 9px; background: white; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; }
+        .inv-preview table { width: 100%; border-collapse: collapse; }
+        .inv-preview th { background: #1e40af; color: white; padding: 6px; font-size: 8px; }
+        .inv-preview td { padding: 4px; border-bottom: 1px solid #e2e8f0; }
         
-        .invoice-box { background: #fafbfc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; font-size: 11px; }
-        .inv-header { text-align: center; margin-bottom: 12px; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
-        .inv-company { font-size: 14px; font-weight: 700; color: #1e40af; }
-        .inv-meta { font-size: 10px; color: #64748b; margin-top: 4px; }
-        .inv-customer { margin-bottom: 12px; font-size: 10px; }
-        .inv-customer strong { color: #1e3a8a; }
-        .inv-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 9px; }
-        .inv-table th { background: #1e40af; color: white; padding: 8px; text-align: left; font-weight: 600; }
-        .inv-table td { padding: 6px 8px; border-bottom: 1px solid #e2e8f0; }
-        .inv-table tr:hover { background: #f8fafc; }
-        .inv-total { text-align: right; margin-top: 12px; font-size: 11px; border-top: 2px solid #1e40af; padding-top: 10px; }
-        .inv-total-row { margin: 3px 0; }
-        .inv-total-row strong { color: #1e40af; }
+        .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .btn-submit { background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-submit:hover { background: #059669; }
+        .btn-cancel { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
         
-        .msg { padding: 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; display: none; font-weight: 600; }
+        .msg { padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; font-size: 12px; font-weight: 600; }
         .msg.show { display: block; }
         .success { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
         .error { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
         
-        .submitted { display: none; text-align: center; padding: 24px; }
-        .submitted.show { display: block; }
-        .submitted-msg { color: #16a34a; font-weight: 700; font-size: 16px; margin-bottom: 20px; }
-        
-        .preview-toggle { display: none; }
+        @media (max-width: 900px) {
+            .two-col { grid-template-columns: 1fr; }
+            .line-header, .line-row { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <div class="main-wrapper">
-        <!-- FORM PANEL -->
-        <div class="form-panel">
-            <div class="header">
-                <div class="logo">📋 Create Invoice</div>
-                <button class="nav-btn" onclick="goBack()">← Back</button>
-            </div>
-
-            <div class="msg success" id="msg-success"></div>
-            <div class="msg error" id="msg-error"></div>
-
-            <!-- FORM STATE -->
-            <div id="form-state">
-                <!-- CUSTOMER -->
-                <h2>👤 Customer Details</h2>
-                <div class="section">
-                    <div class="form-group">
-                        <label>Mobile *</label>
-                        <input type="tel" id="custPhone" maxlength="10" onchange="lookupCustomer()" placeholder="10 digits">
-                    </div>
-                    <div class="form-group">
-                        <label>Name *</label>
-                        <input type="text" id="custName" placeholder="Full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="custEmail" placeholder="email@example.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" id="custAddr" placeholder="Full address">
-                    </div>
-                    <div class="form-group">
-                        <label>Company Name</label>
-                        <input type="text" id="custCompany" placeholder="Company name">
-                    </div>
-                    <div class="form-group">
-                        <label>GST</label>
-                        <input type="text" id="custGst" placeholder="GST Number">
-                    </div>
-                </div>
-
-                <!-- INVOICE -->
-                <h2>📅 Invoice Details</h2>
-                <div class="section">
-                    <div class="form-group">
-                        <label>Invoice #</label>
-                        <input type="text" id="invNum" class="locked" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>Date *</label>
-                        <input type="date" id="invDate" required>
-                    </div>
-                </div>
-
-                <!-- SERVICES -->
-                <h2>🛍️ Select Service</h2>
-                <div class="section">
-                    <div class="search-box">
-                        <input type="text" id="serviceSearch" placeholder="Type service name..." onkeyup="searchServices()" onkeydown="handleSearchKeys(event)">
-                        <div id="searchResults" class="search-results"></div>
-                    </div>
-                </div>
-
-                <!-- SERVICES LIST -->
-                <h2 id="servicesHeader" style="display:none;">📦 Added Services</h2>
-                <div id="servicesContainer"></div>
-
-                <!-- PAYMENT -->
-                <h2>💳 Payment</h2>
-                <div class="section">
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select id="payStatus">
-                            <option value="pending">Pending</option>
-                            <option value="paid">Paid</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button class="btn" onclick="submitInvoice()">✓ Submit Invoice</button>
-                <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
-            </div>
-
-            <!-- SUBMITTED STATE -->
-            <div class="submitted" id="submitted-state">
-                <div class="submitted-msg">✓ Invoice Submitted Successfully!</div>
-                <button class="btn" onclick="downloadPDF()">📄 Download PDF</button>
-                <button class="btn" onclick="printInvoice()" style="margin-top: 12px;">🖨️ Print Invoice</button>
-                <button class="btn btn-secondary" onclick="createAnother()" style="margin-top: 12px;">➕ Create Another</button>
-            </div>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Invoice Management - DreamHarbour-Create new Invoice</h1>
+            <button class="btn-primary" onclick="openCreateForm()">➕ Create New Invoice</button>
         </div>
 
-        <!-- PREVIEW PANEL -->
-        <div class="preview-panel" id="previewPanel">
-            <div class="header" style="margin: -20px -20px 16px -20px;">
-                <div class="logo">👁️ Live Preview</div>
+        <div class="dashboard">
+            <div class="search-bar">
+                <input type="text" id="searchInv" placeholder="Search invoices..." onkeyup="filterInvoices()">
+            </div>
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invoiceList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CREATE INVOICE MODAL -->
+    <div class="modal" id="createModal">
+        <div class="modal-content">
+            <div class="form-header">
+                <div>📋 Create New Invoice</div>
+                <button class="close-btn" onclick="closeCreateForm()">✕ Close</button>
             </div>
 
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-label">Total (W/o GST)</div>
-                    <div class="stat-val">₹<span id="previewTotalNoGst">0.00</span></div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">GST</div>
-                    <div class="stat-val">₹<span id="previewGst">0.00</span></div>
-                </div>
-                <div class="stat">
-                    <div class="stat-label">Subtotal (W GST)</div>
-                    <div class="stat-val" style="color: #16a34a;">₹<span id="previewSubtotal">0.00</span></div>
-                </div>
-            </div>
+            <div class="form-body">
+                <div class="msg success" id="msg-success"></div>
+                <div class="msg error" id="msg-error"></div>
 
-            <div class="invoice-box">
-                <div class="inv-header">
-                    <div class="inv-company">DreamHarbour Global</div>
-                    <div class="inv-meta">Professional Services Invoice</div>
-                </div>
+                <div class="two-col">
+                    <!-- FORM -->
+                    <div>
+                        <!-- CUSTOMER -->
+                        <div class="section-title">👤 Customer Details</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Mobile *</label>
+                                <input type="tel" id="custPhone" maxlength="10" onchange="lookupCustomer()">
+                            </div>
+                            <div class="form-group">
+                                <label>Name *</label>
+                                <input type="text" id="custName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="custEmail">
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" id="custAddr">
+                            </div>
+                            <div class="form-group">
+                                <label>Company</label>
+                                <input type="text" id="custCompany">
+                            </div>
+                            <div class="form-group">
+                                <label>GST</label>
+                                <input type="text" id="custGst">
+                            </div>
+                        </div>
 
-                <div class="inv-customer">
-                    <strong>Invoice #:</strong> <span id="invNumPrev">-</span> | <strong>Date:</strong> <span id="invDatePrev">-</span><br>
-                    <strong>Bill To:</strong> <span id="custNamePrev">-</span> | <strong>Phone:</strong> <span id="custPhonePrev">-</span>
-                </div>
+                        <!-- INVOICE -->
+                        <div class="section-title">📅 Invoice Details</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Invoice #</label>
+                                <input type="text" id="invNum" class="locked" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Date *</label>
+                                <input type="date" id="invDate" required>
+                            </div>
+                        </div>
 
-                <table class="inv-table">
-                    <thead>
-                        <tr>
-                            <th>Service</th>
-                            <th>Qty</th>
-                            <th>Rate</th>
-                            <th>SAC</th>
-                            <th>HSN</th>
-                            <th>GST %</th>
-                            <th>GST Amt</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="previewItems"></tbody>
-                </table>
+                        <!-- SERVICES -->
+                        <div class="section-title">🛍️ Select Service</div>
+                        <div class="search-box">
+                            <input type="text" id="serviceSearch" placeholder="Type service name..." onkeyup="searchServices()" onkeydown="handleSearchKeys(event)">
+                            <div id="searchResults" class="search-results"></div>
+                        </div>
 
-                <div class="inv-total">
-                    <div class="inv-total-row"><strong>Total (W/o GST):</strong> ₹<span id="previewTotalNoGst2">0.00</span></div>
-                    <div class="inv-total-row"><strong>GST:</strong> ₹<span id="previewGst2">0.00</span></div>
-                    <div class="inv-total-row" style="margin-top: 6px;"><strong style="color: #16a34a; font-size: 12px;">Subtotal (W GST):</strong> ₹<span id="previewSubtotal2">0.00</span></div>
+                        <!-- SERVICES LIST -->
+                        <div id="servicesHeader" style="display:none;"><div class="section-title">📦 Added Services</div></div>
+                        <div id="servicesContainer"></div>
+
+                        <!-- PAYMENT -->
+                        <div class="section-title">💳 Payment</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="payStatus">
+                                    <option value="pending">Pending</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="buttons">
+                            <button class="btn-submit" onclick="submitInvoice()">✓ Submit Invoice</button>
+                            <button class="btn-cancel" onclick="closeCreateForm()">Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- PREVIEW -->
+                    <div class="preview-panel">
+                        <div class="preview-header">👁️ Live Preview</div>
+                        <div class="preview-stats">
+                            <div class="stat-box">
+                                <div class="stat-label">Total (W/o GST)</div>
+                                <div class="stat-value">₹<span id="previewTotal">0.00</span></div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Subtotal (W GST)</div>
+                                <div class="stat-value">₹<span id="previewSubtotal">0.00</span></div>
+                            </div>
+                        </div>
+                        <div class="inv-preview">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Qty</th>
+                                        <th>Amount</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="previewItems"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -262,10 +250,9 @@
         const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
         let db = null;
         let allServices = [];
-        let allSubServices1 = [];
-        let allSubServices2 = [];
+        let allSub1 = [];
+        let allSub2 = [];
         let selectedServices = [];
-        let currentInvoiceId = null;
         let searchSelectedIdx = -1;
 
         function round(n) { return Math.round(n * 100) / 100; }
@@ -274,23 +261,80 @@
             db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
             const user = JSON.parse(localStorage.getItem('userSession'));
             if (!user) { window.location.href = 'index.html'; return; }
-            
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
             await loadServices();
+            loadInvoices();
         }
 
         async function loadServices() {
             try {
                 const [svcs, sub1, sub2] = await Promise.all([
-                    db.from('service_items').select('*').eq('is_active', true).order('service_name'),
+                    db.from('service_items').select('*').eq('is_active', true),
                     db.from('sub_service_type_1').select('*').eq('is_active', true),
                     db.from('sub_service_type_2').select('*').eq('is_active', true)
                 ]);
                 allServices = svcs.data || [];
-                allSubServices1 = sub1.data || [];
-                allSubServices2 = sub2.data || [];
+                allSub1 = sub1.data || [];
+                allSub2 = sub2.data || [];
             } catch(e) { showError('Failed to load services'); }
+        }
+
+        async function loadInvoices() {
+            try {
+                const {data} = await db.from('invoices').select('*').order('created_at', {ascending: false});
+                const html = (data || []).map(inv => `
+                    <tr>
+                        <td>${inv.invoice_number}</td>
+                        <td>${new Date(inv.invoice_date).toLocaleDateString('en-IN')}</td>
+                        <td>${inv.customer_name}</td>
+                        <td>₹${inv.subtotal}</td>
+                        <td><span style="background:${inv.payment_status === 'paid' ? '#dcfce7' : '#fef3c7'}; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${inv.payment_status}</span></td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-sm btn-view" onclick="viewInvoice('${inv.id}')">View</button>
+                                <button class="btn-sm btn-delete" onclick="deleteInvoice('${inv.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+                document.getElementById('invoiceList').innerHTML = html;
+            } catch(e) { }
+        }
+
+        function filterInvoices() {
+            const query = document.getElementById('searchInv').value.toLowerCase();
+            const rows = document.querySelectorAll('.inv-table tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function openCreateForm() {
+            resetForm();
+            document.getElementById('createModal').classList.add('show');
+        }
+
+        function closeCreateForm() {
+            document.getElementById('createModal').classList.remove('show');
+        }
+
+        function searchServices() {
+            const query = document.getElementById('serviceSearch').value.toLowerCase();
+            const resultsDiv = document.getElementById('searchResults');
+            searchSelectedIdx = -1;
+            
+            if (!query) { resultsDiv.classList.remove('show'); return; }
+
+            const filtered = allServices.filter(s => s.service_name.toLowerCase().includes(query));
+            resultsDiv.innerHTML = filtered.map(s => `
+                <div class="search-item" onclick="selectService('${s.id}')">
+                    <span>${s.service_name}</span>
+                    <span>₹${s.rate || 0}</span>
+                </div>
+            `).join('');
+            resultsDiv.classList.add('show');
         }
 
         function handleSearchKeys(e) {
@@ -325,23 +369,6 @@
             });
         }
 
-        function searchServices() {
-            const query = document.getElementById('serviceSearch').value.toLowerCase();
-            const resultsDiv = document.getElementById('searchResults');
-            searchSelectedIdx = -1;
-            
-            if (!query) { resultsDiv.classList.remove('show'); return; }
-
-            const filtered = allServices.filter(s => s.service_name.toLowerCase().includes(query));
-            resultsDiv.innerHTML = filtered.map(s => `
-                <div class="search-item" onclick="selectService('${s.id}')">
-                    <span>${s.service_name}</span>
-                    <span class="search-item-price">₹${s.rate || 0}</span>
-                </div>
-            `).join('');
-            resultsDiv.classList.add('show');
-        }
-
         function selectService(serviceId) {
             const service = allServices.find(s => s.id === serviceId);
             if (!service) return;
@@ -349,13 +376,8 @@
             document.getElementById('serviceSearch').value = '';
             document.getElementById('searchResults').classList.remove('show');
 
-            const sub1 = allSubServices1.find(s => s.id === service.sub_service_type_1_id);
-            const sub2 = allSubServices2.find(s => s.id === service.sub_service_type_2_id);
-
-            if (!sub1 && !sub2) {
-                showError('Service has no sub-services');
-                return;
-            }
+            const sub1 = allSub1.find(s => s.id === service.sub_service_type_1_id);
+            const sub2 = allSub2.find(s => s.id === service.sub_service_type_2_id);
 
             const svcItem = {
                 id: 'svc-' + Date.now(),
@@ -364,26 +386,35 @@
                 sub1: sub1 ? {
                     id: sub1.id,
                     name: sub1.sub_service_name,
-                    rate: sub1.rate,
-                    gstPct: sub1.gst_percentage,
+                    rate: sub1.rate || 0,
+                    gstPct: sub1.gst_percentage || 0,
+                    sacCode: sub1.sac_code || '',
                     qty: 1,
-                    gstMode: 'with',
-                    sacCode: '',
-                    hsnCode: '',
-                    desc: ''
-                } : null,
+                    gstMode: 'with'
+                } : (service.sac_code || service.hsncode ? {
+                    id: 'plain',
+                    name: service.service_name,
+                    rate: service.rate || 0,
+                    gstPct: service.gst_percentage || 0,
+                    sacCode: service.sac_code || '',
+                    qty: 1,
+                    gstMode: 'with'
+                } : null),
                 sub2: sub2 ? {
                     id: sub2.id,
                     name: sub2.sub_service_name,
-                    rate: sub2.rate,
-                    gstPct: sub2.gst_percentage,
+                    rate: sub2.rate || 0,
+                    gstPct: sub2.gst_percentage || 0,
+                    sacCode: sub2.sac_code || '',
                     qty: 1,
-                    gstMode: 'with',
-                    sacCode: '',
-                    hsnCode: '',
-                    desc: ''
+                    gstMode: 'with'
                 } : null
             };
+
+            if (!svcItem.sub1 && !svcItem.sub2) {
+                showError('Service must have rate and GST configured');
+                return;
+            }
 
             selectedServices.push(svcItem);
             renderServices();
@@ -396,13 +427,13 @@
             container.innerHTML = selectedServices.map((svc, svcIdx) => `
                 <div class="service-block">
                     <div class="service-header">
-                        <span>📌 ${svc.serviceName}</span>
-                        <button type="button" class="service-remove" onclick="removeService(${svcIdx})">Remove</button>
+                        <span>${svc.serviceName}</span>
+                        <button type="button" class="btn-remove" onclick="removeService(${svcIdx})">Remove</button>
                     </div>
 
                     ${svc.sub1 ? `
                     <div class="sub-service">
-                        <div class="sub-name">└─ ${svc.sub1.name}</div>
+                        <div class="sub-name">${svc.sub1.name}</div>
                         <div class="line-header">
                             <div>Qty</div>
                             <div>Amount</div>
@@ -413,15 +444,14 @@
                             <div>Total</div>
                         </div>
                         <div class="line-row">
-                            <input type="number" value="${svc.sub1.qty}" min="1" onchange="updateSub(${svcIdx}, 'sub1', 'qty', this.value); syncQty(${svcIdx});">
+                            <input type="number" value="${svc.sub1.qty}" min="1" onchange="updateSub(${svcIdx}, 'sub1', 'qty', this.value); ${svc.sub2 ? 'syncQty(' + svcIdx + ');' : ''}">
                             <input type="number" value="${svc.sub1.rate}" onchange="updateSub(${svcIdx}, 'sub1', 'rate', this.value)">
                             <input type="text" value="${svc.sub1.sacCode}" onchange="updateSub(${svcIdx}, 'sub1', 'sacCode', this.value)" placeholder="SAC">
-                            <input type="text" value="${svc.sub1.hsnCode}" onchange="updateSub(${svcIdx}, 'sub1', 'hsnCode', this.value)" placeholder="HSN">
+                            <input type="text" value="" placeholder="HSN">
                             <div class="line-row-val">${svc.sub1.gstPct}%</div>
                             <div class="line-row-val" id="gst-${svcIdx}-sub1">₹0.00</div>
                             <div class="line-row-val" id="total-${svcIdx}-sub1">₹0.00</div>
                         </div>
-                        <input type="text" value="${svc.sub1.desc}" onchange="updateSub(${svcIdx}, 'sub1', 'desc', this.value)" placeholder="Description" style="width: 100%; margin-top: 8px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px;">
                         <div class="gst-toggle">
                             <button type="button" class="gst-btn ${svc.sub1.gstMode === 'with' ? 'active' : ''}" onclick="updateSub(${svcIdx}, 'sub1', 'gstMode', 'with'); updatePreview();">With GST</button>
                             <button type="button" class="gst-btn ${svc.sub1.gstMode === 'without' ? 'active' : ''}" onclick="updateSub(${svcIdx}, 'sub1', 'gstMode', 'without'); updatePreview();">Without GST</button>
@@ -431,7 +461,7 @@
 
                     ${svc.sub2 ? `
                     <div class="sub-service">
-                        <div class="sub-name">└─ ${svc.sub2.name}</div>
+                        <div class="sub-name">${svc.sub2.name}</div>
                         <div class="line-header">
                             <div>Qty</div>
                             <div>Amount</div>
@@ -445,12 +475,11 @@
                             <input type="number" value="${svc.sub2.qty}" min="1" onchange="updateSub(${svcIdx}, 'sub2', 'qty', this.value); syncQty(${svcIdx});">
                             <input type="number" value="${svc.sub2.rate}" onchange="updateSub(${svcIdx}, 'sub2', 'rate', this.value)">
                             <input type="text" value="${svc.sub2.sacCode}" onchange="updateSub(${svcIdx}, 'sub2', 'sacCode', this.value)" placeholder="SAC">
-                            <input type="text" value="${svc.sub2.hsnCode}" onchange="updateSub(${svcIdx}, 'sub2', 'hsnCode', this.value)" placeholder="HSN">
+                            <input type="text" value="" placeholder="HSN">
                             <div class="line-row-val">${svc.sub2.gstPct}%</div>
                             <div class="line-row-val" id="gst-${svcIdx}-sub2">₹0.00</div>
                             <div class="line-row-val" id="total-${svcIdx}-sub2">₹0.00</div>
                         </div>
-                        <input type="text" value="${svc.sub2.desc}" onchange="updateSub(${svcIdx}, 'sub2', 'desc', this.value)" placeholder="Description" style="width: 100%; margin-top: 8px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px;">
                         <div class="gst-toggle">
                             <button type="button" class="gst-btn ${svc.sub2.gstMode === 'with' ? 'active' : ''}" onclick="updateSub(${svcIdx}, 'sub2', 'gstMode', 'with'); updatePreview();">With GST</button>
                             <button type="button" class="gst-btn ${svc.sub2.gstMode === 'without' ? 'active' : ''}" onclick="updateSub(${svcIdx}, 'sub2', 'gstMode', 'without'); updatePreview();">Without GST</button>
@@ -471,12 +500,13 @@
         }
 
         function updateSub(svcIdx, sub, field, value) {
+            if (!selectedServices[svcIdx] || !selectedServices[svcIdx][sub]) return;
+            
             if (field === 'qty') selectedServices[svcIdx][sub].qty = Math.max(1, parseInt(value) || 1);
             else if (field === 'rate') selectedServices[svcIdx][sub].rate = parseFloat(value) || 0;
             else if (field === 'gstMode') selectedServices[svcIdx][sub].gstMode = value;
             else if (field === 'sacCode') selectedServices[svcIdx][sub].sacCode = value;
-            else if (field === 'hsnCode') selectedServices[svcIdx][sub].hsnCode = value;
-            else if (field === 'desc') selectedServices[svcIdx][sub].desc = value;
+            
             updatePreview();
         }
 
@@ -486,9 +516,11 @@
         }
 
         function calculateAmounts(sub) {
-            const qty = sub.qty;
-            const gstPct = sub.gstPct;
-            const userAmount = sub.rate;
+            if (!sub) return { baseAmount: 0, gstAmount: 0, totalAmount: 0 };
+            
+            const qty = sub.qty || 1;
+            const gstPct = sub.gstPct || 0;
+            const userAmount = sub.rate || 0;
             let baseAmount, gstAmount, totalAmount;
 
             if (sub.gstMode === 'with') {
@@ -514,21 +546,12 @@
                     totalNoGst += baseAmount;
                     totalGst += gstAmount;
                     
-                    document.getElementById(`gst-${svcIdx}-sub1`).textContent = '₹' + gstAmount.toFixed(2);
-                    document.getElementById(`total-${svcIdx}-sub1`).textContent = '₹' + totalAmount.toFixed(2);
+                    const el1 = document.getElementById(`gst-${svcIdx}-sub1`);
+                    const el2 = document.getElementById(`total-${svcIdx}-sub1`);
+                    if (el1) el1.textContent = '₹' + gstAmount.toFixed(2);
+                    if (el2) el2.textContent = '₹' + totalAmount.toFixed(2);
 
-                    itemsHtml += `
-                        <tr>
-                            <td>${svc.sub1.name}</td>
-                            <td>${svc.sub1.qty}</td>
-                            <td>₹${svc.sub1.rate.toFixed(2)}</td>
-                            <td>${svc.sub1.sacCode}</td>
-                            <td>${svc.sub1.hsnCode}</td>
-                            <td>${svc.sub1.gstPct}%</td>
-                            <td>₹${gstAmount.toFixed(2)}</td>
-                            <td>₹${totalAmount.toFixed(2)}</td>
-                        </tr>
-                    `;
+                    itemsHtml += `<tr><td>${svc.sub1.name}</td><td>${svc.sub1.qty}</td><td>₹${svc.sub1.rate.toFixed(2)}</td><td>₹${totalAmount.toFixed(2)}</td></tr>`;
                 }
 
                 if (svc.sub2) {
@@ -536,38 +559,19 @@
                     totalNoGst += baseAmount;
                     totalGst += gstAmount;
                     
-                    document.getElementById(`gst-${svcIdx}-sub2`).textContent = '₹' + gstAmount.toFixed(2);
-                    document.getElementById(`total-${svcIdx}-sub2`).textContent = '₹' + totalAmount.toFixed(2);
+                    const el1 = document.getElementById(`gst-${svcIdx}-sub2`);
+                    const el2 = document.getElementById(`total-${svcIdx}-sub2`);
+                    if (el1) el1.textContent = '₹' + gstAmount.toFixed(2);
+                    if (el2) el2.textContent = '₹' + totalAmount.toFixed(2);
 
-                    itemsHtml += `
-                        <tr>
-                            <td>${svc.sub2.name}</td>
-                            <td>${svc.sub2.qty}</td>
-                            <td>₹${svc.sub2.rate.toFixed(2)}</td>
-                            <td>${svc.sub2.sacCode}</td>
-                            <td>${svc.sub2.hsnCode}</td>
-                            <td>${svc.sub2.gstPct}%</td>
-                            <td>₹${gstAmount.toFixed(2)}</td>
-                            <td>₹${totalAmount.toFixed(2)}</td>
-                        </tr>
-                    `;
+                    itemsHtml += `<tr><td>${svc.sub2.name}</td><td>${svc.sub2.qty}</td><td>₹${svc.sub2.rate.toFixed(2)}</td><td>₹${totalAmount.toFixed(2)}</td></tr>`;
                 }
             });
 
             const totalWithGst = totalNoGst + totalGst;
-
-            document.getElementById('previewTotalNoGst').textContent = round(totalNoGst).toFixed(2);
-            document.getElementById('previewGst').textContent = round(totalGst).toFixed(2);
+            document.getElementById('previewTotal').textContent = round(totalNoGst).toFixed(2);
             document.getElementById('previewSubtotal').textContent = round(totalWithGst).toFixed(2);
-            document.getElementById('previewTotalNoGst2').textContent = round(totalNoGst).toFixed(2);
-            document.getElementById('previewGst2').textContent = round(totalGst).toFixed(2);
-            document.getElementById('previewSubtotal2').textContent = round(totalWithGst).toFixed(2);
-            
             document.getElementById('previewItems').innerHTML = itemsHtml;
-            document.getElementById('invNumPrev').textContent = document.getElementById('invNum').value;
-            document.getElementById('invDatePrev').textContent = new Date(document.getElementById('invDate').value).toLocaleDateString('en-IN');
-            document.getElementById('custNamePrev').textContent = document.getElementById('custName').value || '-';
-            document.getElementById('custPhonePrev').textContent = document.getElementById('custPhone').value ? '+91-' + document.getElementById('custPhone').value : '-';
         }
 
         function generateInvoiceNumber() {
@@ -580,15 +584,15 @@
             const phone = document.getElementById('custPhone').value.trim();
             if (phone.length === 10) {
                 try {
-                    const {data} = await db.from('invoices').select('*').eq('customer_phone', phone).order('created_at', {ascending: false}).limit(1);
-                    if (data?.length > 0) {
-                        document.getElementById('custName').value = data[0].customer_name;
+                    const {data} = await db.from('invoices').select('*').eq('customer_phone', phone).limit(1);
+                    if (data && data.length > 0) {
+                        document.getElementById('custName').value = data[0].customer_name || '';
                         document.getElementById('custGst').value = data[0].customer_gst || '';
                         document.getElementById('custAddr').value = data[0].customer_address || '';
                         document.getElementById('custEmail').value = data[0].customer_email || '';
                         document.getElementById('custCompany').value = data[0].customer_company || '';
                     }
-                } catch(e) {}
+                } catch(e) { }
             }
         }
 
@@ -626,13 +630,16 @@
                     customer_email: document.getElementById('custEmail').value,
                     customer_company: document.getElementById('custCompany').value,
                     payment_status: document.getElementById('payStatus').value,
-                    notes: '',
                     subtotal: round(totalNoGst + totalGst),
                     total_amount: round(totalNoGst)
                 };
 
                 const {data: inv} = await db.from('invoices').insert(invData).select().single();
-                currentInvoiceId = inv.id;
+
+                if (!inv || !inv.id) {
+                    showError('Failed to create invoice');
+                    return;
+                }
 
                 const items = [];
                 let lineNum = 1;
@@ -676,7 +683,6 @@
                             invoice_id: inv.id,
                             line_number: 0,
                             description: svc.serviceName,
-                            sac_code: '',
                             quantity: svc.sub1.qty,
                             rate: baseAmount,
                             gst_percentage: 0,
@@ -689,47 +695,28 @@
                 });
 
                 await db.from('invoice_items').insert(items);
-
-                document.getElementById('form-state').style.display = 'none';
-                document.getElementById('submitted-state').classList.add('show');
-                showSuccess('Invoice submitted!');
-            } catch(e) { showError('Error: ' + e.message); }
+                
+                showSuccess('Invoice created successfully!');
+                closeCreateForm();
+                loadInvoices();
+            } catch(e) { 
+                showError('Error: ' + (e.message || 'Unknown error'));
+            }
         }
 
-        function downloadPDF() {
-            if (!currentInvoiceId) return;
-            const element = document.querySelector('.invoice-box');
-            const opt = {
-                margin: 10,
-                filename: document.getElementById('invNum').value + '.pdf',
-                image: {type: 'jpeg', quality: 0.98},
-                html2canvas: {scale: 2},
-                jsPDF: {orientation: 'portrait', unit: 'mm', format: 'a4'}
-            };
-            html2pdf().set(opt).from(element).save();
+        async function deleteInvoice(invId) {
+            if (!confirm('Delete this invoice?')) return;
+            try {
+                await Promise.all([
+                    db.from('invoice_items').delete().eq('invoice_id', invId),
+                    db.from('invoices').delete().eq('id', invId)
+                ]);
+                loadInvoices();
+            } catch(e) { alert('Error deleting'); }
         }
 
-        function printInvoice() {
-            if (!currentInvoiceId) return;
-            const printWindow = window.open('', '', 'width=900,height=600');
-            const invoiceHTML = document.querySelector('.invoice-box').innerHTML;
-            printWindow.document.write(`
-                <html><head><title>Invoice ${document.getElementById('invNum').value}</title>
-                <style>
-                    body { font-family: Arial; margin: 20px; }
-                    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background: #1e40af; color: white; }
-                </style></head><body>${invoiceHTML}</body></html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-        }
-
-        function createAnother() {
-            document.getElementById('form-state').style.display = 'block';
-            document.getElementById('submitted-state').classList.remove('show');
-            resetForm();
+        function viewInvoice(invId) {
+            alert('View invoice feature coming soon');
         }
 
         function resetForm() {
@@ -760,10 +747,6 @@
             el.textContent = '✗ ' + msg;
             el.classList.add('show');
             setTimeout(() => el.classList.remove('show'), 4000);
-        }
-
-        function goBack() {
-            window.location.href = 'dashboard.html';
         }
 
         window.addEventListener('load', init);
