@@ -51,6 +51,7 @@
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 12px; transition: 0.2s; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
         .form-group input.locked { background: #f1f5f9; color: #64748b; cursor: not-allowed; }
+        .form-group input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px white inset !important; -webkit-text-fill-color: #000 !important; }
         
         .search-container { position: relative; margin-bottom: 12px; }
         .search-wrapper { position: relative; display: flex; align-items: center; background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 0 12px; transition: all 0.2s; }
@@ -59,13 +60,15 @@
         .search-wrapper input { flex: 1; border: none; padding: 10px 0; font-size: 13px; background: transparent; }
         .search-wrapper input:focus { outline: none; }
         
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-top: none; border-radius: 0 0 8px 8px; max-height: 250px; overflow-y: auto; display: none; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-top: none; border-radius: 0 0 8px 8px; max-height: 300px; overflow-y: auto; display: none; z-index: 100; box-shadow: 0 8px 16px rgba(0,0,0,0.1); }
         .search-results.show { display: block; }
         .search-item { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 12px; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s; }
         .search-item:last-child { border-bottom: none; }
-        .search-item:hover, .search-item.selected { background: #f0f9ff; color: #1e40af; font-weight: 600; }
+        .search-item:hover { background: #f0f9ff; }
+        .search-item.selected { background: #1e40af; color: white; font-weight: 600; }
         .search-item-name { flex: 1; }
         .search-item-price { background: #1e40af; color: white; padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+        .search-item.selected .search-item-price { background: rgba(255,255,255,0.3); }
         
         .service-block { background: #f8fafc; border: 2px solid #1e40af; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
         .service-header { background: #1e40af; color: white; padding: 12px 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
@@ -76,24 +79,27 @@
         .sub-service:first-of-type { border-top: none; }
         .sub-name { font-weight: 600; font-size: 12px; color: #1e3a8a; margin-bottom: 10px; }
         
-        .line-header { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.4fr; gap: 6px; font-weight: 600; font-size: 10px; color: #64748b; margin-bottom: 8px; }
-        .line-row { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.4fr; gap: 6px; align-items: center; }
-        .line-row input { padding: 6px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; transition: 0.2s; }
-        .line-row input:focus { border-color: #1e40af; outline: none; }
-        .line-row-val { padding: 6px; font-size: 10px; background: #f1f5f9; border-radius: 4px; font-weight: 600; color: #1e3a8a; }
+        .line-header { display: grid; grid-template-columns: 60px 80px 70px 70px 70px 90px 90px 60px; gap: 8px; font-weight: 600; font-size: 10px; color: #64748b; margin-bottom: 8px; padding: 0 4px; }
+        .line-row { display: grid; grid-template-columns: 60px 80px 70px 70px 70px 90px 90px 60px; gap: 8px; align-items: center; padding: 0 4px; }
+        .line-row input { padding: 8px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; transition: 0.2s; width: 100%; }
+        .line-row input:focus { border-color: #1e40af; outline: none; box-shadow: 0 0 0 2px rgba(30,64,175,0.1); }
+        .line-row-val { padding: 8px; font-size: 10px; background: #f1f5f9; border-radius: 4px; font-weight: 600; color: #1e3a8a; text-align: center; }
         
         .gst-toggle { display: flex; gap: 6px; margin-top: 8px; }
-        .gst-btn { padding: 5px 10px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600; color: #475569; transition: 0.2s; }
+        .gst-btn { padding: 6px 12px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; color: #475569; transition: 0.2s; }
         .gst-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
         .gst-btn:hover { border-color: #1e40af; }
+        
+        .payment-section { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .payment-section.hidden { display: none; }
         
         .buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 20px; }
         .btn-submit { background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-submit:hover { background: #059669; }
         .btn-preview { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-preview:hover { background: #2563eb; }
-        .btn-cancel { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
-        .btn-cancel:hover { background: #e2e8f0; }
+        .btn-reset { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-reset:hover { background: #e2e8f0; }
         
         .msg { padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; font-size: 12px; font-weight: 600; }
         .msg.show { display: block; }
@@ -102,22 +108,40 @@
         
         /* PREVIEW MODAL */
         .preview-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; overflow-y: auto; }
-        .preview-modal.show { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
-        .preview-content { background: white; border-radius: 12px; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 0; }
-        .preview-header { background: #1e40af; color: white; padding: 16px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .preview-body { padding: 20px; font-size: 12px; }
+        .preview-modal.show { display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .preview-content { background: white; border-radius: 12px; width: 100%; max-width: 850px; max-height: 95vh; overflow-y: auto; padding: 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .preview-header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
+        .preview-body { padding: 24px; }
         
-        .invoice-box { background: white; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; }
-        .inv-title { text-align: center; font-size: 18px; font-weight: 700; color: #1e40af; margin-bottom: 4px; }
-        .inv-subtitle { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 16px; }
-        .inv-header-info { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; font-size: 11px; }
-        .inv-label { font-weight: 600; color: #1e3a8a; }
-        .inv-table-preview { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 10px; }
-        .inv-table-preview th { background: #1e40af; color: white; padding: 8px; text-align: left; font-weight: 600; }
-        .inv-table-preview td { padding: 8px; border-bottom: 1px solid #e2e8f0; }
-        .inv-total-section { text-align: right; margin-top: 16px; font-size: 11px; }
-        .inv-total-row { margin: 4px 0; }
-        .inv-grand-total { font-size: 14px; font-weight: 700; color: #16a34a; margin-top: 8px; }
+        .invoice-container { background: white; border: 1px solid #e2e8f0; }
+        .invoice-header { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid #1e40af; }
+        .company-section h2 { font-size: 20px; color: #1e40af; font-weight: 700; margin-bottom: 4px; }
+        .company-section p { font-size: 11px; color: #64748b; margin: 2px 0; line-height: 1.4; }
+        
+        .invoice-info { text-align: right; }
+        .invoice-info-item { margin: 8px 0; }
+        .invoice-info-label { font-weight: 600; font-size: 11px; color: #1e3a8a; }
+        .invoice-info-value { font-size: 13px; color: #000; margin-top: 2px; }
+        
+        .bill-to { margin-bottom: 20px; padding: 12px; background: #f8fafc; border-left: 4px solid #1e40af; }
+        .bill-to-label { font-weight: 600; font-size: 11px; color: #1e3a8a; margin-bottom: 6px; }
+        .bill-to-details { font-size: 12px; color: #000; }
+        .bill-to-details div { margin: 3px 0; }
+        
+        .invoice-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .invoice-table th { background: #1e40af; color: white; padding: 10px; text-align: left; font-weight: 600; font-size: 11px; }
+        .invoice-table td { padding: 10px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
+        .invoice-table tr:last-child td { border-bottom: 2px solid #1e40af; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        
+        .invoice-summary { margin-top: 20px; display: grid; grid-template-columns: auto auto; gap: 12px; justify-content: flex-end; width: 50%; margin-left: auto; }
+        .summary-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 6px 0; font-size: 12px; }
+        .summary-label { font-weight: 600; color: #1e3a8a; }
+        .summary-value { text-align: right; }
+        .grand-total { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 8px 12px; background: #1e40af; color: white; border-radius: 4px; font-weight: 700; font-size: 13px; margin-top: 8px; }
+        
+        .invoice-footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #64748b; }
     </style>
 </head>
 <body>
@@ -166,28 +190,28 @@
                 <div class="section-title">👤 Customer Details</div>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label>Mobile *</label>
-                        <input type="tel" id="custPhone" maxlength="10" onchange="lookupCustomer()">
+                        <label>Mobile * (Database Lookup)</label>
+                        <input type="tel" id="custPhone" maxlength="10" placeholder="10 digit mobile" onchange="lookupCustomer()" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Name *</label>
-                        <input type="text" id="custName" required>
+                        <input type="text" id="custName" required autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" id="custEmail">
+                        <input type="email" id="custEmail" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Address</label>
-                        <input type="text" id="custAddr">
+                        <input type="text" id="custAddr" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Company</label>
-                        <input type="text" id="custCompany">
+                        <input type="text" id="custCompany" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>GST</label>
-                        <input type="text" id="custGst">
+                        <input type="text" id="custGst" autocomplete="off">
                     </div>
                 </div>
 
@@ -209,7 +233,7 @@
                 <div class="search-container">
                     <div class="search-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="serviceSearch" placeholder="Type service name..." onkeyup="searchServices()" onkeydown="handleSearchKeys(event)">
+                        <input type="text" id="serviceSearch" placeholder="Type service name..." onkeyup="searchServices()" onkeydown="handleSearchKeys(event)" autocomplete="off">
                     </div>
                     <div id="searchResults" class="search-results"></div>
                 </div>
@@ -220,12 +244,20 @@
 
                 <!-- PAYMENT -->
                 <div class="section-title">💳 Payment</div>
-                <div class="form-grid">
+                <div class="payment-section" id="paymentSection">
                     <div class="form-group">
                         <label>Status</label>
-                        <select id="payStatus">
+                        <select id="payStatus" onchange="togglePaymentType()">
                             <option value="pending">Pending</option>
                             <option value="paid">Paid</option>
+                        </select>
+                    </div>
+                    <div class="form-group hidden" id="payTypeGroup">
+                        <label>Payment Type</label>
+                        <select id="payType">
+                            <option value="">Select Type</option>
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank</option>
                         </select>
                     </div>
                 </div>
@@ -233,7 +265,7 @@
                 <div class="buttons">
                     <button class="btn-submit" onclick="submitInvoice()">✓ Submit</button>
                     <button class="btn-preview" onclick="openPreview()">👁️ Preview</button>
-                    <button class="btn-cancel" onclick="closeCreateForm()">Cancel</button>
+                    <button class="btn-reset" onclick="resetForm()">⟲ Reset</button>
                 </div>
             </div>
         </div>
@@ -247,7 +279,7 @@
                 <button class="close-btn" onclick="closePreview()">✕ Close</button>
             </div>
             <div class="preview-body">
-                <div class="invoice-box" id="previewInvoice"></div>
+                <div class="invoice-container" id="previewInvoice"></div>
             </div>
         </div>
     </div>
@@ -259,6 +291,7 @@
         let allServices = [];
         let allSub1 = [];
         let allSub2 = [];
+        let businessDetails = {};
         let selectedServices = [];
         let searchSelectedIdx = -1;
         let currentUserId = null;
@@ -273,7 +306,35 @@
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
             await loadServices();
+            await loadBusinessDetails();
             loadInvoices();
+        }
+
+        async function loadBusinessDetails() {
+            try {
+                const {data} = await db.from('business_settings').select('*').single();
+                if (data) {
+                    businessDetails = {
+                        name: data.business_name || 'DreamHarbour Global',
+                        address: data.business_address || '',
+                        city: data.business_city || '',
+                        state: data.business_state || '',
+                        gst: data.business_gst || '',
+                        phone: data.business_phone || '',
+                        email: data.business_email || ''
+                    };
+                }
+            } catch(e) {
+                businessDetails = {
+                    name: 'DreamHarbour Global',
+                    address: '',
+                    city: '',
+                    state: '',
+                    gst: '',
+                    phone: '',
+                    email: ''
+                };
+            }
         }
 
         async function loadServices() {
@@ -297,7 +358,7 @@
                         <td>${inv.invoice_number}</td>
                         <td>${new Date(inv.invoice_date).toLocaleDateString('en-IN')}</td>
                         <td>${inv.customer_name || '-'}</td>
-                        <td>₹${inv.subtotal || 0}</td>
+                        <td>₹${inv.total_amount || 0}</td>
                         <td><span style="background:${inv.payment_status === 'paid' ? '#dcfce7' : '#fef3c7'}; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${inv.payment_status}</span></td>
                         <td>
                             <div class="actions">
@@ -333,6 +394,13 @@
             window.location.href = 'dashboard.html';
         }
 
+        function togglePaymentType() {
+            const status = document.getElementById('payStatus').value;
+            const typeGroup = document.getElementById('payTypeGroup');
+            typeGroup.style.display = status === 'paid' ? 'block' : 'none';
+            if (status === 'pending') document.getElementById('payType').value = '';
+        }
+
         function searchServices() {
             const query = document.getElementById('serviceSearch').value.toLowerCase();
             const resultsDiv = document.getElementById('searchResults');
@@ -341,13 +409,14 @@
             if (!query) { resultsDiv.classList.remove('show'); return; }
 
             const filtered = allServices.filter(s => s.service_name.toLowerCase().includes(query));
-            resultsDiv.innerHTML = filtered.map(s => `
+            resultsDiv.innerHTML = filtered.map((s, idx) => `
                 <div class="search-item" onclick="selectService('${s.id}')">
                     <span class="search-item-name">${s.service_name}</span>
                     <span class="search-item-price">₹${s.rate || 0}</span>
                 </div>
             `).join('');
             resultsDiv.classList.add('show');
+            updateSearchSelection();
         }
 
         function handleSearchKeys(e) {
@@ -357,11 +426,11 @@
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 searchSelectedIdx = Math.min(searchSelectedIdx + 1, items.length - 1);
-                updateSearchSelection(items);
+                updateSearchSelection();
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 searchSelectedIdx = Math.max(searchSelectedIdx - 1, -1);
-                updateSearchSelection(items);
+                updateSearchSelection();
             } else if (e.key === 'Enter' && searchSelectedIdx >= 0) {
                 e.preventDefault();
                 items[searchSelectedIdx].click();
@@ -371,7 +440,8 @@
             }
         }
 
-        function updateSearchSelection(items) {
+        function updateSearchSelection() {
+            const items = document.querySelectorAll('.search-item');
             items.forEach((item, idx) => {
                 if (idx === searchSelectedIdx) {
                     item.classList.add('selected');
@@ -648,6 +718,12 @@
                         document.getElementById('custAddr').value = data[0].address || '';
                         document.getElementById('custEmail').value = data[0].email || '';
                         document.getElementById('custCompany').value = data[0].company_name || '';
+                    } else {
+                        document.getElementById('custName').value = '';
+                        document.getElementById('custGst').value = '';
+                        document.getElementById('custAddr').value = '';
+                        document.getElementById('custEmail').value = '';
+                        document.getElementById('custCompany').value = '';
                     }
                 } catch(e) { console.error('Lookup error:', e); }
             }
@@ -659,7 +735,7 @@
                 return;
             }
 
-            let totalNoGst = 0, totalGst = 0;
+            let totalNoGst = 0, totalGst = 0, totalWithGst = 0;
             let itemsHtml = '';
 
             selectedServices.forEach((svc) => {
@@ -686,11 +762,11 @@
                     itemsHtml += `
                         <tr>
                             <td>${svc.serviceName}</td>
-                            <td>${qty}</td>
-                            <td>${gst}%</td>
-                            <td>₹${round(baseAmount).toFixed(2)}</td>
-                            <td>₹${round(gstAmount).toFixed(2)}</td>
-                            <td>₹${round(totalAmount).toFixed(2)}</td>
+                            <td class="text-center">${qty}</td>
+                            <td class="text-right">₹${round(baseAmount).toFixed(2)}</td>
+                            <td class="text-center">${gst}%</td>
+                            <td class="text-right">₹${round(gstAmount).toFixed(2)}</td>
+                            <td class="text-right">₹${round(totalAmount).toFixed(2)}</td>
                         </tr>
                     `;
                 } else {
@@ -701,11 +777,11 @@
                         itemsHtml += `
                             <tr>
                                 <td>${svc.sub1.name}</td>
-                                <td>${svc.sub1.qty}</td>
-                                <td>${svc.sub1.gstPct}%</td>
-                                <td>₹${baseAmount.toFixed(2)}</td>
-                                <td>₹${gstAmount.toFixed(2)}</td>
-                                <td>₹${totalAmount.toFixed(2)}</td>
+                                <td class="text-center">${svc.sub1.qty}</td>
+                                <td class="text-right">₹${baseAmount.toFixed(2)}</td>
+                                <td class="text-center">${svc.sub1.gstPct}%</td>
+                                <td class="text-right">₹${gstAmount.toFixed(2)}</td>
+                                <td class="text-right">₹${totalAmount.toFixed(2)}</td>
                             </tr>
                         `;
                     }
@@ -716,53 +792,62 @@
                         itemsHtml += `
                             <tr>
                                 <td>${svc.sub2.name}</td>
-                                <td>${svc.sub2.qty}</td>
-                                <td>${svc.sub2.gstPct}%</td>
-                                <td>₹${baseAmount.toFixed(2)}</td>
-                                <td>₹${gstAmount.toFixed(2)}</td>
-                                <td>₹${totalAmount.toFixed(2)}</td>
+                                <td class="text-center">${svc.sub2.qty}</td>
+                                <td class="text-right">₹${baseAmount.toFixed(2)}</td>
+                                <td class="text-center">${svc.sub2.gstPct}%</td>
+                                <td class="text-right">₹${gstAmount.toFixed(2)}</td>
+                                <td class="text-right">₹${totalAmount.toFixed(2)}</td>
                             </tr>
                         `;
                     }
                 }
             });
 
-            const totalWithGst = totalNoGst + totalGst;
+            totalWithGst = totalNoGst + totalGst;
             const invDate = new Date(document.getElementById('invDate').value).toLocaleDateString('en-IN');
 
             document.getElementById('previewInvoice').innerHTML = `
-                <div class="inv-title">DreamHarbour Global</div>
-                <div class="inv-subtitle">Professional Services Invoice</div>
-                
-                <div class="inv-header-info">
-                    <div>
-                        <div class="inv-label">Invoice #</div>
-                        <div>${document.getElementById('invNum').value}</div>
+                <div class="invoice-header">
+                    <div class="company-section">
+                        <h2>${businessDetails.name || 'DreamHarbour Global'}</h2>
+                        <p>${businessDetails.address || ''}</p>
+                        <p>${businessDetails.city || ''} ${businessDetails.state || ''}</p>
+                        ${businessDetails.gst ? `<p>GST: ${businessDetails.gst}</p>` : ''}
+                        ${businessDetails.phone ? `<p>Phone: ${businessDetails.phone}</p>` : ''}
                     </div>
-                    <div>
-                        <div class="inv-label">Date</div>
-                        <div>${invDate}</div>
+                    <div class="invoice-info">
+                        <div class="invoice-info-item">
+                            <div class="invoice-info-label">Invoice #</div>
+                            <div class="invoice-info-value">${document.getElementById('invNum').value}</div>
+                        </div>
+                        <div class="invoice-info-item">
+                            <div class="invoice-info-label">Date</div>
+                            <div class="invoice-info-value">${invDate}</div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="inv-header-info">
-                    <div>
-                        <div class="inv-label">Bill To</div>
-                        <div>${document.getElementById('custName').value}</div>
-                        <div>+91-${document.getElementById('custPhone').value}</div>
+                <div class="bill-to">
+                    <div class="bill-to-label">BILL TO</div>
+                    <div class="bill-to-details">
+                        <div><strong>${document.getElementById('custName').value}</strong></div>
+                        <div>Mobile: +91-${document.getElementById('custPhone').value}</div>
+                        ${document.getElementById('custEmail').value ? `<div>Email: ${document.getElementById('custEmail').value}</div>` : ''}
+                        ${document.getElementById('custAddr').value ? `<div>Address: ${document.getElementById('custAddr').value}</div>` : ''}
+                        ${document.getElementById('custCompany').value ? `<div>Company: ${document.getElementById('custCompany').value}</div>` : ''}
                         ${document.getElementById('custGst').value ? `<div>GST: ${document.getElementById('custGst').value}</div>` : ''}
                     </div>
                 </div>
 
-                <table class="inv-table-preview">
+                <table class="invoice-table">
                     <thead>
                         <tr>
-                            <th>Service</th>
-                            <th>Qty</th>
-                            <th>GST%</th>
-                            <th>Amount</th>
-                            <th>GST</th>
-                            <th>Total</th>
+                            <th>Service Description</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-center">Tax %</th>
+                            <th class="text-right">Tax</th>
+                            <th class="text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -770,10 +855,24 @@
                     </tbody>
                 </table>
 
-                <div class="inv-total-section">
-                    <div class="inv-total-row"><strong>Subtotal (W/o GST):</strong> ₹${round(totalNoGst).toFixed(2)}</div>
-                    <div class="inv-total-row"><strong>GST:</strong> ₹${round(totalGst).toFixed(2)}</div>
-                    <div class="inv-grand-total">TOTAL: ₹${round(totalWithGst).toFixed(2)}</div>
+                <div class="invoice-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">Subtotal (W/o Tax)</span>
+                        <span class="summary-value">₹${round(totalNoGst).toFixed(2)}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Total Tax</span>
+                        <span class="summary-value">₹${round(totalGst).toFixed(2)}</span>
+                    </div>
+                    <div class="grand-total">
+                        <span>GRAND TOTAL</span>
+                        <span>₹${round(totalWithGst).toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <div class="invoice-footer">
+                    <p>Thank you for your business!</p>
+                    <p>Payment Status: <strong>${document.getElementById('payStatus').value === 'paid' ? 'PAID' : 'PENDING'}</strong></p>
                 </div>
             `;
 
@@ -835,7 +934,6 @@
                     
                     if (existing && existing.length > 0) {
                         customerId = existing[0].id;
-                        // Update existing customer
                         await db.from('customers').update({
                             full_name: custName,
                             email: document.getElementById('custEmail').value || null,
@@ -844,7 +942,6 @@
                             company_name: document.getElementById('custCompany').value || null
                         }).eq('id', customerId);
                     } else {
-                        // Create new customer
                         const {data: newCust, error: custError} = await db.from('customers').insert({
                             mobile_no: custPhone,
                             full_name: custName,
@@ -862,28 +959,26 @@
                     }
                 } catch(e) {
                     showError('Customer error: ' + e.message);
-                    console.error('Customer error:', e);
                     return;
                 }
 
-                // STEP 2: Create Invoice
+                // STEP 2: Create Invoice (only with actual columns)
                 const invData = {
                     invoice_number: document.getElementById('invNum').value,
                     invoice_date: document.getElementById('invDate').value,
                     customer_id: customerId,
-                    customer_name: custName,
                     payment_status: document.getElementById('payStatus').value,
                     subtotal: round(totalNoGst),
                     total_gst: round(totalGst),
                     total_amount: round(totalNoGst + totalGst),
-                    created_by: currentUserId
+                    created_by: currentUserId,
+                    payment_type: document.getElementById('payType').value || null
                 };
 
                 const {data: inv, error: invError} = await db.from('invoices').insert(invData).select().single();
 
                 if (invError) {
                     showError('Error creating invoice: ' + invError.message);
-                    console.error('Invoice error:', invError);
                     return;
                 }
 
@@ -982,7 +1077,6 @@
 
                 if (itemsError) {
                     showError('Error saving items: ' + itemsError.message);
-                    console.error('Items error:', itemsError);
                     return;
                 }
                 
@@ -993,7 +1087,6 @@
                 }, 1000);
             } catch(e) { 
                 showError('Error: ' + (e.message || 'Unknown error'));
-                console.error('Submit error:', e);
             }
         }
 
@@ -1021,10 +1114,15 @@
             document.getElementById('custCompany').value = '';
             document.getElementById('serviceSearch').value = '';
             document.getElementById('invDate').valueAsDate = new Date();
+            document.getElementById('payStatus').value = 'pending';
+            document.getElementById('payType').value = '';
+            document.getElementById('payTypeGroup').style.display = 'none';
             generateInvoiceNumber();
             selectedServices = [];
             document.getElementById('servicesContainer').innerHTML = '';
             document.getElementById('servicesHeader').style.display = 'none';
+            document.getElementById('msg-success').classList.remove('show');
+            document.getElementById('msg-error').classList.remove('show');
         }
 
         function showSuccess(msg) {
