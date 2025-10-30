@@ -14,30 +14,33 @@
         .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-size: 20px; flex: 1; }
         .header-btns { display: flex; gap: 10px; }
-        .btn-primary { background: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-primary { background: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-primary:hover { background: #059669; }
-        .btn-back { background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
         
         .dashboard { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         .search-bar { margin-bottom: 20px; }
-        .search-bar input { width: 100%; max-width: 400px; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; }
+        .search-bar input { width: 100%; max-width: 400px; padding: 10px 12px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 13px; }
         
         .inv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .inv-table th { background: #1e40af; color: white; padding: 12px; text-align: left; font-weight: 600; }
         .inv-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
         .inv-table tr:hover { background: #f8fafc; }
         .inv-table .actions { display: flex; gap: 8px; }
-        .btn-sm { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .btn-sm { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; transition: 0.2s; }
         .btn-view { background: #3b82f6; color: white; }
         .btn-delete { background: #ef4444; color: white; }
+        .btn-view:hover { background: #2563eb; }
+        .btn-delete:hover { background: #dc2626; }
         
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto; }
         .modal.show { display: flex; align-items: flex-start; justify-content: center; padding: 20px; }
         .modal-content { background: white; border-radius: 12px; width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 0; }
         
         .form-header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .close-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+        .close-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: 0.2s; }
+        .close-btn:hover { background: rgba(255,255,255,0.3); }
         
         .form-body { padding: 24px; }
         .section-title { color: #1e40af; font-size: 14px; font-weight: 700; margin: 16px 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -45,7 +48,7 @@
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
         .form-group { }
         .form-group label { display: block; font-weight: 600; font-size: 12px; color: #1e3a8a; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 12px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 12px; transition: 0.2s; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
         .form-group input.locked { background: #f1f5f9; color: #64748b; cursor: not-allowed; }
         
@@ -75,19 +78,22 @@
         
         .line-header { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.4fr; gap: 6px; font-weight: 600; font-size: 10px; color: #64748b; margin-bottom: 8px; }
         .line-row { display: grid; grid-template-columns: 0.5fr 0.6fr 0.5fr 0.5fr 0.5fr 0.5fr 0.6fr 0.4fr; gap: 6px; align-items: center; }
-        .line-row input { padding: 6px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; }
+        .line-row input { padding: 6px; font-size: 11px; border: 1px solid #e2e8f0; border-radius: 4px; transition: 0.2s; }
+        .line-row input:focus { border-color: #1e40af; outline: none; }
         .line-row-val { padding: 6px; font-size: 10px; background: #f1f5f9; border-radius: 4px; font-weight: 600; color: #1e3a8a; }
         
         .gst-toggle { display: flex; gap: 6px; margin-top: 8px; }
         .gst-btn { padding: 5px 10px; border: 2px solid #cbd5e1; background: white; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: 600; color: #475569; transition: 0.2s; }
         .gst-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
+        .gst-btn:hover { border-color: #1e40af; }
         
         .buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 20px; }
         .btn-submit { background: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-submit:hover { background: #059669; }
         .btn-preview { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
         .btn-preview:hover { background: #2563eb; }
-        .btn-cancel { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-cancel { background: #f1f5f9; color: #1e3a8a; border: 1px solid #cbd5e1; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .btn-cancel:hover { background: #e2e8f0; }
         
         .msg { padding: 12px; border-radius: 6px; margin-bottom: 12px; display: none; font-size: 12px; font-weight: 600; }
         .msg.show { display: block; }
@@ -172,6 +178,14 @@
                         <input type="email" id="custEmail">
                     </div>
                     <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="custAddr">
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="custCompany">
+                    </div>
+                    <div class="form-group">
                         <label>GST</label>
                         <input type="text" id="custGst">
                     </div>
@@ -247,6 +261,7 @@
         let allSub2 = [];
         let selectedServices = [];
         let searchSelectedIdx = -1;
+        let currentUserId = null;
 
         function round(n) { return Math.round(n * 100) / 100; }
 
@@ -254,6 +269,7 @@
             db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
             const user = JSON.parse(localStorage.getItem('userSession'));
             if (!user) { window.location.href = 'index.html'; return; }
+            currentUserId = user.id;
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
             await loadServices();
@@ -280,7 +296,7 @@
                     <tr>
                         <td>${inv.invoice_number}</td>
                         <td>${new Date(inv.invoice_date).toLocaleDateString('en-IN')}</td>
-                        <td>${inv.customer_name}</td>
+                        <td>${inv.customer_name || '-'}</td>
                         <td>₹${inv.subtotal || 0}</td>
                         <td><span style="background:${inv.payment_status === 'paid' ? '#dcfce7' : '#fef3c7'}; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${inv.payment_status}</span></td>
                         <td>
@@ -376,7 +392,6 @@
             const sub1 = allSub1.find(s => s.id === service.sub_service_type_1_id);
             const sub2 = allSub2.find(s => s.id === service.sub_service_type_2_id);
 
-            // Allow services with no sub-services
             const svcItem = {
                 id: 'svc-' + Date.now(),
                 serviceId: service.id,
@@ -385,6 +400,8 @@
                 plainServiceRate: service.rate || 0,
                 plainServiceGst: service.gst_percentage || 0,
                 plainServiceSac: service.sac_code || '',
+                plainServiceQty: 1,
+                plainServiceGstMode: 'with',
                 sub1: sub1 ? {
                     id: sub1.id,
                     name: sub1.sub_service_name,
@@ -433,7 +450,7 @@
                                     <div>Total</div>
                                 </div>
                                 <div class="line-row">
-                                    <input type="number" value="1" min="1" onchange="updatePlainService(${svcIdx}, 'qty', this.value)">
+                                    <input type="number" value="${svc.plainServiceQty}" min="1" onchange="updatePlainService(${svcIdx}, 'qty', this.value)">
                                     <input type="number" value="${svc.plainServiceRate}" onchange="updatePlainService(${svcIdx}, 'rate', this.value)">
                                     <input type="text" value="${svc.plainServiceSac}" onchange="updatePlainService(${svcIdx}, 'sac', this.value)" placeholder="SAC">
                                     <input type="text" value="" placeholder="HSN">
@@ -624,13 +641,15 @@
             const phone = document.getElementById('custPhone').value.trim();
             if (phone.length === 10) {
                 try {
-                    const {data} = await db.from('invoices').select('*').eq('customer_phone', phone).limit(1);
+                    const {data} = await db.from('customers').select('*').eq('mobile_no', phone).limit(1);
                     if (data && data.length > 0) {
-                        document.getElementById('custName').value = data[0].customer_name || '';
-                        document.getElementById('custGst').value = data[0].customer_gst || '';
-                        document.getElementById('custEmail').value = data[0].customer_email || '';
+                        document.getElementById('custName').value = data[0].full_name || '';
+                        document.getElementById('custGst').value = data[0].gstin || '';
+                        document.getElementById('custAddr').value = data[0].address || '';
+                        document.getElementById('custEmail').value = data[0].email || '';
+                        document.getElementById('custCompany').value = data[0].company_name || '';
                     }
-                } catch(e) { }
+                } catch(e) { console.error('Lookup error:', e); }
             }
         }
 
@@ -809,16 +828,55 @@
                     }
                 });
 
-                // Only save fields that exist in the database
+                // STEP 1: Save/Get Customer
+                let customerId;
+                try {
+                    const {data: existing} = await db.from('customers').select('id').eq('mobile_no', custPhone).limit(1);
+                    
+                    if (existing && existing.length > 0) {
+                        customerId = existing[0].id;
+                        // Update existing customer
+                        await db.from('customers').update({
+                            full_name: custName,
+                            email: document.getElementById('custEmail').value || null,
+                            gstin: document.getElementById('custGst').value || null,
+                            address: document.getElementById('custAddr').value || null,
+                            company_name: document.getElementById('custCompany').value || null
+                        }).eq('id', customerId);
+                    } else {
+                        // Create new customer
+                        const {data: newCust, error: custError} = await db.from('customers').insert({
+                            mobile_no: custPhone,
+                            full_name: custName,
+                            email: document.getElementById('custEmail').value || null,
+                            gstin: document.getElementById('custGst').value || null,
+                            address: document.getElementById('custAddr').value || null,
+                            company_name: document.getElementById('custCompany').value || null
+                        }).select().single();
+
+                        if (custError) {
+                            showError('Error creating customer: ' + custError.message);
+                            return;
+                        }
+                        customerId = newCust.id;
+                    }
+                } catch(e) {
+                    showError('Customer error: ' + e.message);
+                    console.error('Customer error:', e);
+                    return;
+                }
+
+                // STEP 2: Create Invoice
                 const invData = {
                     invoice_number: document.getElementById('invNum').value,
                     invoice_date: document.getElementById('invDate').value,
+                    customer_id: customerId,
                     customer_name: custName,
-                    customer_phone: custPhone,
-                    customer_gst: document.getElementById('custGst').value || null,
                     payment_status: document.getElementById('payStatus').value,
-                    subtotal: round(totalNoGst + totalGst),
-                    total_amount: round(totalNoGst)
+                    subtotal: round(totalNoGst),
+                    total_gst: round(totalGst),
+                    total_amount: round(totalNoGst + totalGst),
+                    created_by: currentUserId
                 };
 
                 const {data: inv, error: invError} = await db.from('invoices').insert(invData).select().single();
@@ -834,6 +892,7 @@
                     return;
                 }
 
+                // STEP 3: Create Invoice Items
                 const items = [];
                 let lineNum = 1;
 
@@ -946,7 +1005,7 @@
                     db.from('invoices').delete().eq('id', invId)
                 ]);
                 loadInvoices();
-            } catch(e) { alert('Error deleting'); }
+            } catch(e) { alert('Error deleting: ' + e.message); }
         }
 
         function viewInvoice(invId) {
@@ -957,7 +1016,9 @@
             document.getElementById('custName').value = '';
             document.getElementById('custPhone').value = '';
             document.getElementById('custGst').value = '';
+            document.getElementById('custAddr').value = '';
             document.getElementById('custEmail').value = '';
+            document.getElementById('custCompany').value = '';
             document.getElementById('serviceSearch').value = '';
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
