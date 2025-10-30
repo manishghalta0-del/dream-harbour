@@ -10,83 +10,87 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; }
         
-        /* RESPONSIVE LAYOUT */
         @media (max-width: 800px) {
             .main-wrapper { grid-template-columns: 1fr !important; }
             .preview-panel { display: none !important; }
-            .preview-toggle { display: block !important; }
+            .preview-toggle { display: inline-block !important; }
         }
         @media (min-width: 801px) and (max-width: 1200px) {
-            .main-wrapper { grid-template-columns: 1fr !important; grid-template-rows: auto auto; }
-            .preview-panel { max-height: 50vh !important; }
+            .main-wrapper { grid-template-columns: 1fr !important; }
+            .preview-panel { max-height: 40vh !important; }
         }
         @media (min-width: 1201px) {
-            .main-wrapper { grid-template-columns: 1fr 1.2fr; }
-            .preview-panel { display: block !important; }
-            .preview-toggle { display: none !important; }
+            .main-wrapper { grid-template-columns: 1.2fr 1fr; }
+            .preview-panel { display: block !important; max-height: 100vh; }
         }
         
         .main-wrapper { display: grid; gap: 15px; min-height: 100vh; padding: 15px; }
-        .form-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; max-height: 100vh; }
-        .preview-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; max-height: 100vh; }
-        .preview-toggle { display: none; margin: 10px 0; }
+        .form-panel { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; }
+        .preview-panel { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow-y: auto; display: none; }
         
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 15px 20px; margin: -20px -20px 20px -20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 18px; font-weight: bold; }
-        .nav-btn { background: rgba(0,0,0,0.2); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 12px 15px; margin: -20px -20px 15px -20px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center; font-size: 16px; }
+        .logo { font-weight: bold; }
+        .nav-btn { background: rgba(0,0,0,0.2); color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
         
-        h2 { color: #1e40af; font-size: 16px; margin: 20px 0 15px 0; }
-        .section { margin-bottom: 20px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-weight: 600; font-size: 12px; color: #333; margin-bottom: 4px; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+        h2 { color: #1e40af; font-size: 14px; margin: 12px 0 10px 0; font-weight: 600; }
+        .section { margin-bottom: 12px; }
+        .form-group { margin-bottom: 8px; }
+        .form-group label { display: block; font-weight: 600; font-size: 11px; color: #333; margin-bottom: 3px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 4px; font-size: 12px; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; }
         
         .search-box { position: relative; }
-        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-radius: 6px; max-height: 250px; overflow-y: auto; display: none; z-index: 100; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .search-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid #1e40af; border-radius: 4px; max-height: 150px; overflow-y: auto; display: none; z-index: 100; }
         .search-results.show { display: block; }
-        .search-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .search-item { padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 11px; display: flex; justify-content: space-between; }
         .search-item:hover { background: #f0f9ff; }
-        .search-item-price { color: #1e40af; font-weight: 600; }
         
-        .line-item { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e0e0e0; }
-        .line-item-title { font-weight: 600; font-size: 13px; color: #1e40af; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .line-item-title-text { display: flex; align-items: center; gap: 8px; }
-        .gst-toggle { display: flex; gap: 8px; }
-        .gst-toggle-btn { padding: 4px 8px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .add-service-btn { background: #1e40af; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; width: 100%; }
+        
+        .line-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid #e0e0e0; }
+        .line-item-title { font-weight: 600; font-size: 12px; color: #1e40af; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .line-item-remove { background: #ef4444; color: white; border: none; padding: 3px 6px; border-radius: 3px; cursor: pointer; font-size: 10px; }
+        
+        .line-item-table { font-size: 10px; }
+        .line-item-header { display: grid; grid-template-columns: 0.6fr 0.8fr 0.6fr 0.8fr 0.8fr; gap: 6px; font-weight: 600; color: #666; border-bottom: 1px solid #ddd; padding-bottom: 4px; margin-bottom: 4px; }
+        .line-item-row { display: grid; grid-template-columns: 0.6fr 0.8fr 0.6fr 0.8fr 0.8fr; gap: 6px; }
+        .line-item-row input { padding: 4px; font-size: 11px; border: 1px solid #ddd; border-radius: 3px; }
+        .line-item-row-value { padding: 4px; font-size: 11px; color: #333; font-weight: 600; background: #f5f5f5; border-radius: 3px; }
+        .gst-toggle { display: flex; gap: 4px; margin-top: 6px; }
+        .gst-toggle-btn { padding: 3px 6px; border: 1px solid #ddd; background: white; border-radius: 3px; cursor: pointer; font-size: 10px; font-weight: 600; }
         .gst-toggle-btn.active { background: #1e40af; color: white; border-color: #1e40af; }
         
-        .line-item-table { width: 100%; margin-bottom: 12px; }
-        .line-item-header { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 8px; font-weight: 600; font-size: 11px; color: #666; border-bottom: 2px solid #ddd; padding-bottom: 8px; }
-        .line-item-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 10px; align-items: center; }
-        .line-item-row input { padding: 8px; font-size: 12px; border: 1px solid #ddd; border-radius: 4px; }
-        .line-item-row-value { padding: 8px; font-size: 12px; color: #333; font-weight: 600; }
-        .line-item-row-value.locked { color: #999; background: #f5f5f5; border-radius: 4px; padding: 8px; }
-        
-        .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; background: #1e40af; color: white; transition: 0.2s; width: 100%; }
+        .btn { padding: 8px 14px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; background: #1e40af; color: white; width: 100%; }
         .btn:hover { background: #1e3a8a; }
-        .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
+        .btn-secondary { background: #f0f0f0; color: #333; margin-top: 6px; }
         .btn-secondary:hover { background: #e0e0e0; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
         
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .stat-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; text-align: center; }
-        .stat-label { font-size: 11px; color: #666; font-weight: 600; }
-        .stat-value { font-size: 18px; color: #1e40af; font-weight: 700; margin-top: 4px; }
+        .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .stat-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 1px solid #bfdbfe; padding: 8px; border-radius: 4px; text-align: center; }
+        .stat-label { font-size: 10px; color: #666; }
+        .stat-value { font-size: 14px; color: #1e40af; font-weight: 700; }
         
-        .invoice-preview { background: #f0f9ff; border: 2px solid #bfdbfe; padding: 20px; border-radius: 8px; font-size: 12px; }
-        .invoice-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }
-        .invoice-company { font-size: 16px; font-weight: 700; color: #1e40af; }
-        .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; font-size: 11px; }
-        .invoice-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 11px; }
-        .invoice-table th { background: #1e40af; color: white; padding: 8px; text-align: left; font-weight: 600; }
-        .invoice-table td { padding: 8px; border-bottom: 1px solid #ddd; }
-        .invoice-table tr:hover { background: #f5f5f5; }
-        .invoice-total { text-align: right; padding: 10px 0; font-size: 12px; font-weight: 600; margin-top: 15px; border-top: 2px solid #1e40af; }
-        .invoice-total-row { margin: 4px 0; }
+        .invoice-preview { background: #f9f9f9; border: 1px solid #ddd; padding: 12px; border-radius: 4px; font-size: 10px; }
+        .invoice-header { text-align: center; margin-bottom: 8px; border-bottom: 1px solid #1e40af; padding-bottom: 6px; }
+        .invoice-company { font-size: 12px; font-weight: 700; color: #1e40af; }
+        .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; font-size: 9px; }
+        .invoice-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 9px; }
+        .invoice-table th { background: #1e40af; color: white; padding: 4px; text-align: left; font-weight: 600; }
+        .invoice-table td { padding: 4px; border-bottom: 1px solid #ddd; }
+        .invoice-total { text-align: right; padding: 6px 0; font-size: 10px; margin-top: 8px; border-top: 1px solid #1e40af; }
         
-        .success-msg, .error-msg { padding: 10px 12px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; display: none; }
-        .success-msg.show { display: block; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-        .error-msg.show { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .msg { padding: 8px 10px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; display: none; }
+        .msg.show { display: block; }
+        .success-msg { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .error-msg { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        
+        .submitted-state { display: none; }
+        .submitted-state.show { display: block; }
+        .form-state { display: block; }
+        .form-state.hide { display: none; }
+        
+        .preview-toggle { display: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -98,116 +102,110 @@
                 <button class="nav-btn" onclick="goToDashboard()">← Back</button>
             </div>
 
-            <div class="success-msg" id="msg-create"></div>
-            <div class="error-msg" id="err-create"></div>
+            <div class="msg success-msg" id="msg-success"></div>
+            <div class="msg error-msg" id="msg-error"></div>
 
-            <!-- CUSTOMER -->
-            <h2>👤 Customer</h2>
-            <div class="section">
-                <div class="form-group">
-                    <label>Mobile Number</label>
-                    <input type="tel" id="lookupPhone" placeholder="Enter 10-digit number" maxlength="10" onchange="lookupCustomer()">
+            <!-- FORM STATE -->
+            <div class="form-state">
+                <!-- CUSTOMER -->
+                <h2>👤 Customer</h2>
+                <div class="section">
+                    <div class="form-group"><label>Mobile</label><input type="tel" id="custPhone" placeholder="10 digits" maxlength="10" onchange="lookupCustomer()"></div>
+                    <div class="form-group"><label>Name *</label><input type="text" id="custName" required></div>
+                    <div class="form-group"><label>GST</label><input type="text" id="custGst"></div>
                 </div>
-                <div class="form-group"><label>Name *</label><input type="text" id="custName" required></div>
-                <div class="form-group"><label>GST (Optional)</label><input type="text" id="custGst"></div>
-                <div class="form-group"><label>Address</label><input type="text" id="custAddr"></div>
+
+                <!-- INVOICE DETAILS -->
+                <h2>📅 Invoice</h2>
+                <div class="section">
+                    <div class="form-group"><label>Invoice #</label><input type="text" id="invNum" readonly></div>
+                    <div class="form-group"><label>Date *</label><input type="date" id="invDate" required></div>
+                </div>
+
+                <!-- SERVICE SEARCH -->
+                <h2>🛍️ Add Service</h2>
+                <div class="section">
+                    <div class="search-box">
+                        <input type="text" id="serviceSearch" placeholder="Search & select..." onkeyup="searchServices()">
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+                    <button class="add-service-btn" onclick="addBlankService()" style="margin-top: 6px;">+ Add Service</button>
+                </div>
+
+                <!-- LINE ITEMS -->
+                <h2 id="lineItemsHeader" style="display:none;">📋 Services</h2>
+                <div id="lineItemsContainer"></div>
+
+                <!-- PAYMENT -->
+                <h2>💳 Payment</h2>
+                <div class="section">
+                    <div class="form-group"><label>Status</label><select id="payStatus"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
+                </div>
+
+                <button class="btn" onclick="submitInvoice()">✓ Submit Invoice</button>
+                <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
             </div>
 
-            <!-- INVOICE DETAILS -->
-            <h2>📅 Invoice Details</h2>
-            <div class="section">
-                <div class="form-group"><label>Invoice #</label><input type="text" id="invNum" readonly></div>
-                <div class="form-group"><label>Date *</label><input type="date" id="invDate" required></div>
-            </div>
-
-            <!-- SERVICE SEARCH -->
-            <h2>🛍️ Select Service</h2>
-            <div class="section">
-                <div class="search-box">
-                    <input type="text" id="serviceSearch" placeholder="Search service..." onkeyup="searchServices()">
-                    <div id="searchResults" class="search-results"></div>
+            <!-- SUBMITTED STATE -->
+            <div class="submitted-state" id="submittedState">
+                <div class="header" style="margin-top: 0;">
+                    <div class="logo">✓ Invoice Submitted!</div>
+                </div>
+                <div style="padding: 15px; text-align: center;">
+                    <p style="color: #065f46; font-weight: 600; margin-bottom: 15px;">Invoice has been submitted successfully.</p>
+                    <button class="btn" onclick="downloadPDF()">📄 Download PDF</button>
+                    <button class="btn" onclick="printInvoice()" style="margin-top: 8px;">🖨️ Print Invoice</button>
+                    <button class="btn btn-secondary" onclick="createAnother()" style="margin-top: 8px;">➕ Create Another</button>
                 </div>
             </div>
-
-            <!-- LINE ITEMS -->
-            <h2 id="lineItemsHeader" style="display:none;">📋 Line Items</h2>
-            <div id="lineItemsContainer"></div>
-
-            <!-- PAYMENT -->
-            <h2>💳 Payment</h2>
-            <div class="section">
-                <div class="form-group"><label>Status *</label><select id="payStatus" required><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
-                <div class="form-group"><label>Notes</label><textarea id="notes" style="height: 50px;"></textarea></div>
-            </div>
-
-            <button class="btn" onclick="saveInvoice()">💾 Save Invoice</button>
-            <button class="btn btn-secondary" onclick="resetForm()" style="margin-top: 10px;">🔄 Reset</button>
-
-            <!-- PREVIEW TOGGLE FOR MOBILE/TABLET -->
-            <button class="btn preview-toggle" onclick="togglePreview()" style="margin-top: 10px;">👁️ Preview</button>
         </div>
 
         <!-- PREVIEW PANEL -->
         <div class="preview-panel" id="previewPanel">
-            <div class="header">
-                <div class="logo">👁️ Live Preview</div>
+            <div class="header" style="margin-top: 0;">
+                <div class="logo">👁️ Preview</div>
+                <button class="preview-toggle" onclick="togglePreview()">✕</button>
             </div>
 
             <div class="stats">
                 <div class="stat-box">
                     <div class="stat-label">Total (W/o GST)</div>
-                    <div class="stat-value">₹<span id="previewTotal">0.00</span></div>
+                    <div class="stat-value" style="font-size: 12px;">₹<span id="previewTotal">0</span></div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">GST</div>
-                    <div class="stat-value">₹<span id="previewGst">0.00</span></div>
+                    <div class="stat-value" style="font-size: 12px;">₹<span id="previewGst">0</span></div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-label">Subtotal (W GST)</div>
-                    <div class="stat-value" style="color: #16a34a;">₹<span id="previewSubtotal">0.00</span></div>
+                    <div class="stat-value" style="font-size: 12px; color: #16a34a;">₹<span id="previewSubtotal">0</span></div>
                 </div>
             </div>
 
             <div class="invoice-preview">
                 <div class="invoice-header">
                     <div class="invoice-company">DreamHarbour Global</div>
-                    <div style="color: #666; margin-top: 5px;">Professional Services</div>
                 </div>
 
                 <div class="invoice-details">
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 3px;">Invoice #</div>
-                        <div id="previewInvNum">-</div>
-                        <div style="font-weight: 600; margin-top: 8px; margin-bottom: 3px;">Date</div>
-                        <div id="previewInvDate">-</div>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 3px;">Bill To</div>
-                        <div id="previewCustName">-</div>
-                        <div id="previewCustPhone" style="margin-top: 3px;">-</div>
-                    </div>
+                    <div><strong>Invoice #</strong><br><span id="previewInvNum">-</span></div>
+                    <div><strong>Bill To</strong><br><span id="previewCustName">-</span></div>
                 </div>
 
                 <table class="invoice-table">
-                    <thead>
-                        <tr><th>Service</th><th>Qty</th><th>Rate</th><th>GST Amt</th><th>Total</th></tr>
-                    </thead>
+                    <thead><tr><th>Service</th><th>Qty</th><th>Amount</th><th>GST</th><th>Total</th></tr></thead>
                     <tbody id="previewItems"></tbody>
                 </table>
 
                 <div class="invoice-total">
-                    <div class="invoice-total-row">Total (W/o GST): ₹<span id="previewTotal2">0.00</span></div>
-                    <div class="invoice-total-row">GST (18%): ₹<span id="previewGst2">0.00</span></div>
-                    <div class="invoice-total-row" style="font-size: 14px; color: #1e40af;">Subtotal (W GST): ₹<span id="previewSubtotal2">0.00</span></div>
+                    <div>Total (W/o GST): ₹<span id="previewTotal2">0</span></div>
+                    <div>Subtotal (W GST): ₹<span id="previewSubtotal2">0</span></div>
                 </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button class="btn" onclick="downloadPDF()" style="flex:1;">📄 PDF</button>
-                <button class="btn" onclick="printInvoice()" style="flex:1;">🖨️ Print</button>
             </div>
         </div>
     </div>
+
+    <button class="preview-toggle" id="previewToggleBtn" onclick="togglePreview()" style="position: fixed; bottom: 20px; right: 20px; padding: 12px 16px; background: #1e40af; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 20px; display: none; z-index: 1000;">👁️</button>
 
     <script>
         const SUPA_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
@@ -216,12 +214,10 @@
         let allServices = [];
         let allSubServices1 = [];
         let allSubServices2 = [];
-        let selectedService = null;
         let invoiceItems = [];
+        let currentInvoiceId = null;
 
-        function round(num, decimals = 2) {
-            return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
-        }
+        function round(num) { return Math.round(num * 100) / 100; }
 
         async function init() {
             db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
@@ -231,6 +227,25 @@
             document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
             await loadServices();
+            updateMediaQuery();
+            window.addEventListener('resize', updateMediaQuery);
+        }
+
+        function updateMediaQuery() {
+            const width = window.innerWidth;
+            const previewPanel = document.getElementById('previewPanel');
+            const previewBtn = document.getElementById('previewToggleBtn');
+            if (width <= 800) {
+                previewBtn.style.display = 'block';
+            } else {
+                previewBtn.style.display = 'none';
+                previewPanel.style.display = 'block';
+            }
+        }
+
+        function togglePreview() {
+            const panel = document.getElementById('previewPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
 
         async function loadServices() {
@@ -243,7 +258,7 @@
                 allServices = svcs.data || [];
                 allSubServices1 = sub1.data || [];
                 allSubServices2 = sub2.data || [];
-            } catch(e) { showError('err-create', 'Error loading services'); }
+            } catch(e) { showError('Error loading services'); }
         }
 
         function searchServices() {
@@ -256,60 +271,41 @@
             resultsDiv.innerHTML = filtered.map(s => `
                 <div class="search-item" onclick="selectService('${s.id}')">
                     <span>${s.service_name}</span>
-                    <span class="search-item-price">₹${s.rate || 0}</span>
+                    <span>₹${s.rate || 0}</span>
                 </div>
             `).join('');
-            
             resultsDiv.classList.add('show');
         }
 
         function selectService(serviceId) {
-            selectedService = allServices.find(s => s.id === serviceId);
-            if (!selectedService) return;
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) return;
 
-            document.getElementById('serviceSearch').value = selectedService.service_name;
+            document.getElementById('serviceSearch').value = '';
             document.getElementById('searchResults').classList.remove('show');
 
-            createLineItems();
-            updatePreview();
+            addServiceToInvoice(service);
         }
 
-        function createLineItems() {
-            invoiceItems = [];
-            
-            if (!selectedService) return;
+        function addBlankService() {
+            addServiceToInvoice(null);
+        }
 
-            const sub1Id = selectedService.sub_service_type_1_id;
-            const sub2Id = selectedService.sub_service_type_2_id;
+        function addServiceToInvoice(service) {
+            const itemId = 'item-' + Date.now();
+            const item = {
+                id: itemId,
+                serviceId: service?.id,
+                serviceName: service?.service_name || 'Custom Service',
+                sub1: service ? allSubServices1.find(s => s.id === service.sub_service_type_1_id) : null,
+                sub2: service ? allSubServices2.find(s => s.id === service.sub_service_type_2_id) : null,
+                qty: 1,
+                rate: service?.rate || 0,
+                gstPct: service?.gst_percentage || 18,
+                gstMode: 'with'
+            };
 
-            if (sub1Id) {
-                const sub1 = allSubServices1.find(s => s.id === sub1Id);
-                if (sub1) {
-                    invoiceItems.push({
-                        id: 'sub1',
-                        name: sub1.sub_service_name,
-                        initialRate: sub1.rate,
-                        gstPct: sub1.gst_percentage,
-                        qty: 1,
-                        gstMode: 'with'
-                    });
-                }
-            }
-
-            if (sub2Id) {
-                const sub2 = allSubServices2.find(s => s.id === sub2Id);
-                if (sub2) {
-                    invoiceItems.push({
-                        id: 'sub2',
-                        name: sub2.sub_service_name,
-                        initialRate: sub2.rate,
-                        gstPct: sub2.gst_percentage,
-                        qty: 1,
-                        gstMode: 'with'
-                    });
-                }
-            }
-
+            invoiceItems.push(item);
             renderLineItems();
         }
 
@@ -320,13 +316,8 @@
             container.innerHTML = invoiceItems.map((item, idx) => `
                 <div class="line-item">
                     <div class="line-item-title">
-                        <div class="line-item-title-text">
-                            <span>📌 ${item.name}</span>
-                        </div>
-                        <div class="gst-toggle">
-                            <button type="button" class="gst-toggle-btn ${item.gstMode === 'with' ? 'active' : ''}" onclick="toggleGstMode(${idx}, 'with')">With GST</button>
-                            <button type="button" class="gst-toggle-btn ${item.gstMode === 'without' ? 'active' : ''}" onclick="toggleGstMode(${idx}, 'without')">Without GST</button>
-                        </div>
+                        <span>${item.serviceName}</span>
+                        <button class="line-item-remove" onclick="removeService(${idx})">Remove</button>
                     </div>
 
                     <div class="line-item-table">
@@ -338,12 +329,17 @@
                             <div>Total</div>
                         </div>
                         <div class="line-item-row">
-                            <input type="number" value="${item.qty}" min="1" onchange="updateLineItemQty(${idx}, this.value)">
-                            <input type="number" value="${item.initialRate}" onchange="updateLineItemRate(${idx}, this.value)">
-                            <div class="line-item-row-value locked">${item.gstPct}%</div>
-                            <div class="line-item-row-value locked" id="gst-amt-${idx}">₹0.00</div>
-                            <div class="line-item-row-value locked" id="total-${idx}">₹0.00</div>
+                            <input type="number" value="${item.qty}" min="1" onchange="updateItemQty(${idx}, this.value)">
+                            <input type="number" value="${item.rate}" onchange="updateItemRate(${idx}, this.value)">
+                            <div class="line-item-row-value">${item.gstPct}%</div>
+                            <div class="line-item-row-value" id="gst-${idx}">₹0</div>
+                            <div class="line-item-row-value" id="total-${idx}">₹0</div>
                         </div>
+                    </div>
+
+                    <div class="gst-toggle">
+                        <button type="button" class="gst-toggle-btn ${item.gstMode === 'with' ? 'active' : ''}" onclick="toggleGstMode(${idx}, 'with')">With GST</button>
+                        <button type="button" class="gst-toggle-btn ${item.gstMode === 'without' ? 'active' : ''}" onclick="toggleGstMode(${idx}, 'without')">Without GST</button>
                     </div>
                 </div>
             `).join('');
@@ -351,53 +347,43 @@
             updatePreview();
         }
 
-        function updateLineItemQty(idx, newQty) {
-            invoiceItems[idx].qty = Math.max(1, parseInt(newQty) || 1);
-            
-            // LINKED QTY: Update both Sub1 & Sub2
-            if (idx === 0 && invoiceItems.length > 1) {
-                invoiceItems[1].qty = invoiceItems[0].qty;
-            } else if (idx === 1 && invoiceItems.length > 1) {
-                invoiceItems[0].qty = invoiceItems[1].qty;
-            }
-            
-            renderLineItems();
+        function updateItemQty(idx, val) {
+            invoiceItems[idx].qty = Math.max(1, parseInt(val) || 1);
+            updatePreview();
         }
 
-        function updateLineItemRate(idx, newRate) {
-            invoiceItems[idx].initialRate = parseFloat(newRate) || 0;
+        function updateItemRate(idx, val) {
+            invoiceItems[idx].rate = parseFloat(val) || 0;
             updatePreview();
         }
 
         function toggleGstMode(idx, mode) {
             invoiceItems[idx].gstMode = mode;
+            updatePreview();
+        }
+
+        function removeService(idx) {
+            invoiceItems.splice(idx, 1);
             renderLineItems();
         }
 
         function calculateAmounts(item) {
             const qty = item.qty;
             const gstPct = item.gstPct;
-            const userAmount = item.initialRate;
-
+            const userAmount = item.rate;
             let baseAmount, gstAmount, totalAmount;
 
             if (item.gstMode === 'with') {
-                // Amount entered is WITH GST
                 totalAmount = userAmount * qty;
                 baseAmount = totalAmount / (1 + gstPct / 100);
                 gstAmount = totalAmount - baseAmount;
             } else {
-                // Amount entered is WITHOUT GST
                 baseAmount = userAmount * qty;
                 gstAmount = baseAmount * gstPct / 100;
                 totalAmount = baseAmount + gstAmount;
             }
 
-            return {
-                baseAmount: round(baseAmount),
-                gstAmount: round(gstAmount),
-                totalAmount: round(totalAmount)
-            };
+            return { baseAmount: round(baseAmount), gstAmount: round(gstAmount), totalAmount: round(totalAmount) };
         }
 
         function updatePreview() {
@@ -406,8 +392,7 @@
             const itemsHtml = invoiceItems.map((item, idx) => {
                 const { baseAmount, gstAmount, totalAmount } = calculateAmounts(item);
                 
-                // Update locked fields
-                document.getElementById(`gst-amt-${idx}`).textContent = '₹' + gstAmount.toFixed(2);
+                document.getElementById(`gst-${idx}`).textContent = '₹' + gstAmount.toFixed(2);
                 document.getElementById(`total-${idx}`).textContent = '₹' + totalAmount.toFixed(2);
 
                 totalWithoutGst += baseAmount;
@@ -416,28 +401,24 @@
 
                 return `
                     <tr>
-                        <td>${item.name}</td>
+                        <td>${item.serviceName}</td>
                         <td style="text-align:center">${item.qty}</td>
-                        <td style="text-align:right">₹${item.initialRate.toFixed(2)}</td>
+                        <td style="text-align:right">₹${item.rate.toFixed(2)}</td>
                         <td style="text-align:right">₹${gstAmount.toFixed(2)}</td>
                         <td style="text-align:right">₹${totalAmount.toFixed(2)}</td>
                     </tr>
                 `;
             }).join('');
 
-            // Update preview
             document.getElementById('previewTotal').textContent = round(totalWithoutGst).toFixed(2);
             document.getElementById('previewGst').textContent = round(totalGst).toFixed(2);
             document.getElementById('previewSubtotal').textContent = round(totalWithGst).toFixed(2);
             document.getElementById('previewTotal2').textContent = round(totalWithoutGst).toFixed(2);
-            document.getElementById('previewGst2').textContent = round(totalGst).toFixed(2);
             document.getElementById('previewSubtotal2').textContent = round(totalWithGst).toFixed(2);
             
             document.getElementById('previewItems').innerHTML = itemsHtml;
             document.getElementById('previewInvNum').textContent = document.getElementById('invNum').value;
-            document.getElementById('previewInvDate').textContent = new Date(document.getElementById('invDate').value).toLocaleDateString('en-IN');
             document.getElementById('previewCustName').textContent = document.getElementById('custName').value || '-';
-            document.getElementById('previewCustPhone').textContent = document.getElementById('lookupPhone').value ? '+91-' + document.getElementById('lookupPhone').value : '-';
         }
 
         function generateInvoiceNumber() {
@@ -449,26 +430,24 @@
         }
 
         async function lookupCustomer() {
-            const phone = document.getElementById('lookupPhone').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
             if (phone.length === 10) {
                 try {
                     const {data} = await db.from('invoices').select('*').eq('customer_phone', phone).order('created_at', {ascending: false}).limit(1);
                     if (data?.length > 0) {
-                        const cust = data[0];
-                        document.getElementById('custName').value = cust.customer_name;
-                        document.getElementById('custGst').value = cust.customer_gst || '';
-                        document.getElementById('custAddr').value = cust.customer_address || '';
+                        document.getElementById('custName').value = data[0].customer_name;
+                        document.getElementById('custGst').value = data[0].customer_gst || '';
                     }
                 } catch(e) {}
             }
         }
 
-        async function saveInvoice() {
+        async function submitInvoice() {
             const custName = document.getElementById('custName').value.trim();
-            const custPhone = document.getElementById('lookupPhone').value.trim();
+            const custPhone = document.getElementById('custPhone').value.trim();
 
             if (!custName || !custPhone || invoiceItems.length === 0) {
-                showError('err-create', 'Fill all required fields');
+                showError('Fill all required fields & add services');
                 return;
             }
 
@@ -486,102 +465,80 @@
                     customer_name: custName,
                     customer_phone: custPhone,
                     customer_gst: document.getElementById('custGst').value,
-                    customer_address: document.getElementById('custAddr').value,
+                    customer_address: '',
                     payment_status: document.getElementById('payStatus').value,
-                    notes: document.getElementById('notes').value,
+                    notes: '',
                     subtotal: round(totalWithoutGst + totalGst),
                     total_amount: round(totalWithoutGst)
                 };
 
-                const {data: createdInv} = await db.from('invoices').insert(invData).select().single();
+                const {data: inv} = await db.from('invoices').insert(invData).select().single();
+                currentInvoiceId = inv.id;
 
                 const items = [];
                 invoiceItems.forEach((item, idx) => {
                     const { baseAmount, gstAmount, totalAmount } = calculateAmounts(item);
-                    
                     items.push({
-                        invoice_id: createdInv.id,
+                        invoice_id: inv.id,
                         line_number: idx + 1,
-                        description: item.name,
+                        description: item.serviceName,
                         sac_code: '',
                         quantity: item.qty,
-                        rate: item.initialRate,
+                        rate: item.rate,
                         gst_percentage: item.gstPct,
-                        gst_amount: round(gstAmount),
-                        amount: round(totalAmount),
+                        gst_amount: gstAmount,
+                        amount: totalAmount,
                         is_service_header: false,
                         is_sub_service: true
                     });
                 });
 
-                // Service header (backend only, from Sub1)
-                if (invoiceItems.length > 0) {
-                    const { baseAmount, gstAmount, totalAmount } = calculateAmounts(invoiceItems[0]);
-                    items.push({
-                        invoice_id: createdInv.id,
-                        line_number: 0,
-                        description: selectedService.service_name,
-                        sac_code: '',
-                        quantity: invoiceItems[0].qty,
-                        rate: round(baseAmount),
-                        gst_percentage: 0,
-                        gst_amount: round(gstAmount),
-                        amount: round(totalAmount),
-                        is_service_header: true,
-                        is_sub_service: false
-                    });
-                }
-
                 await db.from('invoice_items').insert(items);
-                showSuccess('msg-create', 'Invoice saved!');
-                setTimeout(() => { window.location.href = 'invoices.html'; }, 1500);
-            } catch(e) { showError('err-create', 'Error: ' + e.message); }
+
+                document.querySelector('.form-state').classList.add('hide');
+                document.getElementById('submittedState').classList.add('show');
+                showSuccess('Invoice submitted successfully!');
+            } catch(e) { showError('Error: ' + e.message); }
+        }
+
+        function downloadPDF() {
+            if (!currentInvoiceId) return;
+            alert('PDF download feature coming soon! Invoice ID: ' + currentInvoiceId);
+        }
+
+        function printInvoice() {
+            if (!currentInvoiceId) return;
+            alert('Print feature coming soon! Invoice ID: ' + currentInvoiceId);
+        }
+
+        function createAnother() {
+            document.querySelector('.form-state').classList.remove('hide');
+            document.getElementById('submittedState').classList.remove('show');
+            resetForm();
         }
 
         function resetForm() {
             document.getElementById('custName').value = '';
-            document.getElementById('lookupPhone').value = '';
+            document.getElementById('custPhone').value = '';
             document.getElementById('custGst').value = '';
-            document.getElementById('custAddr').value = '';
-            document.getElementById('notes').value = '';
-            document.getElementById('invDate').valueAsDate = new Date();
             document.getElementById('serviceSearch').value = '';
+            document.getElementById('invDate').valueAsDate = new Date();
             generateInvoiceNumber();
-            selectedService = null;
             invoiceItems = [];
             document.getElementById('lineItemsContainer').innerHTML = '';
             document.getElementById('lineItemsHeader').style.display = 'none';
             updatePreview();
         }
 
-        function downloadPDF() {
-            const element = document.getElementById('previewPanel');
-            const opt = {margin: 10, filename: document.getElementById('invNum').value + '.pdf', image: {type: 'jpeg', quality: 0.98}, html2canvas: {scale: 2}, jsPDF: {orientation: 'portrait', unit: 'mm', format: 'a4'}};
-            html2pdf().set(opt).from(element).save();
-        }
-
-        function printInvoice() {
-            const element = document.getElementById('previewPanel').innerHTML;
-            const printWindow = window.open('', '', 'width=800,height=600');
-            printWindow.document.write('<html><head><title>Invoice</title><style>body{font-family:Arial;margin:20px}</style></head><body>' + element + '</body></html>');
-            printWindow.document.close();
-            printWindow.print();
-        }
-
-        function togglePreview() {
-            const panel = document.getElementById('previewPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function showSuccess(id, msg) {
-            const el = document.getElementById(id);
+        function showSuccess(msg) {
+            const el = document.getElementById('msg-success');
             el.textContent = '✓ ' + msg;
             el.classList.add('show');
             setTimeout(() => el.classList.remove('show'), 3000);
         }
 
-        function showError(id, msg) {
-            const el = document.getElementById(id);
+        function showError(msg) {
+            const el = document.getElementById('msg-error');
             el.textContent = '✗ ' + msg;
             el.classList.add('show');
             setTimeout(() => el.classList.remove('show'), 4000);
