@@ -57,10 +57,8 @@
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; font-family: Arial, sans-serif; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
         .lookup-result { background: #f0f9ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; margin-top: 8px; font-size: 12px; }
-        .service-item { background: #f9f9f9; border: 1px solid #e0e0e0; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
-        .service-item.header { background: #1e40af; color: white; }
-        .service-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; }
-        .service-row input { padding: 8px; }
+        .service-row { display: grid; grid-template-columns: 2fr 1fr 1fr 0.8fr 0.8fr 0.8fr 1fr auto; gap: 8px; align-items: center; margin-bottom: 10px; background: #f9f9f9; padding: 10px; border-radius: 6px; }
+        .service-row input, .service-row select { padding: 8px; font-size: 12px; }
         .remove-btn { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .remove-btn:hover { opacity: 0.8; }
         .invoice-preview { background: #f9f9f9; border: 1px solid #ddd; padding: 30px; border-radius: 8px; margin: 15px 0; }
@@ -85,6 +83,7 @@
         .lookup-section h3 { font-size: 14px; color: #1e40af; margin-bottom: 12px; }
         .lookup-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
         .lookup-info { background: white; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; margin-top: 10px; font-size: 12px; color: #666; }
+        .col-label { font-size: 11px; font-weight: 600; color: #666; margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -174,6 +173,18 @@
 
                     <!-- SERVICES SECTION -->
                     <h3 style="margin-top: 20px; color: #1e40af;">🛍️ Services & Sub-Services</h3>
+                    <div style="background: #f0f9ff; border: 1px solid #bfdbfe; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 12px;">
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 0.8fr 0.8fr 0.8fr 1fr auto; gap: 8px; font-weight: 600;">
+                            <div>Service</div>
+                            <div>Sub-Service 1</div>
+                            <div>Sub-Service 2</div>
+                            <div>Qty</div>
+                            <div>Amount</div>
+                            <div>GST%</div>
+                            <div>Total</div>
+                            <div></div>
+                        </div>
+                    </div>
                     <div id="servicesContainer"></div>
                     <button type="button" class="btn btn-secondary" onclick="addServiceRow()">+ Add Service</button>
 
@@ -187,9 +198,9 @@
                     <!-- TOTALS PREVIEW -->
                     <div style="background: #f0f9ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 8px; margin: 15px 0;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px; font-size: 13px;">
-                            <div><strong>Subtotal:</strong> ₹<span id="subtotal">0</span></div>
-                            <div><strong>GST:</strong> ₹<span id="gstAmount">0</span></div>
-                            <div><strong>Total:</strong> ₹<span id="grandTotal" style="font-size: 16px; color: #1e40af;">0</span></div>
+                            <div><strong>Subtotal:</strong> ₹<span id="subtotal">0.00</span></div>
+                            <div><strong>GST:</strong> ₹<span id="gstAmount">0.00</span></div>
+                            <div><strong>Total:</strong> ₹<span id="grandTotal" style="font-size: 16px; color: #1e40af;">0.00</span></div>
                         </div>
                     </div>
 
@@ -278,7 +289,7 @@
                 allSubServices1 = sub1.data || [];
                 allSubServices2 = sub2.data || [];
                 addServiceRow();
-            } catch(e) { console.error('Error loading services:', e); }
+            } catch(e) { console.error('Error loading services:', e); showError('err-create', 'Error loading services'); }
         }
 
         async function loadInvoices() {
@@ -371,18 +382,20 @@
             row.innerHTML = `
                 <select class="service-select" onchange="updateServiceDetails(this)" required>
                     <option value="">--Select Service--</option>
-                    ${allServices.map(s => `<option value="${s.id}" data-rate="${s.rate}" data-gst="${s.gst_percentage}" data-sac="${s.sac_code || ''}">${s.service_name}</option>`).join('')}
+                    ${allServices.map(s => `<option value="${s.id}" data-rate="${s.rate}" data-gst="${s.gst_percentage}" data-sac="${s.sac_code || ''}" data-sub1="${s.sub_service_type_1_id || ''}" data-sub2="${s.sub_service_type_2_id || ''}">${s.service_name}</option>`).join('')}
                 </select>
                 <select class="sub1-select" onchange="calculateRow(this)">
-                    <option value="">Sub-Service 1</option>
+                    <option value="">Sub-Svc 1</option>
                     ${allSubServices1.map(s => `<option value="${s.id}">${s.sub_service_name}</option>`).join('')}
                 </select>
                 <select class="sub2-select" onchange="calculateRow(this)">
-                    <option value="">Sub-Service 2</option>
+                    <option value="">Sub-Svc 2</option>
                     ${allSubServices2.map(s => `<option value="${s.id}">${s.sub_service_name}</option>`).join('')}
                 </select>
                 <input type="number" class="qty-input" value="1" min="1" placeholder="Qty" onchange="calculateRow(this)">
-                <input type="number" class="rate-input" placeholder="Rate" readonly>
+                <input type="number" class="amount-input" placeholder="Amount" onchange="calculateRow(this)" required>
+                <input type="number" class="gst-input" placeholder="GST%" step="0.01" onchange="calculateRow(this)" required>
+                <input type="text" class="total-input" placeholder="Total" readonly>
                 <button type="button" class="remove-btn" onclick="this.parentElement.remove(); calculateTotal()">Remove</button>
             `;
             container.appendChild(row);
@@ -391,21 +404,31 @@
         function updateServiceDetails(select) {
             const row = select.parentElement;
             const option = select.options[select.selectedIndex];
-            row.querySelector('.rate-input').value = option.dataset.rate || '';
+            
+            // Auto-fill Amount & GST from service config
+            row.querySelector('.amount-input').value = option.dataset.rate || '';
+            row.querySelector('.gst-input').value = option.dataset.gst || '';
+            
+            // Auto-select linked sub-services if available
+            const sub1Id = option.dataset.sub1;
+            const sub2Id = option.dataset.sub2;
+            if (sub1Id) row.querySelector('.sub1-select').value = sub1Id;
+            if (sub2Id) row.querySelector('.sub2-select').value = sub2Id;
+            
             calculateRow(select);
         }
 
         function calculateRow(elem) {
             const row = elem.parentElement;
-            const rate = parseFloat(row.querySelector('.rate-input').value) || 0;
+            const amount = parseFloat(row.querySelector('.amount-input').value) || 0;
             const qty = parseFloat(row.querySelector('.qty-input').value) || 1;
-            const select = row.querySelector('.service-select');
-            const option = select.options[select.selectedIndex];
-            const gst = parseFloat(option?.dataset?.gst) || 0;
+            const gst = parseFloat(row.querySelector('.gst-input').value) || 0;
             
-            const subtotal = rate * qty;
+            const subtotal = amount * qty;
             const gstAmt = subtotal * gst / 100;
             const total = subtotal + gstAmt;
+            
+            row.querySelector('.total-input').value = total.toFixed(2);
             
             row.dataset.subtotal = subtotal;
             row.dataset.gst = gstAmt;
@@ -470,7 +493,7 @@
                     <div class="invoice-preview">
                         <div class="invoice-header">
                             <div class="company-name">DreamHarbour Global</div>
-                            <div class="company-info">Professional Document & Service Provider | GST: Your-GST-Number</div>
+                            <div class="company-info">Professional Document & Service Provider</div>
                         </div>
                         
                         <div class="invoice-details">
@@ -493,13 +516,12 @@
                                 <h4>Company Info</h4>
                                 <p><strong>DreamHarbour Global</strong></p>
                                 <p>Himachal Pradesh, India</p>
-                                <p>📧 info@dreamharbour.in</p>
                             </div>
                         </div>
                         
                         <table class="invoice-table">
                             <thead>
-                                <tr><th>Service</th><th>Sub-Service 1</th><th>Sub-Service 2</th><th>Qty</th><th>Rate</th><th>GST%</th><th>Amount</th></tr>
+                                <tr><th>Service</th><th>Sub-Service 1</th><th>Sub-Service 2</th><th>Qty</th><th>Amount</th><th>GST%</th><th>Total</th></tr>
                             </thead>
                             <tbody>${itemsHtml}</tbody>
                         </table>
@@ -595,12 +617,17 @@
                             sub_service_1: row.querySelector('.sub1-select')?.options[row.querySelector('.sub1-select')?.selectedIndex]?.text || '',
                             sub_service_2: row.querySelector('.sub2-select')?.options[row.querySelector('.sub2-select')?.selectedIndex]?.text || '',
                             quantity: parseFloat(row.querySelector('.qty-input').value) || 1,
-                            rate: parseFloat(row.querySelector('.rate-input').value) || 0,
-                            gst_percentage: parseFloat(option.dataset.gst) || 0,
-                            total: parseFloat(row.dataset.total || 0)
+                            rate: parseFloat(row.querySelector('.amount-input').value) || 0,
+                            gst_percentage: parseFloat(row.querySelector('.gst-input').value) || 0,
+                            total: parseFloat(row.querySelector('.total-input').value) || 0
                         });
                     }
                 });
+                
+                if (items.length === 0) {
+                    showError('err-create', 'Add at least one service');
+                    return;
+                }
                 
                 if (items.length) await db.from('invoice_items').insert(items);
                 
@@ -619,19 +646,6 @@
                 return;
             }
             
-            const tempData = {
-                invoice_number: document.getElementById('invNum').value,
-                invoice_date: document.getElementById('invDate').value,
-                customer_name: custName,
-                customer_phone: custPhone,
-                customer_gst: document.getElementById('custGst').value,
-                customer_address: document.getElementById('custAddr').value,
-                total_amount: document.getElementById('grandTotal').textContent,
-                subtotal: document.getElementById('subtotal').textContent,
-                notes: document.getElementById('notes').value,
-                payment_status: document.getElementById('payStatus').value
-            };
-            
             const rows = document.querySelectorAll('#servicesContainer .service-row');
             let itemsHtml = '';
             rows.forEach(row => {
@@ -640,7 +654,7 @@
                 if (select.value) {
                     const sub1Text = row.querySelector('.sub1-select')?.options[row.querySelector('.sub1-select')?.selectedIndex]?.text || '-';
                     const sub2Text = row.querySelector('.sub2-select')?.options[row.querySelector('.sub2-select')?.selectedIndex]?.text || '-';
-                    itemsHtml += `<tr><td>${option.text}</td><td>${sub1Text}</td><td>${sub2Text}</td><td style="text-align:center">${row.querySelector('.qty-input').value}</td><td style="text-align:right">₹${row.querySelector('.rate-input').value}</td><td style="text-align:center">${option.dataset.gst}%</td><td style="text-align:right">₹${row.dataset.total.toFixed(2)}</td></tr>`;
+                    itemsHtml += `<tr><td>${option.text}</td><td>${sub1Text}</td><td>${sub2Text}</td><td style="text-align:center">${row.querySelector('.qty-input').value}</td><td style="text-align:right">₹${parseFloat(row.querySelector('.amount-input').value).toFixed(2)}</td><td style="text-align:center">${row.querySelector('.gst-input').value}%</td><td style="text-align:right">₹${row.querySelector('.total-input').value}</td></tr>`;
                 }
             });
 
@@ -651,12 +665,12 @@
                         <div class="company-info">Professional Document & Service Provider</div>
                     </div>
                     <div class="invoice-details">
-                        <div class="detail-section"><h4>Invoice</h4><p><strong>Invoice #:</strong> ${tempData.invoice_number}</p><p><strong>Date:</strong> ${new Date(tempData.invoice_date).toLocaleDateString('en-IN')}</p></div>
-                        <div class="detail-section"><h4>Bill To</h4><p><strong>${tempData.customer_name}</strong></p><p>📞 ${tempData.customer_phone}</p><p>📍 ${tempData.customer_address || 'N/A'}</p></div>
+                        <div class="detail-section"><h4>Invoice</h4><p><strong>Invoice #:</strong> ${document.getElementById('invNum').value}</p><p><strong>Date:</strong> ${new Date(document.getElementById('invDate').value).toLocaleDateString('en-IN')}</p></div>
+                        <div class="detail-section"><h4>Bill To</h4><p><strong>${custName}</strong></p><p>📞 ${custPhone}</p><p>📍 ${document.getElementById('custAddr').value || 'N/A'}</p></div>
                         <div class="detail-section"><h4>Company</h4><p><strong>DreamHarbour Global</strong></p></div>
                     </div>
-                    <table class="invoice-table"><thead><tr><th>Service</th><th>Sub-Service 1</th><th>Sub-Service 2</th><th>Qty</th><th>Rate</th><th>GST%</th><th>Amount</th></tr></thead><tbody>${itemsHtml}</tbody></table>
-                    <div class="invoice-total"><div class="invoice-total-row">Subtotal: ₹${tempData.subtotal}</div><div class="invoice-total-amount">Total: ₹${tempData.total_amount}</div></div>
+                    <table class="invoice-table"><thead><tr><th>Service</th><th>Sub-Service 1</th><th>Sub-Service 2</th><th>Qty</th><th>Amount</th><th>GST%</th><th>Total</th></tr></thead><tbody>${itemsHtml}</tbody></table>
+                    <div class="invoice-total"><div class="invoice-total-row">Subtotal: ₹${document.getElementById('subtotal').textContent}</div><div class="invoice-total-amount">Total: ₹${document.getElementById('grandTotal').textContent}</div></div>
                 </div>
             `;
             document.getElementById('viewModal').classList.add('show');
