@@ -353,12 +353,12 @@
 
         async function loadInvoices() {
             try {
-                const {data} = await db.from('invoices').select('*').order('created_at', {ascending: false});
+                const {data} = await db.from('invoices').select('*, customers(full_name)').order('created_at', {ascending: false});
                 const html = (data || []).map(inv => `
                     <tr>
                         <td>${inv.invoice_number}</td>
                         <td>${new Date(inv.invoice_date).toLocaleDateString('en-IN')}</td>
-                        <td>${inv.customer_name || '-'}</td>
+                        <td>${inv.customers?.full_name || '-'}</td>
                         <td>₹${inv.total_amount || 0}</td>
                         <td><span style="background:${inv.payment_status === 'paid' ? '#dcfce7' : '#fef3c7'}; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:600;">${inv.payment_status}</span></td>
                         <td>
@@ -975,12 +975,11 @@
                     return;
                 }
 
-                // STEP 2: Create Invoice
+                // STEP 2: Create Invoice (WITHOUT customer_name - uses customer_id only)
                 const invData = {
                     invoice_number: document.getElementById('invNum').value,
                     invoice_date: document.getElementById('invDate').value,
                     customer_id: customerId,
-                    customer_name: custName,
                     payment_status: document.getElementById('payStatus').value,
                     subtotal: round(totalNoGst),
                     total_gst: round(totalGst),
