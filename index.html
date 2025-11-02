@@ -3,1335 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dream Harbour - Professional Billing & Invoicing System for small businesses in India">
-    <meta name="theme-color" content="#1e40af">
-    <title>Dream Harbour - Professional Billing System</title>
+    <title>DreamHarbour - Login</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
-        :root {
-            --primary: #1e40af;
-            --primary-light: #3b82f6;
-            --primary-dark: #1e3a8a;
-            --success: #10b981;
-            --success-light: #d1fae5;
-            --error: #ef4444;
-            --error-light: #fee2e2;
-            --warning: #f59e0b;
-            --warning-light: #fef3c7;
-            --gray: #6b7280;
-            --gray-light: #e5e7eb;
-            --white: #ffffff;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 20px;
+            justify-content: center;
         }
-
+        
         .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
-            max-width: 1000px;
-            width: 100%;
-            background: var(--white);
-            border-radius: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            display: flex;
+            max-width: 900px;
+            width: 90%;
         }
-
-        .hero {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: var(--white);
+        
+        .login-section {
+            flex: 1;
             padding: 50px 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
         }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: -150px;
-            right: -150px;
-            animation: float-blob-1 6s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-            bottom: -100px;
-            left: -100px;
-            animation: float-blob-2 8s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-        }
-
-        @keyframes float-blob-1 {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(20px, -20px); }
-            50% { transform: translate(0, -40px); }
-            75% { transform: translate(-20px, -20px); }
-        }
-
-        @keyframes float-blob-2 {
-            0%, 100% { transform: translate(0, 0); }
-            33% { transform: translate(-15px, 15px); }
-            66% { transform: translate(15px, -15px); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo-container {
+        
+        .branding-section {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 50px 40px;
+            color: white;
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 15px;
+            text-align: center;
+        }
+        
+        .branding-section h1 {
+            font-size: 2.5em;
             margin-bottom: 20px;
-            animation: slideInLeft 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
-        .logo-svg {
-            width: 70px;
-            height: 70px;
-            animation: 
-                rotate-logo 40s linear infinite,
-                pulse-glow 2s ease-in-out infinite;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-        }
-
-        @keyframes rotate-logo {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { 
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-            }
-            50% { 
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.4));
-            }
-        }
-
-        .logo-text {
-            font-size: 32px;
-            font-weight: 700;
-            animation: pulse-text 2s ease-in-out infinite;
-            letter-spacing: -0.5px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes pulse-text {
-            0%, 100% { 
-                opacity: 1;
-                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
-            50% { 
-                opacity: 0.95;
-                text-shadow: 0 2px 20px rgba(255, 255, 255, 0.4);
-            }
-        }
-
-        .tagline {
-            font-size: 16px;
-            opacity: 0.95;
-            margin-bottom: 40px;
-            animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-            letter-spacing: 0.5px;
-        }
-
-        .services-section {
-            animation: slideInLeft 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .services-section h3 {
-            font-size: 13px;
-            text-transform: uppercase;
-            opacity: 0.85;
-            margin-bottom: 15px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-        }
-
-        .services-list {
-            list-style: none;
-        }
-
-        .services-list li {
-            padding: 10px 0;
-            font-size: 14px;
+        
+        .branding-section .subtitle {
+            font-size: 1.2em;
             opacity: 0.9;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            padding-left: 0;
-            cursor: pointer;
-        }
-
-        .services-list li:hover {
-            opacity: 1;
-            padding-left: 15px;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-        }
-
-        .services-list li::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.6);
-            transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .services-list li:hover::before,
-        .services-list li:focus::before {
-            width: 8px;
-        }
-
-        .form-section {
-            padding: 50px 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            background: var(--white);
-            overflow-y: auto;
-            max-height: 85vh;
-        }
-
-        .form-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
-            border-radius: 50%;
-            animation: float-accent 4s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-        }
-
-        @keyframes float-accent {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(-30px, 30px); }
-        }
-
-        .form-header {
             margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
         }
-
-        .form-header h1 {
-            font-size: 28px;
-            color: var(--primary);
-            margin-bottom: 8px;
-            animation: slideInRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            letter-spacing: -0.5px;
+        
+        .services-list {
+            text-align: left;
+            display: inline-block;
         }
-
-        .form-header p {
-            color: var(--gray);
-            font-size: 14px;
-            animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        
+        .services-list ul {
+            list-style: none;
+            font-size: 0.95em;
         }
-
-        .step-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            animation: slideInRight 0.9s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            z-index: 1;
-        }
-
-        .step-indicator::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--gray-light);
-            z-index: 0;
-        }
-
-        .step {
+        
+        .services-list li {
+            margin: 12px 0;
             display: flex;
             align-items: center;
-            font-size: 12px;
-            color: var(--gray);
-            position: relative;
-            z-index: 1;
-            cursor: pointer;
         }
-
-        .step-number {
-            width: 30px;
-            height: 30px;
-            background: var(--gray-light);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 8px;
-            font-weight: 600;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            color: var(--gray);
+        
+        .services-list li:before {
+            content: "✓";
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 1.2em;
         }
-
-        .step:focus-within .step-number {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
+        
+        .login-section h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
         }
-
-        .step.active .step-number {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: var(--white);
-            transform: scale(1.15) rotate(360deg);
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
-            animation: bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        
+        .login-section p {
+            color: #666;
+            margin-bottom: 30px;
         }
-
-        .step.completed .step-number {
-            background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
-            color: var(--white);
-            animation: checkmark-animation 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        @keyframes bounce-in {
-            0% { transform: scale(0.8); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1.15) rotate(360deg); }
-        }
-
-        @keyframes checkmark-animation {
-            0% { transform: scale(0.8) rotate(-10deg); }
-            50% { transform: scale(1.2) rotate(5deg); }
-            100% { transform: scale(1); }
-        }
-
+        
         .form-group {
             margin-bottom: 20px;
-            animation: slideInRight 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            z-index: 1;
         }
-
+        
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #374151;
+            color: #333;
             font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
         }
-
-        .form-group input,
-        .form-group select {
+        
+        .form-group input {
             width: 100%;
-            padding: 12px 16px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: var(--white);
-            color: #1f2937;
-            position: relative;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
         }
-
-        .form-group input:focus,
-        .form-group select:focus {
+        
+        .form-group input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.15), 0 4px 12px rgba(30, 64, 175, 0.2);
-            transform: translateY(-3px);
+            border-color: #667eea;
         }
-
-        .form-group input:hover:not(:focus),
-        .form-group select:hover:not(:focus) {
-            border-color: var(--primary-light);
-            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
-        }
-
-        .validation-feedback {
-            font-size: 12px;
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            min-height: 20px;
-            animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .validation-feedback.valid {
-            color: var(--success);
-        }
-
-        .validation-feedback.invalid {
-            color: var(--error);
-        }
-
-        .validation-feedback.warning {
-            color: var(--warning);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 15px 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: var(--primary);
-        }
-
-        .checkbox-group input[type="checkbox"]:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        .checkbox-group label {
-            margin: 0;
-            font-size: 14px;
-            color: var(--gray);
-            cursor: pointer;
-            text-transform: none;
-            letter-spacing: normal;
-            font-weight: 400;
-        }
-
-        .forgot-pin-link {
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            display: inline-block;
-        }
-
-        .forgot-pin-link:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
-            transform: translateX(3px);
-        }
-
-        .forgot-pin-link:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        .btn-login {
+        
+        .login-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: var(--white);
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 5px;
+            font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            margin-top: 10px;
-            animation: slideInRight 1.1s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.2);
+            transition: transform 0.2s;
+            margin-top: 20px;
         }
-
-        .btn-login::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
         }
-
-        .btn-login:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(30, 64, 175, 0.35);
-        }
-
-        .btn-login:hover::before {
-            left: 100%;
-        }
-
-        .btn-login:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-login:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        .btn-login.loading {
+        
+        .login-btn:disabled {
             opacity: 0.7;
             cursor: not-allowed;
         }
-
-        .btn-login.loading::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid var(--white);
-            border-radius: 50%;
-            animation: spin-loader 0.8s linear infinite;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        @keyframes spin-loader {
-            to { transform: translateY(-50%) rotate(360deg); }
-        }
-
-        .error-message,
-        .success-message,
-        .warning-message {
-            padding: 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-top: 15px;
-            display: none;
-            animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-weight: 500;
-            border-left: 4px solid;
-            position: relative;
-            z-index: 1;
-        }
-
-        .error-message.show {
-            display: block;
-            background: var(--error-light);
-            border-left-color: var(--error);
-            color: #7f1d1d;
-        }
-
-        .success-message.show {
-            display: block;
-            background: var(--success-light);
-            border-left-color: var(--success);
-            color: #065f46;
-        }
-
-        .warning-message.show {
-            display: block;
-            background: var(--warning-light);
-            border-left-color: var(--warning);
-            color: #78350f;
-        }
-
-        .error-code {
-            font-size: 11px;
-            font-family: monospace;
-            opacity: 0.8;
-            margin-top: 4px;
-        }
-
-        .security-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        
+        .security-message {
             margin-top: 20px;
             padding: 12px;
-            background: #f0f9ff;
-            border-radius: 8px;
-            color: var(--primary);
-            font-size: 13px;
-            animation: slideInRight 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            border: 1px solid #bfdbfe;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 1;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            font-size: 0.85em;
+            color: #666;
+            text-align: center;
         }
-
-        .security-badge:hover {
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .security-badge:focus-within {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        .security-badge svg {
-            width: 18px;
-            height: 18px;
-            animation: float-icon 2s ease-in-out infinite;
-        }
-
-        @keyframes float-icon {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-3px); }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(2px);
-        }
-
-        .modal.show {
-            display: flex;
-            animation: fadeInBackdrop 0.3s ease;
-        }
-
-        @keyframes fadeInBackdrop {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background: var(--white);
-            padding: 40px;
-            border-radius: 15px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            position: relative;
-            animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 20px;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: var(--gray);
-            transition: all 0.3s ease;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .modal-close:hover {
-            transform: rotate(90deg);
-            color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        .modal-close:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideInLeft {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        .step-1-form.inactive {
-            display: none;
-        }
-
-        .step-2-form {
-            display: none;
-        }
-
-        .step-2-form.active {
-            display: block;
-        }
-
-        .forgot-pin-form {
-            display: none;
-        }
-
-        .forgot-pin-form.active {
-            display: block;
-        }
-
+        
         @media (max-width: 768px) {
             .container {
-                grid-template-columns: 1fr;
+                flex-direction: column;
             }
-
-            .hero {
-                padding: 30px;
-                min-height: 300px;
+            
+            .branding-section {
+                padding: 30px 20px;
             }
-
-            .form-section {
-                padding: 30px;
+            
+            .login-section {
+                padding: 30px 20px;
             }
-
-            .services-section {
-                display: none;
+            
+            .branding-section h1 {
+                font-size: 1.8em;
             }
-
-            .logo-svg {
-                width: 50px;
-                height: 50px;
-            }
-
-            .logo-text {
-                font-size: 24px;
-            }
-
-            .form-header h1 {
-                font-size: 22px;
-            }
-
-            .form-group input,
-            .form-group select {
-                font-size: 16px;
-                padding: 14px 16px;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        @media (prefers-contrast: more) {
-            .btn-login {
-                border: 2px solid var(--white);
-            }
-
-            .form-group input,
-            .form-group select {
-                border-width: 3px;
-            }
-
-            .step-indicator::before {
-                height: 3px;
-            }
-        }
-
-        *:focus-visible {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: var(--primary);
-            color: white;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 10000;
-            border-radius: 0 0 4px 0;
-        }
-
-        .skip-link:focus {
-            top: 0;
         }
     </style>
 </head>
 <body>
-    <a href="#main-form" class="skip-link">Skip to sign in form</a>
-
-    <main id="main-form">
-        <div class="container">
-            <!-- Hero Section -->
-            <div class="hero" role="region" aria-label="Company branding and services">
-                <div class="hero-content">
-                    <div class="logo-container">
-                        <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-label="Dream Harbour professional billing logo" role="img">
-                            <title>Dream Harbour - Professional Billing & Invoicing</title>
-                            <defs>
-                                <linearGradient id="docGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:white;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#bfdbfe;stop-opacity:1" />
-                                </linearGradient>
-                                <linearGradient id="checkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#34d399;stop-opacity:1" />
-                                </linearGradient>
-                                <filter id="logoShadow" x="-50%" y="-50%" width="200%" height="200%">
-                                    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.15"/>
-                                </filter>
-                            </defs>
-                            
-                            <circle cx="60" cy="60" r="58" fill="none" stroke="white" stroke-width="1" opacity="0.2"/>
-                            <circle cx="60" cy="60" r="52" fill="none" stroke="url(#docGradient)" stroke-width="1.5" opacity="0.3"/>
-                            
-                            <rect x="30" y="20" width="60" height="75" rx="3" fill="none" stroke="url(#docGradient)" stroke-width="2.5" filter="url(#logoShadow)"/>
-                            
-                            <line x1="38" y1="30" x2="82" y2="30" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
-                            <line x1="38" y1="40" x2="82" y2="40" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
-                            <line x1="38" y1="50" x2="70" y2="50" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
-                            
-                            <path d="M 30 60 Q 40 55, 50 60 T 70 60 T 90 60" fill="none" stroke="url(#docGradient)" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
-                            <path d="M 28 70 Q 38 65, 48 70 T 68 70 T 88 70" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-                            
-                            <g transform="translate(70, 78)">
-                                <circle cx="0" cy="0" r="10" fill="url(#checkGradient)" opacity="0.9" filter="url(#logoShadow)"/>
-                                <path d="M -4 0 L -1 3 L 4 -3" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </g>
-                        </svg>
-                        <span class="logo-text">Dream Harbour</span>
-                    </div>
-                    <p class="tagline">Professional Billing & Invoicing System</p>
-                    <div class="services-section">
-                        <h3>Our Services</h3>
-                        <ul class="services-list" role="list">
-                            <li role="listitem">📄 Document Services</li>
-                            <li role="listitem">💼 GST Compliance</li>
-                            <li role="listitem">📊 Invoice Management</li>
-                            <li role="listitem">👥 Customer Portal</li>
-                            <li role="listitem">📈 Reports & Analytics</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Login Form Section -->
-            <div class="form-section">
-                <div class="form-header">
-                    <h1>Welcome Back</h1>
-                    <p>Sign in to access your account</p>
-                </div>
-
-                <!-- Step Indicator -->
-                <div class="step-indicator" role="tablist" aria-label="Login steps">
-                    <div class="step active" id="step1Indicator" role="tab" aria-selected="true" aria-controls="step1Form">
-                        <div class="step-number">1</div>
-                        <span>Phone</span>
-                    </div>
-                    <div class="step" id="step2Indicator" role="tab" aria-selected="false" aria-controls="step2Form">
-                        <div class="step-number">2</div>
-                        <span>PIN</span>
-                    </div>
-                </div>
-
-                <!-- Step 1: Phone Number -->
-                <form id="step1Form" class="step-1-form" onsubmit="nextStep(event)" novalidate aria-label="Phone number entry">
-                    <div class="form-group">
-                        <label for="phoneNumber" style="font-weight: 700;">Mobile Number <span style="color: #ef4444;">*</span></label>
-                        <input 
-                            type="tel" 
-                            id="phoneNumber" 
-                            placeholder="10-digit mobile number"
-                            maxlength="10"
-                            pattern="[0-9]{10}"
-                            required
-                            aria-label="Mobile number input"
-                            aria-describedby="phoneValidation phoneHelp"
-                            aria-required="true"
-                            oninput="validatePhone()"
-                        >
-                        <div class="validation-feedback" id="phoneValidation" aria-live="polite" aria-atomic="true"></div>
-                        <small id="phoneHelp" style="display: none;">Enter a 10-digit mobile number</small>
-                    </div>
-
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="rememberMe" aria-label="Remember my mobile number">
-                        <label for="rememberMe">Remember me</label>
-                    </div>
-
-                    <button type="submit" class="btn-login" aria-label="Proceed to PIN entry">Next</button>
-                    <div class="error-message" id="step1Error" role="alert" aria-live="assertive" aria-atomic="true"></div>
-                </form>
-
-                <!-- Step 2: PIN -->
-                <form id="step2Form" class="step-2-form" onsubmit="handleLogin(event)" novalidate aria-label="PIN entry">
-                    <div class="form-group">
-                        <label for="pin" style="font-weight: 700;">Security PIN <span style="color: #ef4444;">*</span></label>
-                        <input 
-                            type="password" 
-                            id="pin" 
-                            placeholder="6-digit PIN"
-                            maxlength="6"
-                            pattern="[0-9]{6}"
-                            required
-                            aria-label="Security PIN input"
-                            aria-describedby="pinValidation pinHelp"
-                            aria-required="true"
-                            oninput="validatePin()"
-                        >
-                        <div class="validation-feedback" id="pinValidation" aria-live="polite" aria-atomic="true"></div>
-                        <small id="pinHelp" style="display: none;">Enter a 6-digit security PIN</small>
-                    </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <button type="button" class="btn-login" style="flex: 1; background: var(--gray);" onclick="backStep()" aria-label="Go back to phone entry">Back</button>
-                        <button type="submit" class="btn-login" style="flex: 1;" aria-label="Sign in to your account">Sign In</button>
-                    </div>
-
-                    <div class="forgot-pin-link" onclick="showForgotPinModal()" role="button" tabindex="0" aria-label="Reset your PIN">Forgot PIN?</div>
-                    <div class="error-message" id="step2Error" role="alert" aria-live="assertive" aria-atomic="true"></div>
-                    <div class="success-message" id="successMessage" role="status" aria-live="polite" aria-atomic="true"></div>
-                </form>
-
-                <!-- Forgot PIN Form -->
-                <form id="forgotPinForm" class="forgot-pin-form" onsubmit="handleForgotPin(event)" novalidate aria-label="PIN recovery form">
-                    <div class="form-group">
-                        <label for="forgotPhone" style="font-weight: 700;">Mobile Number <span style="color: #ef4444;">*</span></label>
-                        <input 
-                            type="tel" 
-                            id="forgotPhone" 
-                            placeholder="10-digit mobile number"
-                            maxlength="10"
-                            pattern="[0-9]{10}"
-                            required
-                            aria-label="Mobile number for PIN recovery"
-                            aria-describedby="forgotPhoneHelp"
-                        >
-                        <small id="forgotPhoneHelp">Enter your registered mobile number</small>
-                    </div>
-
-                    <button type="submit" class="btn-login" aria-label="Send PIN recovery code">Send Recovery Code</button>
-                    <div class="error-message" id="forgotPinError" role="alert" aria-live="assertive"></div>
-                    <div class="success-message" id="forgotPinSuccess" role="status" aria-live="polite"></div>
-                </form>
-
-                <div class="security-badge" role="status" aria-label="Security information">
-                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
-                    </svg>
-                    <span>Your data is encrypted and secure</span>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Forgot PIN Modal -->
-    <div class="modal" id="forgotPinModal" role="dialog" aria-labelledby="forgotPinModalTitle" aria-hidden="true">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeForgotPinModal()" aria-label="Close modal">&times;</button>
-            <div class="modal-header" id="forgotPinModalTitle">Recover Your PIN</div>
-            <form onsubmit="sendRecoveryCode(event)">
+    <div class="container">
+        <div class="login-section">
+            <h2>Welcome Back</h2>
+            <p>Sign in to access your DreamHarbour account</p>
+            
+            <form id="loginForm">
                 <div class="form-group">
-                    <label for="recoveryPhone" style="font-weight: 700;">Enter your registered mobile number <span style="color: #ef4444;">*</span></label>
+                    <label for="phone">Phone Number *</label>
                     <input 
-                        type="tel" 
-                        id="recoveryPhone" 
-                        maxlength="10" 
-                        pattern="[0-9]{10}"
-                        placeholder="10-digit mobile number"
-                        required
-                        aria-label="Mobile number for recovery"
+                        type="text" 
+                        id="phone" 
+                        placeholder="Enter 10-digit phone number"
+                        maxlength="10"
+                        inputmode="numeric"
                     >
                 </div>
-                <button type="submit" class="btn-login" aria-label="Send recovery code">Send Code</button>
+                
+                <div class="form-group">
+                    <label for="pin">PIN *</label>
+                    <input 
+                        type="password" 
+                        id="pin" 
+                        placeholder="Enter 4-digit PIN"
+                        maxlength="4"
+                        inputmode="numeric"
+                    >
+                </div>
+                
+                <button type="button" id="loginBtn" class="login-btn">Login</button>
             </form>
-            <div class="error-message" id="recoveryError" role="alert" aria-live="assertive"></div>
-            <div class="success-message" id="recoverySuccess" role="status" aria-live="polite"></div>
+            
+            <div class="security-message">
+                🔒 Your data is encrypted and secure
+            </div>
+        </div>
+        
+        <div class="branding-section">
+            <h1>📊 DreamHarbour</h1>
+            <p class="subtitle">Professional Billing & Invoicing System</p>
+            
+            <div class="services-list">
+                <ul>
+                    <li>📄 Document Services</li>
+                    <li>💼 GST Compliance</li>
+                    <li>📊 Invoice Management</li>
+                    <li>👥 Customer Portal</li>
+                    <li>📈 Reports & Analytics</li>
+                </ul>
+            </div>
         </div>
     </div>
 
+    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let currentLanguage = 'en';
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadRememberedPhone();
-            loadDynamicServices();
-            setupKeyboardNavigation();
-            announcePageLoaded();
-        });
-
-        // Accessibility: Announce page loaded to screen readers
-        function announcePageLoaded() {
-            const announcement = document.createElement('div');
-            announcement.setAttribute('role', 'status');
-            announcement.setAttribute('aria-live', 'polite');
-            announcement.setAttribute('aria-atomic', 'true');
-            announcement.textContent = 'Dream Harbour login page loaded. Please enter your mobile number to sign in.';
-            announcement.style.position = 'absolute';
-            announcement.style.left = '-10000px';
-            document.body.appendChild(announcement);
-            setTimeout(() => announcement.remove(), 1000);
-        }
-
-        // Comprehensive keyboard navigation
-        function setupKeyboardNavigation() {
-            // Service list keyboard navigation
-            const serviceItems = document.querySelectorAll('.services-list li');
-            serviceItems.forEach((item, index) => {
-                item.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowDown') {
-                        e.preventDefault();
-                        if (index < serviceItems.length - 1) {
-                            serviceItems[index + 1].focus();
-                        }
-                    } else if (e.key === 'ArrowUp') {
-                        e.preventDefault();
-                        if (index > 0) {
-                            serviceItems[index - 1].focus();
-                        }
-                    }
-                });
-            });
-
-            // Escape key closes modals
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeForgotPinModal();
-                }
-            });
-        }
-
-        // Remember me functionality
-        function loadRememberedPhone() {
-            const remembered = localStorage.getItem('dreamHarbourRememberedPhone');
-            const checkbox = document.getElementById('rememberMe');
-            if (remembered) {
-                document.getElementById('phoneNumber').value = remembered;
-                checkbox.checked = true;
-                validatePhone();
-            }
-        }
-
-        function saveRememberedPhone(phone) {
-            if (document.getElementById('rememberMe').checked) {
-                localStorage.setItem('dreamHarbourRememberedPhone', phone);
-            } else {
-                localStorage.removeItem('dreamHarbourRememberedPhone');
-            }
-        }
-
-        // Real-time Validation
-        function validatePhone() {
-            const phone = document.getElementById('phoneNumber').value;
-            const feedback = document.getElementById('phoneValidation');
-
-            if (!phone) {
-                feedback.textContent = '';
-                return;
-            }
-
-            if (phone.length < 10) {
-                feedback.className = 'validation-feedback invalid';
-                feedback.innerHTML = `❌ ${10 - phone.length} more digits needed`;
-            } else if (phone.length === 10 && /^[0-9]{10}$/.test(phone)) {
-                feedback.className = 'validation-feedback valid';
-                feedback.innerHTML = '✓ Valid phone number';
-            } else if (phone.length === 10) {
-                feedback.className = 'validation-feedback invalid';
-                feedback.innerHTML = '❌ Only numbers allowed';
-            }
-        }
-
-        function validatePin() {
-            const pin = document.getElementById('pin').value;
-            const feedback = document.getElementById('pinValidation');
-
-            if (!pin) {
-                feedback.textContent = '';
-                return;
-            }
-
-            if (pin.length < 6) {
-                feedback.className = 'validation-feedback invalid';
-                feedback.innerHTML = `❌ ${6 - pin.length} more digits needed`;
-            } else if (pin.length === 6 && /^[0-9]{6}$/.test(pin)) {
-                feedback.className = 'validation-feedback valid';
-                feedback.innerHTML = '✓ Valid PIN';
-            } else if (pin.length === 6) {
-                feedback.className = 'validation-feedback invalid';
-                feedback.innerHTML = '❌ Only numbers allowed';
-            }
-        }
-
-        // Forgot PIN Modal
-        function showForgotPinModal() {
-            const modal = document.getElementById('forgotPinModal');
-            modal.classList.add('show');
-            modal.setAttribute('aria-hidden', 'false');
-            document.getElementById('recoveryPhone').focus();
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeForgotPinModal() {
-            const modal = document.getElementById('forgotPinModal');
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = 'auto';
-        }
-
-        function sendRecoveryCode(event) {
-            event.preventDefault();
-            const phone = document.getElementById('recoveryPhone').value;
-            const successDiv = document.getElementById('recoverySuccess');
-            const errorDiv = document.getElementById('recoveryError');
-
-            if (phone.length !== 10 || !/^[0-9]{10}$/.test(phone)) {
-                errorDiv.classList.add('show');
-                errorDiv.innerHTML = `❌ Invalid phone number<br><span class="error-code">Error Code: E002</span>`;
-                return;
-            }
-
-            errorDiv.classList.remove('show');
-            successDiv.classList.add('show');
-            successDiv.innerHTML = `✓ Recovery code sent to ${phone}<br><span class="error-code">A 6-digit code has been sent</span>`;
-
-            setTimeout(() => {
-                closeForgotPinModal();
-                successDiv.classList.remove('show');
-            }, 3000);
-        }
-
-        function handleForgotPin(event) {
-            event.preventDefault();
-        }
-
-        // Login Steps
-        function nextStep(event) {
-            event.preventDefault();
-
-            const phone = document.getElementById('phoneNumber').value;
-            const errorDiv = document.getElementById('step1Error');
-
-            errorDiv.classList.remove('show');
-
-            if (!phone) {
-                errorDiv.classList.add('show');
-                errorDiv.innerHTML = `❌ Phone number is required (E001)<br><span class="error-code">Error Code: E001</span>`;
-                return;
-            }
-
-            if (phone.length !== 10 || !/^[0-9]{10}$/.test(phone)) {
-                errorDiv.classList.add('show');
-                errorDiv.innerHTML = `❌ Invalid phone number format (E002)<br><span class="error-code">Error Code: E002</span>`;
-                return;
-            }
-
-            saveRememberedPhone(phone);
-
-            document.getElementById('step1Form').classList.add('inactive');
-            document.getElementById('step2Form').classList.add('active');
-
-            document.getElementById('step1Indicator').classList.add('completed');
-            document.getElementById('step1Indicator').setAttribute('aria-selected', 'false');
-            document.getElementById('step2Indicator').classList.add('active');
-            document.getElementById('step2Indicator').setAttribute('aria-selected', 'true');
-
-            document.getElementById('pin').focus();
-
-            const announcement = document.createElement('div');
-            announcement.setAttribute('role', 'status');
-            announcement.setAttribute('aria-live', 'polite');
-            announcement.textContent = 'Step 2 of 2: Enter your security PIN';
-            announcement.style.position = 'absolute';
-            announcement.style.left = '-10000px';
-            document.body.appendChild(announcement);
-            setTimeout(() => announcement.remove(), 2000);
-        }
-
-        function backStep() {
-            document.getElementById('step1Form').classList.remove('inactive');
-            document.getElementById('step2Form').classList.remove('active');
-
-            document.getElementById('step1Indicator').classList.remove('completed');
-            document.getElementById('step1Indicator').setAttribute('aria-selected', 'true');
-            document.getElementById('step2Indicator').classList.remove('active');
-            document.getElementById('step2Indicator').setAttribute('aria-selected', 'false');
-
-            document.getElementById('step2Error').classList.remove('show');
-            document.getElementById('phoneNumber').focus();
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-
-            const phone = document.getElementById('phoneNumber').value;
-            const pin = document.getElementById('pin').value;
-            const errorDiv = document.getElementById('step2Error');
-            const successDiv = document.getElementById('successMessage');
-            const button = event.target.querySelector('button[type="submit"]');
-
-            errorDiv.classList.remove('show');
-            successDiv.classList.remove('show');
-
-            if (!pin) {
-                errorDiv.classList.add('show');
-                errorDiv.innerHTML = `❌ PIN is required (E004)<br><span class="error-code">Error Code: E004</span>`;
-                return;
-            }
-
-            if (pin.length !== 6 || !/^[0-9]{6}$/.test(pin)) {
-                errorDiv.classList.add('show');
-                errorDiv.innerHTML = `❌ PIN must be exactly 6 digits (E005)<br><span class="error-code">Error Code: E005</span>`;
-                return;
-            }
-
-            button.disabled = true;
-            button.classList.add('loading');
-            button.setAttribute('aria-busy', 'true');
-            button.textContent = 'Signing in...';
-
-            try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('phone_number', phone)
-                    .eq('pin', pin)
-                    .eq('is_active', true)
-                    .single();
-
-                if (error || !data) {
-                    errorDiv.classList.add('show');
-                    errorDiv.innerHTML = `❌ Invalid phone or PIN (E006)<br><span class="error-code">Error Code: E006</span>`;
-                    button.disabled = false;
-                    button.classList.remove('loading');
-                    button.setAttribute('aria-busy', 'false');
-                    button.textContent = 'Sign In';
-                    return;
-                }
-
-                successDiv.classList.add('show');
-                successDiv.textContent = '✓ Login successful! Redirecting...';
-
-                // SAVE TO dreamHarbourUser (your existing storage)
-                localStorage.setItem('dreamHarbourUser', JSON.stringify({
-                    id: data.id,
-                    phone: data.phone_number,
-                    name: data.full_name,
-                    role: data.role
-                }));
-
-                // SAVE TO userSession (what dashboard.html needs)
-                localStorage.setItem('userSession', JSON.stringify({
-                    id: data.id,
-                    phone: data.phone_number,
-                    name: data.full_name,
-                    role: data.role
-                }));
-
-                const announcement = document.createElement('div');
-                announcement.setAttribute('role', 'status');
-                announcement.setAttribute('aria-live', 'polite');
-                announcement.textContent = 'Login successful. You will be redirected to the dashboard.';
-                announcement.style.position = 'absolute';
-                announcement.style.left = '-10000px';
-                document.body.appendChild(announcement);
-
-                // REDIRECT TO DASHBOARD
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
-
-            } catch (error) {
-                errorDiv.classList.add('show');
-                errorDiv.innerHTML = `❌ Connection error (E007)<br><span class="error-code">Error Code: E007</span>`;
-                button.disabled = false;
-                button.classList.remove('loading');
-                button.setAttribute('aria-busy', 'false');
-                button.textContent = 'Sign In';
-            }
-        }
-
-        // Load dynamic services
-        async function loadDynamicServices() {
-            try {
-                const { data, error } = await supabase
-                    .from('service_types')
-                    .select('service_name')
-                    .limit(5);
-
-                if (!error && data && data.length > 0) {
-                    const servicesList = document.getElementById('servicesList');
-                    if (servicesList) {
-                        const items = data.map(service => `<li role="listitem">✓ ${service.service_name}</li>`).join('');
-                        servicesList.innerHTML = items;
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading services:', error);
-            }
-        }
-    </script>
+    
+    <!-- Common Utilities (MUST BE FIRST) -->
+    <script src="common.js"></script>
+    
+    <!-- Login Logic -->
+    <script src="index.js"></script>
 </body>
 </html>

@@ -3,374 +3,445 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DreamHarbour - Settings Pro Fixed</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Settings - DreamHarbour</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); min-height: 100vh; padding: 15px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: bold; }
-        .nav-link { color: white; padding: 8px 16px; background: rgba(0,0,0,0.2); border-radius: 5px; cursor: pointer; border: none; font-weight: 600; margin-left: 10px; }
-        .content { padding: 25px; }
-        .tabs { display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab { padding: 10px 16px; background: none; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; font-weight: 600; color: #666; font-size: 13px; }
-        .tab.active { background: #1e40af; color: white; border-color: #1e40af; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .toolbar { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; background: #1e40af; color: white; }
-        .btn-secondary { background: #f0f0f0; color: #333; border: 1px solid #ddd; }
-        .search-input { flex: 1; min-width: 200px; padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 6px; }
-        .filter-group { display: flex; gap: 8px; align-items: center; }
-        .filter-group select { padding: 8px 10px; border: 2px solid #e0e0e0; border-radius: 6px; }
-        .table-wrapper { overflow-x: auto; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        table th { background: #f5f5f5; padding: 10px 8px; text-align: left; font-weight: 600; border-bottom: 2px solid #ddd; }
-        table td { padding: 10px 8px; border-bottom: 1px solid #eee; }
-        table tr:hover { background: #f9f9f9; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-        .badge-active { background: #d1fae5; color: #065f46; }
-        .badge-inactive { background: #fee2e2; color: #991b1b; }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
-        .action-btn { padding: 8px 12px; margin: 0 4px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .action-btn.toggle { background: #9ca3af; color: white; }
-        .action-btn.toggle:hover { background: #6b7280; }
-        .action-btn.edit { background: #3b82f6; color: white; }
-        .action-btn.edit:hover { background: #2563eb; }
-        .action-btn.delete { background: #ef4444; color: white; }
-        .action-btn.delete:hover { background: #dc2626; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal.show { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 12px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px rgba(0,0,0,0.3); }
-        .modal-header { font-size: 20px; font-weight: 700; color: #1e40af; margin-bottom: 20px; display: flex; justify-content: space-between; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 13px; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
-        .sub-services-box { background: #f0f9ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 8px; margin: 15px 0; }
-        .sub-services-box h4 { color: #1e40af; margin-bottom: 12px; font-size: 14px; }
-        .stats-box { background: #f0f9ff; border: 2px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; }
-        .empty-state { text-align: center; padding: 30px; color: #999; }
-        .success-msg { padding: 10px 12px; background: #d1fae5; color: #065f46; border-radius: 6px; margin-bottom: 12px; font-size: 12px; display: none; }
-        .success-msg.show { display: block; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .navbar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar h1 {
+            font-size: 1.5em;
+        }
+        
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .navbar-right button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .navbar-right button:hover {
+            background-color: #c0392b;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .header a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.95em;
+        }
+        
+        .header a:hover {
+            text-decoration: underline;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .tab-button {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-button:hover {
+            color: #333;
+        }
+        
+        .tab-button.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            margin: 2px;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 15px;
+        }
+        
+        table thead {
+            background-color: #f8f9fa;
+        }
+        
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .stat-count {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            table {
+                font-size: 0.85em;
+            }
+            
+            table th, table td {
+                padding: 8px;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <h1>⚙️ DreamHarbour - Settings Pro</h1>
+        <div class="navbar-right">
+            <span>Welcome, <strong id="userName">User</strong></span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
     <div class="container">
         <div class="header">
-            <div class="logo">⚙️ DreamHarbour - Settings Pro</div>
-            <div><a href="dashboard.html"><button class="nav-link">← Dashboard</button></a><button class="nav-link" onclick="logout()">🚪 Logout</button></div>
+            <a href="dashboard.html">← Back to Dashboard</a>
         </div>
-
-        <div class="content">
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab(event, 'categories')">📂 Categories</button>
-                <button class="tab" onclick="switchTab(event, 'services')">🛍️ Services</button>
-                <button class="tab" onclick="switchTab(event, 'subtype1')">🔗 Sub-Services Type 1</button>
-                <button class="tab" onclick="switchTab(event, 'subtype2')">🔗 Sub-Services Type 2</button>
-                <button class="tab" onclick="switchTab(event, 'business')">💼 Business</button>
+        
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('businesses')">🏢 Businesses</button>
+            <button class="tab-button" onclick="openTab('services')">🛍️ Services</button>
+            <button class="tab-button" onclick="openTab('subservice1')">🔗 Sub-Services Type 1</button>
+            <button class="tab-button" onclick="openTab('subservice2')">🔗 Sub-Services Type 2</button>
+            <button class="tab-button" onclick="openTab('customers')">👥 Customers</button>
+        </div>
+        
+        <!-- BUSINESSES TAB -->
+        <div id="businesses" class="tab-content active">
+            <div class="section">
+                <h3>📊 Business Settings</h3>
+                
+                <div class="stat-count">
+                    📊 Total: <span id="businessCount">0</span> | Active: <span id="businessActiveCount">0</span>
+                </div>
+                
+                <button class="btn" onclick="openBusinessModal()">+ Add Business</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Business Name</th>
+                            <th>GSTIN</th>
+                            <th>State</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="businessList">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- CATEGORIES -->
-            <div id="categories" class="tab-content active">
-                <div class="stats-box">📊 Total: <span id="totalCat">0</span> | Active: <span id="activeCat">0</span></div>
-                <div class="toolbar">
-                    <button class="btn" onclick="newItem('cat')">➕ Add</button>
-                    <button class="btn btn-secondary" onclick="exportCSV('cat')">📥 Export</button>
-                    <button class="btn btn-secondary" onclick="importFile('cat')">📤 Import</button>
-                    <input type="file" id="import-cat" accept=".csv" style="display:none" onchange="parseImport('cat')">
-                    <input type="text" class="search-input" id="search-cat" placeholder="Search..." onkeyup="filterDisplay('cat')">
+        </div>
+        
+        <!-- SERVICES TAB -->
+        <div id="services" class="tab-content">
+            <div class="section">
+                <h3>🛍️ Service Management</h3>
+                
+                <div class="stat-count">
+                    📊 Total: <span id="serviceCount">0</span> | Active: <span id="serviceActiveCount">0</span>
                 </div>
-                <div class="success-msg" id="msg-cat"></div>
-                <div class="table-wrapper">
-                    <table><thead><tr><th>📝 Name</th><th style="width:80px">Status</th><th style="width:150px">Actions</th></tr></thead><tbody id="table-cat"></tbody></table>
-                </div>
+                
+                <button class="btn" onclick="openServiceModal()">+ Add Service</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Category</th>
+                            <th>SAC Code</th>
+                            <th>GST %</th>
+                            <th>Rate</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="serviceList">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 20px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- SERVICES -->
-            <div id="services" class="tab-content">
-                <div class="stats-box">📊 Total: <span id="totalSvc">0</span> | Active: <span id="activeSvc">0</span></div>
-                <div class="toolbar">
-                    <button class="btn" onclick="newItem('svc')">➕ Add</button>
-                    <button class="btn btn-secondary" onclick="exportCSV('svc')">📥 Export</button>
-                    <button class="btn btn-secondary" onclick="importFile('svc')">📤 Import</button>
-                    <input type="file" id="import-svc" accept=".csv" style="display:none" onchange="parseImport('svc')">
-                    <input type="text" class="search-input" id="search-svc" placeholder="Search..." onkeyup="filterDisplay('svc')">
-                    <select id="cat-filter" onchange="filterDisplay('svc')"><option value="">All Categories</option></select>
-                    <select id="status-filter" onchange="filterDisplay('svc')"><option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+        
+        <!-- SUB-SERVICES TYPE 1 TAB -->
+        <div id="subservice1" class="tab-content">
+            <div class="section">
+                <h3>🔗 Sub-Services Type 1</h3>
+                
+                <div class="stat-count">
+                    📊 Total: <span id="subService1Count">0</span> | Active: <span id="subService1ActiveCount">0</span>
                 </div>
-                <div class="success-msg" id="msg-svc"></div>
-                <div class="table-wrapper">
-                    <table><thead><tr><th>🛍️ Service</th><th>Category</th><th style="width:60px">SAC</th><th style="width:60px">GST%</th><th style="width:70px">Rate</th><th style="width:80px">Status</th><th style="width:150px">Actions</th></tr></thead><tbody id="table-svc"></tbody></table>
-                </div>
+                
+                <button class="btn" onclick="openSubService1Modal()">+ Add Sub-Service</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sub-Service Name</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subService1List">
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 20px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- SUB-SERVICE TYPE 1 -->
-            <div id="subtype1" class="tab-content">
-                <div class="stats-box">📊 Total: <span id="totalSub1">0</span> | Active: <span id="activeSub1">0</span></div>
-                <div class="toolbar">
-                    <button class="btn" onclick="newItem('sub1')">➕ Add</button>
-                    <button class="btn btn-secondary" onclick="exportCSV('sub1')">📥 Export</button>
-                    <button class="btn btn-secondary" onclick="importFile('sub1')">📤 Import</button>
-                    <input type="file" id="import-sub1" accept=".csv" style="display:none" onchange="parseImport('sub1')">
-                    <input type="text" class="search-input" id="search-sub1" placeholder="Search..." onkeyup="filterDisplay('sub1')">
+        </div>
+        
+        <!-- SUB-SERVICES TYPE 2 TAB -->
+        <div id="subservice2" class="tab-content">
+            <div class="section">
+                <h3>🔗 Sub-Services Type 2 (Government Fees)</h3>
+                
+                <div class="stat-count">
+                    📊 Total: <span id="subService2Count">0</span> | Active: <span id="subService2ActiveCount">0</span>
                 </div>
-                <div class="success-msg" id="msg-sub1"></div>
-                <div class="table-wrapper">
-                    <table><thead><tr><th>🔗 Sub-Service</th><th style="width:80px">Status</th><th style="width:150px">Actions</th></tr></thead><tbody id="table-sub1"></tbody></table>
-                </div>
+                
+                <button class="btn" onclick="openSubService2Modal()">+ Add Sub-Service</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sub-Service Name</th>
+                            <th>SAC Code</th>
+                            <th>GST %</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subService2List">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <!-- SUB-SERVICE TYPE 2 -->
-            <div id="subtype2" class="tab-content">
-                <div class="stats-box">📊 Total: <span id="totalSub2">0</span> | Active: <span id="activeSub2">0</span></div>
-                <div class="toolbar">
-                    <button class="btn" onclick="newItem('sub2')">➕ Add</button>
-                    <button class="btn btn-secondary" onclick="exportCSV('sub2')">📥 Export</button>
-                    <button class="btn btn-secondary" onclick="importFile('sub2')">📤 Import</button>
-                    <input type="file" id="import-sub2" accept=".csv" style="display:none" onchange="parseImport('sub2')">
-                    <input type="text" class="search-input" id="search-sub2" placeholder="Search..." onkeyup="filterDisplay('sub2')">
+        </div>
+        
+        <!-- CUSTOMERS TAB -->
+        <div id="customers" class="tab-content">
+            <div class="section">
+                <h3>👥 Customers</h3>
+                
+                <div class="stat-count">
+                    📊 Total Customers: <span id="customerCount">0</span>
                 </div>
-                <div class="success-msg" id="msg-sub2"></div>
-                <div class="table-wrapper">
-                    <table><thead><tr><th>🔗 Sub-Service</th><th style="width:60px">SAC</th><th style="width:60px">GST%</th><th style="width:80px">Status</th><th style="width:150px">Actions</th></tr></thead><tbody id="table-sub2"></tbody></table>
-                </div>
-            </div>
-
-            <!-- BUSINESS -->
-            <div id="business" class="tab-content">
-                <h3 style="color: #1e40af; margin-bottom: 20px;">💼 Business Information</h3>
-                <form onsubmit="saveBiz(event)" style="max-width: 600px;">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px"><div class="form-group"><label>Business Name</label><input type="text" id="bizName"></div><div class="form-group"><label>GST</label><input type="text" id="bizGst"></div><div class="form-group"><label>Phone</label><input type="tel" id="bizPhone" maxlength="10"></div><div class="form-group"><label>Email</label><input type="email" id="bizEmail"></div></div>
-                    <div class="form-group"><label>Address</label><input type="text" id="bizAddr"></div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px"><div class="form-group"><label>City</label><input type="text" id="bizCity"></div><div class="form-group"><label>State</label><input type="text" id="bizState"></div></div>
-                    <div class="form-group"><label>Pincode</label><input type="text" id="bizPin" maxlength="6"></div>
-                    <button type="submit" class="btn">💾 Save</button>
-                    <div class="success-msg" id="msg-biz"></div>
-                </form>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer Name</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>GSTIN</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customerList">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 20px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- MODAL -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span id="modalTitle">Add</span>
-                <button style="background:none;border:none;font-size:24px;cursor:pointer" onclick="closeModal()">×</button>
-            </div>
-            <form onsubmit="saveItem(event)" id="itemForm">
-                <div id="formFields"></div>
-                <div style="display:flex;gap:10px;margin-top:20px"><button type="submit" class="btn">✓ Save</button><button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>
-            </form>
-        </div>
-    </div>
-
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Common Utilities (MUST BE FIRST) -->
+    <script src="common.js"></script>
+    
+    <!-- Settings Logic (will be created next) -->
+    <script src="settings.js"></script>
+    
     <script>
-        const SUPA_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-        const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-        let db = null;
-        let data = {cat:[], svc:[], sub1:[], sub2:[]};
-        let editing = null;
-        let currentType = null;
-
-        async function init() {
-            db = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-            const user = JSON.parse(localStorage.getItem('userSession'));
-            if (!user) { window.location.href = 'index.html'; return; }
-            await load();
+        function openTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
         }
-
-        async function load() {
-            try {
-                const [c, s, s1, s2, b] = await Promise.all([
-                    db.from('service_categories').select('*'),
-                    db.from('service_items').select('*, service_categories(category_name)'),
-                    db.from('sub_service_type_1').select('*'),
-                    db.from('sub_service_type_2').select('*'),
-                    db.from('business_settings').select('*').limit(1)
-                ]);
-                data = {cat: c.data||[], svc: s.data||[], sub1: s1.data||[], sub2: s2.data||[]};
-                display();
-                if (b.data && b.data.length) {
-                    const biz = b.data[0];
-                    ['bizName','bizGst','bizPhone','bizEmail','bizAddr','bizCity','bizState','bizPin'].forEach((id,i) => {
-                        const el = document.getElementById(id);
-                        if (el) el.value = biz[['business_name','gst_number','phone','email','address','city','state','pincode'][i]] || '';
-                    });
-                }
-            } catch(e) { console.error(e); }
+        
+        // Placeholder functions - will be replaced with actual settings.js
+        function openBusinessModal() {
+            alert('Business modal - to be implemented');
         }
-
-        function display() {
-            const cats = data.cat.map(x => `<tr><td>${x.category_name}</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','cat',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','cat')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','cat')">Delete</button></td></tr>`).join('');
-            document.getElementById('table-cat').innerHTML = cats || '<tr><td colspan="3" class="empty-state">No items</td></tr>';
-            document.getElementById('totalCat').textContent = data.cat.length;
-            document.getElementById('activeCat').textContent = data.cat.filter(x=>x.is_active).length;
-
-            const svcs = data.svc.map(x => {
-                const cat = data.cat.find(c=>c.id===x.category_id);
-                return `<tr><td>${x.service_name}</td><td><span class="badge badge-blue">${cat?.category_name||'-'}</span></td><td>${x.sac_code||'-'}</td><td>${x.gst_percentage}%</td><td>₹${x.rate||0}</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','svc',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','svc')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','svc')">Delete</button></td></tr>`;
-            }).join('');
-            document.getElementById('table-svc').innerHTML = svcs || '<tr><td colspan="7" class="empty-state">No items</td></tr>';
-            document.getElementById('totalSvc').textContent = data.svc.length;
-            document.getElementById('activeSvc').textContent = data.svc.filter(x=>x.is_active).length;
-
-            const sub1s = data.sub1.map(x => `<tr><td>${x.sub_service_name}</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','sub1',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','sub1')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','sub1')">Delete</button></td></tr>`).join('');
-            document.getElementById('table-sub1').innerHTML = sub1s || '<tr><td colspan="3" class="empty-state">No items</td></tr>';
-            document.getElementById('totalSub1').textContent = data.sub1.length;
-            document.getElementById('activeSub1').textContent = data.sub1.filter(x=>x.is_active).length;
-
-            const sub2s = data.sub2.map(x => `<tr><td>${x.sub_service_name}</td><td>${x.sac_code||'-'}</td><td>${x.gst_percentage}%</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','sub2',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','sub2')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','sub2')">Delete</button></td></tr>`).join('');
-            document.getElementById('table-sub2').innerHTML = sub2s || '<tr><td colspan="5" class="empty-state">No items</td></tr>';
-            document.getElementById('totalSub2').textContent = data.sub2.length;
-            document.getElementById('activeSub2').textContent = data.sub2.filter(x=>x.is_active).length;
-
-            const catOpts = data.cat.map(x => `<option value="${x.id}">${x.category_name}</option>`).join('');
-            document.getElementById('cat-filter').innerHTML = '<option value="">All Categories</option>' + catOpts;
+        
+        function openServiceModal() {
+            alert('Service modal - to be implemented');
         }
-
-        function filterDisplay(type) {
-            const search = document.getElementById(`search-${type}`)?.value.toLowerCase() || '';
-            let filtered = data[type].filter(x => {
-                const name = (x.category_name || x.service_name || x.sub_service_name || '').toLowerCase();
-                return !search || name.includes(search);
-            });
-            if (type === 'svc') {
-                const catId = document.getElementById('cat-filter')?.value;
-                const status = document.getElementById('status-filter')?.value;
-                if (catId) filtered = filtered.filter(s => s.category_id === catId);
-                if (status) filtered = filtered.filter(s => status === 'active' ? s.is_active : !s.is_active);
-            }
-            renderTable(type, filtered);
+        
+        function openSubService1Modal() {
+            alert('Sub-Service 1 modal - to be implemented');
         }
-
-        function renderTable(type, items) {
-            let html = '';
-            if (type === 'cat') html = items.map(x => `<tr><td>${x.category_name}</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','cat',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','cat')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','cat')">Delete</button></td></tr>`).join('');
-            else if (type === 'svc') html = items.map(x => {
-                const cat = data.cat.find(c=>c.id===x.category_id);
-                return `<tr><td>${x.service_name}</td><td><span class="badge badge-blue">${cat?.category_name||'-'}</span></td><td>${x.sac_code||'-'}</td><td>${x.gst_percentage}%</td><td>₹${x.rate||0}</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','svc',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','svc')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','svc')">Delete</button></td></tr>`;
-            }).join('');
-            else if (type === 'sub1') html = items.map(x => `<tr><td>${x.sub_service_name}</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','sub1',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','sub1')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','sub1')">Delete</button></td></tr>`).join('');
-            else if (type === 'sub2') html = items.map(x => `<tr><td>${x.sub_service_name}</td><td>${x.sac_code||'-'}</td><td>${x.gst_percentage}%</td><td><span class="badge badge-${x.is_active?'active':'inactive'}">${x.is_active?'✓':'✗'}</span></td><td><button class="action-btn toggle" onclick="toggle('${x.id}','sub2',${x.is_active})">Toggle</button><button class="action-btn edit" onclick="editItem('${x.id}','sub2')">Edit</button><button class="action-btn delete" onclick="del('${x.id}','sub2')">Delete</button></td></tr>`).join('');
-            document.getElementById(`table-${type}`).innerHTML = html || '<tr><td colspan="10" class="empty-state">No items</td></tr>';
+        
+        function openSubService2Modal() {
+            alert('Sub-Service 2 modal - to be implemented');
         }
-
-        function switchTab(e, tab) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
-            e.target.classList.add('active');
-        }
-
-        async function toggle(id, type, status) {
-            const tables = {cat:'service_categories',svc:'service_items',sub1:'sub_service_type_1',sub2:'sub_service_type_2'};
-            await db.from(tables[type]).update({is_active:!status}).eq('id',id);
-            await load();
-            show(type, 'Toggled!');
-        }
-
-        function newItem(type) {
-            editing = null;
-            currentType = type;
-            document.getElementById('modalTitle').textContent = 'New Item';
-            let html = '';
-            if (type === 'cat') html = '<div class="form-group"><label>Category Name *</label><input type="text" id="field1" required></div><div class="form-group"><label><input type="checkbox" id="field2" checked style="width:auto;margin-right:8px;">Active</label></div>';
-            else if (type === 'svc') html = `<div class="form-group"><label>Category *</label><select id="field1" required><option>--Select--</option>${data.cat.map(c=>'<option value="'+c.id+'">'+c.category_name+'</option>').join('')}</select></div><div class="form-group"><label>Service Name *</label><input type="text" id="field2" required></div><div class="form-group"><label>SAC Code</label><input type="text" id="field3"></div><div class="form-group"><label>GST % *</label><input type="number" id="field4" min="0" max="100" step="0.01" value="0" required></div><div class="form-group"><label>Rate (₹)</label><input type="number" id="field5" min="0" step="0.01" value="0"></div><div class="sub-services-box"><h4>🔗 Link Sub-Services</h4><div class="form-group"><label>Sub-Service Type 1</label><select id="field6"><option value="">--Select--</option>${data.sub1.map(s=>'<option value="'+s.id+'">'+s.sub_service_name+'</option>').join('')}</select></div><div class="form-group"><label>Sub-Service Type 2</label><select id="field7"><option value="">--Select--</option>${data.sub2.map(s=>'<option value="'+s.id+'">'+s.sub_service_name+'</option>').join('')}</select></div></div><div class="form-group"><label><input type="checkbox" id="field8" checked style="width:auto;margin-right:8px;">Active</label></div>`;
-            else if (type === 'sub1') html = '<div class="form-group"><label>Sub-Service Name *</label><input type="text" id="field1" required></div><div class="form-group"><label><input type="checkbox" id="field2" checked style="width:auto;margin-right:8px;">Active</label></div>';
-            else if (type === 'sub2') html = '<div class="form-group"><label>Sub-Service Name *</label><input type="text" id="field1" required></div><div class="form-group"><label>SAC Code</label><input type="text" id="field2"></div><div class="form-group"><label>GST % *</label><input type="number" id="field3" min="0" max="100" step="0.01" value="0" required></div><div class="form-group"><label><input type="checkbox" id="field4" checked style="width:auto;margin-right:8px;">Active</label></div>';
-            document.getElementById('formFields').innerHTML = html;
-            document.getElementById('modal').classList.add('show');
-        }
-
-        async function editItem(id, type) {
-            const item = data[type].find(x => x.id === id);
-            if (!item) return;
-            editing = {id, type};
-            currentType = type;
-            newItem(type);
-            document.getElementById('modalTitle').textContent = 'Edit Item';
-            if (type === 'cat') {
-                document.getElementById('field1').value = item.category_name;
-                document.getElementById('field2').checked = item.is_active;
-            } else if (type === 'svc') {
-                document.getElementById('field1').value = item.category_id;
-                document.getElementById('field2').value = item.service_name;
-                document.getElementById('field3').value = item.sac_code || '';
-                document.getElementById('field4').value = item.gst_percentage;
-                document.getElementById('field5').value = item.rate || 0;
-                document.getElementById('field6').value = item.sub_service_type_1_id || '';
-                document.getElementById('field7').value = item.sub_service_type_2_id || '';
-                document.getElementById('field8').checked = item.is_active;
-            } else if (type === 'sub1') {
-                document.getElementById('field1').value = item.sub_service_name;
-                document.getElementById('field2').checked = item.is_active;
-            } else if (type === 'sub2') {
-                document.getElementById('field1').value = item.sub_service_name;
-                document.getElementById('field2').value = item.sac_code || '';
-                document.getElementById('field3').value = item.gst_percentage || 0;
-                document.getElementById('field4').checked = item.is_active;
-            }
-        }
-
-        async function saveItem(e) {
-            e.preventDefault();
-            const tables = {cat:'service_categories',svc:'service_items',sub1:'sub_service_type_1',sub2:'sub_service_type_2'};
-            let saveData = {};
-            if (currentType === 'cat') {
-                saveData = {category_name: document.getElementById('field1').value, is_active: document.getElementById('field2').checked};
-            } else if (currentType === 'svc') {
-                saveData = {category_id: document.getElementById('field1').value, service_name: document.getElementById('field2').value, sac_code: document.getElementById('field3').value||null, gst_percentage: parseFloat(document.getElementById('field4').value)||0, rate: parseFloat(document.getElementById('field5').value)||0, sub_service_type_1_id: document.getElementById('field6').value||null, sub_service_type_2_id: document.getElementById('field7').value||null, is_active: document.getElementById('field8').checked};
-            } else if (currentType === 'sub1') {
-                saveData = {sub_service_name: document.getElementById('field1').value, is_active: document.getElementById('field2').checked};
-            } else if (currentType === 'sub2') {
-                saveData = {sub_service_name: document.getElementById('field1').value, sac_code: document.getElementById('field2').value||null, gst_percentage: parseFloat(document.getElementById('field3').value)||0, is_active: document.getElementById('field4').checked};
-            }
-            try {
-                if (editing) await db.from(tables[currentType]).update(saveData).eq('id', editing.id);
-                else await db.from(tables[currentType]).insert(saveData);
-                closeModal();
-                await load();
-                show(currentType, 'Saved!');
-            } catch(e) { console.error(e); }
-        }
-
-        async function del(id, type) {
-            if (!confirm('Delete?')) return;
-            const tables = {cat:'service_categories',svc:'service_items',sub1:'sub_service_type_1',sub2:'sub_service_type_2'};
-            await db.from(tables[type]).delete().eq('id', id);
-            await load();
-        }
-
-        function exportCSV(type) {
-            const names = {cat:'Categories',svc:'Services',sub1:'SubType1',sub2:'SubType2'};
-            const items = data[type];
-            let csv = '';
-            if (type === 'cat') csv = 'Name,Active\n' + items.map(x => `"${x.category_name}",${x.is_active?'Yes':'No'}`).join('\n');
-            else if (type === 'svc') csv = 'Name,Category,SAC,GST,Rate,Active\n' + items.map(x => {
-                const cat = data.cat.find(c=>c.id===x.category_id)?.category_name||'';
-                return `"${x.service_name}","${cat}","${x.sac_code||''}",${x.gst_percentage},${x.rate},${x.is_active?'Yes':'No'}`;
-            }).join('\n');
-            else if (type === 'sub1') csv = 'Name,Active\n' + items.map(x => `"${x.sub_service_name}",${x.is_active?'Yes':'No'}`).join('\n');
-            else if (type === 'sub2') csv = 'Name,SAC,GST,Active\n' + items.map(x => `"${x.sub_service_name}","${x.sac_code||''}",${x.gst_percentage},${x.is_active?'Yes':'No'}`).join('\n');
-            const blob = new Blob([csv], {type:'text/csv'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${names[type]}_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-        }
-
-        function importFile(type) { document.getElementById(`import-${type}`).click(); }
-        function parseImport(type) { const f = document.getElementById(`import-${type}`).files[0]; if(!f) return; const r = new FileReader(); r.onload = async e => { const lines = e.target.result.split('\n').slice(1); let cnt=0; for(const l of lines) { if(!l.trim()) continue; const cols = l.split(',').map(c=>c.replace(/"/g,'').trim()); try { if(type==='cat') { await db.from('service_categories').insert({category_name:cols[0],is_active:cols[1]!=='No'}); cnt++; } else if(type==='svc') { const cid = data.cat.find(c=>c.category_name===cols[1])?.id; if(cid) { await db.from('service_items').insert({category_id:cid,service_name:cols[0],sac_code:cols[2]||null,gst_percentage:parseFloat(cols[3])||0,rate:parseFloat(cols[4])||0,is_active:cols[5]!=='No'}); cnt++; } } else if(type==='sub1') { await db.from('sub_service_type_1').insert({sub_service_name:cols[0],is_active:cols[1]!=='No'}); cnt++; } else if(type==='sub2') { await db.from('sub_service_type_2').insert({sub_service_name:cols[0],sac_code:cols[1]||null,gst_percentage:parseFloat(cols[2])||0,is_active:cols[3]!=='No'}); cnt++; } } catch(e) {} } alert(`Imported ${cnt}`); await load(); document.getElementById(`import-${type}`).value=''; }; r.readAsText(f); }
-
-        function closeModal() { document.getElementById('modal').classList.remove('show'); }
-        function show(type, msg) { const el = document.getElementById(`msg-${type}`); if(el) { el.textContent = '✓ '+msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 3000); } }
-        async function saveBiz(e) { e.preventDefault(); const data = {business_name:document.getElementById('bizName').value,gst_number:document.getElementById('bizGst').value,phone:document.getElementById('bizPhone').value,email:document.getElementById('bizEmail').value,address:document.getElementById('bizAddr').value,city:document.getElementById('bizCity').value,state:document.getElementById('bizState').value,pincode:document.getElementById('bizPin').value}; const {data:ex} = await db.from('business_settings').select('id').limit(1); if(ex&&ex.length) await db.from('business_settings').update(data).eq('id',ex[0].id); else await db.from('business_settings').insert(data); show('biz','Saved!'); }
-        function logout() { if(confirm('Logout?')) { localStorage.removeItem('userSession'); window.location.href='index.html'; } }
-        window.addEventListener('load', init);
     </script>
 </body>
 </html>
