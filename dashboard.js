@@ -94,7 +94,7 @@ if (document.getElementById('serviceType')) {
                 rateField.placeholder = 'Enter amount';
                 rateField.readOnly = false;
             } else {
-                rateField.value = service.rate || 0;
+                rateField.value = service.base_rate || 0;
                 rateField.readOnly = true;
             }
         } else {
@@ -118,7 +118,7 @@ if (document.getElementById('customerMobile')) {
                     .single();
                 
                 if (data) {
-                    document.getElementById('customerName').value = data.customer_name;
+                    document.getElementById('customerName').value = data.full_name;
                     document.getElementById('customerEmail').value = data.email || '';
                     document.getElementById('customerGSTIN').value = data.gstin || '';
                     document.getElementById('customerAddress').value = data.address || '';
