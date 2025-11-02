@@ -1,446 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Settings - DreamHarbour</title>
+    <title>Settings</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        .navbar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .navbar h1 {
-            font-size: 1.5em;
-        }
-        
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .navbar-right button {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .navbar-right button:hover {
-            background-color: #c0392b;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .header {
-            margin-bottom: 30px;
-        }
-        
-        .header a {
-            color: #3498db;
-            text-decoration: none;
-            font-size: 0.95em;
-        }
-        
-        .header a:hover {
-            text-decoration: underline;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-        
-        .tab-button {
-            padding: 12px 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.95em;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-        
-        .tab-button:hover {
-            color: #333;
-        }
-        
-        .tab-button.active {
-            color: #3498db;
-            border-bottom-color: #3498db;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .section h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.95em;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            margin: 2px;
-        }
-        
-        .btn-danger {
-            background-color: #e74c3c;
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            margin-top: 15px;
-        }
-        
-        table thead {
-            background-color: #f8f9fa;
-        }
-        
-        table th, table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .stat-count {
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 0.9em;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .tabs {
-                flex-wrap: wrap;
-            }
-            
-            table {
-                font-size: 0.85em;
-            }
-            
-            table th, table td {
-                padding: 8px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
+        .navbar { background-color: #2c3e50; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .navbar button { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        .sidebar { background-color: #34495e; color: white; width: 200px; min-height: calc(100vh - 60px); position: fixed; left: 0; top: 60px; }
+        .sidebar a { display: block; padding: 15px 20px; color: white; text-decoration: none; }
+        .main-content { margin-left: 200px; padding: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; }
+        .tab-btn { padding: 10px 20px; background: none; border: none; cursor: pointer; color: #666; font-size: 1em; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: #3498db; border-bottom-color: #3498db; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #2c3e50; color: white; }
+        button { background-color: #3498db; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin: 5px 0; }
+        button:hover { background-color: #2980b9; }
+        .stat { padding: 10px; background: #f0f0f0; border-radius: 4px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h1>⚙️ DreamHarbour - Settings Pro</h1>
-        <div class="navbar-right">
-            <span>Welcome, <strong id="userName">User</strong></span>
+        <h1>⚙️ Settings</h1>
+        <div>
+            <span id="userName"></span>
             <button onclick="logout()">Logout</button>
         </div>
     </div>
     
-    <div class="container">
-        <div class="header">
-            <a href="dashboard.html">← Back to Dashboard</a>
-        </div>
-        
+    <div class="sidebar">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="invoices.html">📋 Invoices</a>
+        <a href="settings.html">⚙️ Settings</a>
+    </div>
+    
+    <div class="main-content">
         <div class="tabs">
-            <button class="tab-button active" onclick="openTab('businesses')">🏢 Businesses</button>
-            <button class="tab-button" onclick="openTab('services')">🛍️ Services</button>
-            <button class="tab-button" onclick="openTab('subservice1')">🔗 Sub-Services Type 1</button>
-            <button class="tab-button" onclick="openTab('subservice2')">🔗 Sub-Services Type 2</button>
-            <button class="tab-button" onclick="openTab('customers')">👥 Customers</button>
+            <button class="tab-btn active" onclick="switchTab('businesses')">🏢 Businesses</button>
+            <button class="tab-btn" onclick="switchTab('services')">🛍️ Services</button>
+            <button class="tab-btn" onclick="switchTab('subservices1')">🔗 Sub-Services 1</button>
+            <button class="tab-btn" onclick="switchTab('subservices2')">🔗 Sub-Services 2</button>
+            <button class="tab-btn" onclick="switchTab('customers')">👥 Customers</button>
         </div>
         
-        <!-- BUSINESSES TAB -->
         <div id="businesses" class="tab-content active">
-            <div class="section">
-                <h3>📊 Business Settings</h3>
-                
-                <div class="stat-count">
-                    📊 Total: <span id="businessCount">0</span> | Active: <span id="businessActiveCount">0</span>
-                </div>
-                
-                <button class="btn" onclick="openBusinessModal()">+ Add Business</button>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Business Name</th>
-                            <th>GSTIN</th>
-                            <th>State</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="businessList">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 20px;">Loading...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2>Businesses</h2>
+            <div class="stat" id="businessStat">📊 Total: 0 | Active: 0</div>
+            <table id="businessTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
         
-        <!-- SERVICES TAB -->
         <div id="services" class="tab-content">
-            <div class="section">
-                <h3>🛍️ Service Management</h3>
-                
-                <div class="stat-count">
-                    📊 Total: <span id="serviceCount">0</span> | Active: <span id="serviceActiveCount">0</span>
-                </div>
-                
-                <button class="btn" onclick="openServiceModal()">+ Add Service</button>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Service Name</th>
-                            <th>Category</th>
-                            <th>SAC Code</th>
-                            <th>GST %</th>
-                            <th>Rate</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="serviceList">
-                        <tr>
-                            <td colspan="7" style="text-align: center; padding: 20px;">Loading...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2>Services</h2>
+            <div class="stat" id="serviceStat">📊 Total: 0 | Active: 0</div>
+            <table id="serviceTable">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Category</th>
+                        <th>SAC</th>
+                        <th>GST%</th>
+                        <th>Rate</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
         
-        <!-- SUB-SERVICES TYPE 1 TAB -->
-        <div id="subservice1" class="tab-content">
-            <div class="section">
-                <h3>🔗 Sub-Services Type 1</h3>
-                
-                <div class="stat-count">
-                    📊 Total: <span id="subService1Count">0</span> | Active: <span id="subService1ActiveCount">0</span>
-                </div>
-                
-                <button class="btn" onclick="openSubService1Modal()">+ Add Sub-Service</button>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sub-Service Name</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="subService1List">
-                        <tr>
-                            <td colspan="3" style="text-align: center; padding: 20px;">Loading...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div id="subservices1" class="tab-content">
+            <h2>Sub-Services Type 1</h2>
+            <div class="stat" id="subservice1Stat">📊 Total: 0 | Active: 0</div>
+            <table id="subservice1Table">
+                <thead>
+                    <tr>
+                        <th>Sub-Service</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
         
-        <!-- SUB-SERVICES TYPE 2 TAB -->
-        <div id="subservice2" class="tab-content">
-            <div class="section">
-                <h3>🔗 Sub-Services Type 2 (Government Fees)</h3>
-                
-                <div class="stat-count">
-                    📊 Total: <span id="subService2Count">0</span> | Active: <span id="subService2ActiveCount">0</span>
-                </div>
-                
-                <button class="btn" onclick="openSubService2Modal()">+ Add Sub-Service</button>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Sub-Service Name</th>
-                            <th>SAC Code</th>
-                            <th>GST %</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="subService2List">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 20px;">Loading...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div id="subservices2" class="tab-content">
+            <h2>Sub-Services Type 2</h2>
+            <div class="stat" id="subservice2Stat">📊 Total: 0 | Active: 0</div>
+            <table id="subservice2Table">
+                <thead>
+                    <tr>
+                        <th>Sub-Service</th>
+                        <th>SAC</th>
+                        <th>GST%</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
         
-        <!-- CUSTOMERS TAB -->
         <div id="customers" class="tab-content">
-            <div class="section">
-                <h3>👥 Customers</h3>
-                
-                <div class="stat-count">
-                    📊 Total Customers: <span id="customerCount">0</span>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Customer Name</th>
-                            <th>Mobile</th>
-                            <th>Email</th>
-                            <th>GSTIN</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customerList">
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 20px;">Loading...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2>Customers</h2>
+            <div class="stat" id="customerStat">📊 Total Customers: 0</div>
+            <table id="customerTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>GSTIN</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
         </div>
     </div>
 
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Common Utilities (MUST BE FIRST) -->
     <script src="common.js"></script>
-    
-    <!-- Settings Logic (will be created next) -->
-    <script src="settings.js"></script>
-    
     <script>
-        function openTab(tabName) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            
-            // Remove active class from all buttons
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            // Show selected tab
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!checkSession()) return;
+            document.getElementById('userName').textContent = 'Welcome, ' + currentUser.name;
+            await loadAllData();
+        });
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-            
-            // Add active class to clicked button
             event.target.classList.add('active');
         }
         
-        // Placeholder functions - will be replaced with actual settings.js
-        function openBusinessModal() {
-            alert('Business modal - to be implemented');
-        }
-        
-        function openServiceModal() {
-            alert('Service modal - to be implemented');
-        }
-        
-        function openSubService1Modal() {
-            alert('Sub-Service 1 modal - to be implemented');
-        }
-        
-        function openSubService2Modal() {
-            alert('Sub-Service 2 modal - to be implemented');
+        async function loadAllData() {
+            try {
+                const { data: services } = await supabase.from('service_types').select('*');
+                const { data: customers } = await supabase.from('customers').select('*');
+                
+                const serviceTable = document.getElementById('serviceTable').querySelector('tbody');
+                serviceTable.innerHTML = (services || []).map(service => `
+                    <tr>
+                        <td>${service.service_name}</td>
+                        <td>${service.category || '-'}</td>
+                        <td>${service.sac_code}</td>
+                        <td>${service.gst_percentage}%</td>
+                        <td>₹${service.base_rate}</td>
+                        <td>${service.is_active ? 'Active' : 'Inactive'}</td>
+                        <td>-</td>
+                    </tr>
+                `).join('');
+                
+                const customerTable = document.getElementById('customerTable').querySelector('tbody');
+                customerTable.innerHTML = (customers || []).map(customer => `
+                    <tr>
+                        <td>${customer.full_name}</td>
+                        <td>${customer.mobile_no}</td>
+                        <td>${customer.email || '-'}</td>
+                        <td>${customer.gstin || '-'}</td>
+                    </tr>
+                `).join('');
+                
+                document.getElementById('serviceStat').textContent = `📊 Total: ${services?.length || 0} | Active: ${services?.filter(s => s.is_active).length || 0}`;
+                document.getElementById('customerStat').textContent = `📊 Total Customers: ${customers?.length || 0}`;
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
         }
     </script>
 </body>

@@ -7,6 +7,9 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Global Variables
 let currentUser = null;
+let servicesData = [];
+let selectedServices = [];
+let allCustomers = [];
 
 // ============================================
 // SESSION MANAGEMENT
@@ -41,71 +44,24 @@ function getCurrentUser() {
 // UTILITY FUNCTIONS
 // ============================================
 
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 0
-    }).format(amount);
-}
-
-function formatCurrencyWithDecimals(amount) {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 2
-    }).format(amount);
-}
-
-function validatePhoneNumber(phone) {
-    const phoneRegex = /^[0-9]{10}$/;
-    return phoneRegex.test(phone);
-}
-
-function validatePIN(pin) {
-    const pinRegex = /^[0-9]{4}$/;
-    return pinRegex.test(pin);
-}
-
 function showAlert(message, type = 'info') {
     alert(message);
 }
 
+function formatCurrency(amount) {
+    return '₹' + amount.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 function formatDate(dateString) {
     const date = new Date(dateString);
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return date.toLocaleDateString('en-IN', options);
 }
 
-function getTodayDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+function validatePhoneNumber(phone) {
+    return /^[0-9]{10}$/.test(phone);
 }
 
-function calculateGST(amount, gstPercentage) {
-    return (amount * gstPercentage) / 100;
+function validatePIN(pin) {
+    return /^[0-9]{4}$/.test(pin);
 }
-
-function calculateTotal(amount, gstPercentage) {
-    const gst = calculateGST(amount, gstPercentage);
-    return amount + gst;
-}
-
-// ============================================
-// SESSION CHECK ON PAGE LOAD
-// ============================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    if (document.body.id !== 'loginPage') {
-        if (!checkSession()) {
-            return;
-        }
-        const userNameElement = document.getElementById('userName');
-        if (userNameElement && currentUser) {
-            userNameElement.textContent = currentUser.name;
-        }
-    }
-});

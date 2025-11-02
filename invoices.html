@@ -1,492 +1,325 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Management - DreamHarbour</title>
+    <title>Invoices</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        .navbar {
-            background-color: #2c3e50;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .navbar h1 {
-            font-size: 1.5em;
-        }
-        
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .header a {
-            color: #3498db;
-            text-decoration: none;
-            font-size: 0.95em;
-        }
-        
-        .header a:hover {
-            text-decoration: underline;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-        
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.85em;
-            margin: 2px;
-        }
-        
-        .btn-danger {
-            background-color: #e74c3c;
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        
-        table thead {
-            background-color: #2c3e50;
-            color: white;
-        }
-        
-        table th, table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-        }
-        
-        .modal.show {
-            display: block;
-        }
-        
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 90%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            border-radius: 8px;
-            top: 50%;
-            position: relative;
-            transform: translateY(-50%);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ecf0f1;
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-        }
-        
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .close:hover {
-            color: black;
-        }
-        
-        .form-section {
-            margin-bottom: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .form-section h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.95em;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #3498db;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .input-group input,
-        .input-group select {
-            flex: 1;
-        }
-        
-        .input-group button {
-            flex: 0 0 auto;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid #ecf0f1;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-paid {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 10px;
-            }
-            
-            table {
-                font-size: 0.85em;
-            }
-            
-            table th, table td {
-                padding: 10px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
+        .navbar { background-color: #2c3e50; color: white; padding: 15px 30px; display: flex; justify-content: space-between; }
+        .sidebar { background-color: #34495e; color: white; width: 200px; min-height: calc(100vh - 60px); position: fixed; left: 0; top: 60px; }
+        .sidebar a { display: block; padding: 15px 20px; color: white; text-decoration: none; }
+        .main-content { margin-left: 200px; padding: 20px; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); }
+        .modal.show { display: block; }
+        .modal-content { background-color: white; margin: 10% auto; padding: 20px; width: 80%; max-width: 600px; border-radius: 5px; }
+        .close { float: right; font-size: 28px; cursor: pointer; }
+        button { background-color: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background-color: #2980b9; }
+        input, select, textarea { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #2c3e50; color: white; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h1>📋 Invoice Management - DreamHarbour</h1>
+        <h1>📋 Invoices</h1>
+        <button onclick="logout()" style="background-color: #e74c3c;">Logout</button>
     </div>
     
-    <div class="container">
-        <div class="header">
-            <div>
-                <a href="dashboard.html">← Back to Dashboard</a>
-            </div>
-            <button class="btn" onclick="openCreateInvoiceModal()">➕ Create New Invoice</button>
-        </div>
+    <div class="sidebar">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="invoices.html">📋 Invoices</a>
+        <a href="settings.html">⚙️ Settings</a>
+    </div>
+    
+    <div class="main-content">
+        <button onclick="openModal()">➕ Create New Invoice</button>
         
         <h2>Recent Invoices</h2>
-        <table>
+        <table id="invoiceTable">
             <thead>
                 <tr>
-                    <th>Invoice Number</th>
+                    <th>Invoice #</th>
                     <th>Date</th>
                     <th>Customer</th>
-                    <th>Total Amount</th>
-                    <th>Payment Status</th>
-                    <th>Actions</th>
+                    <th>Total</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody id="invoiceList">
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 30px;">Loading invoices...</td>
-                </tr>
+                <tr><td colspan="5">Loading...</td></tr>
             </tbody>
         </table>
     </div>
-    
-    <!-- Create Invoice Modal -->
-    <div id="createInvoiceModal" class="modal">
+
+    <div id="invoiceModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>📋 Create New Invoice</h2>
-                <span class="close" onclick="closeCreateInvoiceModal()">&times;</span>
-            </div>
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>📋 Create New Invoice</h2>
             
-            <form id="invoiceForm">
-                <!-- Customer Details Section -->
-                <div class="form-section">
-                    <h3>👤 Customer Details</h3>
-                    
-                    <div class="form-group">
-                        <label for="customerMobile">Mobile Number * (Database Lookup)</label>
-                        <input type="text" id="customerMobile" placeholder="Enter 10-digit mobile number" maxlength="10" inputmode="numeric">
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customerName">Customer Name *</label>
-                            <input type="text" id="customerName" placeholder="Customer name">
-                        </div>
-                        <div class="form-group">
-                            <label for="customerEmail">Email</label>
-                            <input type="email" id="customerEmail" placeholder="customer@example.com">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="customerGSTIN">GSTIN</label>
-                            <input type="text" id="customerGSTIN" placeholder="GSTIN">
-                        </div>
-                        <div class="form-group">
-                            <label for="customerAddress">Address</label>
-                            <input type="text" id="customerAddress" placeholder="Address">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Invoice Details Section -->
-                <div class="form-section">
-                    <h3>📅 Invoice Details</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="invoiceDate">Invoice Date *</label>
-                            <input type="date" id="invoiceDate">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Service Selection Section -->
-                <div class="form-section">
-                    <h3>🛍️ Add Services</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="serviceType">Select Service *</label>
-                            <select id="serviceType">
-                                <option value="">-- Select Service --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="quantity">Quantity *</label>
-                            <input type="number" id="quantity" value="1" min="1">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="serviceRate">Rate *</label>
-                            <input type="number" id="serviceRate" step="0.01" min="0">
-                        </div>
-                    </div>
-                    
-                    <button type="button" class="btn" id="addServiceBtn" onclick="addService()">+ Add Service</button>
-                </div>
-                
-                <!-- Added Services Table -->
-                <div class="form-section">
-                    <h3>📦 Added Services</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Service Name</th>
-                                <th>SAC Code</th>
-                                <th>Qty</th>
-                                <th>Rate</th>
-                                <th>Amount</th>
-                                <th>GST %</th>
-                                <th>GST Amount</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selectedServicesTable">
-                            <tr>
-                                <td colspan="9" style="text-align: center; padding: 20px;">No services added yet</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    
-                    <div class="form-row" style="text-align: right; margin-top: 15px;">
-                        <div></div>
-                        <div>
-                            <div><strong>Subtotal:</strong> <span id="invoiceSubtotal">₹0</span></div>
-                            <div><strong>GST Total:</strong> <span id="invoiceGST">₹0</span></div>
-                            <div style="font-size: 1.2em; color: #3498db;"><strong>Total Amount:</strong> <span id="invoiceTotal">₹0</span></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Payment Section -->
-                <div class="form-section">
-                    <h3>💳 Payment Details</h3>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Payment Status *</label>
-                            <div>
-                                <label style="font-weight: normal;">
-                                    <input type="radio" name="paymentStatus" value="Pending" checked> Pending
-                                </label>
-                                <label style="font-weight: normal; margin-left: 20px;">
-                                    <input type="radio" name="paymentStatus" value="Paid"> Paid
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentType">Payment Type</label>
-                            <select id="paymentType">
-                                <option value="">-- Select Type --</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Bank">Bank Transfer</option>
-                                <option value="Card">Card</option>
-                                <option value="Cheque">Cheque</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modal Buttons -->
-                <div class="modal-buttons">
-                    <button type="button" class="btn" id="resetFormBtn" onclick="resetInvoiceForm()">⟲ Reset</button>
-                    <button type="button" class="btn" id="submitInvoiceBtn" onclick="submitInvoice()">✓ Submit</button>
-                </div>
-            </form>
+            <label>Customer Mobile (Database Lookup)</label>
+            <input type="text" id="customerMobile" maxlength="10" onblur="lookupCustomer()">
+            
+            <label>Customer Name</label>
+            <input type="text" id="customerName">
+            
+            <label>Email</label>
+            <input type="email" id="customerEmail">
+            
+            <label>Address</label>
+            <textarea id="customerAddress"></textarea>
+            
+            <label>GSTIN</label>
+            <input type="text" id="customerGSTIN">
+            
+            <label>Select Service</label>
+            <select id="serviceType" onchange="onServiceChange()">
+                <option value="">-- Select Service --</option>
+            </select>
+            
+            <label>Quantity</label>
+            <input type="number" id="serviceQuantity" value="1" min="1">
+            
+            <label>Rate</label>
+            <input type="number" id="serviceRate" step="0.01">
+            
+            <button onclick="addService()">+ Add Service</button>
+            
+            <h3>Added Services</h3>
+            <table id="serviceTable">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <th>GST</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="serviceItemsList"></tbody>
+            </table>
+            
+            <h3>Totals</h3>
+            <p>Subtotal: <strong id="subtotal">₹0</strong></p>
+            <p>GST: <strong id="totalGST">₹0</strong></p>
+            <p>Total: <strong id="grandTotal">₹0</strong></p>
+            
+            <label>Payment Status</label>
+            <select id="paymentStatus">
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+            </select>
+            
+            <button onclick="submitInvoice()">✓ Submit</button>
+            <button onclick="closeModal()">Cancel</button>
         </div>
     </div>
 
-    <!-- Supabase Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Common Utilities (MUST BE FIRST) -->
     <script src="common.js"></script>
-    
-    <!-- Invoice Management -->
-    <script src="invoices.js"></script>
-    
     <script>
-        function openCreateInvoiceModal() {
-            document.getElementById('createInvoiceModal').classList.add('show');
-            document.getElementById('invoiceDate').valueAsDate = new Date();
+        let allServices = [];
+        let selectedServices = [];
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!checkSession()) return;
+            await loadServices();
+            await loadInvoices();
+        });
+        
+        async function loadServices() {
+            try {
+                const { data } = await supabase.from('service_types').select('*').eq('is_active', true);
+                allServices = data || [];
+                
+                const select = document.getElementById('serviceType');
+                select.innerHTML = '<option value="">-- Select Service --</option>';
+                allServices.forEach(service => {
+                    const option = document.createElement('option');
+                    option.value = service.id;
+                    option.textContent = service.service_name;
+                    option.dataset.rate = service.base_rate;
+                    option.dataset.gst = service.gst_percentage;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading services:', error);
+            }
         }
         
-        function closeCreateInvoiceModal() {
-            document.getElementById('createInvoiceModal').classList.remove('show');
+        async function loadInvoices() {
+            try {
+                const { data } = await supabase.from('invoices').select('*').order('created_at', { ascending: false }).limit(10);
+                const list = document.getElementById('invoiceList');
+                list.innerHTML = (data || []).map(inv => `
+                    <tr>
+                        <td>${inv.invoice_number}</td>
+                        <td>${formatDate(inv.invoice_date)}</td>
+                        <td>${inv.customer_id}</td>
+                        <td>${formatCurrency(inv.total_amount)}</td>
+                        <td>${inv.payment_status}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+            }
         }
         
-        window.onclick = function(event) {
-            const modal = document.getElementById('createInvoiceModal');
-            if (event.target == modal) {
-                modal.classList.remove('show');
+        function openModal() {
+            document.getElementById('invoiceModal').classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('invoiceModal').classList.remove('show');
+            selectedServices = [];
+            document.getElementById('serviceItemsList').innerHTML = '';
+        }
+        
+        async function lookupCustomer() {
+            const mobile = document.getElementById('customerMobile').value;
+            if (mobile.length === 10) {
+                try {
+                    const { data } = await supabase.from('customers').select('*').eq('mobile_no', mobile).single();
+                    if (data) {
+                        document.getElementById('customerName').value = data.full_name;
+                        document.getElementById('customerEmail').value = data.email || '';
+                        document.getElementById('customerGSTIN').value = data.gstin || '';
+                        document.getElementById('customerAddress').value = data.address || '';
+                        showAlert('Customer found!');
+                    }
+                } catch (error) {
+                    console.log('New customer');
+                }
+            }
+        }
+        
+        function onServiceChange() {
+            const select = document.getElementById('serviceType');
+            const option = select.options[select.selectedIndex];
+            if (option.dataset.rate) {
+                document.getElementById('serviceRate').value = option.dataset.rate;
+            }
+        }
+        
+        function addService() {
+            const serviceId = document.getElementById('serviceType').value;
+            const quantity = parseInt(document.getElementById('serviceQuantity').value) || 1;
+            const rate = parseFloat(document.getElementById('serviceRate').value) || 0;
+            
+            if (!serviceId || quantity < 1 || rate <= 0) {
+                showAlert('Please fill all fields correctly');
+                return;
+            }
+            
+            const service = allServices.find(s => s.id === serviceId);
+            const amount = quantity * rate;
+            const gst = (amount * (service.gst_percentage || 18)) / 100;
+            
+            selectedServices.push({
+                id: serviceId,
+                name: service.service_name,
+                quantity,
+                rate,
+                amount,
+                gst,
+                gstPercent: service.gst_percentage || 18
+            });
+            
+            displayServices();
+        }
+        
+        function displayServices() {
+            const list = document.getElementById('serviceItemsList');
+            let subtotal = 0, totalGST = 0;
+            
+            list.innerHTML = selectedServices.map((srv, i) => {
+                subtotal += srv.amount;
+                totalGST += srv.gst;
+                return `
+                    <tr>
+                        <td>${srv.name}</td>
+                        <td>${srv.quantity}</td>
+                        <td>${formatCurrency(srv.rate)}</td>
+                        <td>${formatCurrency(srv.amount)}</td>
+                        <td>${srv.gstPercent}% = ${formatCurrency(srv.gst)}</td>
+                        <td>${formatCurrency(srv.amount + srv.gst)}</td>
+                        <td><button onclick="selectedServices.splice(${i}, 1); displayServices();">Remove</button></td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('totalGST').textContent = formatCurrency(totalGST);
+            document.getElementById('grandTotal').textContent = formatCurrency(subtotal + totalGST);
+        }
+        
+        async function submitInvoice() {
+            const phone = document.getElementById('customerMobile').value;
+            const name = document.getElementById('customerName').value;
+            
+            if (!phone || !name || selectedServices.length === 0) {
+                showAlert('Please fill customer details and add services');
+                return;
+            }
+            
+            try {
+                let customerId;
+                let customer = (await supabase.from('customers').select('*').eq('mobile_no', phone).single()).data;
+                
+                if (!customer) {
+                    const { data } = await supabase.from('customers').insert([{
+                        mobile_no: phone,
+                        full_name: name,
+                        email: document.getElementById('customerEmail').value,
+                        gstin: document.getElementById('customerGSTIN').value,
+                        address: document.getElementById('customerAddress').value
+                    }]).select();
+                    customerId = data[0].id;
+                } else {
+                    customerId = customer.id;
+                }
+                
+                let subtotal = 0, totalGST = 0;
+                selectedServices.forEach(srv => {
+                    subtotal += srv.amount;
+                    totalGST += srv.gst;
+                });
+                
+                const { data: inv } = await supabase.from('invoices').insert([{
+                    invoice_number: 'INV-' + Date.now(),
+                    customer_id: customerId,
+                    created_by: currentUser.id,
+                    invoice_date: new Date().toISOString(),
+                    subtotal: subtotal,
+                    total_gst: totalGST,
+                    total_amount: subtotal + totalGST,
+                    payment_status: document.getElementById('paymentStatus').value
+                }]).select();
+                
+                const invoiceId = inv[0].id;
+                
+                await supabase.from('invoice_items').insert(selectedServices.map(srv => ({
+                    invoice_id: invoiceId,
+                    description: srv.name,
+                    quantity: srv.quantity,
+                    rate: srv.rate,
+                    amount: srv.amount,
+                    gst_percentage: srv.gstPercent,
+                    gst_amount: srv.gst
+                })));
+                
+                showAlert('Invoice created successfully!');
+                closeModal();
+                loadInvoices();
+                
+            } catch (error) {
+                showAlert('Error: ' + error.message);
             }
         }
     </script>
