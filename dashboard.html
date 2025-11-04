@@ -1,233 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>DreamHarbour - Business Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
-        .navbar { background-color: #2c3e50; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .navbar button { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
-        .sidebar { background-color: #34495e; color: white; width: 200px; min-height: calc(100vh - 60px); position: fixed; left: 0; top: 60px; }
-        .sidebar a { display: block; padding: 15px 20px; color: white; text-decoration: none; }
-        .sidebar a:hover { background-color: #2c3e50; }
-        .main-content { margin-left: 200px; padding: 20px; }
-        .stat-card { background: white; padding: 15px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
-        .stat-card h3 { color: #7f8c8d; font-size: 0.85em; margin-bottom: 10px; text-transform: uppercase; }
-        .stat-value { font-size: 1.8em; font-weight: bold; color: #3498db; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #2c3e50; color: white; }
-        tr:hover { background-color: #f9f9f9; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .user-info {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .user-info strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #1e40af;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #1e40af;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(30, 64, 175, 0.4);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #1e40af;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .comparison-values {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .comparison-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .search-filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 10px rgba(30, 64, 175, 0.2);
+        }
+
+        .date-filter {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #666;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background: #1e3a8a;
+            transform: translateY(-2px);
+        }
+
+        .widgets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .widget {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .widget:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .widget-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .widget-chart {
+            position: relative;
+            height: 300px;
+            margin-bottom: 15px;
+        }
+
+        .service-list {
+            list-style: none;
+        }
+
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .service-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .service-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1e40af 0%, #1e3a8a 100%);
+            border-radius: 4px;
+        }
+
+        .service-value {
+            font-weight: bold;
+            color: #1e40af;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background: #1e40af;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .activity-user {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .activity-time {
+            font-size: 11px;
+            color: #bbb;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.3);
+        }
+
+        .action-icon {
+            font-size: 24px;
+        }
+
+        .payment-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .payment-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .payment-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .payment-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pending-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .pending-card {
+            background: white;
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .pending-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .pending-invoice-id {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .pending-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .pending-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .pending-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pending-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-complete {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background: #059669;
+        }
+
+        .btn-send {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-send:hover {
+            background: #2563eb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1e40af;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .nav-link-disabled {
+            color: white;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-right {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .widgets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .table-container {
+                font-size: 12px;
+            }
+
+            table th, table td {
+                padding: 10px;
+            }
+
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="navbar">
-        <h1>📊 Dashboard</h1>
-        <div>
-            <span>Welcome, <strong id="userName">User</strong></span>
-            <button onclick="logout()">Logout</button>
-        </div>
-    </div>
-    
-    <div class="sidebar">
-        <a href="dashboard.html">📊 Dashboard</a>
-        <a href="invoices.html">📋 Invoices</a>
-        <a href="settings.html">⚙️ Settings</a>
-    </div>
-    
-    <div class="main-content">
-        <h2>Quick Stats</h2>
-        <p>Today vs Yesterday</p>
-        
-        <div class="grid">
-            <div class="stat-card">
-                <h3>Today's Revenue</h3>
-                <div class="stat-value" id="todayRevenue">₹0</div>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">🏢 DreamHarbour</div>
+                <div class="user-info">
+                    <strong id="userName">Welcome!</strong>
+                    <span id="userRole">Administrator</span>
+                </div>
             </div>
-            
-            <div class="stat-card">
-                <h3>Yesterday's Revenue</h3>
-                <div class="stat-value" id="yesterdayRevenue">₹0</div>
+            <div class="header-right">
+                <span class="nav-link-disabled">⚙️ Settings (Coming Soon)</span>
+                <button class="btn btn-secondary" onclick="exportDashboardPDF()">📥 Export Report</button>
+                <button class="btn btn-primary" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
-        
-        <p>This Month vs Last Month</p>
-        
-        <div class="grid">
-            <div class="stat-card">
-                <h3>This Month</h3>
-                <div class="stat-value" id="thisMonthRevenue">₹0</div>
+
+        <div class="content">
+            <div class="quick-actions">
+                <button class="action-btn" onclick="window.location.href='invoices.html'">
+                    <span class="action-icon">📊</span>
+                    Invoice Management
+                </button>
+                <button class="action-btn" onclick="window.location.href='settings.html'">
+                    <span class="action-icon">⚙️</span>
+                    Configuration & Services
+                </button>
+                <button class="action-btn" onclick="navigateTo('view-reports')">
+                    <span class="action-icon">📋</span>
+                    View Reports
+                </button>
             </div>
-            
-            <div class="stat-card">
-                <h3>Last Month</h3>
-                <div class="stat-value" id="lastMonthRevenue">₹0</div>
+
+            <div class="section-header">
+                <h2 class="section-title">Quick Stats</h2>
+                <div class="search-filter-group">
+                    <select id="dateRange" class="date-filter" onchange="filterByDate()">
+                        <option value="today">Today</option>
+                        <option value="thisweek">This Week</option>
+                        <option value="thismonth" selected>This Month</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <input type="text" id="searchDashboard" class="search-box" placeholder="🔍 Search...">
+                </div>
             </div>
-            
-            <div class="stat-card">
-                <h3>📈 Month over Month</h3>
-                <div class="stat-value" id="monthGrowth">+0%</div>
+
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <div class="comparison-label">Today vs Yesterday</div>
+                    <div class="comparison-values">
+                        <div>
+                            <div class="comparison-value" id="todayRevenue">₹0</div>
+                            <div style="font-size: 11px; color: #999;">Today</div>
+                        </div>
+                        <div class="comparison-arrow">→</div>
+                        <div>
+                            <div class="comparison-value" id="yesterdayRevenue">₹0</div>
+                            <div style="font-size: 11px; color: #999;">Yesterday</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card">
+                    <div class="comparison-label">This Month vs Last Month</div>
+                    <div class="comparison-values">
+                        <div>
+                            <div class="comparison-value" id="thisMonthRevenue">₹0</div>
+                            <div style="font-size: 11px; color: #999;">This Month</div>
+                        </div>
+                        <div class="comparison-arrow">→</div>
+                        <div>
+                            <div class="comparison-value" id="lastMonthRevenue">₹0</div>
+                            <div style="font-size: 11px; color: #999;">Last Month</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison-card">
+                    <div class="comparison-label">Growth Percentage</div>
+                    <div class="comparison-value" id="growthPercentage">+0%</div>
+                    <div style="font-size: 11px; color: #1e40af;">📈 Month over Month</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" id="totalRevenue">₹0</div>
+                    <div class="stat-change" id="revenueChange">+0% from last month</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">GST Collected</div>
+                    <div class="stat-value" id="totalGST">₹0</div>
+                    <div class="stat-change">18% of total</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Total Invoices</div>
+                    <div class="stat-value" id="totalInvoices">0</div>
+                    <div class="stat-change" id="invoiceChange">+0 this month</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-change" id="customerChange">+0 new this month</div>
+                </div>
+            </div>
+
+            <div class="widgets-grid">
+                <div class="widget">
+                    <div class="widget-title">📈 Monthly Revenue Trend (Last 6 Months)</div>
+                    <div class="widget-chart">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-title">🎯 Service Breakdown (Revenue)</div>
+                    <ul class="service-list" id="serviceList">
+                        <li class="service-item">
+                            <span class="service-name">Loading...</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">💳 Payment Status</h2>
+            </div>
+            <div class="payment-status">
+                <div class="payment-card">
+                    <div class="payment-number" id="pendingPayments">0</div>
+                    <div class="payment-label">Invoices Pending Payment</div>
+                </div>
+                <div class="payment-card">
+                    <div class="payment-number" id="outstandingAmount">₹0</div>
+                    <div class="payment-label">Total Outstanding</div>
+                </div>
+                <div class="payment-card">
+                    <div class="payment-number" id="collectionRate">0%</div>
+                    <div class="payment-label">Collection Rate</div>
+                </div>
+            </div>
+
+            <div class="widget" style="margin-bottom: 30px;">
+                <div class="widget-title">📊 Payment Collection Trend</div>
+                <div class="widget-chart">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">⏳ Pending/Draft Invoices</h2>
+            </div>
+            <div class="pending-list" id="pendingInvoicesList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <div class="empty-state-text">No pending invoices</div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">📄 Recent Invoices</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>GST</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentInvoicesList">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="section-header">
+                <h2 class="section-title">👥 Multi-User Activity</h2>
+            </div>
+            <div class="widget">
+                <ul class="activity-list" id="activityLog">
+                    <li class="activity-item">
+                        <div class="activity-icon">⏳</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Loading activity...</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
-        
-        <div class="grid">
-            <div class="stat-card">
-                <h3>Total Revenue</h3>
-                <div class="stat-value" id="totalRevenue">₹0</div>
-                <p>+0% from last month</p>
-            </div>
-            
-            <div class="stat-card">
-                <h3>GST Collected</h3>
-                <div class="stat-value" id="gstCollected">₹0</div>
-                <p>18% of total</p>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Total Invoices</h3>
-                <div class="stat-value" id="totalInvoices">0</div>
-                <p>+0 this month</p>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Total Customers</h3>
-                <div class="stat-value" id="totalCustomers">0</div>
-                <p>+0 new this month</p>
-            </div>
-        </div>
-        
-        <h2>💳 Payment Status</h2>
-        
-        <div class="grid">
-            <div class="stat-card">
-                <h3>Invoices Pending Payment</h3>
-                <div class="stat-value" id="pendingInvoices">0</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Total Outstanding</h3>
-                <div class="stat-value" id="outstandingAmount">₹0</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3>Collection Rate</h3>
-                <div class="stat-value" id="collectionRate">0%</div>
-            </div>
-        </div>
-        
-        <h2>⏳ Pending/Draft Invoices</h2>
-        <p id="pendingMessage">No pending invoices</p>
-        
-        <h2>📄 Recent Invoices</h2>
-        <table id="invoiceTable">
-            <thead>
-                <tr>
-                    <th>Invoice ID</th>
-                    <th>Date</th>
-                    <th>Customer</th>
-                    <th>Amount</th>
-                    <th>GST</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="invoiceList">
-                <tr><td colspan="6">Loading...</td></tr>
-            </tbody>
-        </table>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="common.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-            if (!checkSession()) return;
-            document.getElementById('userName').textContent = currentUser.name;
-            await loadDashboardStats();
-        });
-        
-        async function loadDashboardStats() {
+        // SUPABASE CONFIGURATION - YOUR ACTUAL CREDENTIALS
+        const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+
+        let supabase = null;
+        let currentUser = null;
+        let trendChart = null;
+        let paymentChart = null;
+
+        async function initializeDashboard() {
             try {
-                const { data: invoices } = await supabase.from('invoices').select('*');
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                const userSession = JSON.parse(localStorage.getItem('userSession'));
                 
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
-                
-                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-                const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-                
-                const todayInvoices = invoices.filter(inv => {
-                    const invDate = new Date(inv.invoice_date);
-                    invDate.setHours(0, 0, 0, 0);
-                    return invDate.getTime() === today.getTime();
-                });
-                
-                const yesterdayInvoices = invoices.filter(inv => {
-                    const invDate = new Date(inv.invoice_date);
-                    invDate.setHours(0, 0, 0, 0);
-                    return invDate.getTime() === yesterday.getTime();
-                });
-                
-                const thisMonthInvoices = invoices.filter(inv => {
-                    const invDate = new Date(inv.invoice_date);
-                    return invDate >= monthStart && invDate <= today;
-                });
-                
-                const lastMonthInvoices = invoices.filter(inv => {
-                    const invDate = new Date(inv.invoice_date);
-                    return invDate >= lastMonthStart && invDate <= lastMonthEnd;
-                });
-                
-                const todayRevenue = todayInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-                const yesterdayRevenue = yesterdayInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-                const thisMonthRevenue = thisMonthInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-                const lastMonthRevenue = lastMonthInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-                
-                const monthGrowth = lastMonthRevenue > 0 ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 : 0;
-                const gstCollected = thisMonthRevenue * 0.18;
-                
-                const pendingInvoices = invoices.filter(inv => inv.payment_status === 'Pending');
-                const outstandingAmount = pendingInvoices.reduce((sum, inv) => sum + (inv.total_amount || 0), 0);
-                const collectionRate = invoices.length > 0 ? ((invoices.length - pendingInvoices.length) / invoices.length) * 100 : 0;
-                
-                const uniqueCustomers = new Set(invoices.map(i => i.customer_id)).size;
-                
-                document.getElementById('todayRevenue').textContent = formatCurrency(todayRevenue);
-                document.getElementById('yesterdayRevenue').textContent = formatCurrency(yesterdayRevenue);
-                document.getElementById('thisMonthRevenue').textContent = formatCurrency(thisMonthRevenue);
-                document.getElementById('lastMonthRevenue').textContent = formatCurrency(lastMonthRevenue);
-                document.getElementById('monthGrowth').textContent = monthGrowth >= 0 ? '+' + monthGrowth.toFixed(1) + '%' : monthGrowth.toFixed(1) + '%';
-                document.getElementById('totalRevenue').textContent = formatCurrency(thisMonthRevenue);
-                document.getElementById('gstCollected').textContent = formatCurrency(gstCollected);
-                document.getElementById('totalInvoices').textContent = invoices.length;
-                document.getElementById('totalCustomers').textContent = uniqueCustomers;
-                document.getElementById('pendingInvoices').textContent = pendingInvoices.length;
-                document.getElementById('outstandingAmount').textContent = formatCurrency(outstandingAmount);
-                document.getElementById('collectionRate').textContent = collectionRate.toFixed(1) + '%';
-                
-                const invoiceList = document.getElementById('invoiceList');
-                invoiceList.innerHTML = invoices.slice(0, 10).map(inv => {
-                    const gst = inv.total_gst || (inv.total_amount * 0.18);
-                    return `
-                        <tr>
-                            <td>${inv.invoice_number}</td>
-                            <td>${formatDate(inv.invoice_date)}</td>
-                            <td>${inv.customer_id}</td>
-                            <td>${formatCurrency(inv.total_amount)}</td>
-                            <td>${formatCurrency(gst)}</td>
-                            <td>${inv.payment_status}</td>
-                        </tr>
-                    `;
-                }).join('');
-                
+                if (!userSession) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                currentUser = userSession;
+                document.getElementById('userName').textContent = `Welcome, ${currentUser.name || 'User'}!`;
+
+                await loadDashboardData();
+                initializeTrendChart();
+                initializePaymentChart();
+
             } catch (error) {
-                console.error('Error loading dashboard stats:', error);
+                console.error('Error:', error);
+                alert('Failed to load dashboard');
             }
         }
+
+        async function loadDashboardData() {
+            try {
+                const { data: invoices } = await supabase.from('invoices').select('*').order('created_at', { ascending: false });
+                const { data: customers } = await supabase.from('customers').select('*');
+
+                calculateStats(invoices || [], customers || []);
+                displayRecentInvoices(invoices?.slice(0, 10) || []);
+                displayPendingInvoices(invoices || []);
+                displayServiceBreakdown(invoices || []);
+                displayActivityLog(invoices || []);
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function calculateStats(invoices, customers) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const todayInvoices = invoices.filter(inv => {
+                const invDate = new Date(inv.created_at);
+                invDate.setHours(0, 0, 0, 0);
+                return invDate.getTime() === today.getTime();
+            });
+
+            const yesterdayInvoices = invoices.filter(inv => {
+                const invDate = new Date(inv.created_at);
+                invDate.setHours(0, 0, 0, 0);
+                return invDate.getTime() === yesterday.getTime();
+            });
+
+            const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            const thisMonthInvoices = invoices.filter(inv => new Date(inv.created_at) >= thisMonthStart);
+            
+            const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+            const lastMonthInvoices = invoices.filter(inv => {
+                const d = new Date(inv.created_at);
+                return d >= lastMonthStart && d <= lastMonthEnd;
+            });
+
+            const todayRev = todayInvoices.reduce((s, i) => s + (i.total_amount || 0), 0);
+            const yesterdayRev = yesterdayInvoices.reduce((s, i) => s + (i.total_amount || 0), 0);
+            const thisMonthRev = thisMonthInvoices.reduce((s, i) => s + (i.total_amount || 0), 0);
+            const lastMonthRev = lastMonthInvoices.reduce((s, i) => s + (i.total_amount || 0), 0);
+            const totalRev = invoices.reduce((s, i) => s + (i.total_amount || 0), 0);
+            const totalGSTVal = totalRev * 0.18;
+            const growth = lastMonthRev > 0 ? ((thisMonthRev - lastMonthRev) / lastMonthRev * 100).toFixed(1) : 0;
+
+            document.getElementById('todayRevenue').textContent = `₹${fmt(todayRev)}`;
+            document.getElementById('yesterdayRevenue').textContent = `₹${fmt(yesterdayRev)}`;
+            document.getElementById('thisMonthRevenue').textContent = `₹${fmt(thisMonthRev)}`;
+            document.getElementById('lastMonthRevenue').textContent = `₹${fmt(lastMonthRev)}`;
+            document.getElementById('growthPercentage').textContent = `${growth > 0 ? '+' : ''}${growth}%`;
+            document.getElementById('totalRevenue').textContent = `₹${fmt(totalRev)}`;
+            document.getElementById('totalGST').textContent = `₹${fmt(totalGSTVal)}`;
+            document.getElementById('totalInvoices').textContent = invoices.length;
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('revenueChange').textContent = `${growth > 0 ? '+' : ''}${growth}% from last month`;
+            document.getElementById('invoiceChange').textContent = `+${thisMonthInvoices.length} this month`;
+            document.getElementById('customerChange').textContent = `+${customers.filter(c => new Date(c.created_at) >= thisMonthStart).length} new`;
+
+            const pending = invoices.filter(i => i.status === 'pending').length;
+            const outstanding = invoices.filter(i => i.status === 'pending').reduce((s, i) => s + (i.total_amount || 0), 0);
+            const collection = invoices.length > 0 ? ((invoices.filter(i => i.status === 'paid').length / invoices.length) * 100).toFixed(0) : 0;
+
+            document.getElementById('pendingPayments').textContent = pending;
+            document.getElementById('outstandingAmount').textContent = `₹${fmt(outstanding)}`;
+            document.getElementById('collectionRate').textContent = `${collection}%`;
+        }
+
+        function fmt(n) {
+            return new Intl.NumberFormat('en-IN').format(Math.round(n));
+        }
+
+        function displayRecentInvoices(invoices) {
+            const tbody = document.getElementById('recentInvoicesList');
+            if (invoices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px;">No invoices</td></tr>';
+                return;
+            }
+            tbody.innerHTML = invoices.map(inv => `
+                <tr>
+                    <td><strong>${inv.invoice_number || 'N/A'}</strong></td>
+                    <td>${inv.customer_name || 'Unknown'}</td>
+                    <td>₹${fmt(inv.total_amount || 0)}</td>
+                    <td>₹${fmt((inv.gst_amount || 0))}</td>
+                    <td>${new Date(inv.created_at).toLocaleDateString('en-IN')}</td>
+                    <td><span style="background: ${inv.status === 'paid' ? '#10b981' : '#fbbf24'}; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">${inv.status || 'pending'}</span></td>
+                    <td><button class="btn-action" onclick="viewInvoice('${inv.id}')">View</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function displayPendingInvoices(invoices) {
+            const pending = invoices.filter(inv => inv.status === 'draft' || inv.status === 'pending').slice(0, 6);
+            const container = document.getElementById('pendingInvoicesList');
+            if (pending.length === 0) {
+                container.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><div class="empty-state-icon">✅</div><div class="empty-state-text">All invoices finalized!</div></div>`;
+                return;
+            }
+            container.innerHTML = pending.map(inv => `
+                <div class="pending-card">
+                    <div class="pending-header">
+                        <span class="pending-invoice-id">${inv.invoice_number || 'Draft'}</span>
+                        <span class="pending-amount">₹${fmt(inv.total_amount || 0)}</span>
+                    </div>
+                    <div class="pending-date">Customer: ${inv.customer_name || 'Unknown'}</div>
+                    <div class="pending-actions">
+                        <button class="btn-complete" onclick="completeInvoice('${inv.id}')">✓ Complete</button>
+                        <button class="btn-send" onclick="sendInvoice('${inv.id}')">📧 Send</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayServiceBreakdown(invoices) {
+            const services = {};
+            invoices.forEach(inv => {
+                const service = inv.service_type || 'Other';
+                services[service] = (services[service] || 0) + (inv.total_amount || 0);
+            });
+            const sorted = Object.entries(services).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            const max = sorted[0]?.[1] || 1;
+            const list = document.getElementById('serviceList');
+            if (sorted.length === 0) {
+                list.innerHTML = '<li class="empty-state">No data</li>';
+                return;
+            }
+            list.innerHTML = sorted.map(([s, a]) => `
+                <li class="service-item">
+                    <span class="service-name">${s}</span>
+                    <div class="service-bar"><div class="service-bar-fill" style="width: ${(a / max) * 100}%"></div></div>
+                    <span class="service-value">₹${fmt(a)}</span>
+                </li>
+            `).join('');
+        }
+
+        function displayActivityLog(invoices) {
+            const activities = invoices.slice(0, 5).map(inv => ({
+                title: `Invoice ${inv.invoice_number} created`,
+                user: inv.created_by || 'System',
+                time: inv.created_at
+            }));
+            const list = document.getElementById('activityLog');
+            list.innerHTML = activities.map(a => `
+                <li class="activity-item">
+                    <div class="activity-icon">📄</div>
+                    <div class="activity-content">
+                        <div class="activity-title">${a.title}</div>
+                        <div class="activity-user">by ${a.user}</div>
+                        <div class="activity-time">${timeAgo(a.time)}</div>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function timeAgo(dateString) {
+            const seconds = Math.floor((new Date() - new Date(dateString)) / 1000);
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            return new Date(dateString).toLocaleDateString('en-IN');
+        }
+
+        function initializeTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: [25000, 32000, 28000, 45000, 52000, 48000],
+                            borderColor: '#1e40af',
+                            backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#1e40af',
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'GST (18%)',
+                            data: [4500, 5760, 5040, 8100, 9360, 8640],
+                            borderColor: '#1e3a8a',
+                            backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#1e3a8a',
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function initializePaymentChart() {
+            const ctx = document.getElementById('paymentChart');
+            if (!ctx) return;
+            paymentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Current'],
+                    datasets: [
+                        { label: 'Collected', data: [5000, 8000, 7000, 9000, 6500], backgroundColor: '#10b981' },
+                        { label: 'Pending', data: [2000, 1500, 2500, 1000, 2000], backgroundColor: '#fbbf24' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function filterByDate() {
+            console.log('Filter:', document.getElementById('dateRange').value);
+        }
+
+        function navigateTo(page) {
+            alert('Feature coming soon: ' + page);
+        }
+
+        function viewInvoice(id) {
+            alert('Viewing: ' + id);
+        }
+
+        function completeInvoice(id) {
+            alert('Invoice completed');
+        }
+
+        function sendInvoice(id) {
+            alert('Invoice sent');
+        }
+
+        function exportDashboardPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: 'Dashboard_Report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        function logout() {
+            if (confirm('Logout?')) {
+                localStorage.removeItem('userSession');
+                window.location.href = 'index.html';
+            }
+        }
+
+        window.addEventListener('load', initializeDashboard);
     </script>
 </body>
 </html>
