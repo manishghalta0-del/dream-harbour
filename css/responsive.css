@@ -1,0 +1,56 @@
+/* ============================================================================
+   responsive.css - Responsive Breakpoints for DreamHarbour
+   ============================================================================ */
+
+/* Mobile - 480px and below */
+@media (max-width: 480px) {
+  body {
+    padding: var(--space-16);
+  }
+
+  .login-header {
+    padding: var(--space-24) var(--space-16);
+  }
+
+  .login-header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .login-body {
+    padding: var(--space-16);
+  }
+
+  .progress-indicator {
+    padding: var(--space-16);
+  }
+
+  .step-label {
+    display: none; /* Hide labels on mobile, show circles only */
+  }
+
+  .step-divider {
+    width: 24px; /* Shorter divider on mobile */
+  }
+}
+
+/* Tablet - 481px to 768px */
+@media (min-width: 481px) and (max-width: 768px) {
+  .login-container {
+    max-width: 480px;
+  }
+}
+
+/* Desktop - 769px and above */
+@media (min-width: 769px) {
+  .login-container {
+    max-width: 520px;
+  }
+
+  .login-header {
+    padding: var(--space-32) var(--space-32);
+  }
+
+  .login-body {
+    padding: var(--space-32);
+  }
+}

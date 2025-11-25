@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dream Harbour - Professional Billing & Invoicing System for small businesses in India">
+    <meta name="theme-color" content="#218085">
+    <title>Dream Harbour - Professional Billing System</title>
+    
+    <!-- CSS Files - CORRECTED FILE NAMES -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <main id="main-form">
+        <div class="container">
+            <!-- Left Side: Hero Section -->
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="logo-container">
+                        <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+                            <rect x="30" y="20" width="60" height="75" rx="3" fill="none" stroke="white" stroke-width="2.5"/>
+                            <line x1="38" y1="30" x2="82" y2="30" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+                            <line x1="38" y1="40" x2="82" y2="40" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                            <line x1="38" y1="50" x2="70" y2="50" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+                            <circle cx="80" cy="88" r="10" fill="#10b981" opacity="0.9"/>
+                            <path d="M 76 88 L 78 90 L 84 84" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="logo-text">Dream Harbour</span>
+                    </div>
+                    <p class="tagline">Professional Billing & Invoicing System</p>
+                    <div class="services-section">
+                        <h3>Our Services</h3>
+                        <ul class="services-list">
+                            <li>📄 Document Services</li>
+                            <li>💼 GST Compliance</li>
+                            <li>📊 Invoice Management</li>
+                            <li>👥 Customer Portal</li>
+                            <li>📈 Reports & Analytics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Login Form -->
+            <div class="form-section">
+                <div class="form-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to access your account</p>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" id="step1Indicator">
+                        <div class="step-number">1</div>
+                        <span>Phone</span>
+                    </div>
+                    <div class="step" id="step2Indicator">
+                        <div class="step-number">2</div>
+                        <span>PIN</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Phone Number -->
+                <form id="step1Form" class="form-step active" onsubmit="nextStep(event)" novalidate>
+                    <div class="form-group">
+                        <label for="phoneNumber">Mobile Number <span style="color: #ef4444;">*</span></label>
+                        <input 
+                            type="tel" 
+                            id="phoneNumber" 
+                            class="form-input"
+                            placeholder="10-digit mobile number"
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            autocomplete="tel"
+                            required
+                            oninput="validatePhone()"
+                        >
+                        <div class="validation-feedback" id="phoneValidation"></div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+
+                    <div class="error-message" id="step1Error"></div>
+                    <button type="submit" class="btn">Next</button>
+                </form>
+
+                <!-- Step 2: PIN -->
+                <form id="step2Form" class="form-step" onsubmit="handleLogin(event)" novalidate>
+                    <div class="form-group">
+                        <label for="pin">Security PIN <span style="color: #ef4444;">*</span></label>
+                        <input 
+                            type="password" 
+                            id="pin"
+                            class="form-input"
+                            placeholder="6-digit PIN"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            autocomplete="off"
+                            required
+                            oninput="validatePin()"
+                        >
+                        <div class="validation-feedback" id="pinValidation"></div>
+                    </div>
+
+                    <div class="error-message" id="step2Error"></div>
+                    <div class="success-message" id="successMessage"></div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="backStep()">Back</button>
+                        <button type="submit" class="btn" style="flex: 1;">Sign In</button>
+                    </div>
+
+                    <div class="forgot-pin-link" onclick="alert('Contact admin for PIN recovery')" tabindex="0">
+                        Forgot PIN?
+                    </div>
+                </form>
+
+                <!-- Security Badge -->
+                <div class="security-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 18px; height: 18px;">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                    </svg>
+                    <span>Your data is encrypted and secure</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Files - REMOVED DUPLICATE SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

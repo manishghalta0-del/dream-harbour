@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices</title>
+        <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="css/theme.css"> <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <script> checkLoginStatus(); </script>
+    <div class="navbar">
+        <h1>📋 Invoices</h1>
+        <button onclick="logout()" style="background-color: #e74c3c;">Logout</button>
+    </div>
+    
+    <div class="sidebar">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="invoices.html">📋 Invoices</a>
+        <a href="settings.html">⚙️ Settings</a>
+    </div>
+    
+    <div class="main-content">
+        <button onclick="openModal()">➕ Create New Invoice</button>
+        
+        <h2>Recent Invoices</h2>
+        <table id="invoiceTable">
+            <thead>
+                <tr>
+                    <th>Invoice #</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="invoiceList">
+                <tr><td colspan="5">Loading...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="invoiceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>📋 Create New Invoice</h2>
+            
+            <label>Customer Mobile (Database Lookup)</label>
+            <input type="text" id="customerMobile" maxlength="10" onblur="lookupCustomer()">
+            
+            <label>Customer Name</label>
+            <input type="text" id="customerName">
+            
+            <label>Email</label>
+            <input type="email" id="customerEmail">
+            
+            <label>Address</label>
+            <textarea id="customerAddress"></textarea>
+            
+            <label>GSTIN</label>
+            <input type="text" id="customerGSTIN">
+            
+            <label>Select Service</label>
+            <select id="serviceType" onchange="onServiceChange()">
+                <option value="">-- Select Service --</option>
+            </select>
+            
+            <label>Quantity</label>
+            <input type="number" id="serviceQuantity" value="1" min="1">
+            
+            <label>Rate</label>
+            <input type="number" id="serviceRate" step="0.01">
+            
+            <button onclick="addService()">+ Add Service</button>
+            
+            <h3>Added Services</h3>
+            <table id="serviceTable">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                        <th>GST</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="serviceItemsList"></tbody>
+            </table>
+            
+            <h3>Totals</h3>
+            <p>Subtotal: <strong id="subtotal">₹0</strong></p>
+            <p>GST: <strong id="totalGST">₹0</strong></p>
+            <p>Total: <strong id="grandTotal">₹0</strong></p>
+            
+            <label>Payment Status</label>
+            <select id="paymentStatus">
+                <option value="Pending">Pending</option>
+                <option value="Paid">Paid</option>
+            </select>
+            
+            <button onclick="submitInvoice()">✓ Submit</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <script src="js/config.js"></script> <script src="js/common.js"></script> <script src="js/invoices.js"></script>
+</body>
+</html>

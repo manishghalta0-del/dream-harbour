@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="css/style.css"> <link rel="stylesheet" href="css/theme.css"> <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <script> checkLoginStatus(); </script>
+    <div class="navbar">
+        <h1>⚙️ Settings</h1>
+        <div>
+            <span id="userName"></span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+    
+    <div class="sidebar">
+        <a href="dashboard.html">📊 Dashboard</a>
+        <a href="invoices.html">📋 Invoices</a>
+        <a href="settings.html">⚙️ Settings</a>
+    </div>
+    
+    <div class="main-content">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('businesses')">🏢 Businesses</button>
+            <button class="tab-btn" onclick="switchTab('services')">🛍️ Services</button>
+            <button class="tab-btn" onclick="switchTab('subservices1')">🔗 Sub-Services 1</button>
+            <button class="tab-btn" onclick="switchTab('subservices2')">🔗 Sub-Services 2</button>
+            <button class="tab-btn" onclick="switchTab('customers')">👥 Customers</button>
+        </div>
+        
+        <div id="businesses" class="tab-content active">
+            <h2>Businesses</h2>
+            <div class="stat" id="businessStat">📊 Total: 0 | Active: 0</div>
+            <table id="businessTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div id="services" class="tab-content">
+            <h2>Services</h2>
+            <div class="stat" id="serviceStat">📊 Total: 0 | Active: 0</div>
+            <table id="serviceTable">
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Category</th>
+                        <th>SAC</th>
+                        <th>GST%</th>
+                        <th>Rate</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div id="subservices1" class="tab-content">
+            <h2>Sub-Services Type 1</h2>
+            <div class="stat" id="subservice1Stat">📊 Total: 0 | Active: 0</div>
+            <table id="subservice1Table">
+                <thead>
+                    <tr>
+                        <th>Sub-Service</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div id="subservices2" class="tab-content">
+            <h2>Sub-Services Type 2</h2>
+            <div class="stat" id="subservice2Stat">📊 Total: 0 | Active: 0</div>
+            <table id="subservice2Table">
+                <thead>
+                    <tr>
+                        <th>Sub-Service</th>
+                        <th>SAC</th>
+                        <th>GST%</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        
+        <div id="customers" class="tab-content">
+            <h2>Customers</h2>
+            <div class="stat" id="customerStat">📊 Total Customers: 0</div>
+            <table id="customerTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Email</th>
+                        <th>GSTIN</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>
