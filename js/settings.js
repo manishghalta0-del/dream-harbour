@@ -2,7 +2,7 @@
 // js/settings.js - SETTINGS PAGE FUNCTIONS (CORRECTED)
 // ============================================================================
 // This file handles settings page functions only
-// Uses getSupabase() from config.js - NO hardcoded credentials here!
+// Uses getSupabase() from common.js - NO hardcoded credentials here!
 
 // ============================================================================
 // GLOBAL VARIABLES
@@ -21,7 +21,7 @@ let currentUser = null;
  * 3. Load all settings data
  */
 document.addEventListener('DOMContentLoaded', async function() {
-    // ===== GET SUPABASE FROM config.js =====
+    // ===== GET SUPABASE FROM common.js =====
     supabase = getSupabase();
     
     // ===== CHECK SESSION =====

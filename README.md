@@ -74,11 +74,11 @@ cd dreamharbour
 
 #### 3. Configure Environment Variables
 
-Create `js/config.js`:
+Create `js/common.js`:
 
 ```javascript
 // ============================================================================
-// js/config.js - Supabase Configuration
+// js/common.js - Supabase Configuration
 // ============================================================================
 
 const SUPABASE_URL = 'https://your-project.supabase.co';
@@ -91,7 +91,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 window.supabase = supabase;
 ```
 
-**⚠️ Security Warning:** Never commit `config.js` with real credentials. Use `.env` files in production.
+**⚠️ Security Warning:** Never commit `common.js` with real credentials. Use `.env` files in production.
 
 #### 4. Run Locally
 
@@ -126,7 +126,7 @@ dreamharbour/
 │   └── responsive.css         # Mobile/tablet responsive styles
 ├── 
 ├── js/
-│   ├── config.js              # Supabase configuration
+│   ├── common.js              # Supabase configuration
 │   ├── common.js              # Shared utility functions
 │   ├── dashboard.js           # Dashboard functions
 │   ├── auth.js                # Authentication logic
@@ -305,7 +305,7 @@ See [Deployment Guide](./deployment.md) for:
 
 **Solution:** Verify Supabase connection:
 1. Check internet connection
-2. Verify `config.js` has correct credentials
+2. Verify `common.js` has correct credentials
 3. Check browser console for errors
 4. Ensure database tables are created
 
@@ -320,7 +320,7 @@ See [Deployment Guide](./deployment.md) for:
 
 **Solution:** Ensure script load order in HTML:
 ```html
-<script src="js/config.js"></script>
+<script src="js/common.js"></script>
 <script src="js/dashboard.js"></script>
 ```
 

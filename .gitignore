@@ -12,7 +12,7 @@
 .env.*.local
 .env.production.local
 config/secrets.json
-js/config.js
+js/common.js
 
 # ============================================================================
 # DEPENDENCIES & PACKAGES

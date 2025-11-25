@@ -380,10 +380,10 @@ Your CSP is already configured in `dashboard.html`:
 
 ### Issue: "Supabase client not found"
 
-**Solution:** Ensure `js/config.js` is loaded before `js/dashboard.js`:
+**Solution:** Ensure `js/common.js` is loaded before `js/dashboard.js`:
 
 ```html
-<script src="js/config.js"></script>
+<script src="js/common.js"></script>
 <script src="js/dashboard.js"></script>
 ```
 

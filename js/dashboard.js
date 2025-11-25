@@ -2,14 +2,14 @@
 // js/dashboard.js - DASHBOARD PAGE FUNCTIONS (CORRECTED & FINAL)
 // ============================================================================
 // This file handles dashboard page functions only
-// Uses supabase from config.js - NO hardcoded credentials here!
+// Uses supabase from common.js - NO hardcoded credentials here!
 
 
 // ============================================================================
 // GLOBAL VARIABLES
 // ============================================================================
 // ✅ CORRECT - Only declare what dashboard.js needs
-// supabase is already declared globally in config.js - just use it directly
+// supabase is already declared globally in common.js - just use it directly
 let currentUser = null;
 let trendChart = null;
 let paymentChart = null;
@@ -20,7 +20,7 @@ let paymentChart = null;
 // ============================================================================
 /**
  * Initialize dashboard
- * 1. Verify Supabase is available from config.js
+ * 1. Verify Supabase is available from common.js
  * 2. Check if user is logged in
  * 3. Load all dashboard data
  * 4. Initialize charts
@@ -29,7 +29,7 @@ async function initializeDashboard() {
     try {
         // ===== VERIFY SUPABASE IS AVAILABLE =====
         if (typeof supabase === 'undefined' || !supabase) {
-            console.error('Supabase client not found. Make sure config.js loaded correctly.');
+            console.error('Supabase client not found. Make sure common.js loaded correctly.');
             showDashboardError();
             return;
         }

@@ -2,7 +2,7 @@
 // js/invoices.js - INVOICES PAGE FUNCTIONS (CORRECTED)
 // ============================================================================
 // This file handles invoices page functions only
-// Uses getSupabase() from config.js - NO hardcoded credentials here!
+// Uses getSupabase() from common.js - NO hardcoded credentials here!
 
 // ============================================================================
 // GLOBAL VARIABLES
@@ -23,7 +23,7 @@ let selectedServices = [];
  * 3. Load existing invoices
  */
 document.addEventListener('DOMContentLoaded', async function() {
-    // ===== GET SUPABASE FROM config.js =====
+    // ===== GET SUPABASE FROM common.js =====
     supabase = getSupabase();
     
     // ===== CHECK SESSION =====

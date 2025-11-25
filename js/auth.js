@@ -2,12 +2,12 @@
 // js/auth.js - LOGIN PAGE FUNCTIONS (CORRECTED)
 // ============================================================================
 // This file handles ONLY login page functions
-// Supabase initialization is in js/config.js (imported separately)
+// Supabase initialization is in js/common.js (imported separately)
 // 
 // What Changed:
 // ❌ REMOVED: Hardcoded Supabase URL & KEY (security risk)
 // ❌ REMOVED: Direct supabase.createClient() (duplicate initialization)
-// ✅ ADDED: Use getSupabase() from config.js instead
+// ✅ ADDED: Use getSupabase() from common.js instead
 // ✅ KEPT: All 7 login functions (validatePhone, validatePin, nextStep, etc)
 
 // ============================================================================
@@ -164,7 +164,7 @@ async function handleLogin(event) {
     button.textContent = 'Signing in...';
 
     try {
-        // ===== FIXED: Use getSupabase() from config.js instead of hardcoded URL/KEY =====
+        // ===== FIXED: Use getSupabase() from common.js instead of hardcoded URL/KEY =====
         const supabase = getSupabase();
 
         // ===== QUERY SUPABASE: Check if user exists with matching credentials =====
