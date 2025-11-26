@@ -70,47 +70,13 @@
         </div>
     </div>
 
-    <!-- ============================================================================ -->
-    <!-- SUPABASE CONFIGURATION (MUST BE BEFORE OTHER SCRIPTS) -->
-    <!-- ============================================================================ -->
-    <script>
-        /**
-         * Supabase Configuration
-         * Project: lqrewteclbexiknvhenk
-         * 
-         * IMPORTANT: These credentials are configured for this project
-         * DO NOT share these keys publicly or commit to public repositories
-         * 
-         * For production: Use environment variables instead of hardcoding
-         * 
-         * Reference:
-         * - Project URL: https://lqrewteclbexiknvhenk.supabase.co
-         * - Anon Key: For client-side authentication
-         */
-        
-        window.SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-        window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-        
-        // Verify configuration is set
-        if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
-            console.log('✓ Supabase credentials configured successfully');
-        } else {
-            console.error('❌ ERROR: Supabase credentials not properly configured');
-        }
-    </script>
-
-    <!-- ============================================================================ -->
-    <!-- LOAD LIBRARIES AND APPLICATION SCRIPTS -->
-    <!-- ============================================================================ -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/supabase-js@2"></script>
     <script src="js/common.js"></script>
     <script src="js/auth.js"></script>
 
-    <!-- ============================================================================ -->
-    <!-- FORM EVENT LISTENERS -->
-    <!-- ============================================================================ -->
+    <!-- Form Event Listeners -->
     <script>
-        // Attach form submission handlers
         document.getElementById('step1Form').addEventListener('submit', nextStep);
         document.getElementById('step2Form').addEventListener('submit', handleLogin);
     </script>
