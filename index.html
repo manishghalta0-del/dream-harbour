@@ -1,510 +1,140 @@
-/* ============================================================================
-   style.css - Complete Styles for DreamHarbour Login
-   ============================================================================ */
-
-/* Base Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  line-height: 1.5;
-  color: var(--color-text);
-  background: var(--color-background);
-  min-height: 100vh;
-}
-
-/* Main Container - Two Column Layout */
-.container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
-  max-width: 1400px;
-  margin: 0 auto;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-lg);
-}
-
-/* ============================================================================
-   HERO SECTION (Left Side)
-   ============================================================================ */
-
-.hero {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-teal-700) 100%);
-  padding: var(--space-32);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add subtle pattern overlay */
-.hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    linear-gradient(30deg, rgba(255, 255, 255, 0.03) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.03) 87.5%, rgba(255, 255, 255, 0.03)),
-    linear-gradient(150deg, rgba(255, 255, 255, 0.03) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.03) 87.5%, rgba(255, 255, 255, 0.03));
-  background-size: 80px 140px;
-  pointer-events: none;
-}
-
-.hero-content {
-  max-width: 400px;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-.logo-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-16);
-  margin-bottom: var(--space-24);
-}
-
-.logo-svg {
-  width: 120px;
-  height: 120px;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
-  animation: fadeInScale 0.6s ease-out;
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.logo-text {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-semibold);
-  color: white;
-  letter-spacing: -0.02em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.tagline {
-  font-size: var(--font-size-lg);
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: var(--space-32);
-  line-height: 1.6;
-}
-
-.services-section {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: var(--space-24);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.services-section h3 {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--space-16);
-  color: white;
-  font-weight: var(--font-weight-semibold);
-}
-
-.services-list {
-  list-style: none;
-  text-align: left;
-  padding: 0;
-}
-
-.services-list li {
-  padding: var(--space-8) 0;
-  color: rgba(255, 255, 255, 0.95);
-  font-size: var(--font-size-base);
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-}
-
-/* ============================================================================
-   FORM SECTION (Right Side)
-   ============================================================================ */
-
-.form-section {
-  padding: var(--space-32);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 450px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: var(--space-32);
-}
-
-.form-header h1 {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text);
-  margin-bottom: var(--space-8);
-}
-
-.form-header p {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-}
-
-/* ============================================================================
-   STEP INDICATOR
-   ============================================================================ */
-
-.step-indicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--space-16);
-  margin-bottom: var(--space-32);
-}
-
-.step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-8);
-  transition: all var(--duration-normal) var(--ease-standard);
-}
-
-.step-number {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  transition: all var(--duration-normal) var(--ease-standard);
-  border: 2px solid transparent;
-}
-
-.step.active .step-number {
-  background: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(var(--color-teal-500-rgb), 0.15);
-}
-
-.step.completed .step-number {
-  background: var(--color-success);
-  color: white;
-  border-color: var(--color-success);
-}
-
-.step span {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-medium);
-  transition: color var(--duration-fast) var(--ease-standard);
-}
-
-.step.active span {
-  color: var(--color-text);
-  font-weight: var(--font-weight-semibold);
-}
-
-/* ============================================================================
-   FORM STEPS
-   ============================================================================ */
-
-.form-step {
-  display: none;
-  animation: fadeInUp var(--duration-normal) var(--ease-standard);
-}
-
-.form-step.active {
-  display: block;
-}
-
-.form-step.inactive {
-  display: none;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ============================================================================
-   FORM ELEMENTS
-   ============================================================================ */
-
-.form-group {
-  margin-bottom: var(--space-20);
-}
-
-.form-group label {
-  display: block;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text);
-  margin-bottom: var(--space-8);
-}
-
-.form-input {
-  width: 100%;
-  padding: var(--space-12) var(--space-16);
-  font-size: var(--font-size-base);
-  color: var(--color-text);
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-base);
-  transition: all var(--duration-fast) var(--ease-standard);
-  font-family: var(--font-family-base);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-focus-ring);
-  background: var(--color-surface);
-}
-
-.form-input::placeholder {
-  color: var(--color-text-secondary);
-}
-
-/* Input validation states */
-.form-input:valid:not(:placeholder-shown) {
-  border-color: var(--color-success);
-}
-
-.form-input:invalid:not(:placeholder-shown):not(:focus) {
-  border-color: var(--color-error);
-}
-
-/* ============================================================================
-   VALIDATION FEEDBACK
-   ============================================================================ */
-
-.validation-feedback {
-  display: block;
-  margin-top: var(--space-8);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  transition: all var(--duration-fast) var(--ease-standard);
-}
-
-.validation-feedback.valid {
-  color: var(--color-success);
-}
-
-.validation-feedback.invalid {
-  color: var(--color-error);
-}
-
-/* ============================================================================
-   CHECKBOX
-   ============================================================================ */
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  margin-bottom: var(--space-20);
-}
-
-.checkbox-group input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: var(--color-primary);
-  border-radius: 4px;
-}
-
-.checkbox-group label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text);
-  cursor: pointer;
-  user-select: none;
-}
-
-/* ============================================================================
-   BUTTONS
-   ============================================================================ */
-
-.btn {
-  width: 100%;
-  padding: var(--space-12) var(--space-16);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: white;
-  background: var(--color-primary);
-  border: none;
-  border-radius: var(--radius-base);
-  cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-standard);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-8);
-  font-family: var(--font-family-base);
-}
-
-.btn:hover {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--color-teal-500-rgb), 0.3);
-}
-
-.btn:active {
-  background: var(--color-primary-active);
-  transform: translateY(0);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn.loading::after {
-  content: '';
-  width: 16px;
-  height: 16px;
-  border: 2px solid white;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.btn-secondary {
-  background: var(--color-secondary);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-
-.btn-secondary:hover {
-  background: var(--color-secondary-hover);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.btn-secondary:active {
-  background: var(--color-secondary-active);
-}
-
-/* ============================================================================
-   MESSAGES
-   ============================================================================ */
-
-.error-message,
-.success-message {
-  padding: var(--space-12) var(--space-16);
-  border-radius: var(--radius-base);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: var(--space-16);
-  display: none;
-  animation: slideDown var(--duration-normal) var(--ease-standard);
-}
-
-.error-message.show,
-.success-message.show {
-  display: block;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.error-message {
-  background: rgba(192, 21, 47, 0.1);
-  border: 1px solid rgba(192, 21, 47, 0.3);
-  color: var(--color-error);
-}
-
-.success-message {
-  background: rgba(33, 128, 141, 0.1);
-  border: 1px solid rgba(33, 128, 141, 0.3);
-  color: var(--color-success);
-}
-
-.error-code {
-  display: block;
-  font-size: var(--font-size-sm);
-  opacity: 0.8;
-  margin-top: var(--space-8);
-}
-
-/* ============================================================================
-   ADDITIONAL ELEMENTS
-   ============================================================================ */
-
-.forgot-pin-link {
-  text-align: center;
-  margin-top: var(--space-16);
-  color: var(--color-primary);
-  font-size: var(--font-size-sm);
-  cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-standard);
-  user-select: none;
-}
-
-.forgot-pin-link:hover {
-  color: var(--color-primary-hover);
-  text-decoration: underline;
-}
-
-.security-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-8);
-  margin-top: var(--space-32);
-  padding: var(--space-12) var(--space-16);
-  background: rgba(var(--color-teal-500-rgb), 0.05);
-  border-radius: var(--radius-base);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  border: 1px solid rgba(var(--color-teal-500-rgb), 0.1);
-}
-
-.security-badge svg {
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dream Harbour - Professional Billing & Invoicing System for small businesses in India">
+    <meta name="theme-color" content="#218085">
+    <title>Dream Harbour - Professional Billing System</title>
+    
+    <!-- CSS Files - CORRECTED FILE NAMES -->
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <main id="main-form">
+        <div class="container">
+            <!-- Left Side: Hero Section -->
+            <div class="hero">
+                <div class="hero-content">
+                    <div class="logo-container">
+                        <svg class="logo-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="white" stroke-width="1.5" opacity="0.3"/>
+                            <rect x="30" y="20" width="60" height="75" rx="3" fill="none" stroke="white" stroke-width="2.5"/>
+                            <line x1="38" y1="30" x2="82" y2="30" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+                            <line x1="38" y1="40" x2="82" y2="40" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+                            <line x1="38" y1="50" x2="70" y2="50" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.75"/>
+                            <circle cx="80" cy="88" r="10" fill="#10b981" opacity="0.9"/>
+                            <path d="M 76 88 L 78 90 L 84 84" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="logo-text">Dream Harbour</span>
+                    </div>
+                    <p class="tagline">Professional Billing & Invoicing System</p>
+                    <div class="services-section">
+                        <h3>Our Services</h3>
+                        <ul class="services-list">
+                            <li>📄 Document Services</li>
+                            <li>💼 GST Compliance</li>
+                            <li>📊 Invoice Management</li>
+                            <li>👥 Customer Portal</li>
+                            <li>📈 Reports & Analytics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Login Form -->
+            <div class="form-section">
+                <div class="form-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to access your account</p>
+                </div>
+
+                <!-- Progress Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" id="step1Indicator">
+                        <div class="step-number">1</div>
+                        <span>Phone</span>
+                    </div>
+                    <div class="step" id="step2Indicator">
+                        <div class="step-number">2</div>
+                        <span>PIN</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Phone Number -->
+                <form id="step1Form" class="form-step active" onsubmit="nextStep(event)" novalidate>
+                    <div class="form-group">
+                        <label for="phoneNumber">Mobile Number <span style="color: #ef4444;">*</span></label>
+                        <input 
+                            type="tel" 
+                            id="phoneNumber" 
+                            class="form-input"
+                            placeholder="10-digit mobile number"
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            autocomplete="tel"
+                            required
+                            oninput="validatePhone()"
+                        >
+                        <div class="validation-feedback" id="phoneValidation"></div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+
+                    <div class="error-message" id="step1Error"></div>
+                    <button type="submit" class="btn">Next</button>
+                </form>
+
+                <!-- Step 2: PIN -->
+                <form id="step2Form" class="form-step" onsubmit="handleLogin(event)" novalidate>
+                    <div class="form-group">
+                        <label for="pin">Security PIN <span style="color: #ef4444;">*</span></label>
+                        <input 
+                            type="password" 
+                            id="pin"
+                            class="form-input"
+                            placeholder="6-digit PIN"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            autocomplete="off"
+                            required
+                            oninput="validatePin()"
+                        >
+                        <div class="validation-feedback" id="pinValidation"></div>
+                    </div>
+
+                    <div class="error-message" id="step2Error"></div>
+                    <div class="success-message" id="successMessage"></div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="backStep()">Back</button>
+                        <button type="submit" class="btn" style="flex: 1;">Sign In</button>
+                    </div>
+
+                    <div class="forgot-pin-link" onclick="alert('Contact admin for PIN recovery')" tabindex="0">
+                        Forgot PIN?
+                    </div>
+                </form>
+
+                <!-- Security Badge -->
+                <div class="security-badge">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 18px; height: 18px;">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                    </svg>
+                    <span>Your data is encrypted and secure</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript Files - REMOVED DUPLICATE SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
