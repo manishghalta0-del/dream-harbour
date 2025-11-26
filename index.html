@@ -8,12 +8,22 @@
     <link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-card">
-            <!-- Logo Section -->
-            <div class="login-header">
-                <h1>DreamHarbour</h1>
-                <p>Business Dashboard</p>
+    <div class="container">
+        <!-- HERO SECTION (Left Side) -->
+        <div class="hero">
+            <div class="hero-content">
+                <div class="logo-container">
+                    <!-- You can add a logo image here if you have one -->
+                    <span class="logo-text">DreamHarbour</span>
+                </div>
+                <span class="tagline">Business Dashboard</span>
+            </div>
+        </div>
+        <!-- FORM SECTION (Right Side Login Card) -->
+        <div class="form-section">
+            <div class="form-header">
+                <h1>Sign In</h1>
+                <p>Enter your details to access the dashboard</p>
             </div>
 
             <!-- Error Messages -->
@@ -30,15 +40,14 @@
                         id="phoneNumber" 
                         placeholder="Enter 10-digit phone number"
                         maxlength="10"
+                        class="form-input"
                     >
                     <div id="phoneValidation" class="validation-feedback"></div>
                 </div>
-
                 <div class="form-group checkbox">
                     <input type="checkbox" id="rememberMe">
                     <label for="rememberMe">Remember Me</label>
                 </div>
-
                 <button type="submit" class="btn btn-primary btn-full">Next</button>
             </form>
 
@@ -51,10 +60,10 @@
                         id="pin" 
                         placeholder="Enter 6-digit PIN"
                         maxlength="6"
+                        class="form-input"
                     >
                     <div id="pinValidation" class="validation-feedback"></div>
                 </div>
-
                 <div class="button-group">
                     <button type="button" class="btn btn-secondary" onclick="backStep()">Back</button>
                     <button type="submit" class="btn btn-primary">Sign In</button>
@@ -74,7 +83,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/common.js"></script>
     <script src="js/auth.js"></script>
-
     <!-- Form Event Listeners -->
     <script>
         document.getElementById('step1Form').addEventListener('submit', nextStep);
