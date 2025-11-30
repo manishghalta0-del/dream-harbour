@@ -417,7 +417,7 @@
         if (!checkSession()) return;
 
         // Load services and invoices
-        await loadServices();
+        await loadServiceTypes();
         await loadInvoices();
         
         // Log successful initialization

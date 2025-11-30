@@ -93,7 +93,7 @@ async function loadServiceTypes() {
   try {
     const { data, error } = await supabase
       .from('service_types')
-      .select('id, service_name, rate, gst_percentage')
+      .select('id, service_name, base_rate, gst_percentage')
       .eq('is_active', true);
     
     if (error) throw error;
@@ -111,7 +111,7 @@ function populateServiceDropdown(services) {
   if (!select) return;
   
   select.innerHTML = '<option value="">-- Select Service --</option>' + 
-    services.map(s => `<option value="${s.id}" data-rate="${s.rate}" data-gst="${s.gst_percentage}">${s.service_name}</option>`).join('');
+    services.map(s => `<option value="${s.id}" data-rate="${s.base_rate}" data-gst="${s.gst_percentage}">${s.service_name}</option>`).join('');
 }
 
 // Create new invoice
