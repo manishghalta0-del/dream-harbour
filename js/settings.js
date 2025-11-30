@@ -1,10 +1,6 @@
-// ============================================================================
-// js/settings.js - Settings Management (FIXED FOR YOUR SCHEMA)
-// ============================================================================
-// Uses: business_settings, service_types, service_categories tables
-// ============================================================================
+// settings.js - Settings Management (modernized, keeps same DB assumptions)
 
-let currentUser = null;
+import { supabase } from './common.js';
 
 // Initialize settings page
 async function initializeSettings() {
@@ -14,18 +10,17 @@ async function initializeSettings() {
       window.location.href = 'index.html';
       return;
     }
-    
-    currentUser = userSession;
-    document.getElementById('userName').textContent = `Welcome, ${currentUser.full_name}!`;
-    document.getElementById('userRole').textContent = currentUser.role;
-    
+
+    document.getElementById('userName').textContent = `Welcome, ${userSession.full_name}!`;
     await loadBusinessSettings();
     await loadServiceCategories();
     await loadServiceTypes();
-    
+
+    document.getElementById('businessSettingsForm')?.addEventListener('submit', saveBusinessSettings);
+    document.getElementById('addCategoryForm')?.addEventListener('submit', addServiceCategory);
   } catch (error) {
     console.error('Settings init error:', error);
-    showToast('Error initializing settings', 'error');
+    window.dh && window.dh.showToast ? window.dh.showToast('Error initializing settings', 'error') : alert('Error initializing settings');
   }
 }
 
@@ -37,9 +32,9 @@ async function loadBusinessSettings() {
       .select('*')
       .limit(1)
       .single();
-    
+
     if (error && error.code !== 'PGRST116') throw error;
-    
+
     if (data) {
       document.getElementById('businessName').value = data.business_name || '';
       document.getElementById('gstin').value = data.gstin || '';
@@ -51,7 +46,7 @@ async function loadBusinessSettings() {
       document.getElementById('pincode').value = data.pincode || '';
       document.getElementById('gstPercentage').value = data.default_gst_percentage || 18;
     }
-    
+
   } catch (error) {
     console.error('Load settings error:', error);
   }
@@ -60,7 +55,7 @@ async function loadBusinessSettings() {
 // Save business settings
 async function saveBusinessSettings(event) {
   event.preventDefault();
-  
+
   try {
     const settingsData = {
       business_name: document.getElementById('businessName').value,
@@ -74,36 +69,36 @@ async function saveBusinessSettings(event) {
       default_gst_percentage: parseFloat(document.getElementById('gstPercentage').value),
       updated_at: new Date().toISOString()
     };
-    
+
     // Check if settings exist
     const { data: existing } = await supabase
       .from('business_settings')
       .select('id')
       .limit(1)
       .single();
-    
+
     if (existing) {
       // Update
       const { error } = await supabase
         .from('business_settings')
         .update(settingsData)
         .eq('id', existing.id);
-      
+
       if (error) throw error;
     } else {
       // Insert
       const { error } = await supabase
         .from('business_settings')
         .insert([settingsData]);
-      
+
       if (error) throw error;
     }
-    
-    showToast('Business settings saved successfully!', 'success');
-    
+
+    window.dh && window.dh.showToast ? window.dh.showToast('Business settings saved successfully!', 'success') : alert('Business settings saved successfully!');
+
   } catch (error) {
     console.error('Save settings error:', error);
-    showToast('Error saving settings', 'error');
+    window.dh && window.dh.showError ? window.dh.showError('Error saving settings') : alert('Error saving settings');
   }
 }
 
@@ -115,11 +110,11 @@ async function loadServiceCategories() {
       .select('*')
       .eq('is_active', true)
       .order('category_name');
-    
+
     if (error) throw error;
-    
+
     displayServiceCategories(data || []);
-    
+
   } catch (error) {
     console.error('Load categories error:', error);
   }
@@ -129,12 +124,12 @@ async function loadServiceCategories() {
 function displayServiceCategories(categories) {
   const container = document.getElementById('categoriesList');
   if (!container) return;
-  
+
   if (categories.length === 0) {
     container.innerHTML = '<p class="empty-message">No categories found</p>';
     return;
   }
-  
+
   container.innerHTML = categories.map(cat => `
     <div class="category-item">
       <div class="category-info">
@@ -142,174 +137,64 @@ function displayServiceCategories(categories) {
         <p>Created: ${formatDate(cat.created_at)}</p>
       </div>
       <div class="category-actions">
-        <button class="btn btn--sm" onclick="editCategory('${cat.id}')">Edit</button>
-        <button class="btn btn--sm btn--outline" onclick="deleteCategory('${cat.id}')">Delete</button>
+        <button class="btn btn--sm" data-action="edit" data-id="${cat.id}">Edit</button>
+        <button class="btn btn--sm btn--outline" data-action="delete" data-id="${cat.id}">Delete</button>
       </div>
     </div>
   `).join('');
+
+  // delegate events
+  container.querySelectorAll('[data-action]').forEach(btn => btn.addEventListener('click', async (e) => {
+    const action = e.currentTarget.dataset.action;
+    const id = e.currentTarget.dataset.id;
+    if (action === 'delete') {
+      if (!confirm('Are you sure you want to delete this category?')) return;
+      await supabase.from('service_categories').update({ is_active: false }).eq('id', id);
+      window.dh && window.dh.showToast ? window.dh.showToast('Category deleted successfully', 'success') : alert('Category deleted');
+      await loadServiceCategories();
+    } else if (action === 'edit') {
+      const newName = prompt('Edit category name:');
+      if (!newName) return;
+      await supabase.from('service_categories').update({ category_name: newName }).eq('id', id);
+      window.dh && window.dh.showToast ? window.dh.showToast('Category updated', 'success') : alert('Category updated');
+      await loadServiceCategories();
+    }
+  }));
 }
 
 // Add service category
 async function addServiceCategory(event) {
   event.preventDefault();
-  
+
   try {
     const categoryName = document.getElementById('categoryName').value;
-    
+
     const { error } = await supabase
       .from('service_categories')
       .insert([{
         category_name: categoryName,
         is_active: true
       }]);
-    
+
     if (error) throw error;
-    
-    showToast('Category added successfully!', 'success');
+
+    window.dh && window.dh.showToast ? window.dh.showToast('Category added successfully!', 'success') : alert('Category added!');
     document.getElementById('categoryName').value = '';
     await loadServiceCategories();
-    
+
   } catch (error) {
     console.error('Add category error:', error);
-    showToast('Error adding category', 'error');
+    window.dh && window.dh.showError ? window.dh.showError('Error adding category') : alert('Error adding category');
   }
 }
 
-// Delete service category
-async function deleteCategory(categoryId) {
-  if (!confirm('Are you sure you want to delete this category?')) return;
-  
-  try {
-    const { error } = await supabase
-      .from('service_categories')
-      .update({ is_active: false })
-      .eq('id', categoryId);
-    
-    if (error) throw error;
-    
-    showToast('Category deleted successfully', 'success');
-    await loadServiceCategories();
-    
-  } catch (error) {
-    console.error('Delete category error:', error);
-    showToast('Error deleting category', 'error');
-  }
+// helper formatDate (local fallback)
+function formatDate(dateString) {
+  if (!dateString) return 'N/A';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-// Load service types
-async function loadServiceTypes() {
-  try {
-    const { data, error } = await supabase
-      .from('service_types')
-      .select('*')
-      .eq('is_active', true)
-      .order('service_name');
-    
-    if (error) throw error;
-    
-    displayServiceTypes(data || []);
-    
-  } catch (error) {
-    console.error('Load services error:', error);
-  }
-}
-
-// Display service types
-function displayServiceTypes(services) {
-  const container = document.getElementById('servicesList');
-  if (!container) return;
-  
-  if (services.length === 0) {
-    container.innerHTML = '<p class="empty-message">No services found</p>';
-    return;
-  }
-  
-  container.innerHTML = services.map(svc => `
-    <div class="service-item">
-      <div class="service-info">
-        <h4>${svc.service_name}</h4>
-        <p>Rate: ${formatCurrency(svc.base_rate)} | GST: ${svc.gst_percentage}%</p>
-        <p>SAC: ${svc.sac_code || 'N/A'}</p>
-      </div>
-      <div class="service-actions">
-        <button class="btn btn--sm" onclick="editService('${svc.id}')">Edit</button>
-        <button class="btn btn--sm btn--outline" onclick="deleteService('${svc.id}')">Delete</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Add service type
-async function addServiceType(event) {
-  event.preventDefault();
-  
-  try {
-    const { error } = await supabase
-      .from('service_types')
-      .insert([{
-        service_name: document.getElementById('serviceName').value,
-        sac_code: document.getElementById('sacCode').value,
-        base_rate: parseFloat(document.getElementById('serviceRate').value),
-        gst_percentage: parseFloat(document.getElementById('serviceGst').value),
-        is_active: true
-      }]);
-    
-    if (error) throw error;
-    
-    showToast('Service added successfully!', 'success');
-    document.getElementById('serviceForm').reset();
-    await loadServiceTypes();
-    
-  } catch (error) {
-    console.error('Add service error:', error);
-    showToast('Error adding service', 'error');
-  }
-}
-
-// Delete service type
-async function deleteService(serviceId) {
-  if (!confirm('Are you sure you want to delete this service?')) return;
-  
-  try {
-    const { error } = await supabase
-      .from('service_types')
-      .update({ is_active: false })
-      .eq('id', serviceId);
-    
-    if (error) throw error;
-    
-    showToast('Service deleted successfully', 'success');
-    await loadServiceTypes();
-    
-  } catch (error) {
-    console.error('Delete service error:', error);
-    showToast('Error deleting service', 'error');
-  }
-}
-
-// Utility functions
-function editCategory(categoryId) {
-  showToast('Edit category coming soon', 'info');
-}
-
-function editService(serviceId) {
-  showToast('Edit service coming soon', 'info');
-}
-
-// Export for HTML
-window.saveBusinessSettings = saveBusinessSettings;
-window.addServiceCategory = addServiceCategory;
-window.deleteCategory = deleteCategory;
-window.editCategory = editCategory;
-window.addServiceType = addServiceType;
-window.deleteService = deleteService;
-window.editService = editService;
-window.logout = logout;
+// Expose init
 window.initializeSettings = initializeSettings;
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', async () => {
-  await initializeSettings();
-});
-
-console.log('✅ settings.js loaded successfully');
+export { initializeSettings, loadBusinessSettings, loadServiceCategories, addServiceCategory };

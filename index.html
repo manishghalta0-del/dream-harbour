@@ -1,326 +1,57 @@
-<!DOCTYPE html>
-<html lang="en" data-color-scheme="light">
+<!doctype html>
+<html lang="en">
 <head>
-  <!-- ============================================================================
-       META & DOCUMENT SETUP
-       ============================================================================ -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="DreamHarbour - Professional Invoice & Service Management Platform" />
-  <meta name="keywords" content="invoicing, services, management, dashboard" />
-  <meta name="theme-color" content="#208D8D" />
-  <title>DreamHarbour - Login</title>
-
-  <!-- ============================================================================
-       CSS STYLESHEETS - PRODUCTION ORDER
-       ============================================================================ -->
-  <!-- 1. Theme system (design tokens & variables) -->
-  <link rel="stylesheet" href="css/theme.css" />
-  
-  <!-- 2. Core styles (typography, buttons, forms) -->
-  <link rel="stylesheet" href="css/style.css" />
-  
-  <!-- 3. Responsive design (breakpoints) -->
-  <link rel="stylesheet" href="css/responsive.css" />
-  
-  <!-- 4. Dashboard/Component styles -->
-  <link rel="stylesheet" href="css/dashboard.css" />
-
-  <!-- ============================================================================
-       SUPABASE CDN - Required for Supabase client
-       ============================================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- ============================================================================
-       FAVICON & PRECONNECT
-       ============================================================================ -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%23208D8D' font-weight='bold'>D</text></svg>" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  
-  <!-- ============================================================================
-       FONTS - FKGroteskNeue & Berkeley Mono (loaded via CSS @font-face)
-       ============================================================================ -->
-  <!-- Fonts defined in theme.css via @font-face declarations -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign In — DreamHarbour</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
-
 <body>
-  <!-- ============================================================================
-       MAIN CONTAINER - Two Column Layout
-       ============================================================================ -->
-  <main class="login-container">
-    
-    <!-- ========================================================================
-         LEFT PANEL - Hero Section with Branding
-         ======================================================================== -->
-    <section class="login-panel hero-section">
-      <div class="hero-content">
-        
-        <!-- Logo/Branding -->
-        <div class="logo-area">
-          <h1 class="logo-title">
-            <span class="logo-letter">D</span>reamHarbour
-          </h1>
-          <p class="logo-tagline">Professional Invoice & Service Management</p>
-        </div>
-
-        <!-- Hero Benefits -->
-        <div class="hero-benefits">
-          <div class="benefit-item">
-            <div class="benefit-icon">✓</div>
-            <div class="benefit-text">
-              <h3>Secure Authentication</h3>
-              <p>Two-step verification with encrypted credentials</p>
+  <div class="container">
+    <main class="content">
+      <section class="card" style="max-width:520px;margin:40px auto;">
+        <div class="card__header"><h2>Sign in</h2></div>
+        <div class="card__body">
+          <form id="step1Form">
+            <div class="form-group">
+              <label class="form-label" for="phoneNumber">Phone number</label>
+              <input id="phoneNumber" class="form-control" type="text" maxlength="10" placeholder="10-digit mobile" />
+              <div id="phoneValidation" class="validation-feedback"></div>
             </div>
-          </div>
-          
-          <div class="benefit-item">
-            <div class="benefit-icon">✓</div>
-            <div class="benefit-text">
-              <h3>Real-time Analytics</h3>
-              <p>Track invoices, revenue, and customer metrics instantly</p>
+            <div class="form-group">
+              <label><input id="rememberMe" type="checkbox"> Remember this phone</label>
             </div>
-          </div>
-          
-          <div class="benefit-item">
-            <div class="benefit-icon">✓</div>
-            <div class="benefit-text">
-              <h3>Professional Management</h3>
-              <p>Manage services, customers, and invoices effortlessly</p>
+            <div class="form-group">
+              <button id="startPinBtn" class="btn btn--primary">Continue</button>
             </div>
-          </div>
-        </div>
+          </form>
 
-        <!-- Footer Note -->
-        <div class="hero-footer">
-          <p class="footer-note">
-            © 2025 DreamHarbour. All rights reserved. | 
-            <a href="#" class="footer-link">Privacy Policy</a> | 
-            <a href="#" class="footer-link">Terms of Service</a>
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         RIGHT PANEL - Login Form
-         ======================================================================== -->
-    <section class="login-panel form-section">
-      <div class="form-wrapper">
-        
-        <!-- Step Indicators -->
-        <div class="step-indicators">
-          <div class="step-indicator active" id="step1Indicator">
-            <span class="step-number">1</span>
-            <span class="step-label">Phone</span>
-          </div>
-          <div class="step-connector"></div>
-          <div class="step-indicator" id="step2Indicator">
-            <span class="step-number">2</span>
-            <span class="step-label">PIN</span>
-          </div>
-        </div>
-
-        <!-- ====================================================================
-             STEP 1: Phone Number Input
-             ==================================================================== -->
-        <form id="step1Form" class="login-form" onsubmit="nextStep(event)">
-          <h2 class="form-title">Welcome Back</h2>
-          <p class="form-subtitle">Enter your phone number to sign in</p>
-
-          <!-- Error Message -->
-          <div class="error-message" id="step1Error"></div>
-
-          <!-- Phone Input Group -->
-          <div class="form-group">
-            <label for="phoneNumber" class="form-label">Phone Number</label>
-            <div class="input-wrapper">
-              <span class="phone-prefix">+91</span>
-              <input
-                type="tel"
-                id="phoneNumber"
-                class="form-control"
-                placeholder="Enter your 10-digit phone number"
-                maxlength="10"
-                inputmode="numeric"
-                autocomplete="tel"
-                oninput="validatePhone()"
-                required
-                aria-label="Phone number"
-              />
+          <form id="step2Form" class="hidden">
+            <div class="form-group">
+              <label class="form-label" for="pin">Enter PIN</label>
+              <input id="pin" class="form-control" type="password" maxlength="6" />
+              <div id="pinValidation" class="validation-feedback"></div>
             </div>
-            <div class="validation-feedback" id="phoneValidation"></div>
-          </div>
+            <div class="form-group">
+              <button class="btn btn--primary" type="submit">Sign In</button>
+              <button type="button" id="backToPhone" class="btn btn--outline">Back</button>
+            </div>
+            <div id="step2Error" class="validation-feedback"></div>
+            <div id="successMessage" class="dh-muted"></div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
 
-          <!-- Remember Me Checkbox -->
-          <div class="form-group checkbox-group">
-            <label class="checkbox-label">
-              <input
-                type="checkbox"
-                id="rememberMe"
-                class="checkbox-input"
-                aria-label="Remember me"
-              />
-              <span class="checkbox-text">Remember me on this device</span>
-            </label>
-          </div>
-
-          <!-- Next Button -->
-          <button
-            type="submit"
-            class="btn btn--primary btn--full-width"
-            aria-label="Proceed to PIN entry"
-          >
-            Continue to PIN
-          </button>
-
-          <!-- Help Link -->
-          <div class="form-help">
-            <a href="#" class="help-link">Need help signing in?</a>
-          </div>
-        </form>
-
-        <!-- ====================================================================
-             STEP 2: PIN Input
-             ==================================================================== -->
-        <form id="step2Form" class="login-form inactive" onsubmit="handleLogin(event)">
-          <h2 class="form-title">Enter Your PIN</h2>
-          <p class="form-subtitle">Your 6-digit security PIN</p>
-
-          <!-- Error Message -->
-          <div class="error-message" id="step2Error"></div>
-
-          <!-- Success Message -->
-          <div class="success-message" id="successMessage"></div>
-
-          <!-- PIN Input Group -->
-          <div class="form-group">
-            <label for="pin" class="form-label">PIN</label>
-            <input
-              type="password"
-              id="pin"
-              class="form-control"
-              placeholder="Enter 6-digit PIN"
-              maxlength="6"
-              inputmode="numeric"
-              autocomplete="off"
-              oninput="validatePin()"
-              required
-              aria-label="PIN"
-            />
-            <div class="validation-feedback" id="pinValidation"></div>
-          </div>
-
-          <!-- Security Notice -->
-          <div class="security-notice">
-            <span class="notice-icon">🔒</span>
-            <p class="notice-text">Your PIN is encrypted and never stored in plain text</p>
-          </div>
-
-          <!-- Button Group -->
-          <div class="button-group">
-            <button
-              type="button"
-              class="btn btn--outline btn--full-width"
-              onclick="backStep()"
-              aria-label="Go back to phone entry"
-            >
-              Back
-            </button>
-            <button
-              type="submit"
-              class="btn btn--primary btn--full-width"
-              aria-label="Sign in with PIN"
-            >
-              Sign In
-            </button>
-          </div>
-
-          <!-- Help Link -->
-          <div class="form-help">
-            <a href="#" class="help-link">Forgot your PIN?</a>
-          </div>
-        </form>
-      </div>
-
-      <!-- Footer for Form Section -->
-      <div class="form-footer">
-        <p class="footer-text">
-          Protected by enterprise-grade security | Last login on your device
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============================================================================
-       JAVASCRIPT FILES - PRODUCTION ORDER
-       ============================================================================ -->
-  
-  <!-- 1. Common utilities & Supabase initialization (MUST load first) -->
-  <script src="js/common.js"></script>
-  
-  <!-- 2. Authentication functions (requires common.js) -->
-  <script src="js/auth.js"></script>
-
-  <!-- ============================================================================
-       INLINE SCRIPT - Initialize Page on Load
-       ============================================================================ -->
+  <script src="/js/common.js"></script>
+  <script src="/js/notifications.js"></script>
+  <script type="module" src="/js/auth.js"></script>
   <script>
-    // ========================================================================
-    // Initialize login page when DOM is ready
-    // ========================================================================
     document.addEventListener('DOMContentLoaded', function() {
-      // Load remembered phone (if "Remember Me" was checked before)
-      loadRememberedPhone();
-      
-      // Focus on phone input
-      document.getElementById('phoneNumber').focus();
-      
-      // Log initialization
-      console.log('Login page initialized successfully');
-      console.log('Supabase client available:', typeof supabase !== 'undefined');
+      if (window.initAuthPage) window.initAuthPage();
     });
-
-    // ========================================================================
-    // Keyboard accessibility - Enter key support
-    // ========================================================================
-    document.getElementById('phoneNumber').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        nextStep(e);
-      }
-    });
-
-    document.getElementById('pin').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        handleLogin(e);
-      }
-    });
-
-    // ========================================================================
-    // Theme toggle function (optional, for future implementation)
-    // ========================================================================
-    function toggleTheme() {
-      const html = document.documentElement;
-      const currentScheme = html.getAttribute('data-color-scheme');
-      const newScheme = currentScheme === 'light' ? 'dark' : 'light';
-      html.setAttribute('data-color-scheme', newScheme);
-      localStorage.setItem('dreamHarbourTheme', newScheme);
-    }
-
-    // ========================================================================
-    // Load user's theme preference on page load
-    // ========================================================================
-    function initializeTheme() {
-      const savedTheme = localStorage.getItem('dreamHarbourTheme') || 'light';
-      document.documentElement.setAttribute('data-color-scheme', savedTheme);
-    }
-
-    // Initialize theme when page loads
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeTheme);
-    } else {
-      initializeTheme();
-    }
   </script>
 </body>
 </html>

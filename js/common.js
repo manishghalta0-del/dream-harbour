@@ -1,6 +1,5 @@
-// ============================================================================
-// js/common.js - Supabase Configuration & Shared Functions
-// ============================================================================
+// common.js - Supabase Configuration & Shared Functions
+// NOTE: You asked to keep Supabase keys where they were in the original file.
 
 const SUPABASE_URL = "https://lqrewteclbexiknvhenk.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8";
@@ -51,6 +50,11 @@ function formatNumber(num) {
 }
 
 function showToast(message, type = 'info') {
+  // If the project's notification system exists, use it; otherwise fallback to console+alert
+  if (typeof createToast === 'function') {
+    createToast(message, type);
+    return;
+  }
   console.log(`[${type.toUpperCase()}] ${message}`);
   alert(message);
 }
@@ -63,15 +67,29 @@ function exportDashboardPDF() {
   alert('PDF export feature coming soon!');
 }
 
-// ============================================================================
-// Initialize on Page Load
-// ============================================================================
+// Expose to global scope for legacy pages that rely on globals
+window.dh = window.dh || {};
+window.dh.supabase = supabase;
+window.dh.checkLoginStatus = checkLoginStatus;
+window.dh.logout = logout;
+window.dh.formatCurrency = formatCurrency;
+window.dh.formatDate = formatDate;
+window.dh.formatNumber = formatNumber;
+window.dh.showToast = showToast;
+window.dh.navigateTo = navigateTo;
+window.dh.exportDashboardPDF = exportDashboardPDF;
 
-document.addEventListener('DOMContentLoaded', () => {
-  const user = checkLoginStatus();
-  if (user) {
-    console.log('✅ User logged in:', user.full_name);
-  }
-});
+// Also export for module usage
+export {
+  supabase,
+  checkLoginStatus,
+  logout,
+  formatCurrency,
+  formatDate,
+  formatNumber,
+  showToast,
+  navigateTo,
+  exportDashboardPDF
+};
 
 console.log('✅ DreamHarbour common.js loaded successfully');

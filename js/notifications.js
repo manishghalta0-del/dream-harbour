@@ -1,331 +1,166 @@
-// ============================================================================
-// js/notifications.js - PROFESSIONAL TOAST NOTIFICATIONS
-// ============================================================================
+// notifications.js - Toasts, confirm dialogs, loading overlay (module + global-friendly)
 
-/**
- * Show a toast notification
- * @param {string} message - The message to display
- * @param {string} type - Type: 'success', 'error', 'info', 'warning'
- * @param {number} duration - Duration in milliseconds (default: 3000)
- */
-function showToast(message, type = 'info', duration = 3000) {
-  const container = getOrCreateToastContainer();
-  
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  
-  // Icon mapping
-  const icons = {
-    success: '✓',
-    error: '✕',
-    info: 'ℹ',
-    warning: '⚠'
-  };
-  
-  toast.innerHTML = `
-    <div class="toast-icon">${icons[type] || 'ℹ'}</div>
-    <div class="toast-message">${message}</div>
-    <button class="toast-close" onclick="this.parentElement.remove()">×</button>
-  `;
-  
-  container.appendChild(toast);
-  
-  // Auto remove after duration
-  setTimeout(() => {
-    if (toast.parentElement) {
-      toast.style.animation = 'slideOutRight 0.3s ease-out forwards';
-      setTimeout(() => toast.remove(), 300);
-    }
-  }, duration);
-  
-  return toast;
-}
-
-/**
- * Show success toast
- */
-function showSuccess(message, duration = 3000) {
-  return showToast(message, 'success', duration);
-}
-
-/**
- * Show error toast
- */
-function showError(message, duration = 4000) {
-  return showToast(message, 'error', duration);
-}
-
-/**
- * Show info toast
- */
-function showInfo(message, duration = 3000) {
-  return showToast(message, 'info', duration);
-}
-
-/**
- * Show warning toast
- */
-function showWarning(message, duration = 3500) {
-  return showToast(message, 'warning', duration);
-}
-
-/**
- * Get or create toast container
- */
+// Toast container helper
 function getOrCreateToastContainer() {
   let container = document.querySelector('.toast-container');
-  
   if (!container) {
     container = document.createElement('div');
     container.className = 'toast-container';
+    container.setAttribute('aria-live', 'polite');
+    container.style.position = 'fixed';
+    container.style.right = '16px';
+    container.style.top = '16px';
+    container.style.zIndex = 9999;
     document.body.appendChild(container);
   }
-  
   return container;
 }
 
-/**
- * Clear all toasts
- */
-function clearAllToasts() {
-  const container = document.querySelector('.toast-container');
-  if (container) {
-    container.innerHTML = '';
-  }
+function createToast(message, type = 'info', duration = 3500) {
+  const container = getOrCreateToastContainer();
+  const toast = document.createElement('div');
+  toast.className = `dh-toast dh-toast--${type}`;
+  toast.style.minWidth = '200px';
+  toast.style.marginBottom = '8px';
+  toast.style.padding = '12px 16px';
+  toast.style.borderRadius = '8px';
+  toast.style.boxShadow = '0 6px 18px rgba(0,0,0,0.08)';
+  toast.style.display = 'flex';
+  toast.style.alignItems = 'center';
+  toast.style.justifyContent = 'space-between';
+  toast.style.gap = '12px';
+  toast.style.background = type === 'success' ? '#e6fffa' : type === 'error' ? '#ffe6e6' : '#f3f4f6';
+  toast.style.color = '#0f172a';
+
+  const icon = { success: '✓', error: '✕', info: 'ℹ', warning: '⚠' }[type] || 'ℹ';
+  toast.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div aria-hidden style="font-weight:700">${icon}</div><div style="flex:1">${message}</div></div><button aria-label="Close" style="background:none;border:none;font-size:16px;cursor:pointer">×</button>`;
+
+  const closeBtn = toast.querySelector('button');
+  closeBtn.addEventListener('click', () => {
+    toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(12px)';
+    setTimeout(() => toast.remove(), 200);
+  });
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    if (!toast.parentElement) return;
+    toast.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(12px)';
+    setTimeout(() => toast.remove(), 200);
+  }, duration);
+
+  return toast;
 }
 
-// ============================================================================
-// LOADING OVERLAY
-// ============================================================================
+// Convenience wrappers
+function showSuccess(message, duration = 3000) { return createToast(message, 'success', duration); }
+function showError(message, duration = 4500) { return createToast(message, 'error', duration); }
+function showInfo(message, duration = 3000) { return createToast(message, 'info', duration); }
+function showWarning(message, duration = 3500) { return createToast(message, 'warning', duration); }
 
+function clearAllToasts() {
+  const container = document.querySelector('.toast-container');
+  if (container) container.innerHTML = '';
+}
+
+// Loading overlay
 function showLoadingOverlay(message = 'Loading...') {
-  let overlay = document.getElementById('loadingOverlay');
-  
+  let overlay = document.getElementById('dhLoadingOverlay');
   if (!overlay) {
     overlay = document.createElement('div');
-    overlay.id = 'loadingOverlay';
-    overlay.className = 'loading-overlay';
-    overlay.innerHTML = `
-      <div class="loading-content">
-        <div class="spinner"></div>
-        <p id="loadingMessage">${message}</p>
-      </div>
-    `;
+    overlay.id = 'dhLoadingOverlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.right = 0;
+    overlay.style.bottom = 0;
+    overlay.style.background = 'rgba(0,0,0,0.4)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = 9998;
+
+    const card = document.createElement('div');
+    card.style.background = '#fff';
+    card.style.padding = '28px';
+    card.style.borderRadius = '12px';
+    card.style.boxShadow = '0 20px 60px rgba(2,6,23,0.2)';
+    card.style.textAlign = 'center';
+    card.innerHTML = `<div class="dh-spinner" aria-hidden style="width:56px;height:56px;border-radius:50%;border:6px solid #eef2f7;border-top-color:#06b6d4;animation:dh-spin 1s linear infinite;margin:0 auto"></div><p style="margin-top:12px;color:#0f172a">${message}</p>`;
+    overlay.appendChild(card);
     document.body.appendChild(overlay);
-    
-    // Add CSS for loading overlay
-    if (!document.getElementById('loadingOverlayStyles')) {
-      const style = document.createElement('style');
-      style.id = 'loadingOverlayStyles';
-      style.innerHTML = `
-        .loading-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9998;
-          animation: fadeIn 0.2s ease-in;
-        }
-        
-        .loading-content {
-          background: white;
-          padding: 40px;
-          border-radius: 12px;
-          text-align: center;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
-        
-        .loading-content p {
-          margin-top: 16px;
-          color: #666;
-          font-size: 16px;
-        }
-      `;
-      document.head.appendChild(style);
-    }
+
+    const style = document.createElement('style');
+    style.innerHTML = '@keyframes dh-spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(style);
   } else {
     overlay.style.display = 'flex';
-    document.getElementById('loadingMessage').textContent = message;
+    overlay.querySelector('p') && (overlay.querySelector('p').textContent = message);
   }
-  
   return overlay;
 }
 
 function hideLoadingOverlay() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (overlay) {
-    overlay.style.display = 'none';
-  }
+  const overlay = document.getElementById('dhLoadingOverlay');
+  if (overlay) overlay.style.display = 'none';
 }
 
-// ============================================================================
-// CONFIRMATION DIALOG
-// ============================================================================
+// Confirm dialog (promise-based)
+function showConfirmDialog(title = 'Confirm', message = 'Are you sure?') {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dh-confirm';
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.right = 0;
+    overlay.style.bottom = 0;
+    overlay.style.background = 'rgba(0,0,0,0.45)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = 9999;
 
-function showConfirmDialog(title, message, onConfirm, onCancel) {
-  let dialog = document.getElementById('confirmDialog');
-  
-  if (!dialog) {
-    dialog = document.createElement('div');
-    dialog.id = 'confirmDialog';
-    dialog.className = 'confirm-dialog';
-    document.body.appendChild(dialog);
-    
-    // Add CSS for dialog
-    if (!document.getElementById('confirmDialogStyles')) {
-      const style = document.createElement('style');
-      style.id = 'confirmDialogStyles';
-      style.innerHTML = `
-        .confirm-dialog {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.6);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 9999;
-        }
-        
-        .confirm-content {
-          background: white;
-          padding: 32px;
-          border-radius: 12px;
-          max-width: 400px;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-          animation: slideInDown 0.3s ease-out;
-        }
-        
-        .confirm-content h2 {
-          margin-top: 0;
-          color: #333;
-          font-size: 20px;
-        }
-        
-        .confirm-content p {
-          color: #666;
-          margin-bottom: 24px;
-        }
-        
-        .confirm-buttons {
-          display: flex;
-          gap: 12px;
-          justify-content: flex-end;
-        }
-        
-        .confirm-buttons button {
-          padding: 10px 20px;
-          border-radius: 6px;
-          border: none;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 600;
-          transition: all 0.2s ease;
-        }
-        
-        .btn-cancel {
-          background: #e5e7eb;
-          color: #333;
-        }
-        
-        .btn-cancel:hover {
-          background: #d1d5db;
-        }
-        
-        .btn-confirm {
-          background: #208d8d;
-          color: white;
-        }
-        
-        .btn-confirm:hover {
-          background: #1a7575;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  }
-  
-  dialog.innerHTML = `
-    <div class="confirm-content">
-      <h2>${title}</h2>
-      <p>${message}</p>
-      <div class="confirm-buttons">
-        <button class="btn-cancel" onclick="hideConfirmDialog(); (${onCancel || 'function(){}'}())">Cancel</button>
-        <button class="btn-confirm" onclick="hideConfirmDialog(); (${onConfirm || 'function(){}'}())">Confirm</button>
-      </div>
-    </div>
-  `;
-  
-  dialog.style.display = 'flex';
-  return dialog;
+    const box = document.createElement('div');
+    box.style.background = '#fff';
+    box.style.padding = '20px';
+    box.style.borderRadius = '10px';
+    box.style.width = '380px';
+    box.style.boxShadow = '0 20px 60px rgba(2,6,23,0.2)';
+    box.innerHTML = `<h3 style="margin:0 0 8px">${title}</h3><p style="margin:0 0 16px">${message}</p><div style="display:flex;gap:8px;justify-content:flex-end"><button id="dhConfirmCancel" style="padding:8px 12px;border-radius:8px;border:1px solid #e5e7eb;background:#f8fafc;cursor:pointer">Cancel</button><button id="dhConfirmOk" style="padding:8px 12px;border-radius:8px;background:#06b6d4;color:#fff;border:none;cursor:pointer">OK</button></div>`;
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#dhConfirmCancel').addEventListener('click', () => { overlay.remove(); resolve(false); });
+    overlay.querySelector('#dhConfirmOk').addEventListener('click', () => { overlay.remove(); resolve(true); });
+  });
 }
 
-function hideConfirmDialog() {
-  const dialog = document.getElementById('confirmDialog');
-  if (dialog) {
-    dialog.style.display = 'none';
-  }
-}
-
-// ============================================================================
-// HELPERS FOR DATA OPERATIONS
-// ============================================================================
-
-/**
- * Execute async operation with loading state
- */
-async function executeWithLoading(asyncFn, loadingMessage = 'Processing...') {
-  try {
-    showLoadingOverlay(loadingMessage);
-    const result = await asyncFn();
-    hideLoadingOverlay();
-    return result;
-  } catch (error) {
-    hideLoadingOverlay();
-    showError(error.message || 'Operation failed');
-    throw error;
-  }
-}
-
-/**
- * Format currency with animation
- */
-function animateCurrencyUpdate(elementId, newValue, oldValue) {
-  const element = document.getElementById(elementId);
-  if (!element) return;
-  
-  // If value actually changed, show animation
-  if (oldValue !== newValue) {
-    element.classList.add('success-animation');
-    element.textContent = formatCurrency(newValue);
-    
-    setTimeout(() => {
-      element.classList.remove('success-animation');
-    }, 600);
-  }
-}
-
-// ============================================================================
-// EXPORT FOR GLOBAL USE
-// ============================================================================
-
-window.showToast = showToast;
+// Expose globally for legacy code
+window.createToast = createToast;
 window.showSuccess = showSuccess;
 window.showError = showError;
 window.showInfo = showInfo;
 window.showWarning = showWarning;
+window.clearAllToasts = clearAllToasts;
 window.showLoadingOverlay = showLoadingOverlay;
 window.hideLoadingOverlay = hideLoadingOverlay;
 window.showConfirmDialog = showConfirmDialog;
-window.hideConfirmDialog = hideConfirmDialog;
-window.executeWithLoading = executeWithLoading;
-window.animateCurrencyUpdate = animateCurrencyUpdate;
 
-console.log('✅ notifications.js loaded successfully');
+// Export for module usage
+export {
+  createToast,
+  showSuccess,
+  showError,
+  showInfo,
+  showWarning,
+  clearAllToasts,
+  showLoadingOverlay,
+  hideLoadingOverlay,
+  showConfirmDialog
+};

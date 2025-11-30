@@ -1,401 +1,105 @@
-<!DOCTYPE html>
-<html lang="en" data-color-scheme="light">
+<!doctype html>
+<html lang="en">
 <head>
-  <!-- ============================================================================
-       META & DOCUMENT SETUP
-       ============================================================================ -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="DreamHarbour Dashboard - Professional Invoice & Service Management" />
-  <meta name="keywords" content="dashboard, analytics, invoicing, services" />
-  <meta name="theme-color" content="#208D8D" />
-  <title>DreamHarbour - Dashboard</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard — DreamHarbour</title>
 
-  <!-- ============================================================================
-       CSS STYLESHEETS - PRODUCTION ORDER (SAME AS index.html)
-       ============================================================================ -->
-  <!-- 1. Theme system (design tokens & variables) -->
-  <link rel="stylesheet" href="css/theme.css" />
-  
-  <!-- 2. Core styles (typography, buttons, forms) -->
-  <link rel="stylesheet" href="css/style.css" />
-  
-  <!-- 3. Responsive design (breakpoints) -->
-  <link rel="stylesheet" href="css/responsive.css" />
-  
-  <!-- 4. Dashboard/Component styles -->
-  <link rel="stylesheet" href="css/dashboard.css" />
-
-  <!-- ============================================================================
-       SUPABASE CDN - Required for Supabase client
-       ============================================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- ============================================================================
-       FAVICON
-       ============================================================================ -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%23208D8D' font-weight='bold'>D</text></svg>" />
+  <!-- CSS order matters: tokens/vars -> base styles -> theme -> dashboard -> responsive -->
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
 </head>
-
 <body>
-  <!-- ============================================================================
-       HEADER/NAVBAR - Navigation & User Info
-       ============================================================================ -->
-  <header class="dashboard-header">
-    <div class="header-content">
-      
-      <!-- Logo/Brand -->
-      <div class="header-left">
-        <a href="dashboard.html" class="header-logo">
-          <span class="logo-text">DreamHarbour</span>
-        </a>
+  <div class="dh-container">
+    <header class="dh-header">
+      <div class="dh-header__left">
+        <a class="dh-logo" href="dashboard.html">DreamHarbour</a>
+        <div class="dh-user">Signed in as <strong id="userName">—</strong> <span id="userRole" class="dh-muted">—</span></div>
       </div>
 
-      <!-- Navigation Menu -->
-      <nav class="header-nav">
-        <a href="dashboard.html" class="nav-link active">Dashboard</a>
-        <a href="invoices.html" class="nav-link">Invoices</a>
-        <a href="settings.html" class="nav-link">Settings</a>
-      </nav>
+      <div class="dh-actions">
+        <!-- Buttons used by dashboard.js -->
+        <button id="btnRefresh" class="btn btn--sm" aria-label="Refresh">⟳</button>
+        <button id="btnExport"  class="btn btn--sm" aria-label="Export">⤓</button>
+        <button id="btnLogout"  class="btn btn--sm btn--outline" aria-label="Logout">Log out</button>
+      </div>
+    </header>
 
-      <!-- User Profile & Logout -->
-      <div class="header-right">
-        <div class="user-info">
-          <div class="user-details">
-            <p class="user-name" id="userName">Welcome, User!</p>
-            <p class="user-role" id="userRole">User</p>
-          </div>
-          <button class="btn btn--outline btn--sm" onclick="logout()">
-            Logout
-          </button>
+    <main class="dh-grid content" role="main">
+      <!-- Stats panel -->
+      <section class="dh-card dh-panel--lg">
+        <div class="dh-card__header">
+          <div class="dh-card__title">Overview</div>
+          <div class="dh-muted">Summary</div>
         </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- ============================================================================
-       MAIN DASHBOARD CONTENT
-       ============================================================================ -->
-  <main class="dashboard-container">
-    
-    <!-- ========================================================================
-         LOADING OVERLAY (Hidden by default)
-         ======================================================================== -->
-    <div class="stats-loading" id="statsLoading">
-      <div class="loading-spinner"></div>
-      <p>Loading dashboard data...</p>
-    </div>
-
-    <!-- ========================================================================
-         ERROR STATE (Hidden by default)
-         ======================================================================== -->
-    <div class="dashboard-error" id="dashboardError">
-      <h2>Unable to Load Dashboard</h2>
-      <p>We encountered an error loading your dashboard. Please check your connection and try refreshing.</p>
-      <button class="btn btn--primary" onclick="location.reload()">
-        Refresh Dashboard
-      </button>
-    </div>
-
-    <!-- ========================================================================
-         SECTION 1: QUICK STATS - Revenue Overview
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h2 class="section-title">Quick Stats</h2>
-
-      <!-- Revenue Comparisons -->
-      <div class="stats-grid">
-        
-        <!-- Today vs Yesterday -->
-        <div class="stat-card">
-          <h3 class="stat-card-title">Today vs Yesterday</h3>
-          <div class="stat-comparison">
-            <div class="stat-item">
-              <p class="stat-label">Today</p>
-              <p class="stat-value" id="todayRevenue">₹0</p>
+        <div class="dh-card__body">
+          <div class="dh-stats">
+            <div class="dh-stat">
+              <div class="dh-stat__value" id="statInvoices">—</div>
+              <div class="dh-stat__label">Invoices</div>
             </div>
-            <div class="stat-item">
-              <p class="stat-label">Yesterday</p>
-              <p class="stat-value" id="yesterdayRevenue">₹0</p>
+            <div class="dh-stat">
+              <div class="dh-stat__value" id="statRevenue">—</div>
+              <div class="dh-stat__label">Revenue</div>
+            </div>
+            <div class="dh-stat">
+              <div class="dh-stat__value" id="statPending">—</div>
+              <div class="dh-stat__label">Pending</div>
+            </div>
+            <div class="dh-stat">
+              <div class="dh-stat__value" id="statCustomers">—</div>
+              <div class="dh-stat__label">Customers</div>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- This Month vs Last Month -->
-        <div class="stat-card">
-          <h3 class="stat-card-title">This Month vs Last Month</h3>
-          <div class="stat-comparison">
-            <div class="stat-item">
-              <p class="stat-label">This Month</p>
-              <p class="stat-value" id="thisMonthRevenue">₹0</p>
-            </div>
-            <div class="stat-item">
-              <p class="stat-label">Last Month</p>
-              <p class="stat-value" id="lastMonthRevenue">₹0</p>
-            </div>
-          </div>
+      <!-- Recent invoices panel -->
+      <section class="dh-card dh-panel--md">
+        <div class="dh-card__header">
+          <div class="dh-card__title">Recent invoices</div>
         </div>
-
-        <!-- Growth Percentage -->
-        <div class="stat-card growth-card">
-          <h3 class="stat-card-title">Growth Percentage</h3>
-          <p class="stat-value growth-value" id="growthPercentage">+0%</p>
-          <p class="stat-change" id="revenueChange">+0% from last month</p>
+        <div class="dh-card__body">
+          <table class="dh-table" aria-describedby="recentInvoices">
+            <thead>
+              <tr>
+                <th>Invoice #</th>
+                <th>Amount</th>
+                <th>GST</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th class="td-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recentInvoicesBody">
+              <!-- Populated by js/dashboard.js -->
+              <tr><td colspan="6" class="dh-muted">Loading…</td></tr>
+            </tbody>
+          </table>
         </div>
-      </div>
+      </section>
 
-      <!-- Key Statistics Cards -->
-      <div class="key-stats-grid">
-        
-        <!-- Total Revenue -->
-        <div class="key-stat-card">
-          <div class="key-stat-header">
-            <h3 class="key-stat-title">Total Revenue</h3>
-            <span class="key-stat-icon">💰</span>
-          </div>
-          <p class="key-stat-value" id="totalRevenue">₹0</p>
-          <p class="key-stat-subtitle" id="revenueChange">+0% from last month</p>
+      <!-- Top services -->
+      <aside class="dh-card dh-panel--sm">
+        <div class="dh-card__header">
+          <div class="dh-card__title">Top services</div>
         </div>
-
-        <!-- GST Collected -->
-        <div class="key-stat-card">
-          <div class="key-stat-header">
-            <h3 class="key-stat-title">GST Collected</h3>
-            <span class="key-stat-icon">📊</span>
-          </div>
-          <p class="key-stat-value" id="totalGST">₹0</p>
-          <p class="key-stat-subtitle">18% of total</p>
+        <div class="dh-card__body">
+          <ul id="topServices" class="dh-top-services">
+            <!-- Populated by js/dashboard.js -->
+            <li class="dh-muted">Loading…</li>
+          </ul>
         </div>
+      </aside>
+    </main>
+  </div>
 
-        <!-- Total Invoices -->
-        <div class="key-stat-card">
-          <div class="key-stat-header">
-            <h3 class="key-stat-title">Total Invoices</h3>
-            <span class="key-stat-icon">📋</span>
-          </div>
-          <p class="key-stat-value" id="totalInvoices">0</p>
-          <p class="key-stat-subtitle" id="invoiceChange">+0 this month</p>
-        </div>
-
-        <!-- Total Customers -->
-        <div class="key-stat-card">
-          <div class="key-stat-header">
-            <h3 class="key-stat-title">Total Customers</h3>
-            <span class="key-stat-icon">👥</span>
-          </div>
-          <p class="key-stat-value" id="totalCustomers">0</p>
-          <p class="key-stat-subtitle" id="customerChange">+0 new</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         SECTION 2: PAYMENT STATUS - Invoice Metrics
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h2 class="section-title">Payment Status</h2>
-
-      <div class="payment-stats-grid">
-        
-        <!-- Pending Payments -->
-        <div class="payment-stat">
-          <div class="payment-stat-icon pending">
-            <span>⏳</span>
-          </div>
-          <div class="payment-stat-content">
-            <p class="payment-stat-value" id="pendingPayments">0</p>
-            <p class="payment-stat-label">Invoices Pending Payment</p>
-          </div>
-        </div>
-
-        <!-- Outstanding Amount -->
-        <div class="payment-stat">
-          <div class="payment-stat-icon outstanding">
-            <span>⚠️</span>
-          </div>
-          <div class="payment-stat-content">
-            <p class="payment-stat-value" id="outstandingAmount">₹0</p>
-            <p class="payment-stat-label">Total Outstanding</p>
-          </div>
-        </div>
-
-        <!-- Collection Rate -->
-        <div class="payment-stat">
-          <div class="payment-stat-icon success">
-            <span>✓</span>
-          </div>
-          <div class="payment-stat-content">
-            <p class="payment-stat-value" id="collectionRate">0%</p>
-            <p class="payment-stat-label">Collection Rate</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         SECTION 3: SERVICE BREAKDOWN - Services Chart
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h2 class="section-title">Service Breakdown</h2>
-      
-      <div class="chart-container">
-        <canvas id="serviceChart" class="service-chart"></canvas>
-        <div class="service-list" id="serviceBreakdown">
-          <p class="empty-message">Loading service data...</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         SECTION 4: RECENT INVOICES - Last 10 Invoices
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h2 class="section-title">Recent Invoices</h2>
-
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Invoice ID</th>
-              <th>Customer</th>
-              <th>Amount</th>
-              <th>GST</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="recentInvoicesList">
-            <tr>
-              <td colspan="7" class="empty-state">
-                <p>No invoices yet</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         SECTION 5: PENDING INVOICES - Awaiting Payment
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h2 class="section-title">Pending/Draft Invoices</h2>
-
-      <div class="pending-invoices-list" id="pendingInvoicesList">
-        <p class="empty-message">No pending invoices</p>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         SECTION 6: ACTIVITY LOG - Recent Actions
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h2 class="section-title">Activity Log</h2>
-
-      <div class="activity-log" id="activityLog">
-        <p class="empty-message">No recent activity</p>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============================================================================
-       FOOTER
-       ============================================================================ -->
-  <footer class="dashboard-footer">
-    <div class="footer-content">
-      <p class="footer-text">
-        © 2025 DreamHarbour. All rights reserved. | 
-        <a href="#" class="footer-link">Privacy Policy</a> | 
-        <a href="#" class="footer-link">Terms of Service</a>
-      </p>
-    </div>
-  </footer>
-
-  <!-- ============================================================================
-       JAVASCRIPT FILES - PRODUCTION ORDER
-       ============================================================================ -->
-  
-  <!-- 1. Common utilities & Supabase initialization (MUST load first) -->
-  <script src="js/common.js"></script>
-  
-  <!-- 2. Dashboard functions (requires common.js) -->
-  <script src="js/dashboard.js"></script>
-
-  <!-- ============================================================================
-       INLINE SCRIPT - Initialize Dashboard
-       ============================================================================ -->
-  <script>
-    // ========================================================================
-    // Initialize dashboard when DOM is ready
-    // ========================================================================
-    document.addEventListener('DOMContentLoaded', async function() {
-      try {
-        // Call dashboard initialization from dashboard.js
-        await initializeDashboard();
-        
-        // Log successful initialization
-        console.log('Dashboard initialized successfully');
-      } catch (error) {
-        console.error('Dashboard initialization failed:', error);
-        // Error is handled in initializeDashboard()
-      }
-    });
-
-    // ========================================================================
-    // Logout function - redirects to login
-    // ========================================================================
-    function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('dreamHarbourUser');
-        localStorage.removeItem('userSession');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // ========================================================================
-    // Show/Hide dashboard error state
-    // ========================================================================
-    function showDashboardError() {
-      const errorDiv = document.getElementById('dashboardError');
-      if (errorDiv) {
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function hideDashboardError() {
-      const errorDiv = document.getElementById('dashboardError');
-      if (errorDiv) {
-        errorDiv.classList.remove('show');
-      }
-    }
-
-    // ========================================================================
-    // Show/Hide stats loading overlay
-    // ========================================================================
-    function showStatsLoading() {
-      const loadingDiv = document.getElementById('statsLoading');
-      if (loadingDiv) {
-        loadingDiv.classList.add('show');
-      }
-    }
-
-    function hideStatsLoading() {
-      const loadingDiv = document.getElementById('statsLoading');
-      if (loadingDiv) {
-        loadingDiv.classList.remove('show');
-      }
-    }
-
-    // ========================================================================
-    // Export functions for dashboard.js to use
-    // ========================================================================
-    // These functions are called from dashboard.js
-    window.showDashboardError = showDashboardError;
-    window.hideDashboardError = hideDashboardError;
-    window.showStatsLoading = showStatsLoading;
-    window.hideStatsLoading = hideStatsLoading;
-    window.logout = logout;
-  </script>
+  <!-- scripts: common + notifications + dashboard runtime -->
+  <script src="/js/common.js"></script>
+  <script src="/js/notifications.js"></script>
+  <script type="module" src="/js/dashboard.js"></script>
 </body>
 </html>

@@ -1,630 +1,87 @@
-<!DOCTYPE html>
-<html lang="en" data-color-scheme="light">
+<!doctype html>
+<html lang="en">
 <head>
-  <!-- ============================================================================
-       META & DOCUMENT SETUP
-       ============================================================================ -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="DreamHarbour Invoices - Create and Manage Invoices" />
-  <meta name="keywords" content="invoices, billing, management, services" />
-  <meta name="theme-color" content="#208D8D" />
-  <title>DreamHarbour - Invoices</title>
-
-  <!-- ============================================================================
-       CSS STYLESHEETS - PRODUCTION ORDER (SAME AS index.html & dashboard.html)
-       ============================================================================ -->
-  <!-- 1. Theme system (design tokens & variables) -->
-  <link rel="stylesheet" href="css/theme.css" />
-  
-  <!-- 2. Core styles (typography, buttons, forms) -->
-  <link rel="stylesheet" href="css/style.css" />
-  
-  <!-- 3. Responsive design (breakpoints) -->
-  <link rel="stylesheet" href="css/responsive.css" />
-  
-  <!-- 4. Dashboard/Component styles -->
-  <link rel="stylesheet" href="css/dashboard.css" />
-
-  <!-- ============================================================================
-       SUPABASE CDN - Required for Supabase client
-       ============================================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- ============================================================================
-       FAVICON
-       ============================================================================ -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%23208D8D' font-weight='bold'>D</text></svg>" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Invoices — DreamHarbour</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/responsive.css">
 </head>
-
 <body>
-  <!-- ============================================================================
-       HEADER/NAVBAR - Navigation & User Info
-       ============================================================================ -->
-  <header class="dashboard-header">
-    <div class="header-content">
-      
-      <!-- Logo/Brand -->
-      <div class="header-left">
-        <a href="dashboard.html" class="header-logo">
-          <span class="logo-text">DreamHarbour</span>
-        </a>
-      </div>
-
-      <!-- Navigation Menu -->
-      <nav class="header-nav">
-        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
-        <a href="invoices.html" class="nav-link active">📋 Invoices</a>
-        <a href="settings.html" class="nav-link">⚙️ Settings</a>
-      </nav>
-
-      <!-- User Profile & Logout -->
+  <div class="container">
+    <header class="header">
+      <a class="logo" href="dashboard.html">DreamHarbour</a>
       <div class="header-right">
-        <div class="user-info">
-          <div class="user-details">
-            <p class="user-name" id="userName">Welcome, User!</p>
-            <p class="user-role" id="userRole">User</p>
-          </div>
-          <button class="btn btn--outline btn--sm" onclick="logout()">
-            Logout
-          </button>
-        </div>
+        <div id="userName" class="dh-muted">—</div>
+        <button id="btnLogout" class="btn btn--sm btn--outline">Logout</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ============================================================================
-       MAIN INVOICES CONTENT
-       ============================================================================ -->
-  <main class="dashboard-container">
-    
-    <!-- ========================================================================
-         LOADING OVERLAY (Hidden by default)
-         ======================================================================== -->
-    <div class="stats-loading" id="invoicesLoading">
-      <div class="loading-spinner"></div>
-      <p>Loading invoices...</p>
-    </div>
-
-    <!-- ========================================================================
-         ERROR STATE (Hidden by default)
-         ======================================================================== -->
-    <div class="dashboard-error" id="invoicesError">
-      <h2>Unable to Load Invoices</h2>
-      <p>We encountered an error loading invoices. Please check your connection and try refreshing.</p>
-      <button class="btn btn--primary" onclick="location.reload()">
-        Refresh Invoices
-      </button>
-    </div>
-
-    <!-- ========================================================================
-         SECTION 1: RECENT INVOICES LIST
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <div class="section-header">
-        <h2 class="section-title">Recent Invoices</h2>
-        <button class="btn btn--primary" onclick="toggleCreateForm()">
-          ➕ Create New Invoice
-        </button>
-      </div>
-
-      <div class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Invoice #</th>
-              <th>Date</th>
-              <th>Customer</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="invoicesList">
-            <tr>
-              <td colspan="6" class="empty-state">
-                <p>Loading...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         SECTION 2: CREATE NEW INVOICE FORM (Hidden by default)
-         ======================================================================== -->
-    <section class="dashboard-section" id="createInvoiceForm" style="display: none;">
-      <h2 class="section-title">📋 Create New Invoice</h2>
-
-      <form id="invoiceForm" onsubmit="submitInvoice(event)">
-        
-        <!-- ====================================================================
-             CUSTOMER INFORMATION SECTION
-             ==================================================================== -->
-        <fieldset class="form-fieldset">
-          <legend class="form-legend">Customer Information</legend>
-
-          <!-- Customer Mobile Lookup -->
-          <div class="form-group">
-            <label for="customerMobile" class="form-label">Customer Mobile (Database Lookup)</label>
-            <div class="input-wrapper">
-              <input
-                type="tel"
-                id="customerMobile"
-                class="form-control"
-                placeholder="Enter customer phone number"
-                maxlength="10"
-                inputmode="numeric"
-                oninput="lookupCustomer()"
-                aria-label="Customer mobile number"
-              />
-              <span class="lookup-status" id="lookupStatus"></span>
-            </div>
-          </div>
-
-          <!-- Customer Name -->
-          <div class="form-group">
-            <label for="customerName" class="form-label">Customer Name</label>
-            <input
-              type="text"
-              id="customerName"
-              class="form-control"
-              placeholder="Customer name"
-              readonly
-              aria-label="Customer name"
-            />
-          </div>
-
-          <!-- Customer Email -->
-          <div class="form-group">
-            <label for="customerEmail" class="form-label">Email</label>
-            <input
-              type="email"
-              id="customerEmail"
-              class="form-control"
-              placeholder="customer@example.com"
-              readonly
-              aria-label="Customer email"
-            />
-          </div>
-
-          <!-- Customer Address -->
-          <div class="form-group">
-            <label for="customerAddress" class="form-label">Address</label>
-            <textarea
-              id="customerAddress"
-              class="form-control"
-              placeholder="Customer address"
-              rows="3"
-              readonly
-              aria-label="Customer address"
-            ></textarea>
-          </div>
-
-          <!-- Customer GSTIN -->
-          <div class="form-group">
-            <label for="customerGSTIN" class="form-label">GSTIN</label>
-            <input
-              type="text"
-              id="customerGSTIN"
-              class="form-control"
-              placeholder="Customer GSTIN"
-              readonly
-              aria-label="Customer GSTIN"
-            />
-          </div>
-        </fieldset>
-
-        <!-- ====================================================================
-             SERVICES SELECTION SECTION
-             ==================================================================== -->
-        <fieldset class="form-fieldset">
-          <legend class="form-legend">Services & Items</legend>
-
-          <!-- Service Selection -->
-          <div class="service-selection">
+    <main class="content">
+      <section class="card">
+        <div class="card__header"><h3>Create invoice</h3></div>
+        <div class="card__body">
+          <form id="invoiceForm">
             <div class="form-group">
-              <label for="serviceType" class="form-label">Select Service</label>
-              <select
-                id="serviceType"
-                class="form-control"
-                aria-label="Select service type"
-              >
-                <option value="">-- Select Service --</option>
+              <label class="form-label" for="customerPhone">Customer phone</label>
+              <input id="customerPhone" class="form-control" type="text" placeholder="Enter mobile number" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="customerName">Customer name</label>
+              <input id="customerName" class="form-control" type="text" placeholder="Customer name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="customerEmail">Customer email</label>
+              <input id="customerEmail" class="form-control" type="email" placeholder="Email">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="serviceSelect">Service</label>
+              <select id="serviceSelect" class="form-control">
+                <option value="">Loading services…</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label for="quantity" class="form-label">Quantity</label>
-              <input
-                type="number"
-                id="quantity"
-                class="form-control"
-                placeholder="1"
-                min="1"
-                value="1"
-                aria-label="Quantity"
-              />
+              <label class="form-label" for="quantity">Quantity</label>
+              <input id="quantity" class="form-control" type="number" min="1" value="1">
             </div>
 
             <div class="form-group">
-              <label for="rate" class="form-label">Rate</label>
-              <input
-                type="number"
-                id="rate"
-                class="form-control"
-                placeholder="₹0"
-                min="0"
-                step="0.01"
-                readonly
-                aria-label="Rate"
-              />
+              <button type="submit" class="btn btn--primary">Create invoice</button>
+              <button type="button" id="toggleCreate" class="btn btn--outline">Clear</button>
             </div>
-
-            <button
-              type="button"
-              class="btn btn--secondary"
-              onclick="addService()"
-              aria-label="Add service to invoice"
-            >
-              + Add Service
-            </button>
-          </div>
-
-          <!-- Added Services Table -->
-          <div class="added-services">
-            <h3 class="subsection-title">Added Services</h3>
-            <div class="table-wrapper">
-              <table class="data-table services-table">
-                <thead>
-                  <tr>
-                    <th>Service</th>
-                    <th>Qty</th>
-                    <th>Rate</th>
-                    <th>Amount</th>
-                    <th>GST</th>
-                    <th>Total</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="addedServicesList">
-                  <tr>
-                    <td colspan="7" class="empty-state">
-                      <p>No services added yet</p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </fieldset>
-
-        <!-- ====================================================================
-             TOTALS SECTION
-             ==================================================================== -->
-        <fieldset class="form-fieldset totals-section">
-          <legend class="form-legend">Invoice Totals</legend>
-
-          <div class="totals-grid">
-            <div class="total-item">
-              <span class="total-label">Subtotal:</span>
-              <span class="total-value" id="subtotal">₹0</span>
-            </div>
-            <div class="total-item">
-              <span class="total-label">GST (18%):</span>
-              <span class="total-value" id="gstAmount">₹0</span>
-            </div>
-            <div class="total-item highlight">
-              <span class="total-label bold">Total:</span>
-              <span class="total-value bold" id="invoiceTotal">₹0</span>
-            </div>
-          </div>
-        </fieldset>
-
-        <!-- ====================================================================
-             PAYMENT STATUS SECTION
-             ==================================================================== -->
-        <fieldset class="form-fieldset">
-          <legend class="form-legend">Payment Status</legend>
-
-          <div class="payment-status-options">
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="paymentStatus"
-                value="pending"
-                checked
-                aria-label="Mark as pending"
-              />
-              <span class="radio-text">Pending</span>
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="paymentStatus"
-                value="paid"
-                aria-label="Mark as paid"
-              />
-              <span class="radio-text">Paid</span>
-            </label>
-          </div>
-        </fieldset>
-
-        <!-- ====================================================================
-             FORM ACTIONS
-             ==================================================================== -->
-        <div class="form-actions">
-          <button
-            type="submit"
-            class="btn btn--primary btn--lg"
-            aria-label="Submit invoice"
-          >
-            ✓ Submit
-          </button>
-          <button
-            type="button"
-            class="btn btn--outline btn--lg"
-            onclick="toggleCreateForm()"
-            aria-label="Cancel invoice creation"
-          >
-            Cancel
-          </button>
+          </form>
         </div>
+      </section>
 
-        <!-- Success/Error Messages -->
-        <div class="form-messages">
-          <div class="error-message" id="invoiceError"></div>
-          <div class="success-message" id="invoiceSuccess"></div>
+      <section class="card mt-8">
+        <div class="card__header"><h3>All invoices</h3></div>
+        <div class="card__body">
+          <table class="table">
+            <thead>
+              <tr><th>#</th><th>Subtotal</th><th>GST</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="invoicesTableBody">
+              <tr><td colspan="6" class="dh-muted">Loading…</td></tr>
+            </tbody>
+          </table>
         </div>
-      </form>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
-  <!-- ============================================================================
-       FOOTER
-       ============================================================================ -->
-  <footer class="dashboard-footer">
-    <div class="footer-content">
-      <p class="footer-text">
-        © 2025 DreamHarbour. All rights reserved. | 
-        <a href="#" class="footer-link">Privacy Policy</a> | 
-        <a href="#" class="footer-link">Terms of Service</a>
-      </p>
-    </div>
-  </footer>
-
-  <!-- ============================================================================
-       JAVASCRIPT FILES - PRODUCTION ORDER
-       ============================================================================ -->
-  
-  <!-- 1. Common utilities & Supabase initialization (MUST load first) -->
-  <script src="js/common.js"></script>
-  
-  <!-- 2. Invoices functions (requires common.js) -->
-  <script src="js/invoices.js"></script>
-
-  <!-- ============================================================================
-       INLINE SCRIPT - Initialize Invoices Page
-       ============================================================================ -->
+  <script src="/js/common.js"></script>
+  <script src="/js/notifications.js"></script>
+  <script type="module" src="/js/invoices.js"></script>
   <script>
-    // ========================================================================
-    // Initialize invoices page when DOM is ready
-    // ========================================================================
-    document.addEventListener('DOMContentLoaded', async function() {
-      try {
-        // Check if user is logged in
-        if (!checkSession()) return;
-
-        // Load services and invoices
-        await loadServiceTypes();
-        await loadInvoices();
-        
-        // Log successful initialization
-        console.log('Invoices page initialized successfully');
-      } catch (error) {
-        console.error('Invoices page initialization failed:', error);
-        showInvoicesError();
-      }
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.initializeInvoices) window.initializeInvoices();
+      // fallback: wire a minimal toggle for clear
+      document.getElementById('toggleCreate')?.addEventListener('click', () => document.getElementById('invoiceForm')?.reset());
     });
-
-    // ========================================================================
-    // Toggle create invoice form visibility
-    // ========================================================================
-    function toggleCreateForm() {
-      const form = document.getElementById('createInvoiceForm');
-      if (form.style.display === 'none') {
-        form.style.display = 'block';
-        document.querySelector('input[id="customerMobile"]').focus();
-      } else {
-        form.style.display = 'none';
-        clearInvoiceForm();
-      }
-    }
-
-    // ========================================================================
-    // Clear invoice form inputs
-    // ========================================================================
-    function clearInvoiceForm() {
-      document.getElementById('invoiceForm').reset();
-      document.getElementById('customerName').value = '';
-      document.getElementById('customerEmail').value = '';
-      document.getElementById('customerAddress').value = '';
-      document.getElementById('customerGSTIN').value = '';
-      document.getElementById('addedServicesList').innerHTML = `
-        <tr>
-          <td colspan="7" class="empty-state">
-            <p>No services added yet</p>
-          </td>
-        </tr>
-      `;
-      updateTotals();
-    }
-
-    // ========================================================================
-    // Update invoice totals
-    // ========================================================================
-    function updateTotals() {
-      const rows = document.querySelectorAll('#addedServicesList tr:not(.empty-state)');
-      let subtotal = 0;
-
-      rows.forEach(row => {
-        const amountCell = row.cells[3];
-        const amount = parseFloat(amountCell.textContent.replace('₹', '')) || 0;
-        subtotal += amount;
-      });
-
-      const gst = subtotal * 0.18;
-      const total = subtotal + gst;
-
-      document.getElementById('subtotal').textContent = `₹${subtotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-      document.getElementById('gstAmount').textContent = `₹${gst.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-      document.getElementById('invoiceTotal').textContent = `₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-    }
-
-    // ========================================================================
-    // Lookup customer from Supabase
-    // ========================================================================
-    async function lookupCustomer() {
-      const phone = document.getElementById('customerMobile').value;
-      const statusDiv = document.getElementById('lookupStatus');
-
-      if (phone.length < 10) {
-        statusDiv.textContent = '';
-        return;
-      }
-
-      try {
-        // This will be implemented in invoices.js
-        // For now, clear fields if lookup fails
-        statusDiv.textContent = '✓ Found';
-        statusDiv.style.color = 'var(--color-success)';
-      } catch (error) {
-        statusDiv.textContent = '✗ Not found';
-        statusDiv.style.color = 'var(--color-error)';
-      }
-    }
-
-    // ========================================================================
-    // Add service to invoice
-    // ========================================================================
-    function addService() {
-      const serviceType = document.getElementById('serviceType').value;
-      const quantity = parseFloat(document.getElementById('quantity').value) || 1;
-      const rate = parseFloat(document.getElementById('rate').value) || 0;
-
-      if (!serviceType) {
-        alert('Please select a service');
-        return;
-      }
-
-      const amount = quantity * rate;
-      const gst = amount * 0.18;
-      const total = amount + gst;
-
-      // This will be enhanced in invoices.js to add actual data
-      updateTotals();
-    }
-
-    // ========================================================================
-    // Submit invoice form
-    // ========================================================================
-    async function submitInvoice(event) {
-      event.preventDefault();
-
-      const errorDiv = document.getElementById('invoiceError');
-      const successDiv = document.getElementById('invoiceSuccess');
-
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
-
-      try {
-        // Validation will be done in invoices.js
-        // For now, show success message
-        successDiv.textContent = '✓ Invoice created successfully!';
-        
-        // Clear form after 2 seconds
-        setTimeout(() => {
-          toggleCreateForm();
-          loadInvoices();
-        }, 2000);
-      } catch (error) {
-        errorDiv.textContent = '✗ Error creating invoice. Please try again.';
-      }
-    }
-
-    // ========================================================================
-    // Show/Hide invoices error state
-    // ========================================================================
-    function showInvoicesError() {
-      const errorDiv = document.getElementById('invoicesError');
-      if (errorDiv) {
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function hideInvoicesError() {
-      const errorDiv = document.getElementById('invoicesError');
-      if (errorDiv) {
-        errorDiv.classList.remove('show');
-      }
-    }
-
-    // ========================================================================
-    // Show/Hide invoices loading overlay
-    // ========================================================================
-    function showInvoicesLoading() {
-      const loadingDiv = document.getElementById('invoicesLoading');
-      if (loadingDiv) {
-        loadingDiv.classList.add('show');
-      }
-    }
-
-    function hideInvoicesLoading() {
-      const loadingDiv = document.getElementById('invoicesLoading');
-      if (loadingDiv) {
-        loadingDiv.classList.remove('show');
-      }
-    }
-
-    // ========================================================================
-    // Logout function - redirects to login
-    // ========================================================================
-    function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('dreamHarbourUser');
-        localStorage.removeItem('userSession');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // ========================================================================
-    // Check session (verify user is logged in)
-    // ========================================================================
-    function checkSession() {
-      const userSession = JSON.parse(localStorage.getItem('userSession'));
-      if (!userSession) {
-        window.location.href = 'index.html';
-        return false;
-      }
-      return true;
-    }
-
-    // ========================================================================
-    // Export functions for invoices.js to use
-    // ========================================================================
-    window.showInvoicesError = showInvoicesError;
-    window.hideInvoicesError = hideInvoicesError;
-    window.showInvoicesLoading = showInvoicesLoading;
-    window.hideInvoicesLoading = hideInvoicesLoading;
-    window.logout = logout;
-    window.checkSession = checkSession;
-    window.toggleCreateForm = toggleCreateForm;
-    window.clearInvoiceForm = clearInvoiceForm;
-    window.updateTotals = updateTotals;
-    window.lookupCustomer = lookupCustomer;
-    window.addService = addService;
-    window.submitInvoice = submitInvoice;
   </script>
 </body>
 </html>

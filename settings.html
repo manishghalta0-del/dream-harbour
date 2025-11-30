@@ -1,763 +1,115 @@
-<!DOCTYPE html>
-<html lang="en" data-color-scheme="light">
+<!doctype html>
+<html lang="en">
 <head>
-  <!-- ============================================================================
-       META & DOCUMENT SETUP
-       ============================================================================ -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="DreamHarbour Settings - Manage Profile, Services, and Business Settings" />
-  <meta name="keywords" content="settings, configuration, services, profile, management" />
-  <meta name="theme-color" content="#208D8D" />
-  <title>DreamHarbour - Settings</title>
-
-  <!-- ============================================================================
-       CSS STYLESHEETS - PRODUCTION ORDER (SAME AS ALL PAGES)
-       ============================================================================ -->
-  <!-- 1. Theme system (design tokens & variables) -->
-  <link rel="stylesheet" href="css/theme.css" />
-  
-  <!-- 2. Core styles (typography, buttons, forms) -->
-  <link rel="stylesheet" href="css/style.css" />
-  
-  <!-- 3. Responsive design (breakpoints) -->
-  <link rel="stylesheet" href="css/responsive.css" />
-  
-  <!-- 4. Dashboard/Component styles -->
-  <link rel="stylesheet" href="css/dashboard.css" />
-
-  <!-- ============================================================================
-       SUPABASE CDN - Required for Supabase client
-       ============================================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- ============================================================================
-       FAVICON
-       ============================================================================ -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%23208D8D' font-weight='bold'>D</text></svg>" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Settings — DreamHarbour</title>
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
 </head>
-
 <body>
-  <!-- ============================================================================
-       HEADER/NAVBAR - Navigation & User Info
-       ============================================================================ -->
-  <header class="dashboard-header">
-    <div class="header-content">
-      
-      <!-- Logo/Brand -->
-      <div class="header-left">
-        <a href="dashboard.html" class="header-logo">
-          <span class="logo-text">DreamHarbour</span>
-        </a>
-      </div>
-
-      <!-- Navigation Menu -->
-      <nav class="header-nav">
-        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
-        <a href="invoices.html" class="nav-link">📋 Invoices</a>
-        <a href="settings.html" class="nav-link active">⚙️ Settings</a>
-      </nav>
-
-      <!-- User Profile & Logout -->
+  <div class="container">
+    <header class="header">
+      <a class="logo" href="dashboard.html">DreamHarbour</a>
       <div class="header-right">
-        <div class="user-info">
-          <div class="user-details">
-            <p class="user-name" id="userName">Welcome, User!</p>
-            <p class="user-role" id="userRole">User</p>
-          </div>
-          <button class="btn btn--outline btn--sm" onclick="logout()">
-            Logout
-          </button>
-        </div>
+        <div id="userName" class="dh-muted">—</div>
+        <button id="btnLogout" class="btn btn--sm btn--outline">Logout</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- ============================================================================
-       MAIN SETTINGS CONTENT
-       ============================================================================ -->
-  <main class="dashboard-container">
-    
-    <!-- ========================================================================
-         LOADING OVERLAY (Hidden by default)
-         ======================================================================== -->
-    <div class="stats-loading" id="settingsLoading">
-      <div class="loading-spinner"></div>
-      <p>Loading settings...</p>
-    </div>
-
-    <!-- ========================================================================
-         ERROR STATE (Hidden by default)
-         ======================================================================== -->
-    <div class="dashboard-error" id="settingsError">
-      <h2>Unable to Load Settings</h2>
-      <p>We encountered an error loading your settings. Please check your connection and try refreshing.</p>
-      <button class="btn btn--primary" onclick="location.reload()">
-        Refresh Settings
-      </button>
-    </div>
-
-    <!-- ========================================================================
-         SETTINGS TABS NAVIGATION
-         ======================================================================== -->
-    <section class="dashboard-section">
-      <h1 class="page-title">Settings & Configuration</h1>
-
-      <div class="settings-tabs">
-        <button class="tab-btn active" onclick="switchTab('profile')" aria-label="Profile settings tab">
-          👤 Profile
-        </button>
-        <button class="tab-btn" onclick="switchTab('services')" aria-label="Services management tab">
-          🛠️ Services
-        </button>
-        <button class="tab-btn" onclick="switchTab('business')" aria-label="Business settings tab">
-          🏢 Business
-        </button>
-        <button class="tab-btn" onclick="switchTab('notifications')" aria-label="Notification preferences tab">
-          🔔 Notifications
-        </button>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         TAB 1: PROFILE SETTINGS
-         ======================================================================== -->
-    <section class="tab-content active" id="profileTab">
-      <div class="dashboard-section">
-        <h2 class="section-title">👤 Profile Information</h2>
-
-        <form id="profileForm" onsubmit="updateProfile(event)">
-          
-          <!-- Full Name -->
-          <div class="form-group">
-            <label for="fullName" class="form-label">Full Name</label>
-            <input
-              type="text"
-              id="fullName"
-              class="form-control"
-              placeholder="Your full name"
-              required
-              aria-label="Full name"
-            />
+    <main class="content">
+      <div class="card">
+        <div class="card__header">
+          <div>
+            <button class="tab-btn active" onclick="switchTab('business', this)">Business</button>
+            <button class="tab-btn" onclick="switchTab('services', this)">Services</button>
+            <button class="tab-btn" onclick="switchTab('categories', this)">Categories</button>
           </div>
-
-          <!-- Email -->
-          <div class="form-group">
-            <label for="email" class="form-label">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              class="form-control"
-              placeholder="your.email@example.com"
-              required
-              aria-label="Email address"
-            />
-          </div>
-
-          <!-- Phone -->
-          <div class="form-group">
-            <label for="phone" class="form-label">Phone Number</label>
-            <input
-              type="tel"
-              id="phone"
-              class="form-control"
-              placeholder="+91 XXXXX XXXXX"
-              maxlength="13"
-              aria-label="Phone number"
-            />
-          </div>
-
-          <!-- Bio -->
-          <div class="form-group">
-            <label for="bio" class="form-label">Bio</label>
-            <textarea
-              id="bio"
-              class="form-control"
-              placeholder="Tell us about yourself"
-              rows="4"
-              aria-label="Bio"
-            ></textarea>
-          </div>
-
-          <!-- Form Messages -->
-          <div class="form-messages">
-            <div class="error-message" id="profileError"></div>
-            <div class="success-message" id="profileSuccess"></div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="form-actions">
-            <button type="submit" class="btn btn--primary" aria-label="Save profile changes">
-              ✓ Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         TAB 2: SERVICES MANAGEMENT
-         ======================================================================== -->
-    <section class="tab-content" id="servicesTab">
-      <div class="dashboard-section">
-        <div class="section-header">
-          <h2 class="section-title">🛠️ Manage Services</h2>
-          <button class="btn btn--primary" onclick="toggleAddService()" aria-label="Add new service">
-            ➕ Add Service
-          </button>
         </div>
 
-        <!-- Add Service Form (Hidden by default) -->
-        <form id="addServiceForm" onsubmit="addNewService(event)" style="display: none;">
-          <fieldset class="form-fieldset">
-            <legend class="form-legend">Add New Service</legend>
+        <div class="card__body">
+          <!-- Business tab -->
+          <div id="businessTab" class="tab-content active">
+            <form id="businessSettingsForm">
+              <div class="form-group">
+                <label class="form-label" for="businessName">Business name</label>
+                <input id="businessName" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="gstPercentage">Default GST %</label>
+                <input id="gstPercentage" class="form-control" type="number" value="18"/>
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn--primary">Save settings</button>
+              </div>
+            </form>
+          </div>
 
-            <!-- Service Name -->
-            <div class="form-group">
-              <label for="serviceName" class="form-label">Service Name</label>
-              <input
-                type="text"
-                id="serviceName"
-                class="form-control"
-                placeholder="e.g., Web Design, Consulting"
-                required
-                aria-label="Service name"
-              />
+          <!-- Services tab -->
+          <div id="servicesTab" class="tab-content">
+            <form id="addServiceForm">
+              <div class="form-group">
+                <label class="form-label" for="serviceName">Service name</label>
+                <input id="serviceName" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn--primary">Add service</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Categories tab -->
+          <div id="categoriesTab" class="tab-content">
+            <form id="addCategoryForm">
+              <div class="form-group">
+                <label class="form-label" for="categoryName">Category name</label>
+                <input id="categoryName" class="form-control" type="text" />
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn--primary">Add category</button>
+              </div>
+            </form>
+
+            <div id="categoriesList" class="dh-space-top">
+              <!-- categories populated by settings.js -->
             </div>
-
-            <!-- Service Description -->
-            <div class="form-group">
-              <label for="serviceDescription" class="form-label">Description</label>
-              <textarea
-                id="serviceDescription"
-                class="form-control"
-                placeholder="Describe this service"
-                rows="3"
-                aria-label="Service description"
-              ></textarea>
-            </div>
-
-            <!-- Service Rate -->
-            <div class="form-group">
-              <label for="serviceRate" class="form-label">Base Rate (₹)</label>
-              <input
-                type="number"
-                id="serviceRate"
-                class="form-control"
-                placeholder="₹0"
-                min="0"
-                step="0.01"
-                required
-                aria-label="Service rate"
-              />
-            </div>
-
-            <!-- Service Unit -->
-            <div class="form-group">
-              <label for="serviceUnit" class="form-label">Unit</label>
-              <select id="serviceUnit" class="form-control" aria-label="Service unit">
-                <option value="per hour">Per Hour</option>
-                <option value="per day">Per Day</option>
-                <option value="per project">Per Project</option>
-                <option value="fixed">Fixed</option>
-              </select>
-            </div>
-
-            <!-- Form Messages -->
-            <div class="form-messages">
-              <div class="error-message" id="serviceError"></div>
-              <div class="success-message" id="serviceSuccess"></div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="form-actions">
-              <button type="submit" class="btn btn--primary" aria-label="Add service">
-                ✓ Add Service
-              </button>
-              <button type="button" class="btn btn--outline" onclick="toggleAddService()" aria-label="Cancel adding service">
-                Cancel
-              </button>
-            </div>
-          </fieldset>
-        </form>
-
-        <!-- Services List -->
-        <div class="services-list">
-          <div class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Service Name</th>
-                  <th>Rate</th>
-                  <th>Unit</th>
-                  <th>Created</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="servicesList">
-                <tr>
-                  <td colspan="5" class="empty-state">
-                    <p>Loading services...</p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <!-- ========================================================================
-         TAB 3: BUSINESS SETTINGS
-         ======================================================================== -->
-    <section class="tab-content" id="businessTab">
-      <div class="dashboard-section">
-        <h2 class="section-title">🏢 Business Information</h2>
-
-        <form id="businessForm" onsubmit="updateBusiness(event)">
-          
-          <!-- Business Name -->
-          <div class="form-group">
-            <label for="businessName" class="form-label">Business Name</label>
-            <input
-              type="text"
-              id="businessName"
-              class="form-control"
-              placeholder="Your business name"
-              required
-              aria-label="Business name"
-            />
-          </div>
-
-          <!-- Business Type -->
-          <div class="form-group">
-            <label for="businessType" class="form-label">Business Type</label>
-            <select id="businessType" class="form-control" aria-label="Business type">
-              <option value="">-- Select Type --</option>
-              <option value="freelancer">Freelancer</option>
-              <option value="small_business">Small Business</option>
-              <option value="agency">Agency</option>
-              <option value="enterprise">Enterprise</option>
-            </select>
-          </div>
-
-          <!-- GSTIN -->
-          <div class="form-group">
-            <label for="gstin" class="form-label">GSTIN</label>
-            <input
-              type="text"
-              id="gstin"
-              class="form-control"
-              placeholder="15-digit GSTIN"
-              maxlength="15"
-              aria-label="GSTIN"
-            />
-          </div>
-
-          <!-- PAN -->
-          <div class="form-group">
-            <label for="pan" class="form-label">PAN</label>
-            <input
-              type="text"
-              id="pan"
-              class="form-control"
-              placeholder="10-digit PAN"
-              maxlength="10"
-              aria-label="PAN"
-            />
-          </div>
-
-          <!-- Address -->
-          <div class="form-group">
-            <label for="businessAddress" class="form-label">Business Address</label>
-            <textarea
-              id="businessAddress"
-              class="form-control"
-              placeholder="Complete business address"
-              rows="4"
-              aria-label="Business address"
-            ></textarea>
-          </div>
-
-          <!-- City -->
-          <div class="form-group">
-            <label for="city" class="form-label">City</label>
-            <input
-              type="text"
-              id="city"
-              class="form-control"
-              placeholder="City"
-              aria-label="City"
-            />
-          </div>
-
-          <!-- State -->
-          <div class="form-group">
-            <label for="state" class="form-label">State</label>
-            <select id="state" class="form-control" aria-label="State">
-              <option value="">-- Select State --</option>
-              <option value="maharashtra">Maharashtra</option>
-              <option value="delhi">Delhi</option>
-              <option value="karnataka">Karnataka</option>
-              <option value="tamil_nadu">Tamil Nadu</option>
-              <option value="telangana">Telangana</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <!-- Postal Code -->
-          <div class="form-group">
-            <label for="postalCode" class="form-label">Postal Code</label>
-            <input
-              type="text"
-              id="postalCode"
-              class="form-control"
-              placeholder="PIN Code"
-              maxlength="6"
-              aria-label="Postal code"
-            />
-          </div>
-
-          <!-- Form Messages -->
-          <div class="form-messages">
-            <div class="error-message" id="businessError"></div>
-            <div class="success-message" id="businessSuccess"></div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="form-actions">
-            <button type="submit" class="btn btn--primary" aria-label="Save business information">
-              ✓ Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- ========================================================================
-         TAB 4: NOTIFICATION PREFERENCES
-         ======================================================================== -->
-    <section class="tab-content" id="notificationsTab">
-      <div class="dashboard-section">
-        <h2 class="section-title">🔔 Notification Preferences</h2>
-
-        <form id="notificationsForm" onsubmit="updateNotifications(event)">
-          
-          <!-- Email Notifications -->
-          <fieldset class="form-fieldset">
-            <legend class="form-legend">Email Notifications</legend>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="emailInvoices" checked aria-label="Invoice notifications" />
-                <span class="checkbox-text">Invoice Reminders</span>
-              </label>
-              <p class="checkbox-description">Get notified when invoices are due</p>
-            </div>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="emailPayments" checked aria-label="Payment notifications" />
-                <span class="checkbox-text">Payment Confirmations</span>
-              </label>
-              <p class="checkbox-description">Receive confirmations when payments are received</p>
-            </div>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="emailReports" checked aria-label="Report notifications" />
-                <span class="checkbox-text">Weekly Reports</span>
-              </label>
-              <p class="checkbox-description">Get weekly business reports</p>
-            </div>
-          </fieldset>
-
-          <!-- Push Notifications -->
-          <fieldset class="form-fieldset">
-            <legend class="form-legend">Push Notifications</legend>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="pushEnabled" checked aria-label="Enable push notifications" />
-                <span class="checkbox-text">Enable Push Notifications</span>
-              </label>
-              <p class="checkbox-description">Receive real-time browser notifications</p>
-            </div>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="pushUrgent" checked aria-label="Urgent notifications" />
-                <span class="checkbox-text">Urgent Alerts Only</span>
-              </label>
-              <p class="checkbox-description">Only notify for critical updates</p>
-            </div>
-          </fieldset>
-
-          <!-- SMS Notifications -->
-          <fieldset class="form-fieldset">
-            <legend class="form-legend">SMS Notifications</legend>
-
-            <div class="checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="smsEnabled" aria-label="Enable SMS notifications" />
-                <span class="checkbox-text">Enable SMS Notifications</span>
-              </label>
-              <p class="checkbox-description">Receive SMS for critical updates (charges may apply)</p>
-            </div>
-          </fieldset>
-
-          <!-- Form Messages -->
-          <div class="form-messages">
-            <div class="error-message" id="notificationsError"></div>
-            <div class="success-message" id="notificationsSuccess"></div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="form-actions">
-            <button type="submit" class="btn btn--primary" aria-label="Save notification preferences">
-              ✓ Save Preferences
-            </button>
-          </div>
-        </form>
-      </div>
-    </section>
-  </main>
-
-  <!-- ============================================================================
-       FOOTER
-       ============================================================================ -->
-  <footer class="dashboard-footer">
-    <div class="footer-content">
-      <p class="footer-text">
-        © 2025 DreamHarbour. All rights reserved. | 
-        <a href="#" class="footer-link">Privacy Policy</a> | 
-        <a href="#" class="footer-link">Terms of Service</a>
-      </p>
-    </div>
-  </footer>
-
-  <!-- ============================================================================
-       JAVASCRIPT FILES - PRODUCTION ORDER
-       ============================================================================ -->
-  
-  <!-- 1. Common utilities & Supabase initialization (MUST load first) -->
-  <script src="js/common.js"></script>
-  
-  <!-- 2. Settings functions (requires common.js) -->
-  <script src="js/settings.js"></script>
-
-  <!-- ============================================================================
-       INLINE SCRIPT - Initialize Settings Page
-       ============================================================================ -->
+  <script src="/js/common.js"></script>
+  <script src="/js/notifications.js"></script>
+  <script type="module" src="/js/settings.js"></script>
   <script>
-    // ========================================================================
-    // Initialize settings page when DOM is ready
-    // ========================================================================
-    document.addEventListener('DOMContentLoaded', async function() {
-      try {
-        // Check if user is logged in
-        if (!checkSession()) return;
-
-        // Load settings from database
-        await loadProfileSettings();
-        await loadServices();
-        await loadBusinessSettings();
-        await loadNotificationSettings();
-        
-        // Log successful initialization
-        console.log('Settings page initialized successfully');
-      } catch (error) {
-        console.error('Settings page initialization failed:', error);
-        showSettingsError();
-      }
-    });
-
-    // ========================================================================
-    // Switch between tabs
-    // ========================================================================
-    function switchTab(tabName) {
-      // Hide all tabs
-      const tabs = document.querySelectorAll('.tab-content');
-      tabs.forEach(tab => tab.classList.remove('active'));
-
-      // Remove active class from all buttons
-      const buttons = document.querySelectorAll('.tab-btn');
-      buttons.forEach(btn => btn.classList.remove('active'));
-
-      // Show selected tab
-      const selectedTab = document.getElementById(tabName + 'Tab');
-      if (selectedTab) {
-        selectedTab.classList.add('active');
-      }
-
-      // Mark button as active
-      event.target.classList.add('active');
+    // Tab switcher: pass the clicked button as second arg to avoid missing event
+    function switchTab(tabName, btn) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      const sel = document.getElementById(tabName + 'Tab');
+      if (sel) sel.classList.add('active');
+      if (btn) btn.classList.add('active');
     }
 
-    // ========================================================================
-    // Toggle add service form visibility
-    // ========================================================================
-    function toggleAddService() {
-      const form = document.getElementById('addServiceForm');
-      if (form.style.display === 'none') {
-        form.style.display = 'block';
-        document.getElementById('serviceName').focus();
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (window.initializeSettings) {
+        await window.initializeSettings();
       } else {
-        form.style.display = 'none';
-        form.reset();
+        // fallback compatibility
+        window.loadBusinessSettings && window.loadBusinessSettings();
+        window.loadServiceCategories && window.loadServiceCategories();
       }
-    }
 
-    // ========================================================================
-    // Update profile settings
-    // ========================================================================
-    async function updateProfile(event) {
-      event.preventDefault();
-      const errorDiv = document.getElementById('profileError');
-      const successDiv = document.getElementById('profileSuccess');
-
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
-
-      try {
-        // Validation and API call will be done in settings.js
-        successDiv.textContent = '✓ Profile updated successfully!';
-      } catch (error) {
-        errorDiv.textContent = '✗ Error updating profile. Please try again.';
-      }
-    }
-
-    // ========================================================================
-    // Add new service
-    // ========================================================================
-    async function addNewService(event) {
-      event.preventDefault();
-      const errorDiv = document.getElementById('serviceError');
-      const successDiv = document.getElementById('serviceSuccess');
-
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
-
-      try {
-        // Service addition will be done in settings.js
-        successDiv.textContent = '✓ Service added successfully!';
-        toggleAddService();
-        await loadServices();
-      } catch (error) {
-        errorDiv.textContent = '✗ Error adding service. Please try again.';
-      }
-    }
-
-    // ========================================================================
-    // Update business settings
-    // ========================================================================
-    async function updateBusiness(event) {
-      event.preventDefault();
-      const errorDiv = document.getElementById('businessError');
-      const successDiv = document.getElementById('businessSuccess');
-
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
-
-      try {
-        // Business settings update will be done in settings.js
-        successDiv.textContent = '✓ Business information updated successfully!';
-      } catch (error) {
-        errorDiv.textContent = '✗ Error updating business information. Please try again.';
-      }
-    }
-
-    // ========================================================================
-    // Update notification preferences
-    // ========================================================================
-    async function updateNotifications(event) {
-      event.preventDefault();
-      const errorDiv = document.getElementById('notificationsError');
-      const successDiv = document.getElementById('notificationsSuccess');
-
-      errorDiv.textContent = '';
-      successDiv.textContent = '';
-
-      try {
-        // Notification preferences update will be done in settings.js
-        successDiv.textContent = '✓ Notification preferences updated successfully!';
-      } catch (error) {
-        errorDiv.textContent = '✗ Error updating preferences. Please try again.';
-      }
-    }
-
-    // ========================================================================
-    // Show/Hide settings error state
-    // ========================================================================
-    function showSettingsError() {
-      const errorDiv = document.getElementById('settingsError');
-      if (errorDiv) {
-        errorDiv.classList.add('show');
-      }
-    }
-
-    function hideSettingsError() {
-      const errorDiv = document.getElementById('settingsError');
-      if (errorDiv) {
-        errorDiv.classList.remove('show');
-      }
-    }
-
-    // ========================================================================
-    // Show/Hide settings loading overlay
-    // ========================================================================
-    function showSettingsLoading() {
-      const loadingDiv = document.getElementById('settingsLoading');
-      if (loadingDiv) {
-        loadingDiv.classList.add('show');
-      }
-    }
-
-    function hideSettingsLoading() {
-      const loadingDiv = document.getElementById('settingsLoading');
-      if (loadingDiv) {
-        loadingDiv.classList.remove('show');
-      }
-    }
-
-    // ========================================================================
-    // Logout function - redirects to login
-    // ========================================================================
-    function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('dreamHarbourUser');
-        localStorage.removeItem('userSession');
-        window.location.href = 'index.html';
-      }
-    }
-
-    // ========================================================================
-    // Check session (verify user is logged in)
-    // ========================================================================
-    function checkSession() {
-      const userSession = JSON.parse(localStorage.getItem('userSession'));
-      if (!userSession) {
-        window.location.href = 'index.html';
-        return false;
-      }
-      return true;
-    }
-
-    // ========================================================================
-    // Export functions for settings.js to use
-    // ========================================================================
-    window.showSettingsError = showSettingsError;
-    window.hideSettingsError = hideSettingsError;
-    window.showSettingsLoading = showSettingsLoading;
-    window.hideSettingsLoading = hideSettingsLoading;
-    window.logout = logout;
-    window.checkSession = checkSession;
-    window.switchTab = switchTab;
-    window.toggleAddService = toggleAddService;
-    window.updateProfile = updateProfile;
-    window.addNewService = addNewService;
-    window.updateBusiness = updateBusiness;
-    window.updateNotifications = updateNotifications;
+      // Wire logout fallback (if not provided by common)
+      document.getElementById('btnLogout')?.addEventListener('click', () => {
+        if (confirm('Logout?')) {
+          localStorage.removeItem('dreamHarbourUser'); localStorage.removeItem('userSession');
+          window.location.href = 'index.html';
+        }
+      });
+    });
   </script>
 </body>
 </html>
