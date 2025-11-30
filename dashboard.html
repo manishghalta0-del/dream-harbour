@@ -1,555 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-color-scheme="light">
 <head>
-    <!-- ===== META INFORMATION ===== -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DreamHarbour Business Dashboard - Manage invoices, track revenue, and monitor business performance">
-    <meta name="author" content="DreamHarbour">
-    <meta name="robots" content="noindex, nofollow">
-    <meta name="theme-color" content="#218085">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-rCTnOWVKnd7INqnEgiEYSbBOcjc1Bw/qbkr6Ab5XNvc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net;">
-    
-    <!-- ===== PAGE TITLE ===== -->
-    <title>DreamHarbour - Business Dashboard</title>
-    
-    <!-- ===== CSS FILES ===== -->
-    <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/dashboard.css">
-    <link rel="stylesheet" href="css/responsive.css">
-    
-    <style>
-        /* Skip Link Styles */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: var(--color-primary, #218085);
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 0 0 4px 0;
-            z-index: 100;
-            font-weight: 500;
-        }
-        
-        .skip-link:focus {
-            top: 0;
-            outline: 2px solid var(--color-primary-hover, #1a6569);
-            outline-offset: 2px;
-        }
-        
-        /* Screen Reader Only */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-        
-        /* Loading Overlay */
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            border-radius: 8px;
-        }
-        
-        .loading-overlay.hidden {
-            display: none;
-        }
-        
-        /* Error State */
-        .error-state {
-            text-align: center;
-            padding: 40px 20px;
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .error-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-        
-        .error-text {
-            color: #991b1b;
-            font-size: 16px;
-            margin-bottom: 16px;
-        }
-        
-        /* Table Wrapper for Horizontal Scroll */
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Focus Visible Enhancement */
-        *:focus-visible {
-            outline: 2px solid var(--color-primary, #218085);
-            outline-offset: 2px;
-        }
-        
-        /* Loading State for Stats Grid */
-        .stats-grid {
-            position: relative;
-            min-height: 200px;
-        }
-        
-        /* Spinner Animation */
-        .spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid var(--color-primary, #218085);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <!-- ============================================================================
+       META & DOCUMENT SETUP
+       ============================================================================ -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="DreamHarbour Dashboard - Professional Invoice & Service Management" />
+  <meta name="keywords" content="dashboard, analytics, invoicing, services" />
+  <meta name="theme-color" content="#208D8D" />
+  <title>DreamHarbour - Dashboard</title>
+
+  <!-- ============================================================================
+       CSS STYLESHEETS - PRODUCTION ORDER (SAME AS index.html)
+       ============================================================================ -->
+  <!-- 1. Theme system (design tokens & variables) -->
+  <link rel="stylesheet" href="css/theme.css" />
+  
+  <!-- 2. Core styles (typography, buttons, forms) -->
+  <link rel="stylesheet" href="css/style.css" />
+  
+  <!-- 3. Responsive design (breakpoints) -->
+  <link rel="stylesheet" href="css/responsive.css" />
+  
+  <!-- 4. Dashboard/Component styles -->
+  <link rel="stylesheet" href="css/dashboard.css" />
+
+  <!-- ============================================================================
+       SUPABASE CDN - Required for Supabase client
+       ============================================================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ============================================================================
+       FAVICON
+       ============================================================================ -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' fill='%23208D8D' font-weight='bold'>D</text></svg>" />
 </head>
 
 <body>
-    <!-- ===== SKIP NAVIGATION ===== -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    
-    <!-- ===== MAIN CONTAINER ===== -->
-    <div class="container">
-        
-        <!-- ===== HEADER SECTION (Top Navigation) ===== -->
-        <header class="header" role="banner">
-            <!-- Left side: Logo & User Info -->
-            <div class="header-left">
-                <div class="logo" role="img" aria-label="DreamHarbour Logo">🏢 DreamHarbour</div>
-                <div class="user-info">
-                    <strong id="userName">Welcome!</strong>
-                    <span id="userRole">Administrator</span>
-                </div>
-            </div>
-            
-            <!-- Right side: Action Buttons -->
-            <nav class="header-right" aria-label="Main navigation">
-                <span class="nav-link-disabled" aria-disabled="true">⚙️ Settings (Coming Soon)</span>
-                <button class="btn btn-secondary" id="exportReportBtn" aria-label="Export dashboard report as PDF">
-                    📥 Export Report
-                </button>
-                <button class="btn btn-primary" id="logoutBtn" aria-label="Logout from dashboard">
-                    🚪 Logout
-                </button>
-            </nav>
-        </header>
+  <!-- ============================================================================
+       HEADER/NAVBAR - Navigation & User Info
+       ============================================================================ -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      
+      <!-- Logo/Brand -->
+      <div class="header-left">
+        <a href="dashboard.html" class="header-logo">
+          <span class="logo-text">DreamHarbour</span>
+        </a>
+      </div>
 
-        <!-- ===== ERROR STATE (Hidden by default) ===== -->
-        <div class="error-state" id="dashboardError" style="display: none;" role="alert" aria-live="assertive">
-            <div class="error-icon">⚠️</div>
-            <div class="error-text">Failed to load dashboard data. Please check your connection and try again.</div>
-            <button class="btn btn-primary" id="retryBtn">🔄 Retry</button>
+      <!-- Navigation Menu -->
+      <nav class="header-nav">
+        <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        <a href="invoices.html" class="nav-link">Invoices</a>
+        <a href="settings.html" class="nav-link">Settings</a>
+      </nav>
+
+      <!-- User Profile & Logout -->
+      <div class="header-right">
+        <div class="user-info">
+          <div class="user-details">
+            <p class="user-name" id="userName">Welcome, User!</p>
+            <p class="user-role" id="userRole">User</p>
+          </div>
+          <button class="btn btn--outline btn--sm" onclick="logout()">
+            Logout
+          </button>
         </div>
+      </div>
+    </div>
+  </header>
 
-        <!-- ===== MAIN CONTENT ===== -->
-        <main class="content" id="main-content" role="main">
-            
-            <!-- ===== QUICK ACTION BUTTONS ===== -->
-            <nav class="quick-actions" role="navigation" aria-label="Quick actions">
-                <button class="action-btn" id="invoiceManagementBtn" tabindex="0">
-                    <span class="action-icon" aria-hidden="true">📊</span>
-                    Invoice Management
-                </button>
-                <button class="action-btn" id="configurationBtn" tabindex="0">
-                    <span class="action-icon" aria-hidden="true">⚙️</span>
-                    Configuration &amp; Services
-                </button>
-                <button class="action-btn" id="viewReportsBtn" tabindex="0">
-                    <span class="action-icon" aria-hidden="true">📋</span>
-                    View Reports
-                </button>
-            </nav>
-
-            <!-- ===== SECTION HEADER: QUICK STATS ===== -->
-            <div class="section-header">
-                <h2 class="section-title">Quick Stats</h2>
-                <!-- Date Filter & Search -->
-                <div class="search-filter-group">
-                    <label for="dateRange" class="sr-only">Select date range</label>
-                    <select id="dateRange" class="date-filter" aria-label="Filter by date range">
-                        <option value="today">Today</option>
-                        <option value="thisweek">This Week</option>
-                        <option value="thismonth" selected>This Month</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
-                    <label for="searchDashboard" class="sr-only">Search dashboard</label>
-                    <input type="text" id="searchDashboard" class="search-box" 
-                           placeholder="🔍 Search..." 
-                           aria-label="Search dashboard content"
-                           maxlength="100"
-                           autocomplete="off">
-                </div>
-            </div>
-
-            <!-- ===== COMPARISON CARDS (Today vs Yesterday, etc) ===== -->
-            <section aria-labelledby="comparison-heading">
-                <h3 id="comparison-heading" class="sr-only">Revenue Comparisons</h3>
-                <div class="comparison-grid">
-                    <!-- Card 1: Today vs Yesterday -->
-                    <div class="comparison-card">
-                        <div class="comparison-label">Today vs Yesterday</div>
-                        <div class="comparison-values">
-                            <div>
-                                <div class="comparison-value" id="todayRevenue" data-currency="INR">₹0</div>
-                                <div style="font-size: 11px; color: #999;">Today</div>
-                            </div>
-                            <div class="comparison-arrow" aria-hidden="true">→</div>
-                            <div>
-                                <div class="comparison-value" id="yesterdayRevenue" data-currency="INR">₹0</div>
-                                <div style="font-size: 11px; color: #999;">Yesterday</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 2: This Month vs Last Month -->
-                    <div class="comparison-card">
-                        <div class="comparison-label">This Month vs Last Month</div>
-                        <div class="comparison-values">
-                            <div>
-                                <div class="comparison-value" id="thisMonthRevenue" data-currency="INR">₹0</div>
-                                <div style="font-size: 11px; color: #999;">This Month</div>
-                            </div>
-                            <div class="comparison-arrow" aria-hidden="true">→</div>
-                            <div>
-                                <div class="comparison-value" id="lastMonthRevenue" data-currency="INR">₹0</div>
-                                <div style="font-size: 11px; color: #999;">Last Month</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card 3: Growth Percentage -->
-                    <div class="comparison-card">
-                        <div class="comparison-label">Growth Percentage</div>
-                        <div class="comparison-value" id="growthPercentage">+0%</div>
-                        <div style="font-size: 11px; color: #1e40af;">
-                            <span aria-hidden="true">📈</span> Month over Month
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== STATISTICS GRID (4 main cards) ===== -->
-            <section aria-labelledby="stats-heading">
-                <h3 id="stats-heading" class="sr-only">Key Statistics</h3>
-                <div class="stats-grid" id="statsGrid">
-                    <div class="loading-overlay" id="statsLoading">
-                        <div class="spinner" role="status" aria-label="Loading statistics"></div>
-                    </div>
-                    
-                    <!-- Stat Card 1: Total Revenue -->
-                    <div class="stat-card">
-                        <div class="stat-label">Total Revenue</div>
-                        <div class="stat-value" id="totalRevenue" data-currency="INR">₹0</div>
-                        <div class="stat-change" id="revenueChange">+0% from last month</div>
-                    </div>
-
-                    <!-- Stat Card 2: GST Collected -->
-                    <div class="stat-card">
-                        <div class="stat-label">GST Collected</div>
-                        <div class="stat-value" id="totalGST" data-currency="INR">₹0</div>
-                        <div class="stat-change">18% of total</div>
-                    </div>
-
-                    <!-- Stat Card 3: Total Invoices -->
-                    <div class="stat-card">
-                        <div class="stat-label">Total Invoices</div>
-                        <div class="stat-value" id="totalInvoices">0</div>
-                        <div class="stat-change" id="invoiceChange">+0 this month</div>
-                    </div>
-
-                    <!-- Stat Card 4: Total Customers -->
-                    <div class="stat-card">
-                        <div class="stat-label">Total Customers</div>
-                        <div class="stat-value" id="totalCustomers">0</div>
-                        <div class="stat-change" id="customerChange">+0 new this month</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== CHARTS SECTION (2 widgets) ===== -->
-            <section aria-labelledby="charts-heading">
-                <h3 id="charts-heading" class="sr-only">Revenue Charts</h3>
-                <div class="widgets-grid">
-                    <!-- Chart 1: Revenue Trend -->
-                    <div class="widget">
-                        <div class="widget-title">
-                            <span aria-hidden="true">📈</span> Monthly Revenue Trend (Last 6 Months)
-                        </div>
-                        <div class="widget-chart">
-                            <canvas id="trendChart" 
-                                    role="img" 
-                                    aria-label="Line chart showing monthly revenue trend for the last 6 months">
-                            </canvas>
-                        </div>
-                    </div>
-
-                    <!-- Chart 2: Service Breakdown -->
-                    <div class="widget">
-                        <div class="widget-title">
-                            <span aria-hidden="true">🎯</span> Service Breakdown (Revenue)
-                        </div>
-                        <ul class="service-list" id="serviceList" role="list">
-                            <li class="service-item">
-                                <span class="service-name">Loading...</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== PAYMENT STATUS SECTION ===== -->
-            <section aria-labelledby="payment-heading">
-                <div class="section-header">
-                    <h2 class="section-title" id="payment-heading">
-                        <span aria-hidden="true">💳</span> Payment Status
-                    </h2>
-                </div>
-                <div class="payment-status">
-                    <!-- Payment Card 1: Pending Payments -->
-                    <div class="payment-card">
-                        <div class="payment-number" id="pendingPayments">0</div>
-                        <div class="payment-label">Invoices Pending Payment</div>
-                    </div>
-
-                    <!-- Payment Card 2: Outstanding Amount -->
-                    <div class="payment-card">
-                        <div class="payment-number" id="outstandingAmount" data-currency="INR">₹0</div>
-                        <div class="payment-label">Total Outstanding</div>
-                    </div>
-
-                    <!-- Payment Card 3: Collection Rate -->
-                    <div class="payment-card">
-                        <div class="payment-number" id="collectionRate">0%</div>
-                        <div class="payment-label">Collection Rate</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== PAYMENT TREND CHART ===== -->
-            <section aria-labelledby="payment-trend-heading">
-                <div class="widget" style="margin-bottom: 30px;">
-                    <h3 class="widget-title" id="payment-trend-heading">
-                        <span aria-hidden="true">📊</span> Payment Collection Trend
-                    </h3>
-                    <div class="widget-chart">
-                        <canvas id="paymentChart" 
-                                role="img" 
-                                aria-label="Bar chart showing payment collection trend over time">
-                        </canvas>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== PENDING INVOICES SECTION ===== -->
-            <section aria-labelledby="pending-heading">
-                <div class="section-header">
-                    <h2 class="section-title" id="pending-heading">
-                        <span aria-hidden="true">⏳</span> Pending/Draft Invoices
-                    </h2>
-                </div>
-                <div class="pending-list" id="pendingInvoicesList" role="region" aria-live="polite">
-                    <div class="empty-state">
-                        <div class="empty-state-icon" aria-hidden="true">📭</div>
-                        <div class="empty-state-text">No pending invoices</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== RECENT INVOICES TABLE ===== -->
-            <section aria-labelledby="recent-heading">
-                <div class="section-header">
-                    <h2 class="section-title" id="recent-heading">
-                        <span aria-hidden="true">📄</span> Recent Invoices
-                    </h2>
-                </div>
-                <div class="table-container">
-                    <div class="table-wrapper">
-                        <table role="table" aria-label="Recent invoices">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Invoice ID</th>
-                                    <th scope="col">Customer</th>
-                                    <th scope="col">Amount</th>
-                                    <th scope="col">GST</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentInvoicesList">
-                                <tr>
-                                    <td colspan="7" style="text-align: center; padding: 30px;">
-                                        <div class="loading">
-                                            <div class="spinner" role="status" aria-label="Loading invoices"></div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===== ACTIVITY LOG SECTION ===== -->
-            <section aria-labelledby="activity-heading">
-                <div class="section-header">
-                    <h2 class="section-title" id="activity-heading">
-                        <span aria-hidden="true">👥</span> Multi-User Activity
-                    </h2>
-                </div>
-                <div class="widget">
-                    <ul class="activity-list" id="activityLog" role="list" aria-live="polite">
-                        <li class="activity-item">
-                            <div class="activity-icon" aria-hidden="true">⏳</div>
-                            <div class="activity-content">
-                                <div class="activity-title">Loading activity...</div>
-                                <div class="activity-time">Just now</div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-        </main>
+  <!-- ============================================================================
+       MAIN DASHBOARD CONTENT
+       ============================================================================ -->
+  <main class="dashboard-container">
+    
+    <!-- ========================================================================
+         LOADING OVERLAY (Hidden by default)
+         ======================================================================== -->
+    <div class="stats-loading" id="statsLoading">
+      <div class="loading-spinner"></div>
+      <p>Loading dashboard data...</p>
     </div>
 
-    <!-- ============================================================================
-         JAVASCRIPT FILES - LOAD IN SPECIFIC ORDER (ONCE ONLY!)
-         ============================================================================ -->
-    
-    <!-- 1. External Library: Chart.js (for charts) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-    
-    <!-- 2. External Library: Supabase (Database) -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- 3. Configuration: Setup Supabase connection -->
-    <script src="js/common.js"></script>
-    
-    <!-- 4. Common: Shared functions (checkLoginStatus, logout, etc) -->
-    <script src="js/common.js"></script>
-    
-    <!-- 5. Dashboard: Dashboard-specific functions (loads data, creates charts) -->
-    <script src="js/dashboard.js"></script>
-    
-    <!-- 6. Event Listeners: Initialize all event handlers -->
-    <script>
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            // ===== HEADER BUTTONS =====
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn && typeof logout === 'function') {
-                logoutBtn.addEventListener('click', logout);
-            }
-            
-            const exportReportBtn = document.getElementById('exportReportBtn');
-            if (exportReportBtn && typeof exportDashboardPDF === 'function') {
-                exportReportBtn.addEventListener('click', exportDashboardPDF);
-            }
-            
-            // ===== QUICK ACTION BUTTONS =====
-            const invoiceManagementBtn = document.getElementById('invoiceManagementBtn');
-            if (invoiceManagementBtn) {
-                invoiceManagementBtn.addEventListener('click', function() {
-                    window.location.href = 'invoices.html';
-                });
-            }
-            
-            const configurationBtn = document.getElementById('configurationBtn');
-            if (configurationBtn) {
-                configurationBtn.addEventListener('click', function() {
-                    window.location.href = 'settings.html';
-                });
-            }
-            
-            const viewReportsBtn = document.getElementById('viewReportsBtn');
-            if (viewReportsBtn) {
-                viewReportsBtn.addEventListener('click', function() {
-                    if (typeof navigateTo === 'function') {
-                        navigateTo('view-reports');
-                    }
-                });
-            }
-            
-            // ===== FILTER & SEARCH =====
-            const dateRange = document.getElementById('dateRange');
-            if (dateRange && typeof filterByDate === 'function') {
-                dateRange.addEventListener('change', filterByDate);
-            }
-            
-            const searchDashboard = document.getElementById('searchDashboard');
-            if (searchDashboard) {
-                // Debounce search input
-                let searchTimeout;
-                searchDashboard.addEventListener('input', function(e) {
-                    clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(function() {
-                        if (typeof searchDashboardContent === 'function') {
-                            searchDashboardContent(e.target.value);
-                        }
-                    }, 300);
-                });
-            }
-            
-            // ===== ERROR RETRY BUTTON =====
-            const retryBtn = document.getElementById('retryBtn');
-            if (retryBtn) {
-                retryBtn.addEventListener('click', function() {
-                    location.reload();
-                });
-            }
-            
-            // ===== HIDE LOADING OVERLAY AFTER DATA LOADS =====
-            // This should be called from your dashboard.js after data is loaded
-            window.hideStatsLoading = function() {
-                const statsLoading = document.getElementById('statsLoading');
-                if (statsLoading) {
-                    statsLoading.classList.add('hidden');
-                }
-            };
-            
-            // ===== SHOW ERROR STATE =====
-            window.showDashboardError = function() {
-                const errorState = document.getElementById('dashboardError');
-                if (errorState) {
-                    errorState.style.display = 'block';
-                }
-            };
-            
-            // ===== HIDE ERROR STATE =====
-            window.hideDashboardError = function() {
-                const errorState = document.getElementById('dashboardError');
-                if (errorState) {
-                    errorState.style.display = 'none';
-                }
-            };
-            
-            console.log('✅ Dashboard event listeners initialized');
-        });
-    </script>
+    <!-- ========================================================================
+         ERROR STATE (Hidden by default)
+         ======================================================================== -->
+    <div class="dashboard-error" id="dashboardError">
+      <h2>Unable to Load Dashboard</h2>
+      <p>We encountered an error loading your dashboard. Please check your connection and try refreshing.</p>
+      <button class="btn btn--primary" onclick="location.reload()">
+        Refresh Dashboard
+      </button>
+    </div>
+
+    <!-- ========================================================================
+         SECTION 1: QUICK STATS - Revenue Overview
+         ======================================================================== -->
+    <section class="dashboard-section">
+      <h2 class="section-title">Quick Stats</h2>
+
+      <!-- Revenue Comparisons -->
+      <div class="stats-grid">
+        
+        <!-- Today vs Yesterday -->
+        <div class="stat-card">
+          <h3 class="stat-card-title">Today vs Yesterday</h3>
+          <div class="stat-comparison">
+            <div class="stat-item">
+              <p class="stat-label">Today</p>
+              <p class="stat-value" id="todayRevenue">₹0</p>
+            </div>
+            <div class="stat-item">
+              <p class="stat-label">Yesterday</p>
+              <p class="stat-value" id="yesterdayRevenue">₹0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- This Month vs Last Month -->
+        <div class="stat-card">
+          <h3 class="stat-card-title">This Month vs Last Month</h3>
+          <div class="stat-comparison">
+            <div class="stat-item">
+              <p class="stat-label">This Month</p>
+              <p class="stat-value" id="thisMonthRevenue">₹0</p>
+            </div>
+            <div class="stat-item">
+              <p class="stat-label">Last Month</p>
+              <p class="stat-value" id="lastMonthRevenue">₹0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Growth Percentage -->
+        <div class="stat-card growth-card">
+          <h3 class="stat-card-title">Growth Percentage</h3>
+          <p class="stat-value growth-value" id="growthPercentage">+0%</p>
+          <p class="stat-change" id="revenueChange">+0% from last month</p>
+        </div>
+      </div>
+
+      <!-- Key Statistics Cards -->
+      <div class="key-stats-grid">
+        
+        <!-- Total Revenue -->
+        <div class="key-stat-card">
+          <div class="key-stat-header">
+            <h3 class="key-stat-title">Total Revenue</h3>
+            <span class="key-stat-icon">💰</span>
+          </div>
+          <p class="key-stat-value" id="totalRevenue">₹0</p>
+          <p class="key-stat-subtitle" id="revenueChange">+0% from last month</p>
+        </div>
+
+        <!-- GST Collected -->
+        <div class="key-stat-card">
+          <div class="key-stat-header">
+            <h3 class="key-stat-title">GST Collected</h3>
+            <span class="key-stat-icon">📊</span>
+          </div>
+          <p class="key-stat-value" id="totalGST">₹0</p>
+          <p class="key-stat-subtitle">18% of total</p>
+        </div>
+
+        <!-- Total Invoices -->
+        <div class="key-stat-card">
+          <div class="key-stat-header">
+            <h3 class="key-stat-title">Total Invoices</h3>
+            <span class="key-stat-icon">📋</span>
+          </div>
+          <p class="key-stat-value" id="totalInvoices">0</p>
+          <p class="key-stat-subtitle" id="invoiceChange">+0 this month</p>
+        </div>
+
+        <!-- Total Customers -->
+        <div class="key-stat-card">
+          <div class="key-stat-header">
+            <h3 class="key-stat-title">Total Customers</h3>
+            <span class="key-stat-icon">👥</span>
+          </div>
+          <p class="key-stat-value" id="totalCustomers">0</p>
+          <p class="key-stat-subtitle" id="customerChange">+0 new</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 2: PAYMENT STATUS - Invoice Metrics
+         ======================================================================== -->
+    <section class="dashboard-section">
+      <h2 class="section-title">Payment Status</h2>
+
+      <div class="payment-stats-grid">
+        
+        <!-- Pending Payments -->
+        <div class="payment-stat">
+          <div class="payment-stat-icon pending">
+            <span>⏳</span>
+          </div>
+          <div class="payment-stat-content">
+            <p class="payment-stat-value" id="pendingPayments">0</p>
+            <p class="payment-stat-label">Invoices Pending Payment</p>
+          </div>
+        </div>
+
+        <!-- Outstanding Amount -->
+        <div class="payment-stat">
+          <div class="payment-stat-icon outstanding">
+            <span>⚠️</span>
+          </div>
+          <div class="payment-stat-content">
+            <p class="payment-stat-value" id="outstandingAmount">₹0</p>
+            <p class="payment-stat-label">Total Outstanding</p>
+          </div>
+        </div>
+
+        <!-- Collection Rate -->
+        <div class="payment-stat">
+          <div class="payment-stat-icon success">
+            <span>✓</span>
+          </div>
+          <div class="payment-stat-content">
+            <p class="payment-stat-value" id="collectionRate">0%</p>
+            <p class="payment-stat-label">Collection Rate</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 3: SERVICE BREAKDOWN - Services Chart
+         ======================================================================== -->
+    <section class="dashboard-section">
+      <h2 class="section-title">Service Breakdown</h2>
+      
+      <div class="chart-container">
+        <canvas id="serviceChart" class="service-chart"></canvas>
+        <div class="service-list" id="serviceBreakdown">
+          <p class="empty-message">Loading service data...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 4: RECENT INVOICES - Last 10 Invoices
+         ======================================================================== -->
+    <section class="dashboard-section">
+      <h2 class="section-title">Recent Invoices</h2>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Invoice ID</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>GST</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="recentInvoicesList">
+            <tr>
+              <td colspan="7" class="empty-state">
+                <p>No invoices yet</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 5: PENDING INVOICES - Awaiting Payment
+         ======================================================================== -->
+    <section class="dashboard-section">
+      <h2 class="section-title">Pending/Draft Invoices</h2>
+
+      <div class="pending-invoices-list" id="pendingInvoicesList">
+        <p class="empty-message">No pending invoices</p>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         SECTION 6: ACTIVITY LOG - Recent Actions
+         ======================================================================== -->
+    <section class="dashboard-section">
+      <h2 class="section-title">Activity Log</h2>
+
+      <div class="activity-log" id="activityLog">
+        <p class="empty-message">No recent activity</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================================
+       FOOTER
+       ============================================================================ -->
+  <footer class="dashboard-footer">
+    <div class="footer-content">
+      <p class="footer-text">
+        © 2025 DreamHarbour. All rights reserved. | 
+        <a href="#" class="footer-link">Privacy Policy</a> | 
+        <a href="#" class="footer-link">Terms of Service</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ============================================================================
+       JAVASCRIPT FILES - PRODUCTION ORDER
+       ============================================================================ -->
+  
+  <!-- 1. Common utilities & Supabase initialization (MUST load first) -->
+  <script src="js/common.js"></script>
+  
+  <!-- 2. Dashboard functions (requires common.js) -->
+  <script src="js/dashboard.js"></script>
+
+  <!-- ============================================================================
+       INLINE SCRIPT - Initialize Dashboard
+       ============================================================================ -->
+  <script>
+    // ========================================================================
+    // Initialize dashboard when DOM is ready
+    // ========================================================================
+    document.addEventListener('DOMContentLoaded', async function() {
+      try {
+        // Call dashboard initialization from dashboard.js
+        await initializeDashboard();
+        
+        // Log successful initialization
+        console.log('Dashboard initialized successfully');
+      } catch (error) {
+        console.error('Dashboard initialization failed:', error);
+        // Error is handled in initializeDashboard()
+      }
+    });
+
+    // ========================================================================
+    // Logout function - redirects to login
+    // ========================================================================
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('dreamHarbourUser');
+        localStorage.removeItem('userSession');
+        window.location.href = 'index.html';
+      }
+    }
+
+    // ========================================================================
+    // Show/Hide dashboard error state
+    // ========================================================================
+    function showDashboardError() {
+      const errorDiv = document.getElementById('dashboardError');
+      if (errorDiv) {
+        errorDiv.classList.add('show');
+      }
+    }
+
+    function hideDashboardError() {
+      const errorDiv = document.getElementById('dashboardError');
+      if (errorDiv) {
+        errorDiv.classList.remove('show');
+      }
+    }
+
+    // ========================================================================
+    // Show/Hide stats loading overlay
+    // ========================================================================
+    function showStatsLoading() {
+      const loadingDiv = document.getElementById('statsLoading');
+      if (loadingDiv) {
+        loadingDiv.classList.add('show');
+      }
+    }
+
+    function hideStatsLoading() {
+      const loadingDiv = document.getElementById('statsLoading');
+      if (loadingDiv) {
+        loadingDiv.classList.remove('show');
+      }
+    }
+
+    // ========================================================================
+    // Export functions for dashboard.js to use
+    // ========================================================================
+    // These functions are called from dashboard.js
+    window.showDashboardError = showDashboardError;
+    window.hideDashboardError = hideDashboardError;
+    window.showStatsLoading = showStatsLoading;
+    window.hideStatsLoading = hideStatsLoading;
+    window.logout = logout;
+  </script>
 </body>
 </html>
