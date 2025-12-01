@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: '/dream-harbour/',   // MUST match your repository name on GitHub
   root: 'public',
   build: {
     outDir: '../dist',
