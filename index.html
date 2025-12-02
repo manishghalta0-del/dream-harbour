@@ -1,17 +1,18 @@
+<!-- ENHANCED index.html - DreamHarbour Login Page [OPTIMIZED & PRODUCTION-READY] -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Login</title>
+    <meta name="description" content="DreamHarbour - Secure Invoice Management System">
+    <meta name="theme-color" content="#1e40af">
+    <title>Dream Harbour - Secure Login</title>
+    
+    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
             --primary-blue: #1e40af;
             --primary-light: #3b82f6;
@@ -22,10 +23,27 @@
             --error-light: #fee2e2;
             --gray: #6b7280;
             --gray-light: #e5e7eb;
+            --gray-lighter: #f3f4f6;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
             min-height: 100vh;
             display: flex;
@@ -35,35 +53,47 @@
             overflow: hidden;
         }
 
+        /* Background Animation */
         .blob {
             position: absolute;
             border-radius: 50%;
-            opacity: 0.1;
-            filter: blur(40px);
+            opacity: 0.08;
+            filter: blur(50px);
+            animation: float 8s ease-in-out infinite;
         }
 
         .blob1 {
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             background: white;
             top: -100px;
             left: -100px;
+            animation-delay: 0s;
         }
 
         .blob2 {
-            width: 200px;
-            height: 200px;
+            width: 300px;
+            height: 300px;
             background: white;
             bottom: -100px;
             right: -100px;
+            animation-delay: 2s;
         }
 
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -30px); }
+            50% { transform: translate(0, -40px); }
+            75% { transform: translate(-30px, -20px); }
+        }
+
+        /* Main Container */
         .container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             max-width: 1200px;
             width: 100%;
-            gap: 40px;
+            gap: 60px;
             align-items: center;
             position: relative;
             z-index: 1;
@@ -73,9 +103,11 @@
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
+                gap: 40px;
             }
         }
 
+        /* Hero Section */
         .hero {
             color: white;
             text-align: center;
@@ -88,76 +120,134 @@
             }
         }
 
-        .logo {
-            font-size: 70px;
-            margin-bottom: 20px;
-        }
-
-        .hero h1 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .hero p {
-            font-size: 16px;
-            opacity: 0.9;
+        .hero__logo {
+            font-size: 80px;
             margin-bottom: 30px;
+            animation: slideInDown 0.6s ease-out;
         }
 
-        .services {
+        .hero__title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            animation: slideInDown 0.6s ease-out 0.1s both;
+        }
+
+        .hero__subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 50px;
+            animation: slideInDown 0.6s ease-out 0.2s both;
+        }
+
+        .hero__features {
             text-align: left;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .service-item {
+        .hero__feature {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .service-item:hover {
-            transform: translateX(10px);
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            animation: slideInUp 0.6s ease-out;
         }
 
+        .hero__feature:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .hero__feature:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .hero__feature:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .hero__feature-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .hero__feature-text {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Form Container */
         .form-container {
             background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: var(--shadow-xl);
             position: relative;
+            animation: slideInUp 0.6s ease-out;
         }
 
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 30px;
+                border-radius: 16px;
+            }
+        }
+
+        /* Form Header */
         .form-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
-        .form-header h2 {
-            font-size: 28px;
+        .form-header__title {
+            font-size: 32px;
             font-weight: 700;
             color: var(--primary-blue);
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
-        .form-header p {
+        .form-header__subtitle {
             color: var(--gray);
-            font-size: 14px;
+            font-size: 15px;
         }
 
+        /* Step Indicator */
         .step-indicator {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
-            gap: 20px;
+            margin-bottom: 50px;
+            gap: 16px;
         }
 
         .step {
@@ -165,111 +255,159 @@
             align-items: center;
             gap: 12px;
             flex: 1;
+            position: relative;
         }
 
-        .step-number {
-            width: 40px;
-            height: 40px;
+        .step__number {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: var(--gray-light);
+            background: var(--gray-lighter);
             color: var(--gray);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            transition: all 0.4s ease;
+            font-size: 16px;
+            transition: var(--transition);
+            flex-shrink: 0;
+            border: 2px solid transparent;
         }
 
-        .step.active .step-number {
+        .step.active .step__number {
             background: var(--primary-blue);
             color: white;
-            box-shadow: 0 0 0 8px rgba(30, 64, 175, 0.2);
+            box-shadow: 0 0 0 12px rgba(30, 64, 175, 0.15);
+            border-color: var(--primary-blue);
         }
 
-        .step.completed .step-number {
+        .step.completed .step__number {
             background: var(--success-green);
             color: white;
+            border-color: var(--success-green);
         }
 
-        .step-label {
+        .step__label {
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--gray);
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            transition: var(--transition);
         }
 
-        .step.active .step-label {
+        .step.active .step__label {
             color: var(--primary-blue);
         }
 
-        .step-line {
+        .step__line {
             flex: 1;
             height: 2px;
-            background: var(--gray-light);
-            margin-top: 8px;
-            transition: background 0.4s;
+            background: var(--gray-lighter);
+            margin: 0 8px;
+            transition: var(--transition);
+            position: absolute;
+            bottom: 24px;
+            right: -50%;
+            width: calc(100% + 50px);
         }
 
-        .step-line.completed {
+        .step:last-child .step__line {
+            display: none;
+        }
+
+        .step.completed .step__line {
             background: var(--success-green);
         }
 
-        .form-group {
-            margin-bottom: 24px;
+        .step.active:not(:last-child) .step__line {
+            background: var(--primary-blue);
         }
 
-        .form-group label {
+        /* Form Group */
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        .form-group__label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: var(--gray);
         }
 
-        .form-group input {
+        .form-group__input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border: 2px solid var(--gray-light);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
-            transition: all 0.3s ease;
+            font-family: inherit;
+            transition: var(--transition);
             background: white;
             color: #000;
         }
 
-        .form-group input:focus {
+        .form-group__input:focus {
             outline: none;
             border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.1);
+            transform: translateY(-1px);
         }
 
-        .form-group input:valid:not(:placeholder-shown) {
+        .form-group__input:valid:not(:placeholder-shown) {
             border-color: var(--success-green);
         }
 
+        .form-group__input::placeholder {
+            color: #999;
+        }
+
+        /* Input Mode */
+        .form-group__input[inputmode="numeric"] {
+            letter-spacing: 2px;
+            font-size: 18px;
+        }
+
+        /* Button Group */
         .button-group {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-top: 32px;
         }
 
         button {
             flex: 1;
-            padding: 12px 24px;
+            padding: 14px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         .btn-primary {
@@ -280,12 +418,17 @@
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
         .btn-primary:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
         .btn-secondary {
@@ -298,30 +441,58 @@
             color: white;
         }
 
+        /* Alert */
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 28px;
             display: none;
             animation: slideDown 0.3s ease-out;
+            gap: 12px;
+            align-items: center;
+            border-left: 4px solid;
         }
 
         .alert.show {
             display: flex;
-            align-items: center;
-            gap: 12px;
         }
 
         .alert-error {
             background: var(--error-light);
             color: var(--error-red);
-            border: 1px solid var(--error-red);
+            border-left-color: var(--error-red);
         }
 
         .alert-success {
             background: var(--success-light);
             color: var(--success-green);
-            border: 1px solid var(--success-green);
+            border-left-color: var(--success-green);
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #b45309;
+            border-left-color: #b45309;
+        }
+
+        .alert__icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .alert__message {
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .alert__close {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            flex-shrink: 0;
         }
 
         @keyframes slideDown {
@@ -335,192 +506,426 @@
             }
         }
 
+        /* Form Step */
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        /* Security Badge */
         .security-badge {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
             font-size: 12px;
             color: var(--gray);
-            margin-top: 24px;
-            padding-top: 16px;
+            margin-top: 28px;
+            padding-top: 20px;
             border-top: 1px solid var(--gray-light);
+        }
+
+        .security-badge__icon {
+            font-size: 16px;
+            color: var(--success-green);
+        }
+
+        /* Loader */
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            .blob {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Background Elements -->
     <div class="blob blob1"></div>
     <div class="blob blob2"></div>
 
+    <!-- Main Container -->
     <div class="container">
+        <!-- Hero Section -->
         <div class="hero">
-            <div class="logo">🚢</div>
-            <h1>Dream Harbour</h1>
-            <p>Secure, Fast & Reliable Invoicing</p>
-            <div class="services">
-                <div class="service-item"><span>✓ Instant Invoicing</span></div>
-                <div class="service-item"><span>✓ Secure Payments</span></div>
-                <div class="service-item"><span>✓ Real-time Tracking</span></div>
+            <div class="hero__logo">🏛️</div>
+            <h1 class="hero__title">Dream Harbour</h1>
+            <p class="hero__subtitle">Professional Invoice Management</p>
+            
+            <div class="hero__features">
+                <div class="hero__feature">
+                    <span class="hero__feature-icon">⚡</span>
+                    <span class="hero__feature-text">Instant Invoice Creation</span>
+                </div>
+                <div class="hero__feature">
+                    <span class="hero__feature-icon">🔒</span>
+                    <span class="hero__feature-text">Secure Authentication</span>
+                </div>
+                <div class="hero__feature">
+                    <span class="hero__feature-icon">📊</span>
+                    <span class="hero__feature-text">Real-time Analytics</span>
+                </div>
             </div>
         </div>
 
+        <!-- Form Section -->
         <div class="form-container">
+            <!-- Form Header -->
             <div class="form-header">
-                <h2>Sign In</h2>
-                <p>Two-step verification for security</p>
+                <h2 class="form-header__title">Sign In</h2>
+                <p class="form-header__subtitle">Two-step verification for security</p>
             </div>
 
-            <div class="step-indicator">
-                <div class="step active" id="step1">
-                    <div class="step-number">1</div>
-                    <span class="step-label">Phone</span>
-                </div>
-                <div class="step-line" id="stepLine"></div>
-                <div class="step" id="step2">
-                    <div class="step-number">2</div>
-                    <span class="step-label">PIN</span>
-                </div>
-            </div>
-
+            <!-- Alert Container -->
             <div id="alertContainer"></div>
 
-            <form id="phoneForm" class="form-step active">
-                <div class="form-group">
-                    <label for="phoneInput">Phone Number</label>
-                    <input type="tel" id="phoneInput" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric" required>
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">
+                    <div class="step__number">1</div>
+                    <span class="step__label">Phone</span>
+                    <div class="step__line"></div>
                 </div>
+                <div class="step" id="step2">
+                    <div class="step__number">2</div>
+                    <span class="step__label">PIN</span>
+                </div>
+            </div>
 
+            <!-- Phone Form -->
+            <form id="phoneForm" class="form-step active" novalidate>
+                <div class="form-group">
+                    <label for="phoneInput" class="form-group__label">Phone Number</label>
+                    <input 
+                        type="tel" 
+                        id="phoneInput" 
+                        class="form-group__input"
+                        placeholder="10-digit mobile number"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        inputmode="numeric"
+                        required
+                        autocomplete="tel"
+                        aria-label="Phone number"
+                    />
+                </div>
                 <div class="button-group">
-                    <button type="submit" class="btn-primary">Next</button>
+                    <button type="submit" class="btn-primary">Next → </button>
                 </div>
             </form>
 
-            <form id="pinForm" class="form-step" style="display: none;">
+            <!-- PIN Form -->
+            <form id="pinForm" class="form-step" novalidate>
                 <div class="form-group">
-                    <label for="pinInput">Security PIN</label>
-                    <input type="password" id="pinInput" placeholder="6-digit PIN" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required>
+                    <label for="pinInput" class="form-group__label">Security PIN</label>
+                    <input 
+                        type="password" 
+                        id="pinInput" 
+                        class="form-group__input"
+                        placeholder="6-digit PIN"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        inputmode="numeric"
+                        required
+                        aria-label="Security PIN"
+                    />
                 </div>
-
                 <div class="button-group">
-                    <button type="button" class="btn-secondary" id="backBtn">Back</button>
-                    <button type="submit" class="btn-primary" id="pinSubmitBtn">Sign In</button>
+                    <button type="button" id="backBtn" class="btn-secondary">← Back</button>
+                    <button type="submit" id="pinSubmitBtn" class="btn-primary">Sign In</button>
                 </div>
             </form>
 
+            <!-- Security Badge -->
             <div class="security-badge">
-                <span>🔒</span>
+                <span class="security-badge__icon">🔐</span>
                 <span>Your data is encrypted and secure</span>
             </div>
         </div>
     </div>
 
+    <!-- Main Script -->
     <script type="module">
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js'
+        
+        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm')
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ==================== STATE ====================
+        let currentPhone = ''
+        const PHONE_REGEX = /^\d{10}$/
+        const PIN_REGEX = /^\d{6}$/
 
-        let currentPhone = '';
+        // ==================== DOM ELEMENTS ====================
+        const phoneForm = document.getElementById('phoneForm')
+        const pinForm = document.getElementById('pinForm')
+        const phoneInput = document.getElementById('phoneInput')
+        const pinInput = document.getElementById('pinInput')
+        const backBtn = document.getElementById('backBtn')
+        const pinSubmitBtn = document.getElementById('pinSubmitBtn')
+        const alertContainer = document.getElementById('alertContainer')
+        const step1 = document.getElementById('step1')
+        const step2 = document.getElementById('step2')
 
-        // Phone Form Submit
-        document.getElementById('phoneForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            currentPhone = document.getElementById('phoneInput').value;
-            
-            if (!/^\d{10}$/.test(currentPhone)) {
-                showAlert('Phone number must be exactly 10 digits', 'error');
-                return;
+        // ==================== EVENT LISTENERS ====================
+        phoneForm.addEventListener('submit', handlePhoneSubmit)
+        pinForm.addEventListener('submit', handlePinSubmit)
+        backBtn.addEventListener('click', goBackToPhone)
+        
+        // Phone input formatting
+        phoneInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10)
+        })
+        
+        // PIN input formatting
+        pinInput.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6)
+        })
+
+        // Auto-submit PIN form when 6 digits entered
+        pinInput.addEventListener('input', (e) => {
+            if (e.target.value.length === 6) {
+                // Small delay for better UX
+                setTimeout(() => pinForm.requestSubmit(), 100)
+            }
+        })
+
+        // ==================== PHONE FORM HANDLER ====================
+        async function handlePhoneSubmit(e) {
+            e.preventDefault()
+            clearAlert()
+
+            currentPhone = phoneInput.value.trim()
+
+            // Validate phone
+            if (!PHONE_REGEX.test(currentPhone)) {
+                showAlert('Please enter a valid 10-digit phone number', 'error')
+                phoneInput.focus()
+                return
             }
 
-            proceedToStep2();
-        });
+            // Proceed to step 2
+            proceedToStep2()
+        }
 
-        // PIN Form Submit
-        document.getElementById('pinForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const pin = document.getElementById('pinInput').value;
-            
-            if (!/^\d{6}$/.test(pin)) {
-                showAlert('PIN must be exactly 6 digits', 'error');
-                return;
+        // ==================== PIN FORM HANDLER ====================
+        async function handlePinSubmit(e) {
+            e.preventDefault()
+            clearAlert()
+
+            const pin = pinInput.value.trim()
+
+            // Validate PIN
+            if (!PIN_REGEX.test(pin)) {
+                showAlert('Please enter a valid 6-digit PIN', 'error')
+                pinInput.focus()
+                return
             }
 
-            await authenticateUser(currentPhone, pin);
-        });
+            // Authenticate
+            await authenticateUser(currentPhone, pin)
+        }
 
-        // Authenticate User from users table
+        // ==================== AUTHENTICATION ====================
         async function authenticateUser(phoneNumber, pin) {
-            const btn = document.getElementById('pinSubmitBtn');
-            btn.disabled = true;
-            btn.textContent = 'Signing in...';
+            const btn = pinSubmitBtn
+            const originalText = btn.textContent
 
             try {
-                // Query users table with phone_number and pin
+                btn.disabled = true
+                btn.innerHTML = '<span class="loader"></span> Signing in...'
+
+                // Query users table
                 const { data, error } = await supabase
                     .from('users')
                     .select('*')
                     .eq('phone_number', phoneNumber)
                     .eq('pin', pin)
                     .eq('is_active', true)
-                    .limit(1)
-                    .single();
+                    .single()
 
                 if (error || !data) {
-                    showAlert('Invalid phone number or PIN', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Sign In';
-                    return;
+                    showAlert('Invalid phone number or PIN', 'error')
+                    pinInput.focus()
+                    pinInput.select()
+                    return
                 }
 
-                // Store user info in localStorage
-                localStorage.setItem('user', JSON.stringify({
+                // Store user info
+                const userData = {
                     id: data.id,
-                    phone_number: data.phone_number,
-                    full_name: data.full_name,
+                    phoneNumber: data.phone_number,
+                    fullName: data.full_name,
                     role: data.role,
                     timestamp: Date.now()
-                }));
+                }
 
-                showAlert('Login successful! Redirecting...', 'success');
+                localStorage.setItem('user', JSON.stringify(userData))
+
+                showAlert('✓ Login successful! Redirecting...', 'success')
+
+                // Redirect after delay
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+                    window.location.href = 'dashboard.html'
+                }, 1500)
+
             } catch (error) {
-                console.error('Error:', error);
-                showAlert('Connection error. Please try again.', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
+                console.error('Authentication error:', error)
+                showAlert('Connection error. Please try again.', 'error')
+                pinInput.focus()
+
+            } finally {
+                btn.disabled = false
+                btn.textContent = originalText
             }
         }
 
+        // ==================== STEP NAVIGATION ====================
         function proceedToStep2() {
-            document.getElementById('phoneForm').style.display = 'none';
-            document.getElementById('pinForm').style.display = 'block';
-            document.getElementById('step1').classList.add('completed');
-            document.getElementById('step1').classList.remove('active');
-            document.getElementById('step2').classList.add('active');
-            document.getElementById('stepLine').classList.add('completed');
-            document.getElementById('pinInput').focus();
+            // Hide phone form
+            phoneForm.classList.remove('active')
+            
+            // Show PIN form
+            pinForm.classList.add('active')
+
+            // Update steps
+            step1.classList.add('completed')
+            step1.classList.remove('active')
+            step2.classList.add('active')
+
+            // Focus PIN input
+            pinInput.focus()
         }
 
-        document.getElementById('backBtn').addEventListener('click', function() {
-            document.getElementById('pinForm').style.display = 'none';
-            document.getElementById('phoneForm').style.display = 'block';
-            document.getElementById('step2').classList.remove('active');
-            document.getElementById('step1').classList.add('active');
-            document.getElementById('step1').classList.remove('completed');
-            document.getElementById('stepLine').classList.remove('completed');
-            document.getElementById('pinInput').value = '';
-            document.getElementById('phoneInput').focus();
-        });
+        function goBackToPhone() {
+            clearAlert()
 
-        function showAlert(message, type) {
-            const container = document.getElementById('alertContainer');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert show alert-${type}`;
-            alertDiv.innerHTML = `<span>${type === 'error' ? '❌' : '✅'}</span><span>${message}</span>`;
-            container.innerHTML = '';
-            container.appendChild(alertDiv);
+            // Show phone form
+            phoneForm.classList.add('active')
+            
+            // Hide PIN form
+            pinForm.classList.remove('active')
+
+            // Update steps
+            step2.classList.remove('active')
+            step1.classList.remove('completed')
+            step1.classList.add('active')
+
+            // Clear PIN input
+            pinInput.value = ''
+            
+            // Focus phone input
+            phoneInput.focus()
         }
+
+        // ==================== ALERTS ====================
+        function showAlert(message, type = 'info') {
+            clearAlert()
+
+            const alertDiv = document.createElement('div')
+            alertDiv.className = `alert alert-${type} show`
+            alertDiv.setAttribute('role', 'alert')
+            alertDiv.innerHTML = `
+                <span class="alert__icon">
+                    ${type === 'error' ? '❌' : type === 'success' ? '✓' : 'ℹ'}
+                </span>
+                <span class="alert__message">${escapeHtml(message)}</span>
+                <button class="alert__close" type="button" aria-label="Close alert">×</button>
+            `
+
+            const closeBtn = alertDiv.querySelector('.alert__close')
+            closeBtn.addEventListener('click', () => alertDiv.remove())
+
+            alertContainer.innerHTML = ''
+            alertContainer.appendChild(alertDiv)
+
+            // Auto-remove after 6 seconds (if not error)
+            if (type !== 'error') {
+                setTimeout(() => alertDiv.remove(), 6000)
+            }
+        }
+
+        function clearAlert() {
+            alertContainer.innerHTML = ''
+        }
+
+        // ==================== UTILITIES ====================
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }
+            return text.replace(/[&<>"']/g, m => map[m])
+        }
+
+        // ==================== SESSION CHECK ====================
+        // Check if already logged in (optional)
+        function checkExistingSession() {
+            const user = localStorage.getItem('user')
+            if (user) {
+                // Redirect to dashboard if already logged in
+                // Uncomment to enable:
+                // window.location.href = 'dashboard.html'
+            }
+        }
+
+        // Call on page load
+        checkExistingSession()
+
+        // ==================== KEYBOARD SHORTCUTS ====================
+        document.addEventListener('keydown', (e) => {
+            // Enter key: submit form
+            if (e.key === 'Enter') {
+                if (phoneForm.classList.contains('active') && phoneInput.value.length === 10) {
+                    phoneForm.requestSubmit()
+                }
+                if (pinForm.classList.contains('active') && pinInput.value.length === 6) {
+                    pinForm.requestSubmit()
+                }
+            }
+
+            // Escape key: go back
+            if (e.key === 'Escape' && pinForm.classList.contains('active')) {
+                goBackToPhone()
+            }
+        })
+
     </script>
 </body>
 </html>
