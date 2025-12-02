@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --success-green: #10b981;
+            --success-light: #d1fae5;
+            --warning-yellow: #fbbf24;
+            --warning-light: #fef3c7;
+            --error-red: #ef4444;
+            --error-light: #fee2e2;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-text: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .header-info h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-btn {
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .header-btn.danger {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .header-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.5);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(30, 64, 175, 0.3);
+        }
+
+        .action-icon {
+            font-size: 28px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--success-green);
+        }
+
+        .stat-change.negative {
+            color: var(--error-red);
+        }
+
+        /* Comparison Cards */
+        .comparison-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .comparison-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .comparison-label {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .comparison-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-blue);
+        }
+
+        .comparison-arrow {
+            color: var(--gray-light);
+            margin: 0 8px;
+        }
+
+        .growth-percentage {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--success-light);
+            color: var(--success-green);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        /* Service Breakdown */
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .service-item:last-child {
+            border-bottom: none;
+        }
+
+        .service-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            flex: 0 0 120px;
+        }
+
+        .service-bar {
+            flex: 1;
+            height: 24px;
+            background: var(--gray-light);
+            border-radius: 4px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+
+        .service-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-light));
+            transition: width 0.3s ease;
+        }
+
+        .service-amount {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            flex: 0 0 80px;
+            text-align: right;
+        }
+
+        /* Payment Status */
+        .payment-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .payment-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .payment-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .payment-label {
+            font-size: 12px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Payment Collection Chart */
+        .payment-collection {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Invoices Section */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-blue);
+        }
+
+        /* Pending Invoices */
+        .pending-invoices {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .invoice-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--warning-yellow);
+            transition: all 0.3s ease;
+        }
+
+        .invoice-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .invoice-number {
+            font-size: 13px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .invoice-customer {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .invoice-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--warning-yellow);
+            margin-bottom: 15px;
+        }
+
+        .invoice-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .invoice-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .invoice-btn.complete {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .invoice-btn.complete:hover {
+            background: #059669;
+        }
+
+        .invoice-btn.send {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .invoice-btn.send:hover {
+            background: var(--primary-blue);
+        }
+
+        /* Recent Invoices Table */
+        .invoices-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gray-light);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gray);
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--gray-light);
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-paid {
+            background: var(--success-light);
+            color: var(--success-green);
+        }
+
+        .status-pending {
+            background: var(--warning-light);
+            color: var(--warning-yellow);
+        }
+
+        /* Activity Log */
+        .activity-log {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            font-size: 20px;
+            flex: 0 0 30px;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-description {
+            font-size: 13px;
+            color: var(--gray);
+            margin-bottom: 4px;
+        }
+
+        .activity-meta {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Loading */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(30, 64, 175, 0.2);
+            border-top: 2px solid var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-left {
+                flex-direction: column;
+            }
+
+            .header-info h1 {
+                font-size: 20px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .pending-invoices {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">🚢 Dream Harbour</div>
+            <div class="header-info">
+                <h1>Dashboard</h1>
+                <p>Welcome, <span id="userName">User</span></p>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" onclick="exportPDF()">📥 Export Report</button>
+            <a href="settings.html" class="header-btn">⚙️ Settings</a>
+            <button class="header-btn danger" onclick="logout()">🚪 Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-card" onclick="window.location.href='invoices.html'">
+                <div class="action-icon">📊</div>
+                <div>Invoice Management</div>
+            </button>
+            <button class="action-card" onclick="window.location.href='settings.html'">
+                <div class="action-icon">⚙️</div>
+                <div>Configuration & Services</div>
+            </button>
+            <button class="action-card" style="opacity: 0.6; cursor: not-allowed;">
+                <div class="action-icon">📋</div>
+                <div>View Reports (Coming Soon)</div>
+            </button>
+        </div>
+
+        <!-- Comparison Cards -->
+        <div class="comparison-cards">
+            <div class="comparison-card">
+                <div class="comparison-title">Today vs Yesterday</div>
+                <div class="comparison-row">
+                    <span class="comparison-label">Today</span>
+                    <span class="comparison-value">₹<span id="todayRevenue">0</span></span>
+                </div>
+                <div class="comparison-row">
+                    <span class="comparison-label">Yesterday</span>
+                    <span class="comparison-arrow">→</span>
+                    <span class="comparison-value">₹<span id="yesterdayRevenue">0</span></span>
+                </div>
+            </div>
+
+            <div class="comparison-card">
+                <div class="comparison-title">This Month vs Last Month</div>
+                <div class="comparison-row">
+                    <span class="comparison-label">This Month</span>
+                    <span class="comparison-value">₹<span id="thisMonthRevenue">0</span></span>
+                </div>
+                <div class="comparison-row">
+                    <span class="comparison-label">Last Month</span>
+                    <span class="comparison-arrow">→</span>
+                    <span class="comparison-value">₹<span id="lastMonthRevenue">0</span></span>
+                </div>
+                <div class="comparison-row">
+                    <span class="comparison-label">Growth</span>
+                    <span class="growth-percentage"><span id="growthPercentage">0</span>% ↑</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value">₹<span id="totalRevenue">0</span></div>
+                <div class="stat-change positive">
+                    <span>↑ <span id="revenueGrowth">0</span>% this month</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">GST Collected</div>
+                <div class="stat-value">₹<span id="totalGst">0</span></div>
+                <div class="stat-change">
+                    <span style="color: var(--gray);">18% of revenue</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Invoices</div>
+                <div class="stat-value"><span id="totalInvoices">0</span></div>
+                <div class="stat-change">
+                    <span style="color: var(--gray);"><span id="monthlyInvoices">0</span> this month</span>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Customers</div>
+                <div class="stat-value"><span id="totalCustomers">0</span></div>
+                <div class="stat-change">
+                    <span style="color: var(--gray);"><span id="newCustomers">0</span> new this month</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-title">📈 Monthly Revenue & GST Trend</div>
+                <canvas id="trendChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-title">🛍️ Top Services</div>
+                <div id="servicesBreakdown"></div>
+            </div>
+        </div>
+
+        <!-- Payment Status -->
+        <div class="payment-status">
+            <div class="payment-item">
+                <div class="payment-number"><span id="pendingCount">0</span></div>
+                <div class="payment-label">Invoices Pending</div>
+            </div>
+            <div class="payment-item">
+                <div class="payment-number">₹<span id="outstandingAmount">0</span></div>
+                <div class="payment-label">Outstanding Amount</div>
+            </div>
+            <div class="payment-item">
+                <div class="payment-number"><span id="collectionRate">0</span>%</div>
+                <div class="payment-label">Collection Rate</div>
+            </div>
+        </div>
+
+        <!-- Payment Collection Chart -->
+        <div class="payment-collection">
+            <div class="chart-title">💳 Payment Collection (Weekly)</div>
+            <canvas id="paymentChart"></canvas>
+        </div>
+
+        <!-- Pending/Draft Invoices -->
+        <div class="section-title">📋 Pending Invoices</div>
+        <div class="pending-invoices" id="pendingInvoicesContainer">
+            <div class="empty-state">
+                <div class="empty-icon">✅</div>
+                <p>No pending invoices</p>
+            </div>
+        </div>
+
+        <!-- Recent Invoices Table -->
+        <div class="section-title">📄 Recent Invoices</div>
+        <div class="invoices-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Invoice ID</th>
+                        <th>Customer</th>
+                        <th>Amount (₹)</th>
+                        <th>GST (₹)</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px;">
+                            <span class="spinner"></span> Loading invoices...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="section-title">🔔 Recent Activity</div>
+        <div class="activity-log">
+            <div id="activityLog">
+                <div class="empty-state">
+                    <p>No activities yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let trendChart = null;
+        let paymentChart = null;
+
+        async function init() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('userName').textContent = user.phone || 'User';
+
+            await Promise.all([
+                loadDashboardData(),
+                loadCharts(),
+                loadInvoices(),
+                loadPendingInvoices(),
+                loadActivityLog()
+            ]);
+        }
+
+        async function loadDashboardData() {
+            try {
+                const now = new Date();
+                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const yesterdayStart = new Date(todayStart);
+                yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+                const yesterdayEnd = new Date(yesterdayStart);
+                yesterdayEnd.setDate(yesterdayEnd.getDate() + 1);
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+
+                // Fetch invoices
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('*');
+
+                // Fetch customers
+                const { data: customers } = await supabase
+                    .from('customers')
+                    .select('*');
+
+                if (invoices) {
+                    const todayInvoices = invoices.filter(i => new Date(i.created_at) >= todayStart);
+                    const yesterdayInvoices = invoices.filter(i => {
+                        const date = new Date(i.created_at);
+                        return date >= yesterdayStart && date < yesterdayEnd;
+                    });
+                    const monthInvoices = invoices.filter(i => new Date(i.created_at) >= monthStart);
+                    const lastMonthInvoices = invoices.filter(i => {
+                        const date = new Date(i.created_at);
+                        return date >= lastMonthStart && date <= lastMonthEnd;
+                    });
+
+                    const todayRevenue = todayInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
+                    const yesterdayRevenue = yesterdayInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
+                    const thisMonthRevenue = monthInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
+                    const lastMonthRevenue = lastMonthInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
+                    const totalRevenue = invoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
+                    const totalGst = invoices.reduce((sum, i) => sum + (i.gst_amount || 0), 0);
+                    const pendingInvoices = invoices.filter(i => i.status === 'pending');
+                    const paidInvoices = invoices.filter(i => i.status === 'paid');
+                    const collectionRate = invoices.length > 0 ? Math.round((paidInvoices.length / invoices.length) * 100) : 0;
+
+                    // Update stats
+                    document.getElementById('todayRevenue').textContent = Math.round(todayRevenue).toLocaleString('en-IN');
+                    document.getElementById('yesterdayRevenue').textContent = Math.round(yesterdayRevenue).toLocaleString('en-IN');
+                    document.getElementById('thisMonthRevenue').textContent = Math.round(thisMonthRevenue).toLocaleString('en-IN');
+                    document.getElementById('lastMonthRevenue').textContent = Math.round(lastMonthRevenue).toLocaleString('en-IN');
+                    document.getElementById('totalRevenue').textContent = Math.round(totalRevenue).toLocaleString('en-IN');
+                    document.getElementById('totalGst').textContent = Math.round(totalGst).toLocaleString('en-IN');
+                    document.getElementById('totalInvoices').textContent = invoices.length;
+                    document.getElementById('monthlyInvoices').textContent = monthInvoices.length;
+                    document.getElementById('pendingCount').textContent = pendingInvoices.length;
+                    document.getElementById('outstandingAmount').textContent = Math.round(
+                        pendingInvoices.reduce((sum, i) => sum + (i.total || 0), 0)
+                    ).toLocaleString('en-IN');
+                    document.getElementById('collectionRate').textContent = collectionRate;
+
+                    const growth = lastMonthRevenue > 0 ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100) : 0;
+                    document.getElementById('growthPercentage').textContent = growth;
+                    document.getElementById('revenueGrowth').textContent = growth;
+                }
+
+                if (customers) {
+                    const newCustomersThisMonth = customers.filter(c => {
+                        const date = new Date(c.created_at);
+                        return date >= monthStart;
+                    }).length;
+                    document.getElementById('totalCustomers').textContent = customers.length;
+                    document.getElementById('newCustomers').textContent = newCustomersThisMonth;
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadCharts() {
+            try {
+                // Trend Chart
+                const trendCtx = document.getElementById('trendChart').getContext('2d');
+                trendChart = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [
+                            {
+                                label: 'Revenue (₹)',
+                                data: [15000, 22000, 28000, 35000, 42000, 45000],
+                                borderColor: '#1e40af',
+                                backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'GST Collection (₹)',
+                                data: [2700, 3960, 5040, 6300, 7560, 8100],
+                                borderColor: '#1e3a8a',
+                                backgroundColor: 'rgba(30, 58, 138, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Payment Collection Chart
+                const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+                paymentChart = new Chart(paymentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                        datasets: [
+                            {
+                                label: 'Collected (₹)',
+                                data: [8000, 12000, 15000, 18000, 22000],
+                                backgroundColor: '#10b981'
+                            },
+                            {
+                                label: 'Pending (₹)',
+                                data: [2000, 3000, 2000, 2500, 3000],
+                                backgroundColor: '#fbbf24'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: false
+                            },
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Services Breakdown
+                const servicesHtml = `
+                    <div class="service-item">
+                        <div class="service-name">Printing</div>
+                        <div class="service-bar"><div class="service-progress" style="width: 35%;"></div></div>
+                        <div class="service-amount">₹15750</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-name">E-Stamping</div>
+                        <div class="service-bar"><div class="service-progress" style="width: 28%;"></div></div>
+                        <div class="service-amount">₹12600</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-name">Compliance</div>
+                        <div class="service-bar"><div class="service-progress" style="width: 22%;"></div></div>
+                        <div class="service-amount">₹9900</div>
+                    </div>
+                    <div class="service-item">
+                        <div class="service-name">Documents</div>
+                        <div class="service-bar"><div class="service-progress" style="width: 15%;"></div></div>
+                        <div class="service-amount">₹6750</div>
+                    </div>
+                `;
+                document.getElementById('servicesBreakdown').innerHTML = servicesHtml;
+            } catch (error) {
+                console.error('Error loading charts:', error);
+            }
+        }
+
+        async function loadInvoices() {
+            try {
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                const tbody = document.getElementById('invoicesTableBody');
+                if (invoices && invoices.length > 0) {
+                    tbody.innerHTML = invoices.map(inv => `
+                        <tr>
+                            <td>${inv.invoice_number}</td>
+                            <td>${inv.customer_name}</td>
+                            <td>₹${Math.round(inv.subtotal).toLocaleString('en-IN')}</td>
+                            <td>₹${Math.round(inv.gst_amount).toLocaleString('en-IN')}</td>
+                            <td>${new Date(inv.created_at).toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})}</td>
+                            <td><span class="status-badge status-${inv.status}">${inv.status.toUpperCase()}</span></td>
+                            <td><a href="view-invoice.html?id=${inv.id}" style="color: #1e40af; text-decoration: none; font-weight: 600;">View</a></td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+            }
+        }
+
+        async function loadPendingInvoices() {
+            try {
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .eq('status', 'pending')
+                    .limit(6);
+
+                const container = document.getElementById('pendingInvoicesContainer');
+                if (invoices && invoices.length > 0) {
+                    container.innerHTML = invoices.map(inv => `
+                        <div class="invoice-card">
+                            <div class="invoice-number">${inv.invoice_number}</div>
+                            <div class="invoice-customer">${inv.customer_name}</div>
+                            <div class="invoice-amount">₹${Math.round(inv.total).toLocaleString('en-IN')}</div>
+                            <div class="invoice-actions">
+                                <button class="invoice-btn complete" onclick="markComplete('${inv.id}')">✓ Complete</button>
+                                <button class="invoice-btn send">📧 Send</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No pending invoices</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading pending invoices:', error);
+            }
+        }
+
+        async function loadActivityLog() {
+            try {
+                const { data: activities } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                const activityContainer = document.getElementById('activityLog');
+                if (activities && activities.length > 0) {
+                    activityContainer.innerHTML = activities.map(act => {
+                        const date = new Date(act.created_at);
+                        const now = new Date();
+                        const diff = Math.floor((now - date) / 1000);
+                        let timeAgo = 'Just now';
+                        if (diff > 3600) timeAgo = `${Math.floor(diff / 3600)}h ago`;
+                        else if (diff > 60) timeAgo = `${Math.floor(diff / 60)}m ago`;
+
+                        return `
+                            <div class="activity-item">
+                                <div class="activity-icon">📄</div>
+                                <div class="activity-content">
+                                    <div class="activity-description">Invoice ${act.invoice_number} created for ${act.customer_name}</div>
+                                    <div class="activity-meta">₹${Math.round(act.total)} • ${timeAgo}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Error loading activity log:', error);
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function exportPDF() {
+            const element = document.querySelector('.container');
+            const opt = {
+                margin: 10,
+                filename: 'Dashboard_Report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        async function markComplete(invoiceId) {
+            try {
+                const { error } = await supabase
+                    .from('invoices')
+                    .update({ status: 'paid' })
+                    .eq('id', invoiceId);
+
+                if (error) throw error;
+                alert('Invoice marked as paid!');
+                await loadDashboardData();
+                await loadInvoices();
+                await loadPendingInvoices();
+            } catch (error) {
+                console.error('Error updating invoice:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
