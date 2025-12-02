@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dream Harbour - Invoices</title>
+  <title>Dream Harbour - Invoice Management</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --primary-blue: #1e40af;
@@ -20,1420 +20,532 @@
       --bg-light: #f8fafc;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg-light);
-      min-height: 100vh;
-    }
-
-    /* Header (same style family as dashboard) */
-    .header {
-      background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
-      color: white;
-      padding: 20px 30px;
-      box-shadow: 0 10px 30px rgba(30, 64, 175, 0.2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .header-left {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .header-title {
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .header-subtitle {
-      font-size: 13px;
-      opacity: 0.9;
-    }
-
-    .header-right {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .header-btn {
-      padding: 8px 16px;
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-
-    .header-btn:hover {
-      background: rgba(255, 255, 255, 0.28);
-      transform: translateY(-2px);
-    }
-
-    .header-btn.secondary {
-      background: rgba(15, 23, 42, 0.1);
-    }
-
-    .header-badge {
-      font-size: 11px;
-      background: rgba(15, 23, 42, 0.3);
-      border-radius: 999px;
-      padding: 4px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 25px 20px 40px;
-    }
-
-    .breadcrumbs {
-      font-size: 13px;
-      color: var(--gray);
-      margin-bottom: 15px;
-    }
-
-    .breadcrumbs a {
-      color: var(--primary-blue);
-      text-decoration: none;
-    }
-
-    .breadcrumbs span {
-      margin: 0 4px;
-    }
-
-    /* Cards */
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-      padding: 20px 20px 16px;
-      margin-bottom: 20px;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      gap: 10px;
-    }
-
-    .card-header h2 {
-      font-size: 18px;
-      color: var(--primary-blue);
-    }
-
-    .card-header-subtitle {
-      font-size: 12px;
-      color: var(--gray);
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: var(--gray-light);
-      color: var(--gray);
-    }
-
-    /* Customer & invoice details grid */
-    .details-grid {
-      display: grid;
-      grid-template-columns: 1.4fr 1fr;
-      gap: 18px;
-    }
-
-    @media (max-width: 900px) {
-      .details-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
-
-    .field-group {
-      margin-bottom: 12px;
-    }
-
-    .field-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--gray);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .field-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .field-row > .field {
-      flex: 1;
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1.5px solid var(--gray-light);
-      font-size: 14px;
-      font-family: inherit;
-      transition: all 0.2s ease;
-      background: white;
-    }
-
-    .field textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus {
-      outline: none;
-      border-color: var(--primary-blue);
-      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
-    }
-
-    .field-helper {
-      font-size: 11px;
-      color: var(--gray);
-      margin-top: 2px;
-    }
-
-    .chip-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-
-    .chip {
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: var(--gray-light);
-      color: var(--gray);
-    }
-
-    /* Services & lines table */
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid var(--gray-light);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 900px;
-    }
-
-    thead {
-      background: var(--gray-light);
-    }
-
-    th,
-    td {
-      padding: 10px 12px;
-      text-align: left;
-      font-size: 13px;
-      border-bottom: 1px solid var(--gray-light);
-    }
-
-    th {
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--gray);
-      font-weight: 600;
-      font-size: 11px;
-      white-space: nowrap;
-    }
-
-    tbody tr:hover {
-      background: #f0f9ff;
-    }
-
-    .line-input {
-      width: 100%;
-      padding: 6px 8px;
-      border-radius: 6px;
-      border: 1px solid var(--gray-light);
-      font-size: 13px;
-      font-family: inherit;
-      background: white;
-      text-align: right;
-    }
-
-    .line-input:focus {
-      outline: none;
-      border-color: var(--primary-blue);
-      box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15);
-    }
-
-    .line-input.description {
-      text-align: left;
-    }
-
-    .line-toggle {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11px;
-      color: var(--gray);
-    }
-
-    .line-toggle input[type="checkbox"] {
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-    }
-
-    .line-actions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-icon {
-      width: 26px;
-      height: 26px;
-      border-radius: 999px;
-      border: 1px solid var(--gray-light);
-      background: white;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gray);
-      transition: all 0.2s ease;
-    }
-
-    .btn-icon:hover {
-      background: var(--error-light);
-      color: var(--error-red);
-      border-color: var(--error-red);
-    }
-
-    .empty-row {
-      text-align: center;
-      color: var(--gray);
-      font-size: 13px;
-      padding: 24px 12px;
-    }
-
-    /* Totals & actions */
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.3fr 1fr;
-      gap: 18px;
-      align-items: flex-start;
-      margin-top: 16px;
-    }
-
-    @media (max-width: 900px) {
-      .footer-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .totals-card {
-      background: #f9fafb;
-      border-radius: 10px;
-      padding: 14px 14px 10px;
-      border: 1px solid var(--gray-light);
-    }
-
-    .totals-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      font-size: 13px;
-    }
-
-    .totals-row strong {
-      font-size: 14px;
-    }
-
-    .totals-label {
-      color: var(--gray);
-    }
-
-    .totals-value {
-      font-weight: 600;
-      color: var(--primary-blue);
-    }
-
-    .totals-value.highlight {
-      font-size: 18px;
-      color: var(--primary-dark);
-    }
-
-    .totals-note {
-      font-size: 11px;
-      color: var(--gray);
-      margin-top: 4px;
-    }
-
-    .actions-row {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn-primary {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: none;
-      background: var(--primary-blue);
-      color: white;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 12px rgba(30, 64, 175, 0.35);
-    }
-
-    .btn-secondary {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--gray-light);
-      background: white;
-      color: var(--gray);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      background: var(--gray-light);
-      color: #111827;
-    }
-
-    /* Small badges */
-    .status-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 8px;
-      font-size: 11px;
-      border-radius: 999px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-
-    .status-draft {
-      background: var(--gray-light);
-      color: var(--gray);
-    }
-
-    .status-pending {
-      background: #fef3c7;
-      color: #b45309;
-    }
-
-    .status-paid {
-      background: var(--success-light);
-      color: var(--success-green);
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); min-height: 100vh; }
+    .header { background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%); color: white; padding: 20px 30px; box-shadow: 0 10px 30px rgba(30, 64, 175, 0.2); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+    .header-left { display: flex; flex-direction: column; gap: 4px; }
+    .header-title { font-size: 24px; font-weight: 700; }
+    .header-subtitle { font-size: 13px; opacity: 0.9; }
+    .header-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .header-btn { padding: 8px 16px; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: white; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; }
+    .header-btn:hover { background: rgba(255, 255, 255, 0.28); transform: translateY(-2px); }
+    .container { max-width: 1200px; margin: 0 auto; padding: 25px 20px 40px; }
+    .breadcrumbs { font-size: 13px; color: var(--gray); margin-bottom: 15px; }
+    .breadcrumbs a { color: var(--primary-blue); text-decoration: none; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); padding: 20px; margin-bottom: 20px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-header h2 { font-size: 18px; color: var(--primary-blue); }
+    .card-header-subtitle { font-size: 12px; color: var(--gray); }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11px; background: var(--gray-light); }
+    .details-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+    @media (max-width: 900px) { .details-grid { grid-template-columns: 1fr; } }
+    .field-group { margin-bottom: 12px; }
+    .field-label { font-size: 12px; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .field-row { display: flex; gap: 10px; }
+    .field-row > .field { flex: 1; }
+    .field input, .field select, .field textarea { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--gray-light); font-size: 14px; font-family: inherit; transition: all 0.2s ease; }
+    .field textarea { resize: vertical; min-height: 60px; }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12); }
+    .field-helper { font-size: 11px; color: var(--gray); margin-top: 2px; }
+    .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .chip { font-size: 11px; padding: 4px 8px; border-radius: 999px; background: var(--gray-light); color: var(--gray); }
+    .table-wrapper { overflow-x: auto; border-radius: 12px; border: 1px solid var(--gray-light); }
+    table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+    thead { background: var(--gray-light); }
+    th, td { padding: 10px 12px; text-align: left; font-size: 13px; border-bottom: 1px solid var(--gray-light); }
+    th { text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray); font-weight: 600; font-size: 11px; }
+    tbody tr:hover { background: #f0f9ff; }
+    .line-input { width: 100%; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--gray-light); font-size: 13px; font-family: inherit; background: white; text-align: right; }
+    .line-input:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15); }
+    .line-input.description { text-align: left; }
+    .line-toggle { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--gray); cursor: pointer; justify-content: center; }
+    .line-toggle input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; }
+    .btn-icon { width: 26px; height: 26px; border-radius: 999px; border: 1px solid var(--gray-light); background: white; cursor: pointer; font-size: 14px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; color: var(--gray); transition: all 0.2s ease; }
+    .btn-icon:hover { background: var(--error-light); color: var(--error-red); border-color: var(--error-red); }
+    .empty-row { text-align: center; color: var(--gray); font-size: 13px; padding: 24px 12px; }
+    .footer-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; align-items: flex-start; margin-top: 16px; }
+    @media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr; } }
+    .totals-card { background: #f9fafb; border-radius: 10px; padding: 14px; border: 1px solid var(--gray-light); }
+    .totals-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+    .totals-label { color: var(--gray); }
+    .totals-value { font-weight: 600; color: var(--primary-blue); }
+    .totals-value.highlight { font-size: 18px; color: var(--primary-dark); font-weight: 700; }
+    .totals-note { font-size: 11px; color: var(--gray); margin-top: 4px; }
+    .actions-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+    .btn-primary { padding: 10px 18px; border-radius: 8px; border: none; background: var(--primary-blue); color: white; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 6px 12px rgba(30, 64, 175, 0.35); }
+    .btn-secondary { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--gray-light); background: white; color: var(--gray); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+    .btn-secondary:hover { background: var(--gray-light); }
+    .status-badge { display: inline-flex; padding: 3px 8px; font-size: 11px; border-radius: 999px; text-transform: uppercase; }
+    .status-draft { background: var(--gray-light); color: var(--gray); }
+    .status-paid { background: var(--success-light); color: var(--success-green); }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: white; padding: 14px 18px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); font-size: 13px; z-index: 1000; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast.success { border-left: 4px solid var(--success-green); color: var(--success-green); }
+    .toast.error { border-left: 4px solid var(--error-red); color: var(--error-red); }
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="header-left">
       <div class="header-title">Invoice Management</div>
-      <div class="header-subtitle">Create professional invoices using your configured services and GST rules.</div>
+      <div class="header-subtitle">Create professional invoices with auto sub-services and calculations</div>
     </div>
     <div class="header-right">
-      <span class="header-badge">
-        • v1 Settings Linked
-      </span>
-      <a href="dashboard.html" class="header-btn secondary">Back to Dashboard</a>
+      <a href="dashboard.html" class="header-btn">← Back to Dashboard</a>
     </div>
   </header>
 
   <main class="container">
-    <!-- Breadcrumbs -->
-    <div class="breadcrumbs">
-      <a href="dashboard.html">Dashboard</a>
-      <span>›</span>
-      <span>Invoices</span>
-      <span>›</span>
-      <strong>Create Invoice</strong>
-    </div>
+    <div class="breadcrumbs"><a href="dashboard.html">Dashboard</a> › <span>Invoices</span> › <strong>Create</strong></div>
 
-    <!-- Customer & Invoice Details -->
     <section class="card">
       <div class="card-header">
         <div>
           <h2>Customer & Invoice Details</h2>
-          <div class="card-header-subtitle">
-            Search customer by mobile and verify invoice header information.
-          </div>
+          <div class="card-header-subtitle">Search customer and configure invoice</div>
         </div>
-        <div class="pill">
-          Status:
-          <span class="status-badge status-draft">Draft</span>
-        </div>
+        <div class="pill"><span class="status-badge status-draft">DRAFT</span></div>
       </div>
 
       <div class="details-grid">
-        <!-- Customer side -->
         <div>
           <div class="field-group">
             <div class="field-label">Customer Mobile</div>
             <div class="field-row">
-              <div class="field">
-                <input
-                  type="tel"
-                  id="customerMobile"
-                  maxlength="10"
-                  placeholder="10-digit mobile number"
-                />
-                <div class="field-helper">Existing customers will auto‑fill details.</div>
-              </div>
-              <button type="button" class="btn-secondary" id="searchCustomerBtn">
-                Search
-              </button>
+              <div class="field"><input type="tel" id="customerMobile" maxlength="10" placeholder="10-digit mobile" /></div>
+              <button type="button" class="btn-secondary" id="searchCustomerBtn">Search</button>
             </div>
-            <div class="chip-row" id="customerSearchResult">
-              <!-- dynamic: e.g. "Existing customer loaded" or "New customer" -->
-            </div>
+            <div class="chip-row" id="customerSearchResult"></div>
           </div>
 
           <div class="field-group">
-            <div class="field-label">Customer Details</div>
             <div class="field-row">
-              <div class="field">
-                <input type="text" id="customerName" placeholder="Full name" />
-              </div>
-              <div class="field">
-                <input type="email" id="customerEmail" placeholder="Email (optional)" />
-              </div>
+              <div class="field"><input type="text" id="customerName" placeholder="Full name" /></div>
+              <div class="field"><input type="email" id="customerEmail" placeholder="Email" /></div>
             </div>
           </div>
 
           <div class="field-group">
             <div class="field-row">
-              <div class="field">
-                <input type="text" id="customerCompany" placeholder="Company / Business name" />
-                <div class="field-helper">Shown in invoice header if provided.</div>
-              </div>
-              <div class="field">
-                <input type="text" id="customerGstin" placeholder="GSTIN (optional)" />
-              </div>
+              <div class="field"><input type="text" id="customerCompany" placeholder="Company" /></div>
+              <div class="field"><input type="text" id="customerGstin" placeholder="GSTIN" /></div>
             </div>
           </div>
 
           <div class="field-group">
-            <div class="field">
-              <textarea id="customerAddress" placeholder="Billing address"></textarea>
-            </div>
+            <div class="field"><textarea id="customerAddress" placeholder="Billing address"></textarea></div>
           </div>
         </div>
 
-        <!-- Invoice side -->
         <div>
           <div class="field-group">
-            <div class="field-label">Invoice Info</div>
-            <div class="field-row">
-              <div class="field">
-                <input type="text" id="invoiceNumber" placeholder="Auto-generated" disabled />
-                <div class="field-helper">Invoice number will be generated automatically.</div>
-              </div>
-            </div>
+            <div class="field-label">Invoice Number</div>
+            <div class="field"><input type="text" id="invoiceNumber" disabled /></div>
+            <div class="field-helper">Auto-generated</div>
           </div>
 
           <div class="field-group">
-            <div class="field-row">
-              <div class="field">
-                <input type="date" id="invoiceDate" />
-                <div class="field-helper">Default is today’s date.</div>
-              </div>
-              <div class="field">
-                <select id="paymentStatus">
-                  <option value="pending">Pending</option>
-                  <option value="paid">Paid</option>
-                </select>
-                <div class="field-helper">You can update status later from dashboard.</div>
-              </div>
+            <div class="field-label">Invoice Date</div>
+            <div class="field"><input type="date" id="invoiceDate" /></div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">Payment Status</div>
+            <div class="field">
+              <select id="paymentStatus">
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+              </select>
             </div>
           </div>
 
           <div class="field-group">
             <div class="field-label">Service Selection</div>
-            <div class="field-row">
-              <div class="field">
-                <input
-                  type="text"
-                  id="serviceSearch"
-                  placeholder="Search service by name (linked to sub-services)"
-                />
-                <div class="field-helper">Selecting a service will auto‑add its sub‑service lines.</div>
-              </div>
-            </div>
-            <div class="chip-row">
-              <span class="chip">Linked to Settings Pro services</span>
-              <span class="chip">GST defaults from configuration</span>
-            </div>
+            <div class="field"><input type="text" id="serviceSearch" placeholder="Search service (case-insensitive)..." /></div>
+            <div class="field-helper">Type service name - auto-adds linked sub-services</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Invoice Lines -->
     <section class="card">
       <div class="card-header">
         <div>
           <h2>Invoice Lines</h2>
-          <div class="card-header-subtitle">
-            Add or adjust line items. Amount and GST are auto‑calculated per configuration.
-          </div>
+          <div class="card-header-subtitle">Add services and configure line items</div>
         </div>
-        <button type="button" class="btn-secondary" id="addEmptyLineBtn">
-          + Add Manual Line
-        </button>
+        <button type="button" class="btn-secondary" id="addEmptyLineBtn">+ Add Manual Line</button>
       </div>
 
       <div class="table-wrapper">
         <table>
           <thead>
             <tr>
-              <th style="width: 26px;"></th>
               <th>Description</th>
-              <th>SAC Code</th>
-              <th style="text-align: right;">Qty</th>
-              <th style="text-align: right;">Rate</th>
-              <th style="text-align: right;">GST %</th>
-              <th style="text-align: center;">Includes GST?</th>
-              <th style="text-align: right;">Net Amt</th>
-              <th style="text-align: right;">GST Amt</th>
-              <th style="text-align: right;">Line Total</th>
-              <th style="width: 60px; text-align: center;">Actions</th>
+              <th>SAC</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>GST%</th>
+              <th>With GST?</th>
+              <th>Net Amt</th>
+              <th>GST Amt</th>
+              <th>Total</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="invoiceLinesBody">
-            <tr>
-              <td colspan="11" class="empty-row">
-                No services added yet. Use service search above or “Add Manual Line”.
-              </td>
-            </tr>
+            <tr><td colspan="10" class="empty-row">No services added. Use service search or "Add Manual Line".</td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="footer-grid">
-        <!-- Notes / future options -->
-        <div>
-          <div class="totals-card">
-            <div class="totals-row">
-              <span class="totals-label">Notes to Customer</span>
-            </div>
-            <textarea
-              id="invoiceNotes"
-              placeholder="Optional notes or terms (e.g., payment due within 7 days)."
-              style="width: 100%; margin-top: 8px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--gray-light); font-size: 13px; resize: vertical; min-height: 60px; font-family: inherit;"
-            ></textarea>
-            <div class="totals-note">
-              Notes appear at the bottom of the invoice PDF/print.
-            </div>
+        <div class="totals-card">
+          <div class="totals-row">
+            <span class="totals-label">Net Amount:</span>
+            <span class="totals-value" id="totalNetAmount">₹0.00</span>
           </div>
+          <div class="totals-row">
+            <span class="totals-label">GST Amount:</span>
+            <span class="totals-value" id="totalGstAmount">₹0.00</span>
+          </div>
+          <div class="totals-row">
+            <span class="totals-label">Total Amount:</span>
+            <span class="totals-value highlight" id="totalAmount">₹0.00</span>
+          </div>
+          <div class="totals-note">All calculations are automatic</div>
         </div>
 
-        <!-- Totals + actions -->
-        <div>
-          <div class="totals-card">
-            <div class="totals-row">
-              <span class="totals-label">Total (Without GST)</span>
-              <span class="totals-value" id="subtotalDisplay">0.00</span>
-            </div>
-            <div class="totals-row">
-              <span class="totals-label">GST Total</span>
-              <span class="totals-value" id="gstTotalDisplay">0.00</span>
-            </div>
-            <div class="totals-row">
-              <span class="totals-label">Round Off</span>
-              <span class="totals-value" id="roundOffDisplay">0.00</span>
-            </div>
-            <hr style="border: none; border-top: 1px dashed var(--gray-light); margin: 8px 0 10px;" />
-            <div class="totals-row">
-              <strong>Total (With GST)</strong>
-              <span class="totals-value highlight" id="grandTotalDisplay">0.00</span>
-            </div>
-            <div class="totals-note">
-              Final total includes GST and round‑off. Line amounts are controlled by service configuration.
-            </div>
-          </div>
-
-          <div class="actions-row">
-            <button type="button" class="btn-secondary" id="saveDraftBtn">
-              Save Draft
-            </button>
-            <button type="button" class="btn-primary" id="submitInvoiceBtn">
-              Submit Invoice
-            </button>
-          </div>
+        <div class="actions-row">
+          <button type="button" class="btn-secondary" id="saveDraftBtn">Save Draft</button>
+          <button type="button" class="btn-primary" id="submitInvoiceBtn">Submit Invoice</button>
+          <button type="button" class="btn-secondary" id="generatePdfBtn">📥 Download PDF</button>
+          <button type="button" class="btn-secondary" id="printInvoiceBtn">🖨️ Print</button>
         </div>
       </div>
     </section>
   </main>
 
-  <!-- Script placeholder (logic will be added in part 2) -->
   <script type="module">
-// Supabase configuration (reuse same config as other pages)
-const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
 
-// In‑memory invoice state
-let currentUser = null;
-let currentCustomerId = null;
-let serviceCache = []; // service_items with linked sub‑services
-let invoiceLines = []; // internal representation of table rows
-let nextLineNumber = 1;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// DOM helpers
-const $ = (id) => document.getElementById(id);
+    let invoiceState = { customerId: null, lines: [], defaultGST: 18 };
 
-function formatAmount(value) {
-  const num = Number(value) || 0;
-  return num.toFixed(2);
-}
+    const customerMobileInput = document.getElementById('customerMobile');
+    const searchCustomerBtn = document.getElementById('searchCustomerBtn');
+    const customerNameInput = document.getElementById('customerName');
+    const customerEmailInput = document.getElementById('customerEmail');
+    const customerCompanyInput = document.getElementById('customerCompany');
+    const customerGstinInput = document.getElementById('customerGstin');
+    const customerAddressInput = document.getElementById('customerAddress');
+    const invoiceNumberInput = document.getElementById('invoiceNumber');
+    const invoiceDateInput = document.getElementById('invoiceDate');
+    const paymentStatusSelect = document.getElementById('paymentStatus');
+    const serviceSearchInput = document.getElementById('serviceSearch');
+    const addEmptyLineBtn = document.getElementById('addEmptyLineBtn');
+    const invoiceLinesBody = document.getElementById('invoiceLinesBody');
+    const saveDraftBtn = document.getElementById('saveDraftBtn');
+    const submitInvoiceBtn = document.getElementById('submitInvoiceBtn');
+    const generatePdfBtn = document.getElementById('generatePdfBtn');
+    const printInvoiceBtn = document.getElementById('printInvoiceBtn');
 
-// Initialisation
-document.addEventListener('DOMContentLoaded', init);
+    window.addEventListener('load', async () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) { window.location.href = '/index.html'; return; }
+      const today = new Date().toISOString().split('T')[0];
+      invoiceDateInput.value = today;
+      generateInvoiceNumber();
+      await loadDefaultGST();
+    });
 
-async function init() {
-  // 1. Session check (same pattern as dashboard)
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  if (!user) {
-    window.location.href = 'index.html';
-    return;
-  }
-  currentUser = user;
-
-  // 2. Default invoice date = today
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  $('invoiceDate').value = `${yyyy}-${mm}-${dd}`;
-
-  // 3. Generate invoice number preview
-  $('invoiceNumber').value = await generateInvoiceNumber();
-
-  // 4. Load services cache
-  await loadServicesCache();
-
-  // 5. Wire events
-  setupEventListeners();
-}
-
-// Generate invoice number: INV-YYYYMMDD-XXXX (simple example)
-async function generateInvoiceNumber() {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  const datePart = `${yyyy}${mm}${dd}`;
-
-  // Count invoices for today to append sequence
-  const { data, error } = await supabase
-    .from('invoices')
-    .select('id, invoice_date')
-    .gte('invoice_date', `${yyyy}-${mm}-${dd}T00:00:00`)
-    .lte('invoice_date', `${yyyy}-${mm}-${dd}T23:59:59`);
-
-  if (error || !data) {
-    return `INV-${datePart}-0001`;
-  }
-  const seq = String(data.length + 1).padStart(4, '0');
-  return `INV-${datePart}-${seq}`;
-}
-
-// Load service_items + linked sub-service types into cache
-async function loadServicesCache() {
-  const { data: services, error } = await supabase
-    .from('service_items')
-    .select(
-      `
-      id,
-      service_name,
-      sac_code,
-      rate,
-      gst_percentage,
-      is_active,
-      has_sub_items,
-      sub_service_type_1_id,
-      sub_service_type_2_id,
-      sub_service_type_1:sub_service_type_1_id (
-        id,
-        sub_service_name,
-        rate,
-        gst_percentage
-      ),
-      sub_service_type_2:sub_service_type_2_id (
-        id,
-        sub_service_name,
-        sac_code,
-        rate,
-        gst_percentage
-      )
-    `
-    )
-    .eq('is_active', true);
-
-  if (error) {
-    console.error('Error loading services', error);
-    return;
-  }
-
-  serviceCache = services || [];
-}
-
-// Event wiring
-function setupEventListeners() {
-  $('searchCustomerBtn').addEventListener('click', handleCustomerSearch);
-  $('customerMobile').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleCustomerSearch();
+    async function generateInvoiceNumber() {
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const { data } = await supabase.from('invoices').select('id', { count: 'exact', head: true }).eq('user_id', user.id);
+        const count = data ? data.length + 1 : 1;
+        const timestamp = Date.now();
+        invoiceNumberInput.value = `INV-${timestamp}-${count}`;
+      } catch (err) {
+        invoiceNumberInput.value = `INV-${Date.now()}`;
+      }
     }
-  });
 
-  $('serviceSearch').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleServiceSelect();
+    async function loadDefaultGST() {
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const { data } = await supabase.from('business_info').select('gst_rate').eq('user_id', user.id).single();
+        if (data) invoiceState.defaultGST = parseFloat(data.gst_rate) || 18;
+      } catch (err) {
+        invoiceState.defaultGST = 18;
+      }
     }
-  });
 
-  $('addEmptyLineBtn').addEventListener('click', () => addManualLine());
-  $('saveDraftBtn').addEventListener('click', () => saveInvoice({ asDraft: true }));
-  $('submitInvoiceBtn').addEventListener('click', () => saveInvoice({ asDraft: false }));
-}
-
-// CUSTOMER SEARCH / CREATE
-
-async function handleCustomerSearch() {
-  const mobile = $('customerMobile').value.trim();
-  if (!/^[0-9]{10}$/.test(mobile)) {
-    updateCustomerStatusChip('Enter a valid 10‑digit mobile number.', 'error');
-    return;
-  }
-
-  const { data, error } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('mobile_no', mobile)
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.error('Error searching customer', error);
-    updateCustomerStatusChip('Error searching customer.', 'error');
-    return;
-  }
-
-  if (data) {
-    currentCustomerId = data.id;
-    $('customerName').value = data.full_name || '';
-    $('customerEmail').value = data.email || '';
-    $('customerGstin').value = data.gstin || '';
-    $('customerCompany').value = data.company_name || '';
-    $('customerAddress').value = data.address || '';
-
-    updateCustomerStatusChip('Existing customer loaded from database.', 'success');
-  } else {
-    currentCustomerId = null;
-    $('customerName').value = '';
-    $('customerEmail').value = '';
-    $('customerGstin').value = '';
-    $('customerCompany').value = '';
-    $('customerAddress').value = '';
-    updateCustomerStatusChip('New customer. Details will be saved on invoice submit.', 'info');
-  }
-}
-
-function updateCustomerStatusChip(message, type) {
-  const container = $('customerSearchResult');
-  container.innerHTML = '';
-  const span = document.createElement('span');
-  span.className = 'chip';
-  if (type === 'success') {
-    span.style.background = '#d1fae5';
-    span.style.color = '#065f46';
-  } else if (type === 'error') {
-    span.style.background = '#fee2e2';
-    span.style.color = '#b91c1c';
-  } else if (type === 'info') {
-    span.style.background = '#e5e7eb';
-    span.style.color = '#374151';
-  }
-  span.textContent = message;
-  container.appendChild(span);
-}
-
-// SERVICE SELECTION -> ADD AUTO LINES
-
-function handleServiceSelect() {
-  const query = $('serviceSearch').value.trim().toLowerCase();
-  if (!query) return;
-
-  const match = serviceCache.find((s) =>
-    (s.service_name || '').toLowerCase().includes(query)
-  );
-
-  if (!match) {
-    alert('No matching active service found in Settings.');
-    return;
-  }
-
-  addServiceWithSubServices(match);
-  $('serviceSearch').value = '';
-}
-
-function addServiceWithSubServices(service) {
-  // 1) Header line (not visible to customer later, but saved)
-  const headerLine = {
-    lineNumber: nextLineNumber++,
-    isHeader: true,
-    isSubService: false,
-    subServiceFlag1: false,
-    subServiceFlag2: false,
-    description: service.service_name,
-    sacCode: service.sac_code || '',
-    quantity: 1,
-    rate: Number(service.rate) || 0,
-    gstPercentage: Number(service.gst_percentage) || 0,
-    includesGst: false,
-    netAmount: 0,
-    gstAmount: 0,
-    lineTotal: 0,
-    isGovernmentFee: false,
-  };
-
-  invoiceLines.push(headerLine);
-
-  // 2) Sub‑service 1
-  if (service.sub_service_type_1_id && service.sub_service_type_1) {
-    const sub1 = service.sub_service_type_1;
-    invoiceLines.push({
-      lineNumber: nextLineNumber++,
-      isHeader: false,
-      isSubService: true,
-      subServiceFlag1: true,
-      subServiceFlag2: false,
-      description: sub1.sub_service_name,
-      sacCode: service.sac_code || '',
-      quantity: 1,
-      rate: Number(sub1.rate) || 0,
-      gstPercentage: Number(sub1.gst_percentage) || 0,
-      includesGst: false,
-      netAmount: 0,
-      gstAmount: 0,
-      lineTotal: 0,
-      isGovernmentFee: false,
-    });
-  }
-
-  // 3) Sub‑service 2
-  if (service.sub_service_type_2_id && service.sub_service_type_2) {
-    const sub2 = service.sub_service_type_2;
-    invoiceLines.push({
-      lineNumber: nextLineNumber++,
-      isHeader: false,
-      isSubService: true,
-      subServiceFlag1: false,
-      subServiceFlag2: true,
-      description: sub2.sub_service_name,
-      sacCode: sub2.sac_code || service.sac_code || '',
-      quantity: 1,
-      rate: Number(sub2.rate) || 0,
-      gstPercentage: Number(sub2.gst_percentage) || 0,
-      includesGst: false,
-      netAmount: 0,
-      gstAmount: 0,
-      lineTotal: 0,
-      isGovernmentFee: false,
-    });
-  }
-
-  recalcAllLines();
-  renderLinesTable();
-}
-
-// Manual line (no header/sub‑service flags)
-function addManualLine() {
-  invoiceLines.push({
-    lineNumber: nextLineNumber++,
-    isHeader: false,
-    isSubService: false,
-    subServiceFlag1: false,
-    subServiceFlag2: false,
-    description: '',
-    sacCode: '',
-    quantity: 1,
-    rate: 0,
-    gstPercentage: 0,
-    includesGst: false,
-    netAmount: 0,
-    gstAmount: 0,
-    lineTotal: 0,
-    isGovernmentFee: false,
-  });
-  recalcAllLines();
-  renderLinesTable();
-}
-
-// TABLE RENDERING & EDITING
-
-function renderLinesTable() {
-  const tbody = $('invoiceLinesBody');
-  tbody.innerHTML = '';
-
-  if (!invoiceLines.length) {
-    const tr = document.createElement('tr');
-    const td = document.createElement('td');
-    td.colSpan = 11;
-    td.className = 'empty-row';
-    td.textContent =
-      'No services added yet. Use service search above or “Add Manual Line”.';
-    tr.appendChild(td);
-    tbody.appendChild(tr);
-    return;
-  }
-
-  invoiceLines.forEach((line) => {
-    const tr = document.createElement('tr');
-
-    // Column: type indicator (header / sub)
-    const tdType = document.createElement('td');
-    tdType.style.fontSize = '11px';
-    tdType.style.color = '#6b7280';
-    tdType.textContent = line.isHeader ? 'H' : line.isSubService ? 'S' : '';
-    tr.appendChild(tdType);
-
-    // Description
-    const tdDesc = document.createElement('td');
-    const descInput = document.createElement('input');
-    descInput.type = 'text';
-    descInput.className = 'line-input description';
-    descInput.value = line.description;
-    descInput.addEventListener('input', () => {
-      line.description = descInput.value;
-    });
-    // For header lines coming from service, keep editable but you can lock if preferred
-    tdDesc.appendChild(descInput);
-    tr.appendChild(tdDesc);
-
-    // SAC
-    const tdSac = document.createElement('td');
-    const sacInput = document.createElement('input');
-    sacInput.type = 'text';
-    sacInput.className = 'line-input';
-    sacInput.style.textAlign = 'left';
-    sacInput.value = line.sacCode;
-    sacInput.addEventListener('input', () => {
-      line.sacCode = sacInput.value;
-    });
-    tdSac.appendChild(sacInput);
-    tr.appendChild(tdSac);
-
-    // Qty
-    const tdQty = document.createElement('td');
-    const qtyInput = document.createElement('input');
-    qtyInput.type = 'number';
-    qtyInput.min = '0';
-    qtyInput.step = '1';
-    qtyInput.className = 'line-input';
-    qtyInput.value = line.quantity;
-    qtyInput.addEventListener('input', () => {
-      const qty = Number(qtyInput.value) || 0;
-      updateQuantityForLinkedLines(line, qty);
-      recalcAllLines();
-      renderLinesTable();
-    });
-    tdQty.appendChild(qtyInput);
-    tdQty.style.textAlign = 'right';
-    tr.appendChild(tdQty);
-
-    // Rate
-    const tdRate = document.createElement('td');
-    const rateInput = document.createElement('input');
-    rateInput.type = 'number';
-    rateInput.min = '0';
-    rateInput.step = '0.01';
-    rateInput.className = 'line-input';
-    rateInput.value = line.rate;
-    rateInput.addEventListener('input', () => {
-      line.rate = Number(rateInput.value) || 0;
-      recalcAllLines();
-      renderLinesTable();
-    });
-    tdRate.appendChild(rateInput);
-    tdRate.style.textAlign = 'right';
-    tr.appendChild(tdRate);
-
-    // GST %
-    const tdGst = document.createElement('td');
-    const gstInput = document.createElement('input');
-    gstInput.type = 'number';
-    gstInput.min = '0';
-    gstInput.max = '100';
-    gstInput.step = '0.01';
-    gstInput.className = 'line-input';
-    gstInput.value = line.gstPercentage;
-    // Locked per your requirement: readOnly
-    gstInput.readOnly = true;
-    gstInput.style.backgroundColor = '#f3f4f6';
-    tdGst.appendChild(gstInput);
-    tdGst.style.textAlign = 'right';
-    tr.appendChild(tdGst);
-
-    // Includes GST?
-    const tdIncl = document.createElement('td');
-    tdIncl.style.textAlign = 'center';
-    const inclWrapper = document.createElement('label');
-    inclWrapper.className = 'line-toggle';
-    const inclCheckbox = document.createElement('input');
-    inclCheckbox.type = 'checkbox';
-    inclCheckbox.checked = line.includesGst;
-    inclCheckbox.addEventListener('change', () => {
-      line.includesGst = inclCheckbox.checked;
-      recalcAllLines();
-      renderLinesTable();
-    });
-    const inclText = document.createElement('span');
-    inclText.textContent = 'With GST';
-    inclWrapper.appendChild(inclCheckbox);
-    inclWrapper.appendChild(inclText);
-    tdIncl.appendChild(inclWrapper);
-    tr.appendChild(tdIncl);
-
-    // Net amount
-    const tdNet = document.createElement('td');
-    tdNet.style.textAlign = 'right';
-    tdNet.textContent = formatAmount(line.netAmount);
-    tr.appendChild(tdNet);
-
-    // GST amount
-    const tdGstAmt = document.createElement('td');
-    tdGstAmt.style.textAlign = 'right';
-    tdGstAmt.textContent = formatAmount(line.gstAmount);
-    tr.appendChild(tdGstAmt);
-
-    // Line total
-    const tdTotal = document.createElement('td');
-    tdTotal.style.textAlign = 'right';
-    tdTotal.textContent = formatAmount(line.lineTotal);
-    tr.appendChild(tdTotal);
-
-    // Actions
-    const tdActions = document.createElement('td');
-    tdActions.style.textAlign = 'center';
-    const actionsDiv = document.createElement('div');
-    actionsDiv.className = 'line-actions';
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = 'button';
-    deleteBtn.className = 'btn-icon';
-    deleteBtn.textContent = '×';
-    deleteBtn.title = 'Remove line';
-    deleteBtn.addEventListener('click', () => {
-      invoiceLines = invoiceLines.filter((l) => l.lineNumber !== line.lineNumber);
-      recalcAllLines();
-      renderLinesTable();
-    });
-    actionsDiv.appendChild(deleteBtn);
-    tdActions.appendChild(actionsDiv);
-    tr.appendChild(tdActions);
-
-    tbody.appendChild(tr);
-  });
-
-  // After rendering lines, update totals display
-  updateTotalsDisplay();
-}
-
-// Keep quantities of linked sub‑services in sync
-function updateQuantityForLinkedLines(changedLine, newQty) {
-  changedLine.quantity = newQty;
-
-  // Link logic: sub_service 1 and 2 should share same quantity;
-  // header quantity should follow sub_service_1.
-  if (changedLine.subServiceFlag1 || changedLine.subServiceFlag2) {
-    invoiceLines.forEach((line) => {
-      if (line.subServiceFlag1 || line.subServiceFlag2) {
-        line.quantity = newQty;
+    searchCustomerBtn.addEventListener('click', async () => {
+      const mobile = customerMobileInput.value.trim();
+      if (!mobile || mobile.length !== 10) { showToast('Please enter a valid 10-digit mobile', 'error'); return; }
+      try {
+        const { data } = await supabase.from('customers').select('*').eq('mobile', mobile).single();
+        if (data) {
+          invoiceState.customerId = data.id;
+          customerNameInput.value = data.name || '';
+          customerEmailInput.value = data.email || '';
+          customerCompanyInput.value = data.company || '';
+          customerGstinInput.value = data.gstin || '';
+          customerAddressInput.value = data.address || '';
+          showToast('Customer found!', 'success');
+        } else {
+          showToast('Customer not found. Fill manually.', 'error');
+        }
+      } catch (err) {
+        showToast('Error searching customer', 'error');
       }
     });
-    // header is first line before them (simplest rule)
-    const header = invoiceLines.find(
-      (l) => l.isHeader && l.lineNumber < changedLine.lineNumber
-    );
-    if (header) header.quantity = newQty;
-  } else if (changedLine.isHeader) {
-    // if header is changed directly, push same qty to its sub‑services
-    invoiceLines.forEach((line) => {
-      if (line.subServiceFlag1 || line.subServiceFlag2) {
-        line.quantity = newQty;
+
+    let serviceSearchTimeout;
+    serviceSearchInput.addEventListener('input', async (e) => {
+      clearTimeout(serviceSearchTimeout);
+      const searchTerm = e.target.value.trim().toLowerCase();
+      if (!searchTerm) return;
+      serviceSearchTimeout = setTimeout(async () => {
+        try {
+          const { data: services } = await supabase.from('services').select('*, service_items(*)').ilike('service_name', `%${searchTerm}%`);
+          if (services && services.length > 0) {
+            const service = services[0];
+            await addServiceToInvoice(service);
+            serviceSearchInput.value = '';
+            showToast(`Service "${service.service_name}" added!`, 'success');
+          } else {
+            showToast('Service not found.', 'error');
+          }
+        } catch (err) {
+          showToast('Error searching service', 'error');
+        }
+      }, 500);
+    });
+
+    async function addServiceToInvoice(service) {
+      if (!service.service_items || service.service_items.length === 0) {
+        showToast('Service has no sub-services', 'error');
+        return;
+      }
+      for (const subService of service.service_items) {
+        const lineId = `line-${Date.now()}-${Math.random()}`;
+        const line = {
+          id: lineId,
+          description: subService.item_name || service.service_name,
+          sac: subService.sac_code || '',
+          qty: 1,
+          rate: parseFloat(subService.rate) || 0,
+          gst: parseFloat(subService.gst_rate) || invoiceState.defaultGST,
+          withGst: true,
+          subServiceId: subService.id,
+        };
+        invoiceState.lines.push(line);
+        renderLineItem(line);
+      }
+      updateTotals();
+    }
+
+    function renderLineItem(line) {
+      const netAmount = line.qty * line.rate;
+      const gstAmount = line.withGst ? (netAmount * line.gst) / 100 : 0;
+      const totalAmount = netAmount + gstAmount;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" class="line-input description" value="${line.description}" data-line-id="${line.id}" data-field="description" /></td>
+        <td><input type="text" class="line-input" value="${line.sac}" readonly /></td>
+        <td><input type="number" class="line-input" value="${line.qty}" min="1" data-line-id="${line.id}" data-field="qty" /></td>
+        <td><input type="number" class="line-input" value="${line.rate}" step="0.01" data-line-id="${line.id}" data-field="rate" /></td>
+        <td><input type="number" class="line-input" value="${line.gst}" readonly /></td>
+        <td><label class="line-toggle"><input type="checkbox" ${line.withGst ? 'checked' : ''} data-line-id="${line.id}" data-field="withGst" /> Yes</label></td>
+        <td>₹<span>${netAmount.toFixed(2)}</span></td>
+        <td>₹<span>${gstAmount.toFixed(2)}</span></td>
+        <td>₹<span>${totalAmount.toFixed(2)}</span></td>
+        <td><button type="button" class="btn-icon" data-line-id="${line.id}">✕</button></td>
+      `;
+
+      row.querySelectorAll('input').forEach((input) => {
+        input.addEventListener('change', (e) => {
+          const lineId = e.target.dataset.lineId;
+          const field = e.target.dataset.field;
+          const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+          updateLineField(lineId, field, value);
+        });
+      });
+
+      row.querySelector('button').addEventListener('click', (e) => {
+        const lineId = e.target.dataset.lineId;
+        deleteLineItem(lineId);
+      });
+
+      if (invoiceLinesBody.querySelector('.empty-row')) invoiceLinesBody.innerHTML = '';
+      invoiceLinesBody.appendChild(row);
+    }
+
+        function updateLineField(lineId, field, value) {
+      const line = invoiceState.lines.find((l) => l.id === lineId);
+      if (!line) return;
+      if (field === 'qty' || field === 'rate') {
+        line[field] = parseFloat(value) || 0;
+      } else if (field === 'withGst') {
+        line[field] = value;
+      } else {
+        line[field] = value;
+      }
+      updateTotals();
+      rerenderInvoiceLines();
+    }
+
+    function deleteLineItem(lineId) {
+      invoiceState.lines = invoiceState.lines.filter((l) => l.id !== lineId);
+      const row = document.querySelector(`tr:has(input[data-line-id="${lineId}"])`);
+      if (row) row.remove();
+      if (invoiceState.lines.length === 0) {
+        invoiceLinesBody.innerHTML = '<tr><td colspan="10" class="empty-row">No services added. Use service search or "Add Manual Line".</td></tr>';
+      }
+      updateTotals();
+    }
+
+    addEmptyLineBtn.addEventListener('click', () => {
+      const lineId = `line-${Date.now()}`;
+      const line = {
+        id: lineId,
+        description: 'New Service',
+        sac: '',
+        qty: 1,
+        rate: 0,
+        gst: invoiceState.defaultGST,
+        withGst: true,
+      };
+      invoiceState.lines.push(line);
+      renderLineItem(line);
+      updateTotals();
+    });
+
+    function updateTotals() {
+      let totalNet = 0, totalGst = 0;
+      invoiceState.lines.forEach((line) => {
+        const netAmount = line.qty * line.rate;
+        const gstAmount = line.withGst ? (netAmount * line.gst) / 100 : 0;
+        totalNet += netAmount;
+        totalGst += gstAmount;
+      });
+      document.getElementById('totalNetAmount').textContent = `₹${totalNet.toFixed(2)}`;
+      document.getElementById('totalGstAmount').textContent = `₹${totalGst.toFixed(2)}`;
+      document.getElementById('totalAmount').textContent = `₹${(totalNet + totalGst).toFixed(2)}`;
+    }
+
+    function rerenderInvoiceLines() {
+      invoiceLinesBody.innerHTML = '';
+      if (invoiceState.lines.length === 0) {
+        invoiceLinesBody.innerHTML = '<tr><td colspan="10" class="empty-row">No services added. Use service search or "Add Manual Line".</td></tr>';
+      } else {
+        invoiceState.lines.forEach((line) => renderLineItem(line));
+      }
+    }
+
+    saveDraftBtn.addEventListener('click', async () => {
+      if (invoiceState.lines.length === 0) {
+        showToast('Add at least one line item', 'error');
+        return;
+      }
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const totalAmount = invoiceState.lines.reduce((sum, line) => {
+          const net = line.qty * line.rate;
+          return sum + net + (line.withGst ? (net * line.gst) / 100 : 0);
+        }, 0);
+
+        const { data, error } = await supabase.from('invoices').insert({
+          user_id: user.id,
+          customer_id: invoiceState.customerId,
+          invoice_number: invoiceNumberInput.value,
+          invoice_date: invoiceDateInput.value,
+          payment_status: paymentStatusSelect.value,
+          customer_name: customerNameInput.value,
+          customer_email: customerEmailInput.value,
+          customer_company: customerCompanyInput.value,
+          customer_gstin: customerGstinInput.value,
+          customer_address: customerAddressInput.value,
+          total_amount: totalAmount,
+          status: 'draft',
+          line_items: invoiceState.lines,
+        }).select();
+
+        if (error) throw error;
+        showToast('Invoice saved as draft!', 'success');
+      } catch (err) {
+        showToast('Error saving invoice: ' + err.message, 'error');
       }
     });
-  }
-}
 
-// CALCULATIONS
+    submitInvoiceBtn.addEventListener('click', async () => {
+      if (invoiceState.lines.length === 0) {
+        showToast('Add at least one line item', 'error');
+        return;
+      }
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const totalAmount = invoiceState.lines.reduce((sum, line) => {
+          const net = line.qty * line.rate;
+          return sum + net + (line.withGst ? (net * line.gst) / 100 : 0);
+        }, 0);
 
-function recalcAllLines() {
-  invoiceLines.forEach((line) => {
-    const qty = Number(line.quantity) || 0;
-    const rate = Number(line.rate) || 0;
-    const gstPct = Number(line.gstPercentage) || 0;
+        const { data, error } = await supabase.from('invoices').insert({
+          user_id: user.id,
+          customer_id: invoiceState.customerId,
+          invoice_number: invoiceNumberInput.value,
+          invoice_date: invoiceDateInput.value,
+          payment_status: paymentStatusSelect.value,
+          customer_name: customerNameInput.value,
+          customer_email: customerEmailInput.value,
+          customer_company: customerCompanyInput.value,
+          customer_gstin: customerGstinInput.value,
+          customer_address: customerAddressInput.value,
+          total_amount: totalAmount,
+          status: 'submitted',
+          line_items: invoiceState.lines,
+        }).select();
 
-    if (qty <= 0 || rate < 0 || gstPct < 0) {
-      line.netAmount = 0;
-      line.gstAmount = 0;
-      line.lineTotal = 0;
-      return;
+        if (error) throw error;
+        showToast('Invoice submitted successfully!', 'success');
+        setTimeout(() => window.location.href = '/dashboard.html', 2000);
+      } catch (err) {
+        showToast('Error submitting invoice: ' + err.message, 'error');
+      }
+    });
+
+    generatePdfBtn.addEventListener('click', () => {
+      const element = document.querySelector('main');
+      const opt = {
+        margin: 10,
+        filename: `invoice-${invoiceNumberInput.value}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+      };
+      html2pdf().set(opt).from(element).save();
+      showToast('PDF generated!', 'success');
+    });
+
+    printInvoiceBtn.addEventListener('click', () => {
+      window.print();
+      showToast('Opening print dialog...', 'success');
+    });
+
+    function showToast(message, type) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
     }
-
-    if (line.includesGst) {
-      // Amount entered is gross (includes GST)
-      const gross = qty * rate;
-      const divisor = 1 + gstPct / 100;
-      const net = gross / divisor;
-      const gstAmt = gross - net;
-      line.netAmount = net;
-      line.gstAmount = gstAmt;
-      line.lineTotal = gross;
-    } else {
-      // Amount entered is net
-      const net = qty * rate;
-      const gstAmt = (net * gstPct) / 100;
-      const gross = net + gstAmt;
-      line.netAmount = net;
-      line.gstAmount = gstAmt;
-      line.lineTotal = gross;
-    }
-  });
-
-  updateTotalsDisplay();
-}
-
-function updateTotalsDisplay() {
-  let subtotal = 0;
-  let totalGst = 0;
-
-  invoiceLines.forEach((line) => {
-    subtotal += Number(line.netAmount) || 0;
-    totalGst += Number(line.gstAmount) || 0;
-  });
-
-  const rawTotal = subtotal + totalGst;
-  const roundedTotal = Math.round(rawTotal);
-  const roundOff = roundedTotal - rawTotal;
-
-  $('subtotalDisplay').textContent = formatAmount(subtotal);
-  $('gstTotalDisplay').textContent = formatAmount(totalGst);
-  $('roundOffDisplay').textContent = formatAmount(roundOff);
-  $('grandTotalDisplay').textContent = formatAmount(roundedTotal);
-}
-
-// SAVE INVOICE (DRAFT OR FINAL)
-
-async function saveInvoice({ asDraft }) {
-  if (!invoiceLines.length) {
-    alert('Add at least one invoice line before saving.');
-    return;
-  }
-
-  const mobile = $('customerMobile').value.trim();
-  const name = $('customerName').value.trim();
-
-  if (!/^[0-9]{10}$/.test(mobile) || !name) {
-    alert('Customer mobile (10 digits) and name are required.');
-    return;
-  }
-
-  // 1. Ensure customer exists / upsert
-  const customerId = await upsertCustomer();
-  if (!customerId) {
-    alert('Could not save customer.');
-    return;
-  }
-
-  // 2. Prepare invoice header data
-  const subtotal = Number($('subtotalDisplay').textContent) || 0;
-  const totalGst = Number($('gstTotalDisplay').textContent) || 0;
-  const totalAmount = Number($('grandTotalDisplay').textContent) || 0;
-
-  const invoiceNumber = $('invoiceNumber').value || (await generateInvoiceNumber());
-  const invoiceDate = $('invoiceDate').value || new Date().toISOString().split('T')[0];
-  const status = asDraft ? 'pending' : $('paymentStatus').value || 'pending';
-  const notes = $('invoiceNotes').value || '';
-
-  // 3. Insert invoice
-  const { data: invoiceInsert, error: invErr } = await supabase
-    .from('invoices')
-    .insert([
-      {
-        invoice_number: invoiceNumber,
-        customer_id: customerId,
-        created_by: currentUser.id || null,
-        invoice_date: invoiceDate,
-        subtotal: subtotal,
-        total_gst: totalGst,
-        total_amount: totalAmount,
-        payment_status: status,
-        // Optional extra: store notes in a future column if added
-      },
-    ])
-    .select('id')
-    .single();
-
-  if (invErr || !invoiceInsert) {
-    console.error('Error inserting invoice', invErr);
-    alert('Error saving invoice header.');
-    return;
-  }
-
-  const invoiceId = invoiceInsert.id;
-
-  // 4. Insert invoice items
-  const itemsPayload = invoiceLines.map((line, index) => ({
-    invoice_id: invoiceId,
-    description: line.description || '',
-    sac_code: line.sacCode || null,
-    quantity: Number(line.quantity) || 0,
-    rate: Number(line.rate) || 0,
-    gst_percentage: Number(line.gstPercentage) || 0,
-    amount: Number(line.lineTotal) || 0,
-    line_number: index + 1,
-    is_service_header: line.isHeader || false,
-    is_sub_service: line.isSubService || false,
-    sub_service_1: line.subServiceFlag1 ? 'true' : null,
-    sub_service_2: line.subServiceFlag2 ? 'true' : null,
-    is_government_fee: line.isGovernmentFee || false,
-  }));
-
-  const { error: itemsErr } = await supabase.from('invoice_items').insert(itemsPayload);
-
-  if (itemsErr) {
-    console.error('Error inserting invoice items', itemsErr);
-    alert('Invoice header saved, but items failed. Please check logs.');
-    return;
-  }
-
-  alert(asDraft ? 'Invoice draft saved successfully.' : 'Invoice submitted successfully.');
-  window.location.href = 'dashboard.html';
-}
-
-// Upsert customer by mobile_no
-async function upsertCustomer() {
-  const mobile = $('customerMobile').value.trim();
-  const name = $('customerName').value.trim();
-  const email = $('customerEmail').value.trim() || null;
-  const gstin = $('customerGstin').value.trim() || null;
-  const company = $('customerCompany').value.trim() || null;
-  const address = $('customerAddress').value.trim() || null;
-
-  // Check if exists
-  const { data: existing, error: searchErr } = await supabase
-    .from('customers')
-    .select('id')
-    .eq('mobile_no', mobile)
-    .limit(1)
-    .maybeSingle();
-
-  if (searchErr) {
-    console.error('Error checking customer', searchErr);
-    return null;
-  }
-
-  if (existing) {
-    const { error: updErr } = await supabase
-      .from('customers')
-      .update({
-        full_name: name,
-        email,
-        gstin,
-        company_name: company,
-        address,
-      })
-      .eq('id', existing.id);
-
-    if (updErr) {
-      console.error('Error updating customer', updErr);
-      return null;
-    }
-    return existing.id;
-  } else {
-    const { data: inserted, error: insErr } = await supabase
-      .from('customers')
-      .insert([
-        {
-          mobile_no: mobile,
-          full_name: name,
-          email,
-          gstin,
-          company_name: company,
-          address,
-        },
-      ])
-      .select('id')
-      .single();
-
-    if (insErr || !inserted) {
-      console.error('Error inserting customer', insErr);
-      return null;
-    }
-    return inserted.id;
-  }
-}
   </script>
 </body>
 </html>
