@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dream Harbour - Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,15 +19,10 @@
             --primary-dark: #1e3a8a;
             --success-green: #10b981;
             --success-light: #d1fae5;
-            --warning-yellow: #fbbf24;
-            --warning-light: #fef3c7;
             --error-red: #ef4444;
             --error-light: #fee2e2;
             --gray: #6b7280;
             --gray-light: #e5e7eb;
-            --dark-bg: #0f172a;
-            --dark-surface: #1e293b;
-            --dark-text: #f1f5f9;
         }
 
         body {
@@ -40,442 +34,182 @@
         .header {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 20px 30px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2);
-            flex-wrap: wrap;
-            gap: 15px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo {
+        .header h1 {
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
-        .header-info h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header-info p {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .header-right {
+        .user-info {
             display: flex;
-            gap: 12px;
             align-items: center;
+            gap: 20px;
         }
 
-        .header-btn {
-            padding: 10px 16px;
+        .logout-btn {
             background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 20px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
             transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .header-btn:hover {
+        .logout-btn:hover {
             background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .header-btn.danger {
-            background: rgba(239, 68, 68, 0.3);
-        }
-
-        .header-btn.danger:hover {
-            background: rgba(239, 68, 68, 0.5);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
         }
 
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .navbar {
+            display: flex;
             gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        .action-card {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .nav-btn {
+            padding: 12px 20px;
+            border: 2px solid var(--gray-light);
+            background: white;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
             font-size: 14px;
             font-weight: 600;
-        }
-
-        .action-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(30, 64, 175, 0.3);
-        }
-
-        .action-icon {
-            font-size: 28px;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-label {
-            font-size: 13px;
+            text-decoration: none;
             color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-            font-weight: 600;
         }
 
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
+        .nav-btn:hover {
+            border-color: var(--primary-blue);
             color: var(--primary-blue);
-            margin-bottom: 8px;
         }
 
-        .stat-change {
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .nav-btn.active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
         }
 
-        .stat-change.positive {
-            color: var(--success-green);
-        }
-
-        .stat-change.negative {
-            color: var(--error-red);
-        }
-
-        /* Comparison Cards */
-        .comparison-cards {
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .comparison-card {
+        .stat-card {
             background: white;
-            padding: 20px;
             border-radius: 12px;
+            padding: 25px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .comparison-title {
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-light));
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
             font-size: 13px;
-            font-weight: 600;
-            color: var(--gray);
-            margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-        }
-
-        .comparison-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .comparison-row:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .comparison-label {
-            font-size: 13px;
             color: var(--gray);
-        }
-
-        .comparison-value {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--primary-blue);
-        }
-
-        .comparison-arrow {
-            color: var(--gray-light);
-            margin: 0 8px;
-        }
-
-        .growth-percentage {
-            font-size: 13px;
+            margin-bottom: 8px;
             font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 6px;
-            background: var(--success-light);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+        }
+
+        .stat-subtext {
+            font-size: 12px;
             color: var(--success-green);
         }
 
-        /* Charts Section */
-        .charts-section {
+        .content-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
         }
 
         @media (max-width: 1024px) {
-            .charts-section {
+            .content-grid {
                 grid-template-columns: 1fr;
             }
         }
 
-        .chart-card {
+        .card {
             background: white;
-            padding: 24px;
             border-radius: 12px;
+            padding: 25px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .chart-title {
-            font-size: 16px;
-            font-weight: bold;
+        .card h2 {
+            font-size: 18px;
+            font-weight: 700;
             color: var(--primary-blue);
             margin-bottom: 20px;
         }
 
-        canvas {
-            max-height: 300px;
-        }
-
-        /* Service Breakdown */
-        .service-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .service-item:last-child {
-            border-bottom: none;
-        }
-
-        .service-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--gray);
-            flex: 0 0 120px;
-        }
-
-        .service-bar {
-            flex: 1;
-            height: 24px;
-            background: var(--gray-light);
-            border-radius: 4px;
-            margin: 0 15px;
-            overflow: hidden;
-        }
-
-        .service-progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-blue), var(--primary-light));
-            transition: width 0.3s ease;
-        }
-
-        .service-amount {
-            font-size: 13px;
-            font-weight: bold;
-            color: var(--primary-blue);
-            flex: 0 0 80px;
-            text-align: right;
-        }
-
-        /* Payment Status */
-        .payment-status {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .payment-item {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .payment-number {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--primary-blue);
-            margin-bottom: 8px;
-        }
-
-        .payment-label {
-            font-size: 12px;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Payment Collection Chart */
-        .payment-collection {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-
-        /* Invoices Section */
-        .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--primary-blue);
-            margin: 30px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--primary-blue);
-        }
-
-        /* Pending Invoices */
-        .pending-invoices {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .invoice-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--warning-yellow);
-            transition: all 0.3s ease;
-        }
-
-        .invoice-card:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .invoice-number {
-            font-size: 13px;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 10px;
-        }
-
-        .invoice-customer {
-            font-size: 16px;
-            font-weight: bold;
-            color: var(--primary-blue);
-            margin-bottom: 8px;
-        }
-
-        .invoice-amount {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--warning-yellow);
-            margin-bottom: 15px;
-        }
-
-        .invoice-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .invoice-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .invoice-btn.complete {
-            background: var(--success-green);
-            color: white;
-        }
-
-        .invoice-btn.complete:hover {
-            background: #059669;
-        }
-
-        .invoice-btn.send {
-            background: var(--primary-light);
-            color: white;
-        }
-
-        .invoice-btn.send:hover {
-            background: var(--primary-blue);
-        }
-
-        /* Recent Invoices Table */
-        .invoices-table {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-
-        table {
+        .table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        thead {
+        .table thead {
             background: var(--gray-light);
         }
 
-        th {
-            padding: 15px;
+        .table th {
+            padding: 12px;
             text-align: left;
             font-size: 12px;
             font-weight: 600;
@@ -484,337 +218,271 @@
             letter-spacing: 0.5px;
         }
 
-        td {
-            padding: 15px;
+        .table td {
+            padding: 12px;
             border-bottom: 1px solid var(--gray-light);
-            font-size: 13px;
+            font-size: 14px;
         }
 
-        tbody tr:hover {
-            background: #f8fafc;
+        .table tbody tr:hover {
+            background: #f0f9ff;
         }
 
-        .status-badge {
+        .badge {
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .status-paid {
+        .badge-pending {
+            background: var(--error-light);
+            color: var(--error-red);
+        }
+
+        .badge-paid {
             background: var(--success-light);
             color: var(--success-green);
         }
 
-        .status-pending {
-            background: var(--warning-light);
-            color: var(--warning-yellow);
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 20px;
         }
 
-        /* Activity Log */
-        .activity-log {
-            background: white;
-            padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .activity-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            font-size: 20px;
-            flex: 0 0 30px;
-        }
-
-        .activity-content {
-            flex: 1;
-        }
-
-        .activity-description {
-            font-size: 13px;
-            color: var(--gray);
-            margin-bottom: 4px;
-        }
-
-        .activity-meta {
-            font-size: 11px;
-            color: #999;
-        }
-
-        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
+            padding: 40px;
             color: var(--gray);
         }
 
-        .empty-icon {
+        .empty-state-icon {
             font-size: 48px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
-        /* Loading */
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
         .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(30, 64, 175, 0.2);
-            border-top: 2px solid var(--primary-blue);
+            border: 4px solid var(--gray-light);
+            border-top: 4px solid var(--primary-blue);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
+        .quick-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
 
-            .header-left {
-                flex-direction: column;
-            }
+        .action-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            text-decoration: none;
+        }
 
-            .header-info h1 {
-                font-size: 20px;
-            }
-
-            .quick-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .comparison-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
-
-            .pending-invoices {
-                grid-template-columns: 1fr;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            th, td {
-                padding: 10px;
-            }
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="header-left">
-            <div class="logo">🚢 Dream Harbour</div>
-            <div class="header-info">
-                <h1>Dashboard</h1>
-                <p>Welcome, <span id="userName">User</span></p>
+        <div class="header-content">
+            <div>
+                <h1>🚢 Dream Harbour Dashboard</h1>
             </div>
-        </div>
-        <div class="header-right">
-            <button class="header-btn" onclick="exportPDF()">📥 Export Report</button>
-            <a href="settings.html" class="header-btn">⚙️ Settings</a>
-            <button class="header-btn danger" onclick="logout()">🚪 Logout</button>
+            <div class="user-info">
+                <span id="userFullName" style="font-size: 14px;">Loading...</span>
+                <a href="index.html" class="logout-btn" onclick="logout(event)">🚪 Logout</a>
+            </div>
         </div>
     </div>
 
+    <!-- Container -->
     <div class="container">
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <button class="action-card" onclick="window.location.href='invoices.html'">
-                <div class="action-icon">📊</div>
-                <div>Invoice Management</div>
-            </button>
-            <button class="action-card" onclick="window.location.href='settings.html'">
-                <div class="action-icon">⚙️</div>
-                <div>Configuration & Services</div>
-            </button>
-            <button class="action-card" style="opacity: 0.6; cursor: not-allowed;">
-                <div class="action-icon">📋</div>
-                <div>View Reports (Coming Soon)</div>
-            </button>
+        <!-- Navigation -->
+        <div class="navbar">
+            <button class="nav-btn active" data-page="overview">📊 Overview</button>
+            <button class="nav-btn" data-page="invoices">📄 Invoices</button>
+            <button class="nav-btn" data-page="customers">👥 Customers</button>
+            <a href="settings.html" class="nav-btn">⚙️ Settings</a>
         </div>
 
-        <!-- Comparison Cards -->
-        <div class="comparison-cards">
-            <div class="comparison-card">
-                <div class="comparison-title">Today vs Yesterday</div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Today</span>
-                    <span class="comparison-value">₹<span id="todayRevenue">0</span></span>
+        <!-- Overview Page -->
+        <div id="overview-page">
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" id="totalRevenue">₹0.00</div>
+                    <div class="stat-subtext" id="revenueChange">📈 Updated today</div>
                 </div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Yesterday</span>
-                    <span class="comparison-arrow">→</span>
-                    <span class="comparison-value">₹<span id="yesterdayRevenue">0</span></span>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🧾</div>
+                    <div class="stat-label">Total Invoices</div>
+                    <div class="stat-value" id="totalInvoices">0</div>
+                    <div class="stat-subtext" id="invoiceChange">Created so far</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-label">Pending Amount</div>
+                    <div class="stat-value" id="pendingAmount">₹0.00</div>
+                    <div class="stat-subtext" id="pendingCount">From pending invoices</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-subtext">All registered</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🔧</div>
+                    <div class="stat-label">Total GST Collected</div>
+                    <div class="stat-value" id="totalGst">₹0.00</div>
+                    <div class="stat-subtext">From all invoices</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Paid Invoices</div>
+                    <div class="stat-value" id="paidInvoices">0</div>
+                    <div class="stat-subtext">Successfully completed</div>
                 </div>
             </div>
 
-            <div class="comparison-card">
-                <div class="comparison-title">This Month vs Last Month</div>
-                <div class="comparison-row">
-                    <span class="comparison-label">This Month</span>
-                    <span class="comparison-value">₹<span id="thisMonthRevenue">0</span></span>
+            <!-- Charts -->
+            <div class="content-grid">
+                <div class="card">
+                    <h2>Revenue Trend</h2>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Last Month</span>
-                    <span class="comparison-arrow">→</span>
-                    <span class="comparison-value">₹<span id="lastMonthRevenue">0</span></span>
-                </div>
-                <div class="comparison-row">
-                    <span class="comparison-label">Growth</span>
-                    <span class="growth-percentage"><span id="growthPercentage">0</span>% ↑</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Revenue</div>
-                <div class="stat-value">₹<span id="totalRevenue">0</span></div>
-                <div class="stat-change positive">
-                    <span>↑ <span id="revenueGrowth">0</span>% this month</span>
+                <div class="card">
+                    <h2>Invoice Status</h2>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-label">GST Collected</div>
-                <div class="stat-value">₹<span id="totalGst">0</span></div>
-                <div class="stat-change">
-                    <span style="color: var(--gray);">18% of revenue</span>
+            <!-- Recent Invoices -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">📋 Recent Invoices</h2>
+                    <a href="invoices.html" class="btn-primary">➕ Create Invoice</a>
                 </div>
-            </div>
 
-            <div class="stat-card">
-                <div class="stat-label">Total Invoices</div>
-                <div class="stat-value"><span id="totalInvoices">0</span></div>
-                <div class="stat-change">
-                    <span style="color: var(--gray);"><span id="monthlyInvoices">0</span> this month</span>
+                <div id="recentInvoicesContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading invoices...</p>
+                    </div>
                 </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-label">Total Customers</div>
-                <div class="stat-value"><span id="totalCustomers">0</span></div>
-                <div class="stat-change">
-                    <span style="color: var(--gray);"><span id="newCustomers">0</span> new this month</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts Section -->
-        <div class="charts-section">
-            <div class="chart-card">
-                <div class="chart-title">📈 Monthly Revenue & GST Trend</div>
-                <canvas id="trendChart"></canvas>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-title">🛍️ Top Services</div>
-                <div id="servicesBreakdown"></div>
             </div>
         </div>
 
-        <!-- Payment Status -->
-        <div class="payment-status">
-            <div class="payment-item">
-                <div class="payment-number"><span id="pendingCount">0</span></div>
-                <div class="payment-label">Invoices Pending</div>
-            </div>
-            <div class="payment-item">
-                <div class="payment-number">₹<span id="outstandingAmount">0</span></div>
-                <div class="payment-label">Outstanding Amount</div>
-            </div>
-            <div class="payment-item">
-                <div class="payment-number"><span id="collectionRate">0</span>%</div>
-                <div class="payment-label">Collection Rate</div>
-            </div>
-        </div>
+        <!-- Invoices Page -->
+        <div id="invoices-page" style="display: none;">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">📄 All Invoices</h2>
+                    <a href="invoices.html" class="btn-primary">➕ Create New Invoice</a>
+                </div>
 
-        <!-- Payment Collection Chart -->
-        <div class="payment-collection">
-            <div class="chart-title">💳 Payment Collection (Weekly)</div>
-            <canvas id="paymentChart"></canvas>
-        </div>
-
-        <!-- Pending/Draft Invoices -->
-        <div class="section-title">📋 Pending Invoices</div>
-        <div class="pending-invoices" id="pendingInvoicesContainer">
-            <div class="empty-state">
-                <div class="empty-icon">✅</div>
-                <p>No pending invoices</p>
+                <div id="allInvoicesContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading invoices...</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Recent Invoices Table -->
-        <div class="section-title">📄 Recent Invoices</div>
-        <div class="invoices-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Invoice ID</th>
-                        <th>Customer</th>
-                        <th>Amount (₹)</th>
-                        <th>GST (₹)</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="invoicesTableBody">
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px;">
-                            <span class="spinner"></span> Loading invoices...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Activity Log -->
-        <div class="section-title">🔔 Recent Activity</div>
-        <div class="activity-log">
-            <div id="activityLog">
-                <div class="empty-state">
-                    <p>No activities yet</p>
+        <!-- Customers Page -->
+        <div id="customers-page" style="display: none;">
+            <div class="card">
+                <h2>👥 All Customers</h2>
+                <div id="customersContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading customers...</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const SUPABASE_URL = https://lqrewteclbexiknvhenk.supabase.co;
-        const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8;
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <script type="module">
+    import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let trendChart = null;
-        let paymentChart = null;
+        let revenueChart, statusChart;
 
+        // Initialize
         async function init() {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user) {
@@ -822,333 +490,342 @@
                 return;
             }
 
-            document.getElementById('userName').textContent = user.phone || 'User';
-
-            await Promise.all([
-                loadDashboardData(),
-                loadCharts(),
-                loadInvoices(),
-                loadPendingInvoices(),
-                loadActivityLog()
-            ]);
+            document.getElementById('userFullName').textContent = user.full_name || 'User';
+            await loadDashboard();
+            setupNavigation();
         }
 
-        async function loadDashboardData() {
+        // Load Dashboard Data
+        async function loadDashboard() {
             try {
-                const now = new Date();
-                const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const yesterdayStart = new Date(todayStart);
-                yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-                const yesterdayEnd = new Date(yesterdayStart);
-                yesterdayEnd.setDate(yesterdayEnd.getDate() + 1);
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-
-                // Fetch invoices
-                const { data: invoices } = await supabase
-                    .from('invoices')
-                    .select('*');
-
-                // Fetch customers
-                const { data: customers } = await supabase
-                    .from('customers')
-                    .select('*');
-
-                if (invoices) {
-                    const todayInvoices = invoices.filter(i => new Date(i.created_at) >= todayStart);
-                    const yesterdayInvoices = invoices.filter(i => {
-                        const date = new Date(i.created_at);
-                        return date >= yesterdayStart && date < yesterdayEnd;
-                    });
-                    const monthInvoices = invoices.filter(i => new Date(i.created_at) >= monthStart);
-                    const lastMonthInvoices = invoices.filter(i => {
-                        const date = new Date(i.created_at);
-                        return date >= lastMonthStart && date <= lastMonthEnd;
-                    });
-
-                    const todayRevenue = todayInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
-                    const yesterdayRevenue = yesterdayInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
-                    const thisMonthRevenue = monthInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
-                    const lastMonthRevenue = lastMonthInvoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
-                    const totalRevenue = invoices.reduce((sum, i) => sum + (i.subtotal || 0), 0);
-                    const totalGst = invoices.reduce((sum, i) => sum + (i.gst_amount || 0), 0);
-                    const pendingInvoices = invoices.filter(i => i.status === 'pending');
-                    const paidInvoices = invoices.filter(i => i.status === 'paid');
-                    const collectionRate = invoices.length > 0 ? Math.round((paidInvoices.length / invoices.length) * 100) : 0;
-
-                    // Update stats
-                    document.getElementById('todayRevenue').textContent = Math.round(todayRevenue).toLocaleString('en-IN');
-                    document.getElementById('yesterdayRevenue').textContent = Math.round(yesterdayRevenue).toLocaleString('en-IN');
-                    document.getElementById('thisMonthRevenue').textContent = Math.round(thisMonthRevenue).toLocaleString('en-IN');
-                    document.getElementById('lastMonthRevenue').textContent = Math.round(lastMonthRevenue).toLocaleString('en-IN');
-                    document.getElementById('totalRevenue').textContent = Math.round(totalRevenue).toLocaleString('en-IN');
-                    document.getElementById('totalGst').textContent = Math.round(totalGst).toLocaleString('en-IN');
-                    document.getElementById('totalInvoices').textContent = invoices.length;
-                    document.getElementById('monthlyInvoices').textContent = monthInvoices.length;
-                    document.getElementById('pendingCount').textContent = pendingInvoices.length;
-                    document.getElementById('outstandingAmount').textContent = Math.round(
-                        pendingInvoices.reduce((sum, i) => sum + (i.total || 0), 0)
-                    ).toLocaleString('en-IN');
-                    document.getElementById('collectionRate').textContent = collectionRate;
-
-                    const growth = lastMonthRevenue > 0 ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100) : 0;
-                    document.getElementById('growthPercentage').textContent = growth;
-                    document.getElementById('revenueGrowth').textContent = growth;
-                }
-
-                if (customers) {
-                    const newCustomersThisMonth = customers.filter(c => {
-                        const date = new Date(c.created_at);
-                        return date >= monthStart;
-                    }).length;
-                    document.getElementById('totalCustomers').textContent = customers.length;
-                    document.getElementById('newCustomers').textContent = newCustomersThisMonth;
-                }
+                await Promise.all([
+                    loadStats(),
+                    loadRecentInvoices(),
+                    loadCharts()
+                ]);
             } catch (error) {
-                console.error('Error loading dashboard data:', error);
+                console.error('Error loading dashboard:', error);
             }
         }
 
+        // Load Statistics
+        async function loadStats() {
+            try {
+                // Get invoices with their details
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('total_amount, total_gst, payment_status');
+
+                // Get customers count
+                const { count: customerCount } = await supabase
+                    .from('customers')
+                    .select('*', { count: 'exact', head: true });
+
+                // Calculate stats
+                let totalRevenue = 0;
+                let totalGst = 0;
+                let pendingAmount = 0;
+                let paidCount = 0;
+
+                if (invoices) {
+                    invoices.forEach(inv => {
+                        totalRevenue += parseFloat(inv.total_amount || 0);
+                        totalGst += parseFloat(inv.total_gst || 0);
+                        if (inv.payment_status === 'pending') {
+                            pendingAmount += parseFloat(inv.total_amount || 0);
+                        } else if (inv.payment_status === 'paid') {
+                            paidCount++;
+                        }
+                    });
+                }
+
+                // Update UI
+                document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
+                document.getElementById('totalInvoices').textContent = invoices ? invoices.length : '0';
+                document.getElementById('pendingAmount').textContent = '₹' + pendingAmount.toFixed(2);
+                document.getElementById('pendingCount').textContent = invoices ? invoices.filter(i => i.payment_status === 'pending').length + ' pending' : '0 pending';
+                document.getElementById('totalCustomers').textContent = customerCount || '0';
+                document.getElementById('totalGst').textContent = '₹' + totalGst.toFixed(2);
+                document.getElementById('paidInvoices').textContent = paidCount;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Load Recent Invoices
+        async function loadRecentInvoices() {
+            try {
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('id, invoice_number, customer_id, total_amount, payment_status, invoice_date, customers(full_name)')
+                    .order('invoice_date', { ascending: false })
+                    .limit(10);
+
+                const container = document.getElementById('recentInvoicesContainer');
+
+                if (!invoices || invoices.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No invoices yet. Create your first invoice!</p></div>';
+                    return;
+                }
+
+                let html = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                invoices.forEach(inv => {
+                    const date = new Date(inv.invoice_date).toLocaleDateString('en-IN');
+                    const status = inv.payment_status === 'paid' ? 'badge-paid' : 'badge-pending';
+                    const statusText = inv.payment_status === 'paid' ? '✓ Paid' : '⏳ Pending';
+                    html += `
+                        <tr>
+                            <td><strong>${inv.invoice_number}</strong></td>
+                            <td>${inv.customers?.full_name || 'N/A'}</td>
+                            <td>₹${parseFloat(inv.total_amount || 0).toFixed(2)}</td>
+                            <td>${date}</td>
+                            <td><span class="badge ${status}">${statusText}</span></td>
+                            <td><a href="invoices.html?view=${inv.id}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">View</a></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading recent invoices:', error);
+            }
+        }
+
+        // Load All Invoices
+        async function loadAllInvoices() {
+            try {
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('id, invoice_number, customer_id, total_amount, payment_status, invoice_date, customers(full_name)')
+                    .order('invoice_date', { ascending: false });
+
+                const container = document.getElementById('allInvoicesContainer');
+
+                if (!invoices || invoices.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No invoices found</p></div>';
+                    return;
+                }
+
+                let html = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                invoices.forEach(inv => {
+                    const date = new Date(inv.invoice_date).toLocaleDateString('en-IN');
+                    const status = inv.payment_status === 'paid' ? 'badge-paid' : 'badge-pending';
+                    const statusText = inv.payment_status === 'paid' ? '✓ Paid' : '⏳ Pending';
+                    html += `
+                        <tr>
+                            <td><strong>${inv.invoice_number}</strong></td>
+                            <td>${inv.customers?.full_name || 'N/A'}</td>
+                            <td>₹${parseFloat(inv.total_amount || 0).toFixed(2)}</td>
+                            <td>${date}</td>
+                            <td><span class="badge ${status}">${statusText}</span></td>
+                            <td><a href="invoices.html?view=${inv.id}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">View</a></td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading all invoices:', error);
+            }
+        }
+
+        // Load Customers
+        async function loadCustomers() {
+            try {
+                const { data: customers } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                const container = document.getElementById('customersContainer');
+
+                if (!customers || customers.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>No customers added yet</p></div>';
+                    return;
+                }
+
+                let html = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile</th>
+                                <th>Email</th>
+                                <th>Company</th>
+                                <th>GSTIN</th>
+                                <th>Joined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                customers.forEach(cust => {
+                    const date = new Date(cust.created_at).toLocaleDateString('en-IN');
+                    html += `
+                        <tr>
+                            <td><strong>${cust.full_name}</strong></td>
+                            <td>${cust.mobile_no || '-'}</td>
+                            <td>${cust.email || '-'}</td>
+                            <td>${cust.company_name || '-'}</td>
+                            <td>${cust.gstin || '-'}</td>
+                            <td>${date}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading customers:', error);
+            }
+        }
+
+        // Load Charts
         async function loadCharts() {
             try {
-                // Trend Chart
-                const trendCtx = document.getElementById('trendChart').getContext('2d');
-                trendChart = new Chart(trendCtx, {
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('total_amount, payment_status')
+                    .order('invoice_date', { ascending: true });
+
+                // Revenue Chart
+                const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                const revenueData = [0, 0, 0, 0, 0, 0, 0];
+
+                if (invoices) {
+                    invoices.forEach(inv => {
+                        const dayOfWeek = new Date(inv.created_at || Date.now()).getDay();
+                        revenueData[dayOfWeek] = (revenueData[dayOfWeek] || 0) + parseFloat(inv.total_amount || 0);
+                    });
+                }
+
+                const ctxRevenue = document.getElementById('revenueChart');
+                if (revenueChart) revenueChart.destroy();
+                revenueChart = new Chart(ctxRevenue, {
                     type: 'line',
                     data: {
-                        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        datasets: [
-                            {
-                                label: 'Revenue (₹)',
-                                data: [15000, 22000, 28000, 35000, 42000, 45000],
-                                borderColor: '#1e40af',
-                                backgroundColor: 'rgba(30, 64, 175, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            },
-                            {
-                                label: 'GST Collection (₹)',
-                                data: [2700, 3960, 5040, 6300, 7560, 8100],
-                                borderColor: '#1e3a8a',
-                                backgroundColor: 'rgba(30, 58, 138, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            }
-                        ]
+                        labels: labels,
+                        datasets: [{
+                            label: 'Revenue (₹)',
+                            data: revenueData,
+                            borderColor: '#1e40af',
+                            backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#1e40af',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 5
+                        }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'bottom'
-                            }
-                        },
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
                         scales: {
-                            y: {
-                                beginAtZero: true
-                            }
+                            y: { beginAtZero: true, ticks: { callback: v => '₹' + v } }
                         }
                     }
                 });
 
-                // Payment Collection Chart
-                const paymentCtx = document.getElementById('paymentChart').getContext('2d');
-                paymentChart = new Chart(paymentCtx, {
-                    type: 'bar',
+                // Status Chart
+                const paid = invoices ? invoices.filter(i => i.payment_status === 'paid').length : 0;
+                const pending = invoices ? invoices.filter(i => i.payment_status === 'pending').length : 0;
+
+                const ctxStatus = document.getElementById('statusChart');
+                if (statusChart) statusChart.destroy();
+                statusChart = new Chart(ctxStatus, {
+                    type: 'doughnut',
                     data: {
-                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
-                        datasets: [
-                            {
-                                label: 'Collected (₹)',
-                                data: [8000, 12000, 15000, 18000, 22000],
-                                backgroundColor: '#10b981'
-                            },
-                            {
-                                label: 'Pending (₹)',
-                                data: [2000, 3000, 2000, 2500, 3000],
-                                backgroundColor: '#fbbf24'
-                            }
-                        ]
+                        labels: ['Paid', 'Pending'],
+                        datasets: [{
+                            data: [paid, pending],
+                            backgroundColor: ['#10b981', '#ef4444'],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                display: true,
-                                position: 'bottom'
-                            }
-                        },
-                        scales: {
-                            x: {
-                                stacked: false
-                            },
-                            y: {
-                                beginAtZero: true
-                            }
+                            legend: { position: 'bottom' }
                         }
                     }
                 });
-
-                // Services Breakdown
-                const servicesHtml = `
-                    <div class="service-item">
-                        <div class="service-name">Printing</div>
-                        <div class="service-bar"><div class="service-progress" style="width: 35%;"></div></div>
-                        <div class="service-amount">₹15750</div>
-                    </div>
-                    <div class="service-item">
-                        <div class="service-name">E-Stamping</div>
-                        <div class="service-bar"><div class="service-progress" style="width: 28%;"></div></div>
-                        <div class="service-amount">₹12600</div>
-                    </div>
-                    <div class="service-item">
-                        <div class="service-name">Compliance</div>
-                        <div class="service-bar"><div class="service-progress" style="width: 22%;"></div></div>
-                        <div class="service-amount">₹9900</div>
-                    </div>
-                    <div class="service-item">
-                        <div class="service-name">Documents</div>
-                        <div class="service-bar"><div class="service-progress" style="width: 15%;"></div></div>
-                        <div class="service-amount">₹6750</div>
-                    </div>
-                `;
-                document.getElementById('servicesBreakdown').innerHTML = servicesHtml;
             } catch (error) {
                 console.error('Error loading charts:', error);
             }
         }
 
-        async function loadInvoices() {
-            try {
-                const { data: invoices } = await supabase
-                    .from('invoices')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(10);
+        // Navigation
+        function setupNavigation() {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.page) {
+                    btn.addEventListener('click', function() {
+                        const page = this.dataset.page;
+                        document.querySelectorAll('[id$="-page"]').forEach(p => p.style.display = 'none');
+                        document.getElementById(page + '-page').style.display = 'block';
+                        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
 
-                const tbody = document.getElementById('invoicesTableBody');
-                if (invoices && invoices.length > 0) {
-                    tbody.innerHTML = invoices.map(inv => `
-                        <tr>
-                            <td>${inv.invoice_number}</td>
-                            <td>${inv.customer_name}</td>
-                            <td>₹${Math.round(inv.subtotal).toLocaleString('en-IN')}</td>
-                            <td>₹${Math.round(inv.gst_amount).toLocaleString('en-IN')}</td>
-                            <td>${new Date(inv.created_at).toLocaleDateString('en-IN', {day: '2-digit', month: 'short', year: 'numeric'})}</td>
-                            <td><span class="status-badge status-${inv.status}">${inv.status.toUpperCase()}</span></td>
-                            <td><a href="view-invoice.html?id=${inv.id}" style="color: #1e40af; text-decoration: none; font-weight: 600;">View</a></td>
-                        </tr>
-                    `).join('');
+                        if (page === 'invoices') loadAllInvoices();
+                        if (page === 'customers') loadCustomers();
+                    });
                 }
-            } catch (error) {
-                console.error('Error loading invoices:', error);
-            }
+            });
         }
 
-        async function loadPendingInvoices() {
-            try {
-                const { data: invoices } = await supabase
-                    .from('invoices')
-                    .select('*')
-                    .eq('status', 'pending')
-                    .limit(6);
-
-                const container = document.getElementById('pendingInvoicesContainer');
-                if (invoices && invoices.length > 0) {
-                    container.innerHTML = invoices.map(inv => `
-                        <div class="invoice-card">
-                            <div class="invoice-number">${inv.invoice_number}</div>
-                            <div class="invoice-customer">${inv.customer_name}</div>
-                            <div class="invoice-amount">₹${Math.round(inv.total).toLocaleString('en-IN')}</div>
-                            <div class="invoice-actions">
-                                <button class="invoice-btn complete" onclick="markComplete('${inv.id}')">✓ Complete</button>
-                                <button class="invoice-btn send">📧 Send</button>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><p>No pending invoices</p></div>';
-                }
-            } catch (error) {
-                console.error('Error loading pending invoices:', error);
-            }
+        // Logout
+        function logout(e) {
+            e.preventDefault();
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
         }
 
-        async function loadActivityLog() {
-            try {
-                const { data: activities } = await supabase
-                    .from('invoices')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(5);
-
-                const activityContainer = document.getElementById('activityLog');
-                if (activities && activities.length > 0) {
-                    activityContainer.innerHTML = activities.map(act => {
-                        const date = new Date(act.created_at);
-                        const now = new Date();
-                        const diff = Math.floor((now - date) / 1000);
-                        let timeAgo = 'Just now';
-                        if (diff > 3600) timeAgo = `${Math.floor(diff / 3600)}h ago`;
-                        else if (diff > 60) timeAgo = `${Math.floor(diff / 60)}m ago`;
-
-                        return `
-                            <div class="activity-item">
-                                <div class="activity-icon">📄</div>
-                                <div class="activity-content">
-                                    <div class="activity-description">Invoice ${act.invoice_number} created for ${act.customer_name}</div>
-                                    <div class="activity-meta">₹${Math.round(act.total)} • ${timeAgo}</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-            } catch (error) {
-                console.error('Error loading activity log:', error);
-            }
-        }
-
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                localStorage.removeItem('user');
-                window.location.href = 'index.html';
-            }
-        }
-
-        function exportPDF() {
-            const element = document.querySelector('.container');
-            const opt = {
-                margin: 10,
-                filename: 'Dashboard_Report.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-            html2pdf().set(opt).from(element).save();
-        }
-
-        async function markComplete(invoiceId) {
-            try {
-                const { error } = await supabase
-                    .from('invoices')
-                    .update({ status: 'paid' })
-                    .eq('id', invoiceId);
-
-                if (error) throw error;
-                alert('Invoice marked as paid!');
-                await loadDashboardData();
-                await loadInvoices();
-                await loadPendingInvoices();
-            } catch (error) {
-                console.error('Error updating invoice:', error);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
+        init();
     </script>
 </body>
 </html>
