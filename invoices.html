@@ -1551,7 +1551,7 @@
         // CUSTOMER LOOKUP
         // ============================================================================
         async function handleCustomerLookup() {
-            console.log('🔍 handleCustomerLookup CALLED!');
+            console.log('🔍 handleCustomerLookup CALLED! Current mobile:', document.getElementById('customerMobile').value);
             const mobile = document.getElementById('customerMobile').value.trim();
 
             if (mobile.length !== 10) {
@@ -2119,11 +2119,22 @@
         // ============================================================================
         // SAVE INVOICE
         // ============================================================================
-        window.saveInvoice = async function() {
+                window.saveInvoice = async function() {
             if (isSaving) return;
 
             const mobile = document.getElementById('customerMobile').value.trim();
             const customerName = document.getElementById('customerName').value.trim();
+
+            // ============================================================================
+            // FIX #2: AUTO-TRIGGER CUSTOMER LOOKUP IF NOT RUN YET
+            // ============================================================================
+            if (!isCustomerNew && !selectedCustomer && mobile.length === 10) {
+                console.log('⚠️ Customer lookup not run yet - triggering now...');
+                await handleCustomerLookup();
+                // Small delay to ensure lookup completes
+                await new Promise(resolve => setTimeout(resolve, 150));
+                console.log('✅ Auto-lookup complete. isCustomerNew:', isCustomerNew);
+            }
 
             // Validation
             if (mobile.length !== 10) {
@@ -2564,6 +2575,25 @@ console.log('✅ Proceeding with customer ID:', customerId);
             div.textContent = str;
             return div.innerHTML;
         }
+        // ============================================================================
+        // FIX #1: FORCE EVENT LISTENER FOR CUSTOMER LOOKUP
+        // ============================================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Setting up customer lookup event listener...');
+            
+            const mobileInput = document.getElementById('customerMobile');
+            
+            if (mobileInput) {
+                mobileInput.addEventListener('blur', async function() {
+                    console.log('🔍 BLUR EVENT FIRED on customerMobile!');
+                    await handleCustomerLookup();
+                });
+                
+                console.log('✅ Event listener attached to customerMobile');
+            } else {
+                console.error('❌ customerMobile input not found!');
+            }
+        });
     </script>
 </body>
 </html>
