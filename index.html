@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --success-green: #10b981;
+            --success-light: #d1fae5;
+            --error-red: #ef4444;
+            --error-light: #fee2e2;
+            --warning-orange: #f59e0b;
+            --warning-light: #fef3c7;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --dark-text: #f1f5f9;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-light) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-surface) 100%);
+        }
+
+        /* Floating blob animations */
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(30px, -30px); }
+            50% { transform: translate(0, -50px); }
+            75% { transform: translate(-30px, -30px); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-40px, 40px); }
+            50% { transform: translate(0, 50px); }
+            75% { transform: translate(40px, 40px); }
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(40px);
+        }
+
+        .blob1 {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -100px;
+            left: -100px;
+            animation: float1 6s ease-in-out infinite;
+        }
+
+        .blob2 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -100px;
+            right: -100px;
+            animation: float2 8s ease-in-out infinite;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 1200px;
+            width: 100%;
+            gap: 40px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            color: white;
+            text-align: center;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                display: none;
+            }
+        }
+
+        .logo-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.6)); }
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            animation: rotate 40s linear infinite;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+        }
+
+        .logo-pulse {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            animation: pulse-glow 2s ease-in-out infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .hero p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            animation: slideInLeft 0.8s ease-out 0.2s both;
+        }
+
+        .services {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: slideInLeft 1s ease-out 0.4s both;
+        }
+
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+
+        .service-item:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .service-item::after {
+            content: '→';
+            margin-left: auto;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .service-item:hover::after {
+            opacity: 1;
+        }
+
+        /* Form Section */
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        body.dark-mode .form-container {
+            background: var(--dark-surface);
+            color: var(--dark-text);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            animation: slideInRight 0.6s ease-out;
+        }
+
+        body.dark-mode .form-header h2 {
+            color: var(--primary-light);
+        }
+
+        .form-header p {
+            color: var(--gray);
+            font-size: 14px;
+            animation: slideInRight 0.6s ease-out 0.1s both;
+        }
+
+        body.dark-mode .form-header p {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-light);
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        body.dark-mode .step-number {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .step.active .step-number {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 0 0 8px rgba(30, 64, 175, 0.2);
+            animation: stepBounce 0.6s ease-out;
+        }
+
+        .step.completed .step-number {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .step.completed .step-number::after {
+            content: '✓';
+            position: absolute;
+            animation: checkmark 0.6s ease-out;
+        }
+
+        .step-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        body.dark-mode .step-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .step.active .step-label {
+            color: var(--primary-blue);
+        }
+
+        body.dark-mode .step.active .step-label {
+            color: var(--primary-light);
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--gray-light);
+            margin-top: 8px;
+            transition: background 0.4s;
+        }
+
+        body.dark-mode .step-line {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .step-line.completed {
+            background: var(--success-green);
+        }
+
+        @keyframes stepBounce {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(0) rotate(-45deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 24px;
+            animation: slideInRight 1s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .form-group:nth-child(3) { animation-delay: 0.2s; }
+        .form-group:nth-child(4) { animation-delay: 0.3s; }
+        .form-group:nth-child(5) { animation-delay: 0.4s; }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            color: var(--gray);
+        }
+
+        body.dark-mode .form-group label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+            color: #000;
+        }
+
+        body.dark-mode .form-group input {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: var(--dark-text);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .form-group input:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-group input:valid:not(:placeholder-shown) {
+            border-color: var(--success-green);
+        }
+
+        .form-group input:invalid:not(:placeholder-shown) {
+            border-color: var(--error-red);
+        }
+
+        /* Validation Feedback */
+        .validation-feedback {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 12px;
+            min-height: 20px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .feedback-icon {
+            font-size: 14px;
+        }
+
+        .feedback-valid {
+            color: var(--success-green);
+        }
+
+        .feedback-invalid {
+            color: var(--error-red);
+        }
+
+        /* Remember Me */
+        .form-group.checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .form-group.checkbox-group input[type="checkbox"] {
+            width: auto;
+            cursor: pointer;
+            accent-color: var(--primary-blue);
+        }
+
+        .form-group.checkbox-group label {
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 14px;
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray);
+            border: 1px solid var(--gray);
+        }
+
+        body.dark-mode .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--dark-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-light);
+            color: white;
+            border-color: var(--primary-light);
+        }
+
+        button.loading {
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error/Success Messages */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .alert-icon {
+            font-size: 18px;
+        }
+
+        .alert-error {
+            background: var(--error-light);
+            color: var(--error-red);
+            border: 1px solid var(--error-red);
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+        }
+
+        body.dark-mode .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        body.dark-mode .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Forgot PIN Link */
+        .forgot-pin {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .forgot-pin a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        body.dark-mode .forgot-pin a {
+            color: var(--primary-light);
+        }
+
+        .forgot-pin a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        body.dark-mode .security-badge {
+            color: rgba(255, 255, 255, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .lock-icon {
+            font-size: 14px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            animation: modalSlideUp 0.4s ease-out;
+            position: relative;
+        }
+
+        body.dark-mode .modal-content {
+            background: var(--dark-surface);
+            color: var(--dark-text);
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        body.dark-mode .modal-header h3 {
+            color: var(--primary-light);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 0;
+            width: auto;
+            height: auto;
+            transition: transform 0.3s;
+        }
+
+        .modal-close:hover {
+            transform: rotate(90deg);
+            color: var(--error-red);
+        }
+
+        /* Top Controls */
+        .top-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        /* Language Menu */
+        .language-menu {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 11;
+        }
+
+        body.dark-mode .language-menu {
+            background: var(--dark-surface);
+        }
+
+        .language-menu.show {
+            display: flex;
+        }
+
+        .language-option {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--gray);
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        body.dark-mode .language-option {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .language-option:hover {
+            background: var(--gray-light);
+            color: var(--primary-blue);
+        }
+
+        body.dark-mode .language-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-light);
+        }
+
+        .language-option.active {
+            background: var(--primary-light);
+            color: white;
+            font-weight: 600;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: more) {
+            body {
+                filter: contrast(1.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating blobs -->
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <!-- Top Controls -->
+    <div class="top-controls">
+        <button class="control-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle Dark Mode">
+            ☀️
+        </button>
+        <button class="control-btn" id="languageBtn" aria-label="Select language" title="Select Language">
+            🌐
+        </button>
+    </div>
+
+    <!-- Language Menu -->
+    <div class="language-menu" id="languageMenu">
+        <button class="language-option active" data-lang="en">
+            <span>🇬🇧</span> English
+        </button>
+        <button class="language-option" data-lang="hi">
+            <span>🇮🇳</span> हिंदी
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="logo-wrapper">
+                <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dream Harbour logo">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:white;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <!-- Document shape -->
+                    <rect x="25" y="15" width="50" height="70" rx="5" fill="url(#logoGradient)" stroke="white" stroke-width="1"/>
+                    <!-- Wave pattern -->
+                    <path d="M 30 40 Q 35 35 40 40 T 50 40 T 60 40 T 70 40" stroke="white" stroke-width="2" fill="none"/>
+                    <path d="M 30 50 Q 35 45 40 50 T 50 50 T 60 50 T 70 50" stroke="white" stroke-width="2" fill="none"/>
+                    <!-- Checkmark -->
+                    <path d="M 35 60 L 45 70 L 65 50" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="logo-pulse"></div>
+            </div>
+            <h1 id="heroTitle">Dream Harbour</h1>
+            <p id="heroTagline">Secure, Fast & Reliable Invoicing</p>
+            <div class="services">
+                <div class="service-item"><span id="service1">✓ Instant Invoicing</span></div>
+                <div class="service-item"><span id="service2">✓ Secure Payments</span></div>
+                <div class="service-item"><span id="service3">✓ Real-time Tracking</span></div>
+            </div>
+        </div>
+
+        <!-- Form Section -->
+        <div class="form-container">
+            <div class="form-header">
+                <h2 id="formTitle">Sign In</h2>
+                <p id="formSubtitle">Two-step verification for security</p>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <span class="step-label" id="stepLabel1">Phone</span>
+                </div>
+                <div class="step-line" id="stepLine"></div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <span class="step-label" id="stepLabel2">PIN</span>
+                </div>
+            </div>
+
+            <!-- Alerts -->
+            <div id="alertContainer"></div>
+
+            <!-- Step 1: Phone Form -->
+            <form id="phoneForm" class="form-step active">
+                <div class="form-group">
+                    <label for="phoneInput" id="phoneLabel">Phone Number</label>
+                    <input
+                        type="tel"
+                        id="phoneInput"
+                        placeholder="10-digit mobile number"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        inputmode="numeric"
+                        autocomplete="tel"
+                        required
+                        aria-label="Enter 10-digit phone number"
+                        aria-describedby="phoneFeedback"
+                    />
+                    <div class="validation-feedback" id="phoneFeedback"></div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input
+                        type="checkbox"
+                        id="rememberMe"
+                        aria-label="Remember my phone number"
+                    />
+                    <label for="rememberMe" id="rememberLabel">Remember phone number</label>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="phoneSubmitBtn" aria-label="Proceed to PIN entry">
+                        <span id="phoneSubmitText">Next</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Step 2: PIN Form -->
+            <form id="pinForm" class="form-step" style="display: none;">
+                <div class="form-group">
+                    <label for="pinInput" id="pinLabel">Security PIN</label>
+                    <input
+                        type="password"
+                        id="pinInput"
+                        placeholder="6-digit PIN"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        inputmode="numeric"
+                        autocomplete="off"
+                        required
+                        aria-label="Enter 6-digit security PIN"
+                        aria-describedby="pinFeedback"
+                    />
+                    <div class="validation-feedback" id="pinFeedback"></div>
+                </div>
+
+                <div class="forgot-pin" id="forgotPinContainer">
+                    <a href="#" id="forgotPinLink" aria-label="Forgot your PIN? Click to recover">Forgot PIN?</a>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn-secondary" id="backBtn" aria-label="Go back to phone entry">
+                        <span id="backText">Back</span>
+                    </button>
+                    <button type="submit" class="btn-primary" id="pinSubmitBtn" aria-label="Sign in with phone and PIN">
+                        <span id="signInText">Sign In</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <span class="lock-icon">🔒</span>
+                <span id="securityText">Your data is encrypted and secure</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot PIN Modal -->
+    <div class="modal" id="forgotPinModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Recover PIN</h3>
+                <button class="modal-close" id="closeModal" aria-label="Close modal">×</button>
+            </div>
+            <form id="recoveryForm">
+                <div class="form-group">
+                    <label for="recoveryPhone" id="recoveryPhoneLabel">Phone Number</label>
+                    <input
+                        type="tel"
+                        id="recoveryPhone"
+                        placeholder="10-digit mobile number"
+                        maxlength="10"
+                        pattern="[0-9]{10}"
+                        inputmode="numeric"
+                        required
+                        aria-label="Enter phone number for PIN recovery"
+                    />
+                </div>
+                <button type="submit" class="btn-primary" id="recoverySubmitBtn" aria-label="Send recovery code">
+                    <span id="recoveryBtnText">Send Recovery Code</span>
+                </button>
+            </form>
+            <div id="recoveryMessage" style="display: none; margin-top: 16px; padding: 12px; background: var(--success-light); border-radius: 8px; color: var(--success-green); text-align: center; font-size: 14px;">
+                <span id="recoveryMessageText">Recovery code sent to your phone</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                heroTitle: 'Dream Harbour',
+                heroTagline: 'Secure, Fast & Reliable Invoicing',
+                service1: '✓ Instant Invoicing',
+                service2: '✓ Secure Payments',
+                service3: '✓ Real-time Tracking',
+                formTitle: 'Sign In',
+                formSubtitle: 'Two-step verification for security',
+                stepLabel1: 'Phone',
+                stepLabel2: 'PIN',
+                phoneLabel: 'Phone Number',
+                phonePlaceholder: '10-digit mobile number',
+                rememberLabel: 'Remember phone number',
+                phoneSubmitText: 'Next',
+                pinLabel: 'Security PIN',
+                pinPlaceholder: '6-digit PIN',
+                backText: 'Back',
+                signInText: 'Sign In',
+                securityText: 'Your data is encrypted and secure',
+                modalTitle: 'Recover PIN',
+                recoveryPhoneLabel: 'Phone Number',
+                recoveryPhonePlaceholder: '10-digit mobile number',
+                recoveryBtnText: 'Send Recovery Code',
+                recoveryMessageText: 'Recovery code sent to your phone',
+                errorPhoneRequired: 'E001: Phone number is required',
+                errorPhoneInvalid: 'E002: Invalid phone number format',
+                errorPhoneNumeric: 'E003: Only numbers allowed',
+                errorPinRequired: 'E004: PIN is required',
+                errorPinLength: 'E005: PIN must be exactly 6 digits',
+                errorInvalidCredentials: 'E006: Invalid phone or PIN',
+                errorConnection: 'E007: Connection error',
+                successPhoneValidated: 'Phone number validated ✓',
+                successPinValidated: 'PIN validated ✓',
+            },
+            hi: {
+                heroTitle: 'ड्रीम हार्बर',
+                heroTagline: 'सुरक्षित, तेज़ और विश्वसनीय इनवॉइसिंग',
+                service1: '✓ तात्कालिक इनवॉइसिंग',
+                service2: '✓ सुरक्षित भुगतान',
+                service3: '✓ रीयल-टाइम ट्रैकिंग',
+                formTitle: 'साइन इन करें',
+                formSubtitle: 'सुरक्षा के लिए दो-चरणीय सत्यापन',
+                stepLabel1: 'फोन',
+                stepLabel2: 'PIN',
+                phoneLabel: 'फोन नंबर',
+                phonePlaceholder: '10-अंकीय मोबाइल नंबर',
+                rememberLabel: 'फोन नंबर याद रखें',
+                phoneSubmitText: 'अगला',
+                pinLabel: 'सुरक्षा PIN',
+                pinPlaceholder: '6-अंकीय PIN',
+                backText: 'वापस',
+                signInText: 'साइन इन करें',
+                securityText: 'आपका डेटा एन्क्रिप्ट और सुरक्षित है',
+                modalTitle: 'PIN पुनः प्राप्त करें',
+                recoveryPhoneLabel: 'फोन नंबर',
+                recoveryPhonePlaceholder: '10-अंकीय मोबाइल नंबर',
+                recoveryBtnText: 'पुनः प्राप्ति कोड भेजें',
+                recoveryMessageText: 'आपके फोन को पुनः प्राप्ति कोड भेजा गया',
+                errorPhoneRequired: 'E001: फोन नंबर आवश्यक है',
+                errorPhoneInvalid: 'E002: अमान्य फोन नंबर प्रारूप',
+                errorPhoneNumeric: 'E003: केवल संख्याएं अनुमत हैं',
+                errorPinRequired: 'E004: PIN आवश्यक है',
+                errorPinLength: 'E005: PIN बिल्कुल 6 अंकों का होना चाहिए',
+                errorInvalidCredentials: 'E006: अमान्य फोन या PIN',
+                errorConnection: 'E007: कनेक्शन त्रुटि',
+                successPhoneValidated: 'फोन नंबर सत्यापित ✓',
+                successPinValidated: 'PIN सत्यापित ✓',
+            }
+        };
+
+        // State
+        let currentLanguage = localStorage.getItem('language') || 'en';
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let currentPhone = '';
+        let currentStep = 1;
+
+        // Initialize Supabase (add your credentials)
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+        // Initialize
+        function init() {
+            applyTheme();
+            applyLanguage();
+            setupEventListeners();
+            restorePhoneIfRemembered();
+            announcePageLoad();
+        }
+
+        // Theme Management
+        function applyTheme() {
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').textContent = '🌙';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeToggle').textContent = '☀️';
+            }
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('theme', currentTheme);
+            applyTheme();
+        }
+
+        // Language Management
+        function applyLanguage() {
+            const trans = translations[currentLanguage];
+            document.getElementById('heroTitle').textContent = trans.heroTitle;
+            document.getElementById('heroTagline').textContent = trans.heroTagline;
+            document.getElementById('service1').textContent = trans.service1;
+            document.getElementById('service2').textContent = trans.service2;
+            document.getElementById('service3').textContent = trans.service3;
+            document.getElementById('formTitle').textContent = trans.formTitle;
+            document.getElementById('formSubtitle').textContent = trans.formSubtitle;
+            document.getElementById('stepLabel1').textContent = trans.stepLabel1;
+            document.getElementById('stepLabel2').textContent = trans.stepLabel2;
+            document.getElementById('phoneLabel').textContent = trans.phoneLabel;
+            document.getElementById('phoneInput').placeholder = trans.phonePlaceholder;
+            document.getElementById('rememberLabel').textContent = trans.rememberLabel;
+            document.getElementById('phoneSubmitText').textContent = trans.phoneSubmitText;
+            document.getElementById('pinLabel').textContent = trans.pinLabel;
+            document.getElementById('pinInput').placeholder = trans.pinPlaceholder;
+            document.getElementById('backText').textContent = trans.backText;
+            document.getElementById('signInText').textContent = trans.signInText;
+            document.getElementById('securityText').textContent = trans.securityText;
+            document.getElementById('modalTitle').textContent = trans.modalTitle;
+            document.getElementById('recoveryPhoneLabel').textContent = trans.recoveryPhoneLabel;
+            document.getElementById('recoveryPhone').placeholder = trans.recoveryPhonePlaceholder;
+            document.getElementById('recoveryBtnText').textContent = trans.recoveryBtnText;
+            document.getElementById('recoveryMessageText').textContent = trans.recoveryMessageText;
+
+            updateLanguageMenu();
+        }
+
+        function updateLanguageMenu() {
+            document.querySelectorAll('.language-option').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.lang === currentLanguage) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Form Validation
+        function validatePhone(phone) {
+            if (!phone) return { valid: false, error: 'errorPhoneRequired' };
+            if (!/^\d{10}$/.test(phone)) return { valid: false, error: 'errorPhoneInvalid' };
+            return { valid: true };
+        }
+
+        function validatePin(pin) {
+            if (!pin) return { valid: false, error: 'errorPinRequired' };
+            if (!/^\d{6}$/.test(pin)) return { valid: false, error: 'errorPinLength' };
+            return { valid: true };
+        }
+
+        // Real-time Phone Validation
+        document.getElementById('phoneInput').addEventListener('input', function() {
+            const phone = this.value;
+            const feedback = document.getElementById('phoneFeedback');
+            const validation = validatePhone(phone);
+
+            if (phone.length === 0) {
+                feedback.innerHTML = '';
+            } else if (validation.valid) {
+                feedback.innerHTML = `<span class="feedback-icon">✓</span><span class="feedback-valid">${translations[currentLanguage].successPhoneValidated}</span>`;
+            } else {
+                feedback.innerHTML = '';
+            }
+        });
+
+        // Real-time PIN Validation
+        document.getElementById('pinInput').addEventListener('input', function() {
+            const pin = this.value;
+            const feedback = document.getElementById('pinFeedback');
+            const validation = validatePin(pin);
+
+            if (pin.length === 0) {
+                feedback.innerHTML = '';
+            } else if (validation.valid) {
+                feedback.innerHTML = `<span class="feedback-icon">✓</span><span class="feedback-valid">${translations[currentLanguage].successPinValidated}</span>`;
+            } else {
+                feedback.innerHTML = '';
+            }
+        });
+
+        // Phone Form Submit
+        document.getElementById('phoneForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            currentPhone = document.getElementById('phoneInput').value;
+            const validation = validatePhone(currentPhone);
+
+            if (!validation.valid) {
+                showAlert('error', translations[currentLanguage][validation.error]);
+                return;
+            }
+
+            if (document.getElementById('rememberMe').checked) {
+                localStorage.setItem('rememberedPhone', currentPhone);
+            } else {
+                localStorage.removeItem('rememberedPhone');
+            }
+
+            proceedToStep2();
+        });
+
+        // PIN Form Submit
+        document.getElementById('pinForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const pin = document.getElementById('pinInput').value;
+            const validation = validatePin(pin);
+
+            if (!validation.valid) {
+                showAlert('error', translations[currentLanguage][validation.error]);
+                return;
+            }
+
+            await authenticateUser(currentPhone, pin);
+        });
+
+        // Authenticate User
+        async function authenticateUser(phone, pin) {
+            const btn = document.getElementById('pinSubmitBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                // Simulated authentication
+                // Replace with actual Supabase authentication
+                await simulateDelay(1500);
+
+                // For demo, accept test credentials
+                if (phone === '9999999999' && pin === '123456') {
+                    showAlert('success', 'Login successful! Redirecting...');
+                    localStorage.setItem('user', JSON.stringify({ phone, timestamp: Date.now() }));
+
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                } else {
+                    showAlert('error', translations[currentLanguage].errorInvalidCredentials);
+                }
+            } catch (error) {
+                showAlert('error', translations[currentLanguage].errorConnection);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // Utility Functions
+        function proceedToStep2() {
+            document.getElementById('phoneForm').style.display = 'none';
+            document.getElementById('pinForm').style.display = 'block';
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('stepLine').classList.add('completed');
+            currentStep = 2;
+            document.getElementById('pinInput').focus();
+            announceStep(2);
+        }
+
+        function backToStep1() {
+            document.getElementById('pinForm').style.display = 'none';
+            document.getElementById('phoneForm').style.display = 'block';
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step1').classList.remove('completed');
+            document.getElementById('stepLine').classList.remove('completed');
+            document.getElementById('pinInput').value = '';
+            currentStep = 1;
+            document.getElementById('phoneInput').focus();
+            announceStep(1);
+        }
+
+        function showAlert(type, message) {
+            const container = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            const icon = type === 'error' ? '❌' : '✅';
+            alertDiv.innerHTML = `<span class="alert-icon">${icon}</span><span>${message}</span>`;
+            alertDiv.setAttribute('role', 'alert');
+            alertDiv.setAttribute('aria-live', 'assertive');
+
+            container.innerHTML = '';
+            container.appendChild(alertDiv);
+
+            if (type === 'success') {
+                setTimeout(() => alertDiv.remove(), 3000);
+            }
+        }
+
+        function simulateDelay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function restorePhoneIfRemembered() {
+            const remembered = localStorage.getItem('rememberedPhone');
+            if (remembered) {
+                document.getElementById('phoneInput').value = remembered;
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+
+        function announcePageLoad() {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            announcement.textContent = `Dream Harbour login page loaded. ${translations[currentLanguage].formSubtitle}`;
+            announcement.style.position = 'absolute';
+            announcement.style.left = '-9999px';
+            document.body.appendChild(announcement);
+        }
+
+        function announceStep(step) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            const stepName = step === 1 ? translations[currentLanguage].stepLabel1 : translations[currentLanguage].stepLabel2;
+            announcement.textContent = `Step ${step} of 2: ${stepName}`;
+            announcement.style.position = 'absolute';
+            announcement.style.left = '-9999px';
+            document.body.appendChild(announcement);
+
+            setTimeout(() => announcement.remove(), 1000);
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.getElementById('languageBtn').addEventListener('click', toggleLanguageMenu);
+            document.getElementById('backBtn').addEventListener('click', backToStep1);
+
+            document.querySelectorAll('.language-option').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentLanguage = this.dataset.lang;
+                    localStorage.setItem('language', currentLanguage);
+                    applyLanguage();
+                    document.getElementById('languageMenu').classList.remove('show');
+                });
+            });
+
+            document.getElementById('forgotPinLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('forgotPinModal').classList.add('show');
+                document.getElementById('recoveryPhone').focus();
+            });
+
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('forgotPinModal').classList.remove('show');
+            });
+
+            document.getElementById('recoveryForm').addEventListener('submit', handleRecovery);
+
+            // Close language menu on click outside
+            document.addEventListener('click', function(e) {
+                const menu = document.getElementById('languageMenu');
+                const btn = document.getElementById('languageBtn');
+                if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.remove('show');
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('forgotPinModal').classList.remove('show');
+                    document.getElementById('languageMenu').classList.remove('show');
+                }
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    const menu = document.getElementById('languageMenu');
+                    if (menu.classList.contains('show')) {
+                        e.preventDefault();
+                        const options = document.querySelectorAll('.language-option');
+                        const active = document.querySelector('.language-option.active');
+                        const index = Array.from(options).indexOf(active);
+                        const newIndex = e.key === 'ArrowUp' 
+                            ? Math.max(0, index - 1) 
+                            : Math.min(options.length - 1, index + 1);
+                        options[newIndex].click();
+                    }
+                }
+            });
+        }
+
+        function toggleLanguageMenu() {
+            const menu = document.getElementById('languageMenu');
+            menu.classList.toggle('show');
+        }
+
+        async function handleRecovery(e) {
+            e.preventDefault();
+            const phone = document.getElementById('recoveryPhone').value;
+            const validation = validatePhone(phone);
+
+            if (!validation.valid) {
+                showAlert('error', translations[currentLanguage][validation.error]);
+                return;
+            }
+
+            const btn = document.getElementById('recoverySubmitBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                await simulateDelay(1000);
+                document.getElementById('recoveryForm').style.display = 'none';
+                document.getElementById('recoveryMessage').style.display = 'block';
+
+                setTimeout(() => {
+                    document.getElementById('forgotPinModal').classList.remove('show');
+                    document.getElementById('recoveryForm').style.display = 'block';
+                    document.getElementById('recoveryMessage').style.display = 'none';
+                    document.getElementById('recoveryPhone').value = '';
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }, 2500);
+            } catch (error) {
+                showAlert('error', translations[currentLanguage].errorConnection);
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
