@@ -2150,37 +2150,71 @@
             try {
                 let customerId;
 
-                // Save/Update Customer
-                if (isCustomerNew || isCustomerEdited) {
-                    const customerData = {
-                        mobile_no: mobile,
-                        full_name: customerName,
-                        company_name: document.getElementById('customerCompany').value.trim() || null,
-                        gstin: document.getElementById('customerGSTIN').value.trim() || null,
-                        address: document.getElementById('customerAddress').value.trim() || null
-                    };
+                // Save/Update Customer - FIXED VERSION
+console.log('💾 Save flow - isCustomerNew:', isCustomerNew, 'isCustomerEdited:', isCustomerEdited, 'selectedCustomer:', selectedCustomer);
 
-                    if (isCustomerNew) {
-                        const { data: newCustomer, error } = await supabase
-                            .from('customers')
-                            .insert([customerData])
-                            .select()
-                            .single();
+// Prepare customer data
+const customerData = {
+    mobile_no: mobile,
+    full_name: customerName,
+    company_name: document.getElementById('customerCompany').value.trim() || null,
+    gstin: document.getElementById('customerGSTIN').value.trim() || null,
+    address: document.getElementById('customerAddress').value.trim() || null
+};
 
-                        if (error) throw error;
-                        customerId = newCustomer.id;
-                    } else if (isCustomerEdited && selectedCustomer) {
-                        const { error } = await supabase
-                            .from('customers')
-                            .update(customerData)
-                            .eq('id', selectedCustomer.id);
+if (isCustomerNew) {
+    // CREATE NEW CUSTOMER
+    console.log('🆕 Creating new customer with data:', customerData);
+    
+    const { data: newCustomer, error } = await supabase
+        .from('customers')
+        .insert([customerData])
+        .select()
+        .single();
 
-                        if (error) throw error;
-                        customerId = selectedCustomer.id;
-                    }
-                } else {
-                    customerId = selectedCustomer.id;
-                }
+    if (error) {
+        console.error('❌ Error creating customer:', error);
+        throw error;
+    }
+    
+    customerId = newCustomer.id;
+    console.log('✅ New customer created with ID:', customerId);
+    
+} else if (isCustomerEdited && selectedCustomer) {
+    // UPDATE EXISTING CUSTOMER
+    console.log('✏️ Updating customer ID:', selectedCustomer.id);
+    
+    const { error } = await supabase
+        .from('customers')
+        .update(customerData)
+        .eq('id', selectedCustomer.id);
+
+    if (error) {
+        console.error('❌ Error updating customer:', error);
+        throw error;
+    }
+    
+    customerId = selectedCustomer.id;
+    console.log('✅ Customer updated, ID:', customerId);
+    
+} else if (selectedCustomer && selectedCustomer.id) {
+    // USE EXISTING CUSTOMER (NO CHANGES)
+    customerId = selectedCustomer.id;
+    console.log('✅ Using existing customer ID:', customerId);
+    
+} else {
+    // ERROR - NO CUSTOMER AVAILABLE
+    console.error('❌ No customer available!', {isCustomerNew, isCustomerEdited, selectedCustomer});
+    throw new Error('Customer information is missing. Please search for customer or enter details.');
+}
+
+// Verify customerId is valid
+if (!customerId) {
+    throw new Error('Failed to get customer ID. Please try again.');
+}
+
+console.log('✅ Proceeding with customer ID:', customerId);
+
 
                 // Calculate Totals
                 let subtotal = 0;
