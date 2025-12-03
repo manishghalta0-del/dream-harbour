@@ -907,7 +907,10 @@
                 container.innerHTML = data.map(cat => `
                     <div class="service-category">
                         <div class="category-header">
-                            <h3>${cat.category_name}</h3>
+                            <div>
+                                <h3>${cat.category_name}</h3>
+                                ${cat.description ? `<p style="font-size: 12px; margin-top: 5px; opacity: 0.9;">${cat.description}</p>` : ''}
+                            </div>
                             <div class="action-buttons">
                                 <button class="btn-primary btn-sm btn-icon" onclick="window.editCategory('${cat.id}')">✏️</button>
                                 <button class="btn-danger btn-sm btn-icon" onclick="window.deleteCategory('${cat.id}')">🗑️</button>
