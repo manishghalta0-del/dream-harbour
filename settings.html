@@ -105,7 +105,7 @@
 
         @keyframes fadeIn {
             from { opacity: 0; }
-            to { opacity 1; }
+            to { opacity: 1; }
         }
 
         .card {
@@ -248,8 +248,10 @@
         }
 
         .btn-icon {
-            padding: 8px 12px;
+            padding: 16px;
             font-size: 16px;
+            min-width: 48px;
+            min-height: 48px;
         }
 
         .alert {
@@ -617,10 +619,117 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: var(--gray-lighter);
+            color: var(--primary-blue);
+        }
+
+        .nav-links a.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        /* Skeleton Loader */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text {
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-card {
+            height: 100px;
+            margin-bottom: 15px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 10px;
+            }
+            .nav-links a {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Navigation Bar -->
+        <nav class="nav-bar">
+            <div class="logo">⚓ Dream Harbour</div>
+            <div class="nav-links">
+                <a href="dashboard.html">📊 Dashboard</a>
+                <a href="invoices.html">📄 Invoices</a>
+                <a href="settings.html" class="active">⚙️ Settings</a>
+            </div>
+        </nav>
         <!-- Header -->
         <div class="header">
             <h1>⚙️ Settings Pro</h1>
@@ -702,7 +811,13 @@
                 <div id="servicesAlert"></div>
                 <div class="section-header">
                     <h2>🛠️ Service Configuration</h2>
-                    <button class="btn-primary btn-sm" id="addServiceBtn">➕ Add Primary Service</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-secondary btn-sm" id="exportServicesBtn">📥 Export CSV</button>
+                        <button class="btn-primary btn-sm" id="addServiceBtn">➕ Add Primary Service</button>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <input type="search" id="serviceSearch" placeholder="Search services by name, SAC code, or category...">
                 </div>
                 <div class="service-tree" id="serviceTree"></div>
             </div>
@@ -833,13 +948,47 @@
         let currentCategoryId = null;
         let currentServiceId = null;
         let isEditMode = false;
+        let allServices = [];
+        let allCategories = [];
+        let allSubServices = [];
 
         // Initialize
         async function init() {
             setupEventListeners();
+            showLoadingState();
             await loadBusinessInfo();
             await loadCategories();
             await loadServiceTree();
+            hideLoadingState();
+        }
+
+        // Loading States
+        function showLoadingState() {
+            const trees = document.querySelectorAll('#serviceTree, #categoriesList');
+            trees.forEach(tree => {
+                tree.innerHTML = `
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                    <div class="skeleton skeleton-card"></div>
+                `;
+            });
+        }
+
+        function hideLoadingState() {
+            // Loading complete - content already rendered
+        }
+
+        function setButtonLoading(button, loading) {
+            if (loading) {
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                button.dataset.originalText = button.textContent;
+                button.textContent = '';
+            } else {
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                button.textContent = button.dataset.originalText || button.textContent;
+            }
         }
 
         // ==================== BUSINESS INFO ====================
@@ -864,11 +1013,15 @@
                 }
             } catch (error) {
                 console.error('Error loading business info:', error);
+                showAlert('businessAlert', `❌ Failed to load business info: ${error.message}`, 'error');
             }
         }
 
         document.getElementById('businessForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            setButtonLoading(submitBtn, true);
 
             const businessData = {
                 business_name: document.getElementById('businessName').value.trim(),
@@ -903,19 +1056,24 @@
                 showAlert('businessAlert', '✅ Business information saved successfully!', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('businessAlert', '❌ Error saving business information', 'error');
+                showAlert('businessAlert', `❌ Error saving: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         });
 
         // ==================== CATEGORIES ====================
         async function loadCategories() {
             try {
-                const { data } = await supabase
+                const { data, error } = await supabase
                     .from('service_categories')
                     .select('*')
                     .eq('is_active', true)
                     .order('display_order');
 
+                if (error) throw error;
+
+                allCategories = data || [];
                 const container = document.getElementById('categoriesList');
                 const select = document.getElementById('serviceCategory');
 
@@ -947,6 +1105,7 @@
 
             } catch (error) {
                 console.error('Error loading categories:', error);
+                showAlert('categoriesAlert', `❌ Failed to load categories: ${error.message}`, 'error');
             }
         }
 
@@ -961,6 +1120,9 @@
         document.getElementById('categoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const submitBtn = document.getElementById('categorySaveBtn');
+            setButtonLoading(submitBtn, true);
+
             const categoryName = document.getElementById('categoryName').value.trim();
 
             // Check for duplicate category names
@@ -973,6 +1135,7 @@
 
                 if (existing && existing.length > 0) {
                     showAlert('categoriesAlert', '❌ Category with this name already exists!', 'error');
+                    setButtonLoading(submitBtn, false);
                     return;
                 }
             }
@@ -1001,7 +1164,9 @@
                 showAlert('categoriesAlert', '✅ Category saved successfully!', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('categoriesAlert', '❌ Error saving category', 'error');
+                showAlert('categoriesAlert', `❌ Error saving: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         });
 
@@ -1023,6 +1188,7 @@
                 }
             } catch (error) {
                 console.error('Error loading category:', error);
+                showAlert('categoriesAlert', `❌ Failed to load category: ${error.message}`, 'error');
             }
         };
 
@@ -1052,7 +1218,7 @@
                 showAlert('categoriesAlert', '✅ Category deleted', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('categoriesAlert', '❌ Error deleting category', 'error');
+                showAlert('categoriesAlert', `❌ Error deleting: ${error.message}`, 'error');
             }
         };
 
@@ -1060,25 +1226,44 @@
         async function loadServiceTree() {
             try {
                 // Load all categories with their services and sub-services
-                const { data: categories } = await supabase
+                const { data: categories, error: catError } = await supabase
                     .from('service_categories')
                     .select('*')
                     .eq('is_active', true)
                     .order('display_order');
 
-                const { data: services } = await supabase
+                if (catError) throw catError;
+
+                const { data: services, error: servError } = await supabase
                     .from('service_items')
                     .select('*')
                     .eq('is_active', true)
                     .order('display_order');
 
-                const { data: subServices } = await supabase
+                if (servError) throw servError;
+
+                const { data: subServices, error: subError } = await supabase
                     .from('service_sub_items')
                     .select('*')
                     .eq('is_active', true)
                     .order('sub_service_type');
 
-                const container = document.getElementById('serviceTree');
+                if (subError) throw subError;
+
+                allCategories = categories || [];
+                allServices = services || [];
+                allSubServices = subServices || [];
+
+                renderServiceTree(allCategories, allServices, allSubServices);
+
+            } catch (error) {
+                console.error('Error loading service tree:', error);
+                showAlert('servicesAlert', `❌ Failed to load services: ${error.message}`, 'error');
+            }
+        }
+
+        function renderServiceTree(categories, services, subServices) {
+            const container = document.getElementById('serviceTree');
 
                 if (!categories || categories.length === 0) {
                     container.innerHTML = '<div class="empty-state"><p>No categories yet. Add categories first!</p></div>';
@@ -1158,10 +1343,6 @@
                 });
 
                 container.innerHTML = html;
-
-            } catch (error) {
-                console.error('Error loading service tree:', error);
-            }
         }
 
         document.getElementById('addServiceBtn').addEventListener('click', () => {
@@ -1181,6 +1362,9 @@
         document.getElementById('serviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            const submitBtn = document.getElementById('serviceSaveBtn');
+            setButtonLoading(submitBtn, true);
+
             const hasSubServices = document.getElementById('hasSubServices').checked;
 
             // Validate sub-service Type 1 name if has sub-services
@@ -1188,6 +1372,7 @@
                 const sub1Name = document.getElementById('subService1Name').value.trim();
                 if (!sub1Name) {
                     showAlert('servicesAlert', '❌ Sub-Service 1 (Government Fee) name is required!', 'error');
+                    setButtonLoading(submitBtn, false);
                     return;
                 }
             }
@@ -1273,7 +1458,9 @@
                 showAlert('servicesAlert', '✅ Service saved successfully!', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('servicesAlert', '❌ Error saving service', 'error');
+                showAlert('servicesAlert', `❌ Error saving: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         });
 
@@ -1324,6 +1511,7 @@
                 }
             } catch (error) {
                 console.error('Error loading service:', error);
+                showAlert('servicesAlert', `❌ Failed to load service: ${error.message}`, 'error');
             }
         };
 
@@ -1340,7 +1528,7 @@
                 showAlert('servicesAlert', '✅ Service deleted', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('servicesAlert', '❌ Error deleting service', 'error');
+                showAlert('servicesAlert', `❌ Error deleting: ${error.message}`, 'error');
             }
         };
 
@@ -1357,9 +1545,84 @@
                 showAlert('servicesAlert', '✅ Sub-service deleted', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('servicesAlert', '❌ Error deleting sub-service', 'error');
+                showAlert('servicesAlert', `❌ Error deleting: ${error.message}`, 'error');
             }
         };
+
+        // ==================== SEARCH & EXPORT ====================
+        function setupSearch() {
+            const searchInput = document.getElementById('serviceSearch');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                
+                if (!searchTerm) {
+                    renderServiceTree(allCategories, allServices, allSubServices);
+                    return;
+                }
+
+                const filteredServices = allServices.filter(service => {
+                    const category = allCategories.find(c => c.id === service.category_id);
+                    const categoryName = category ? category.category_name.toLowerCase() : '';
+                    
+                    return service.service_name.toLowerCase().includes(searchTerm) ||
+                           (service.sac_code && service.sac_code.toLowerCase().includes(searchTerm)) ||
+                           categoryName.includes(searchTerm);
+                });
+
+                const relevantCategories = allCategories.filter(cat => 
+                    filteredServices.some(s => s.category_id === cat.id)
+                );
+
+                renderServiceTree(relevantCategories, filteredServices, allSubServices);
+            });
+        }
+
+        function exportToCSV() {
+            const rows = [
+                ['Category', 'Service Name', 'SAC Code', 'Rate (₹)', 'GST %', 'Has Sub-Services', 'Description']
+            ];
+
+            allServices.forEach(service => {
+                const category = allCategories.find(c => c.id === service.category_id);
+                rows.push([
+                    category ? category.category_name : '',
+                    service.service_name,
+                    service.sac_code || '',
+                    service.default_rate || 0,
+                    service.default_gst_percentage || 0,
+                    service.has_sub_services ? 'Yes' : 'No',
+                    (service.description || '').replace(/,/g, ';')
+                ]);
+
+                // Add sub-services
+                const subs = allSubServices.filter(sub => sub.primary_service_id === service.id);
+                subs.forEach(sub => {
+                    rows.push([
+                        '',
+                        `  └─ ${sub.sub_service_name}`,
+                        sub.sac_code || '',
+                        sub.default_rate || 0,
+                        sub.default_gst_percentage || 0,
+                        '',
+                        `Type ${sub.sub_service_type}`
+                    ]);
+                });
+            });
+
+            const csvContent = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `dream-harbour-services-${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showAlert('servicesAlert', '✅ Services exported to CSV successfully!', 'success');
+        }
 
         // ==================== HELPERS ====================
         function showAlert(elementId, message, type) {
@@ -1370,6 +1633,10 @@
         }
 
         function setupEventListeners() {
+            setupSearch();
+
+            // Export CSV button
+            document.getElementById('exportServicesBtn').addEventListener('click', exportToCSV);
             // Tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
