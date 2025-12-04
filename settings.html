@@ -1339,13 +1339,175 @@
             }
         }
 
+        async function addInitialData() {
+            // Add categories and services based on the business requirements
+            const categoriesToAdd = [
+                { name: 'Photocopy/Printing', desc: 'Photocopying and printing services' },
+                { name: 'Registration Fees', desc: 'Registration and documentation fees' },
+                { name: 'E-Stamping', desc: 'E-Stamping services' },
+                { name: 'Document Writing', desc: 'Affidavit and application writing' },
+                { name: 'Deed Writing', desc: 'Deed writing services' },
+                { name: 'PAN-Aadhaar Linking', desc: 'PAN-Aadhaar linking assistance' },
+                { name: 'Driving License Assistance', desc: 'Driving license related services' },
+                { name: 'Jamabandi/Land Records', desc: 'Land records and jamabandi services' },
+                { name: 'Nepal Money Transfer', desc: 'Money transfer to Nepal' },
+                { name: 'Domestic Money Transfer', desc: 'Domestic money transfer services' },
+                { name: 'Online Certificates', desc: 'Online certificate services' },
+                { name: 'Online Internet Services', desc: 'Online internet and fee payment services' }
+            ];
+
+            for (const cat of categoriesToAdd) {
+                // Check if category already exists
+                const { data: existing } = await supabase
+                    .from('service_categories')
+                    .select('id, category_name')
+                    .eq('category_name', cat.name)
+                    .eq('is_active', true)
+                    .single();
+
+                if (!existing) {
+                    const { data: newCat } = await supabase
+                        .from('service_categories')
+                        .insert({
+                            category_name: cat.name,
+                            description: cat.desc,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        })
+                        .select()
+                        .single();
+
+                    // Add services for each category
+                    if (cat.name === 'Photocopy/Printing') {
+                        const services = [
+                            { name: 'Color Printing', sac: '998595', rate: 0, gst: 18 },
+                            { name: 'Black & White Printing', sac: '998595', rate: 0, gst: 18 },
+                            { name: 'Color Photostat', sac: '998595', rate: 0, gst: 18 },
+                            { name: 'Black & White Photostat', sac: '998595', rate: 0, gst: 18 }
+                        ];
+                        for (const svc of services) {
+                            await supabase.from('service_items').insert({
+                                category_id: newCat.id,
+                                service_name: svc.name,
+                                sac_code: svc.sac,
+                                default_rate: svc.rate,
+                                default_gst_percentage: svc.gst,
+                                is_primary_service: true,
+                                has_sub_services: false,
+                                is_active: true,
+                                created_at: new Date().toISOString()
+                            });
+                        }
+                    } else if (['Registration Fees', 'E-Stamping', 'Document Writing', 'Deed Writing', 
+                               'PAN-Aadhaar Linking', 'Driving License Assistance', 'Jamabandi/Land Records',
+                               'Online Certificates', 'Online Internet Services'].includes(cat.name)) {
+                        // These categories have a primary service with sub-services
+                        let primaryName = cat.name + ' Fee';
+                        if (cat.name === 'Document Writing') primaryName = 'Affidavit/Application Fees';
+                        if (cat.name === 'PAN-Aadhaar Linking') primaryName = 'PAN Aadhaar Linking Fees';
+                        if (cat.name === 'Jamabandi/Land Records') primaryName = 'Jamabandi/Land Records Fee';
+                        if (cat.name === 'Online Certificates') primaryName = 'Certificate Fees';
+                        if (cat.name === 'Online Internet Services') primaryName = 'Online Fees Paid';
+
+                        const { data: primaryService } = await supabase.from('service_items').insert({
+                            category_id: newCat.id,
+                            service_name: primaryName,
+                            sac_code: null,
+                            default_rate: 0,
+                            default_gst_percentage: 0,
+                            is_primary_service: true,
+                            has_sub_services: true,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        }).select().single();
+
+                        // Add sub-service 1 (Government/Main Fee)
+                        await supabase.from('service_sub_items').insert({
+                            primary_service_id: primaryService.id,
+                            sub_service_name: primaryName,
+                            sub_service_type: 1,
+                            sac_code: null,
+                            default_rate: 0,
+                            default_gst_percentage: 0,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        });
+
+                        // Add sub-service 2 (Office Support)
+                        await supabase.from('service_sub_items').insert({
+                            primary_service_id: primaryService.id,
+                            sub_service_name: 'Specialized Office Support Services',
+                            sub_service_type: 2,
+                            sac_code: '998595',
+                            default_rate: 0,
+                            default_gst_percentage: 18,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        });
+                    } else if (['Nepal Money Transfer', 'Domestic Money Transfer'].includes(cat.name)) {
+                        const { data: primaryService } = await supabase.from('service_items').insert({
+                            category_id: newCat.id,
+                            service_name: cat.name,
+                            sac_code: null,
+                            default_rate: 0,
+                            default_gst_percentage: 0,
+                            is_primary_service: true,
+                            has_sub_services: true,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        }).select().single();
+
+                        // Add sub-service 1 (Remitted Amount)
+                        await supabase.from('service_sub_items').insert({
+                            primary_service_id: primaryService.id,
+                            sub_service_name: 'Remitted Amount',
+                            sub_service_type: 1,
+                            sac_code: null,
+                            default_rate: 0,
+                            default_gst_percentage: 0,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        });
+
+                        // Add sub-service 2 (Charges)
+                        await supabase.from('service_sub_items').insert({
+                            primary_service_id: primaryService.id,
+                            sub_service_name: 'Charges',
+                            sub_service_type: 2,
+                            sac_code: '997159',
+                            default_rate: 0,
+                            default_gst_percentage: 18,
+                            is_active: true,
+                            created_at: new Date().toISOString()
+                        });
+                    }
+                }
+            }
+
+            // Reload everything
+            await loadCategories();
+            await loadServiceTree();
+            showAlert('servicesAlert', '✅ Initial data loaded successfully!', 'success');
+        }
+
         function renderServiceTree(categories, services, subServices) {
             const container = document.getElementById('serviceTree');
 
                 if (!categories || categories.length === 0) {
-                    container.innerHTML = '<div class="empty-state"><p>No categories yet. Add categories first!</p></div>';
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <p>No categories yet. Add categories first!</p>
+                            <button class="btn-primary btn-sm" onclick="window.loadInitialData()" style="margin-top: 15px;">📦 Load Sample Data</button>
+                        </div>
+                    `;
                     return;
                 }
+
+        // Make addInitialData accessible globally
+        window.loadInitialData = addInitialData;
+
+        // Initialize
+        init();
 
                 let html = '';
 
@@ -1761,6 +1923,9 @@
                 document.getElementById('serviceModal').classList.remove('show');
             });
         }
+
+        // Make addInitialData accessible globally
+        window.loadInitialData = addInitialData;
 
         // Initialize
         init();
