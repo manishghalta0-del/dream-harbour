@@ -248,10 +248,10 @@
         }
 
         .btn-icon {
-            padding: 16px;
-            font-size: 16px;
-            min-width: 48px;
-            min-height: 48px;
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: auto;
+            min-height: auto;
         }
 
         .alert {
@@ -292,34 +292,40 @@
         .service-tree {
             border: 2px solid var(--gray-light);
             border-radius: 12px;
-            padding: 20px;
+            padding: 0;
             margin-top: 20px;
-            max-height: 600px;
+            max-height: none;
             overflow-y: auto;
         }
 
         .service-category {
-            margin-bottom: 25px;
+            margin-bottom: 0;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
             transition: all 0.3s ease;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .service-category:last-child {
+            border-bottom: none;
         }
 
         .service-category:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: none;
         }
 
         .category-header {
             background: white;
-            border-left: 4px solid var(--primary-blue);
-            padding: 20px 25px;
+            border-left: none;
+            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            border-bottom: 1px solid var(--gray-light);
+            border-bottom: none;
+            transition: all 0.2s ease;
         }
 
         .category-header:hover {
@@ -327,39 +333,62 @@
         }
 
         .category-header h3 {
-            font-size: 18px;
+            font-size: 15px;
             margin: 0;
             color: var(--primary-blue);
-            font-weight: 700;
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .category-count {
             background: var(--primary-blue);
             color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
             font-weight: 600;
+        }
+
+        .category-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .category-toggle.collapsed {
+            transform: rotate(-90deg);
         }
 
         .category-services {
             padding: 0;
-            background: white;
+            background: #f8fafc;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .category-services.collapsed {
+            max-height: 0;
+            display: none;
         }
 
         .primary-service {
             background: white;
             border-bottom: 1px solid var(--gray-light);
-            padding: 20px 25px;
+            padding: 12px 20px;
             transition: all 0.2s ease;
+            margin: 0;
         }
 
         .primary-service:hover {
-            background: #f8fafc;
-            padding-left: 30px;
+            background: #f0f4f8;
+            padding-left: 25px;
         }
 
         .primary-service:last-child {
@@ -373,7 +402,7 @@
             align-items: flex-start;
             background: transparent;
             border: none;
-            gap: 20px;
+            gap: 12px;
         }
 
         .service-main-info {
@@ -381,35 +410,40 @@
         }
 
         .primary-service-header h4 {
-            font-size: 16px;
+            font-size: 14px;
             color: var(--primary-dark);
-            margin: 0 0 12px 0;
+            margin: 0 0 6px 0;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+        }
+
+        .primary-service-header h4 span:first-child {
+            font-size: 14px;
         }
 
         .service-info {
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
-            font-size: 13px;
+            gap: 8px;
+            font-size: 11px;
             color: var(--gray);
         }
 
         .service-info span {
             background: var(--gray-lighter);
-            padding: 6px 14px;
-            border-radius: 20px;
+            padding: 4px 10px;
+            border-radius: 12px;
             font-weight: 500;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
+            white-space: nowrap;
         }
 
         .service-info span::before {
-            font-size: 10px;
+            font-size: 9px;
         }
 
         .service-info .sac-code {
@@ -428,50 +462,50 @@
         }
 
         .sub-services {
-            padding: 15px 25px 20px 45px;
-            background: #f8fafc;
-            border-top: 1px solid var(--gray-light);
+            padding: 8px 20px 12px 40px;
+            background: transparent;
+            border-top: none;
         }
 
         .sub-service {
             background: white;
-            border: 2px solid var(--gray-light);
-            border-radius: 10px;
-            padding: 15px 18px;
-            margin-bottom: 12px;
+            border: 1px solid var(--gray-light);
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             transition: all 0.2s ease;
         }
 
         .sub-service:hover {
             border-color: var(--primary-light);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            transform: translateX(5px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transform: translateX(2px);
         }
 
         .sub-service-type-1 {
-            border-left: 4px solid var(--primary-blue);
+            border-left: 3px solid var(--primary-blue);
         }
 
         .sub-service-type-2 {
-            border-left: 4px solid var(--success-green);
+            border-left: 3px solid var(--success-green);
         }
 
         .sub-service h5 {
-            font-size: 14px;
-            margin: 0 0 8px 0;
+            font-size: 13px;
+            margin: 0 0 4px 0;
             color: var(--primary-dark);
             font-weight: 600;
         }
 
         .sub-service-details {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--gray);
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 6px;
             align-items: center;
         }
 
@@ -509,7 +543,7 @@
 
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
 
         .modal {
@@ -622,49 +656,6 @@
             width: 20px;
             height: 20px;
             cursor: pointer;
-        }
-
-        .info-box {
-            background: #f0f9ff;
-            border: 2px solid var(--primary-light);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .info-box h3 {
-            color: var(--primary-blue);
-            margin-bottom: 12px;
-            font-size: 14px;
-        }
-
-        .info-box ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .info-box li {
-            padding: 6px 0;
-            font-size: 13px;
-            color: var(--gray);
-        }
-
-        .sub-service-list {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f9fafb;
-            border-radius: 8px;
-        }
-
-        .sub-service-item {
-            background: white;
-            border: 1px solid var(--gray-light);
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .empty-state {
@@ -826,14 +817,15 @@
                         <div class="form-group">
                             <label for="businessName">Business Name *</label>
                             <input type="text" id="businessName" required>
-                        </div>                <div class="form-group">
-                    <label for="gstin">GSTIN *</label>
-                    <input type="text" id="gstin" maxlength="15" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" title="Valid GSTIN format: 22AAAAA0000A1Z5" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Phone Number *</label>
-                    <input type="tel" id="phone" maxlength="10" pattern="[0-9]{10}" title="10-digit phone number" required>
-                </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="gstin">GSTIN *</label>
+                            <input type="text" id="gstin" maxlength="15" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" title="Valid GSTIN format: 22AAAAA0000A1Z5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="tel" id="phone" maxlength="10" pattern="[0-9]{10}" title="10-digit phone number" required>
+                        </div>
                         <div class="form-group">
                             <label for="email">Email Address *</label>
                             <input type="email" id="email" required>
@@ -849,10 +841,11 @@
                         <div class="form-group">
                             <label for="state">State</label>
                             <input type="text" id="state">
-                        </div>                <div class="form-group">
-                    <label for="pincode">Pincode</label>
-                    <input type="text" id="pincode" maxlength="6" pattern="[0-9]{6}" title="6-digit pincode">
-                </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pincode">Pincode</label>
+                            <input type="text" id="pincode" maxlength="6" pattern="[0-9]{6}" title="6-digit pincode">
+                        </div>
                         <div class="form-group">
                             <label for="defaultGst">Default GST %</label>
                             <input type="number" id="defaultGst" min="0" max="100" step="0.01" value="18">
@@ -875,7 +868,7 @@
                     <div style="display: flex; gap: 10px;">
                         <button class="btn-secondary btn-sm" id="addCategoryBtn">➕ Add Category</button>
                         <button class="btn-secondary btn-sm" id="exportServicesBtn">📥 Export CSV</button>
-                        <button class="btn-primary btn-sm" id="addServiceBtn">➕ Add Primary Service</button>
+                        <button class="btn-primary btn-sm" id="addServiceBtn">➕ Add Service</button>
                     </div>
                 </div>
                 <div class="search-box">
@@ -996,6 +989,74 @@
                 <div class="button-group">
                     <button type="submit" class="btn-primary" id="serviceSaveBtn">💾 Save Service</button>
                     <button type="button" class="btn-secondary" id="cancelServiceBtn">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Service Rates Modal -->
+    <div class="modal" id="serviceRatesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Service Rates</h3>
+                <button class="modal-close" id="closeServiceRatesModal">&times;</button>
+            </div>
+            <form id="serviceRatesForm">
+                <div class="form-group">
+                    <label for="editServiceName">Service Name</label>
+                    <input type="text" id="editServiceName" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="form-group">
+                    <label for="editServiceSac">SAC Code</label>
+                    <input type="text" id="editServiceSac" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="form-group">
+                    <label for="editServiceRate">Default Rate (₹) *</label>
+                    <input type="number" id="editServiceRate" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="editServiceGst">Default GST %</label>
+                    <input type="number" id="editServiceGst" min="0" max="100" step="0.01" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="serviceRatesSaveBtn">💾 Update Rate</button>
+                    <button type="button" class="btn-secondary" id="cancelServiceRatesBtn">❌ Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Sub-Service Modal -->
+    <div class="modal" id="subServiceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Sub-Service</h3>
+                <button class="modal-close" id="closeSubServiceModal">&times;</button>
+            </div>
+            <form id="subServiceForm">
+                <div class="form-group">
+                    <label for="editSubServiceName">Sub-Service Name *</label>
+                    <input type="text" id="editSubServiceName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSubServiceType">Type</label>
+                    <input type="text" id="editSubServiceType" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="form-group">
+                    <label for="editSubServiceSac">SAC Code</label>
+                    <input type="text" id="editSubServiceSac" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="form-group">
+                    <label for="editSubServiceRate">Default Rate (₹) *</label>
+                    <input type="number" id="editSubServiceRate" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="editSubServiceGst">GST %</label>
+                    <input type="number" id="editSubServiceGst" min="0" max="100" step="0.01" readonly style="background: #f3f4f6;">
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary" id="subServiceSaveBtn">💾 Update</button>
+                    <button type="button" class="btn-secondary" id="cancelSubServiceBtn">❌ Cancel</button>
                 </div>
             </form>
         </div>
@@ -1138,7 +1199,6 @@
                 allCategories = data || [];
                 const select = document.getElementById('serviceCategory');
 
-                // Update select dropdown only
                 if (!data || data.length === 0) {
                     select.innerHTML = '<option value="">Select a category</option>';
                 } else {
@@ -1160,7 +1220,6 @@
 
             const categoryName = document.getElementById('categoryName').value.trim();
 
-            // Check for duplicate category names
             if (!isEditMode) {
                 const { data: existing } = await supabase
                     .from('service_categories')
@@ -1169,7 +1228,7 @@
                     .eq('is_active', true);
 
                 if (existing && existing.length > 0) {
-                    showAlert('categoriesAlert', '❌ Category with this name already exists!', 'error');
+                    showAlert('servicesAlert', '❌ Category with this name already exists!', 'error');
                     setButtonLoading(submitBtn, false);
                     return;
                 }
@@ -1199,7 +1258,7 @@
                 showAlert('servicesAlert', '✅ Category saved successfully!', 'success');
             } catch (error) {
                 console.error('Error:', error);
-                showAlert('categoriesAlert', `❌ Error saving: ${error.message}`, 'error');
+                showAlert('servicesAlert', `❌ Error saving: ${error.message}`, 'error');
             } finally {
                 setButtonLoading(submitBtn, false);
             }
@@ -1228,7 +1287,6 @@
         };
 
         window.deleteCategory = async (id) => {
-            // Check if category has services
             const { data: services } = await supabase
                 .from('service_items')
                 .select('id')
@@ -1260,7 +1318,6 @@
         // ==================== SERVICES ====================
         async function loadServiceTree() {
             try {
-                // Load all categories with their services and sub-services
                 const { data: categories, error: catError } = await supabase
                     .from('service_categories')
                     .select('*')
@@ -1297,266 +1354,112 @@
             }
         }
 
-        async function addInitialData(event) {
-            const loadBtn = event.target;
-            setButtonLoading(loadBtn, true);
-
-            try {
-                // Add categories and services based on the business requirements
-                const categoriesToAdd = [
-                { name: 'Photocopy/Printing', desc: 'Photocopying and printing services' },
-                { name: 'Registration Fees', desc: 'Registration and documentation fees' },
-                { name: 'E-Stamping', desc: 'E-Stamping services' },
-                { name: 'Document Writing', desc: 'Affidavit and application writing' },
-                { name: 'Deed Writing', desc: 'Deed writing services' },
-                { name: 'PAN-Aadhaar Linking', desc: 'PAN-Aadhaar linking assistance' },
-                { name: 'Driving License Assistance', desc: 'Driving license related services' },
-                { name: 'Jamabandi/Land Records', desc: 'Land records and jamabandi services' },
-                { name: 'Nepal Money Transfer', desc: 'Money transfer to Nepal' },
-                { name: 'Domestic Money Transfer', desc: 'Domestic money transfer services' },
-                { name: 'Online Certificates', desc: 'Online certificate services' },
-                { name: 'Online Internet Services', desc: 'Online internet and fee payment services' }
-            ];
-
-            for (const cat of categoriesToAdd) {
-                // Check if category already exists
-                const { data: existing } = await supabase
-                    .from('service_categories')
-                    .select('id, category_name')
-                    .eq('category_name', cat.name)
-                    .eq('is_active', true)
-                    .single();
-
-                if (!existing) {
-                    const { data: newCat } = await supabase
-                        .from('service_categories')
-                        .insert({
-                            category_name: cat.name,
-                            description: cat.desc,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        })
-                        .select()
-                        .single();
-
-                    // Add services for each category
-                    if (cat.name === 'Photocopy/Printing') {
-                        const services = [
-                            { name: 'Color Printing', sac: '998595', rate: 0, gst: 18 },
-                            { name: 'Black & White Printing', sac: '998595', rate: 0, gst: 18 },
-                            { name: 'Color Photostat', sac: '998595', rate: 0, gst: 18 },
-                            { name: 'Black & White Photostat', sac: '998595', rate: 0, gst: 18 }
-                        ];
-                        for (const svc of services) {
-                            await supabase.from('service_items').insert({
-                                category_id: newCat.id,
-                                service_name: svc.name,
-                                sac_code: svc.sac,
-                                default_rate: svc.rate,
-                                default_gst_percentage: svc.gst,
-                                is_primary_service: true,
-                                has_sub_services: false,
-                                is_active: true,
-                                created_at: new Date().toISOString()
-                            });
-                        }
-                    } else if (['Registration Fees', 'E-Stamping', 'Document Writing', 'Deed Writing', 
-                               'PAN-Aadhaar Linking', 'Driving License Assistance', 'Jamabandi/Land Records',
-                               'Online Certificates', 'Online Internet Services'].includes(cat.name)) {
-                        // These categories have a primary service with sub-services
-                        let primaryName = cat.name + ' Fee';
-                        if (cat.name === 'Document Writing') primaryName = 'Affidavit/Application Fees';
-                        if (cat.name === 'PAN-Aadhaar Linking') primaryName = 'PAN Aadhaar Linking Fees';
-                        if (cat.name === 'Jamabandi/Land Records') primaryName = 'Jamabandi/Land Records Fee';
-                        if (cat.name === 'Online Certificates') primaryName = 'Certificate Fees';
-                        if (cat.name === 'Online Internet Services') primaryName = 'Online Fees Paid';
-
-                        const { data: primaryService } = await supabase.from('service_items').insert({
-                            category_id: newCat.id,
-                            service_name: primaryName,
-                            sac_code: null,
-                            default_rate: 0,
-                            default_gst_percentage: 0,
-                            is_primary_service: true,
-                            has_sub_services: true,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        }).select().single();
-
-                        // Add sub-service 1 (Government/Main Fee)
-                        await supabase.from('service_sub_items').insert({
-                            primary_service_id: primaryService.id,
-                            sub_service_name: primaryName,
-                            sub_service_type: 1,
-                            sac_code: null,
-                            default_rate: 0,
-                            default_gst_percentage: 0,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        });
-
-                        // Add sub-service 2 (Office Support)
-                        await supabase.from('service_sub_items').insert({
-                            primary_service_id: primaryService.id,
-                            sub_service_name: 'Specialized Office Support Services',
-                            sub_service_type: 2,
-                            sac_code: '998595',
-                            default_rate: 0,
-                            default_gst_percentage: 18,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        });
-                    } else if (['Nepal Money Transfer', 'Domestic Money Transfer'].includes(cat.name)) {
-                        const { data: primaryService } = await supabase.from('service_items').insert({
-                            category_id: newCat.id,
-                            service_name: cat.name,
-                            sac_code: null,
-                            default_rate: 0,
-                            default_gst_percentage: 0,
-                            is_primary_service: true,
-                            has_sub_services: true,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        }).select().single();
-
-                        // Add sub-service 1 (Remitted Amount)
-                        await supabase.from('service_sub_items').insert({
-                            primary_service_id: primaryService.id,
-                            sub_service_name: 'Remitted Amount',
-                            sub_service_type: 1,
-                            sac_code: null,
-                            default_rate: 0,
-                            default_gst_percentage: 0,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        });
-
-                        // Add sub-service 2 (Charges)
-                        await supabase.from('service_sub_items').insert({
-                            primary_service_id: primaryService.id,
-                            sub_service_name: 'Charges',
-                            sub_service_type: 2,
-                            sac_code: '997159',
-                            default_rate: 0,
-                            default_gst_percentage: 18,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        });
-                    }
-                }
-            }
-
-                // Reload everything
-                await loadCategories();
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Successfully loaded 12 categories with all services!', 'success');
-            } catch (error) {
-                console.error('Error loading initial data:', error);
-                showAlert('servicesAlert', `❌ Error loading data: ${error.message}`, 'error');
-            } finally {
-                setButtonLoading(loadBtn, false);
-            }
-        }
-
         function renderServiceTree(categories, services, subServices) {
             const container = document.getElementById('serviceTree');
 
-                if (!categories || categories.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <p>No categories yet. Add categories first!</p>
-                            <button class="btn-primary btn-sm" onclick="window.loadInitialData()" style="margin-top: 15px;">📦 Load Sample Data</button>
-                        </div>
-                    `;
-                    return;
-                }
+            if (!categories || categories.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No categories yet. Add categories first!</p>
+                    </div>
+                `;
+                return;
+            }
 
-                let html = '';
+            let html = '';
 
-                categories.forEach(cat => {
-                    const catServices = services?.filter(s => s.category_id === cat.id) || [];
+            categories.forEach(cat => {
+                const catServices = services?.filter(s => s.category_id === cat.id) || [];
+                const catId = `cat-${cat.id}`;
 
-                    html += `
-                        <div class="service-category">
-                            <div class="category-header">
-                                <div style="flex: 1;">
+                html += `
+                    <div class="service-category" data-cat-id="${catId}">
+                        <div class="category-header" onclick="window.toggleCategory('${catId}')">
+                            <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                                <div class="category-toggle">▶</div>
+                                <div>
                                     <h3>
-                                        <span style="font-size: 22px;">📁</span>
+                                        <span style="font-size: 18px;">📁</span>
                                         ${cat.category_name}
-                                        <span class="category-count" style="margin-left: 12px;">${catServices.length} service${catServices.length !== 1 ? 's' : ''}</span>
+                                        <span class="category-count">${catServices.length}</span>
                                     </h3>
-                                    ${cat.description ? `<p style="font-size: 13px; margin-top: 8px; color: var(--gray); font-weight: 400;">${cat.description}</p>` : ''}
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn-primary btn-sm btn-icon" onclick="window.editCategory('${cat.id}')" title="Edit category">✏️</button>
-                                    <button class="btn-danger btn-sm btn-icon" onclick="window.deleteCategory('${cat.id}')" title="Delete category">🗑️</button>
                                 </div>
                             </div>
-                            <div class="category-services">
-                    `;
+                            <div class="action-buttons" onclick="event.stopPropagation();">
+                                <button class="btn-primary btn-icon" onclick="window.editCategory('${cat.id}')" title="Edit">✏️</button>
+                                <button class="btn-danger btn-icon" onclick="window.deleteCategory('${cat.id}')" title="Delete">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="category-services" id="${catId}-services">
+                `;
 
-                    if (catServices.length === 0) {
-                        html += '<p style="color: var(--gray); font-size: 13px; padding: 10px;">No services in this category</p>';
-                    } else {
-                        catServices.forEach(service => {
-                            const subs = subServices?.filter(sub => sub.primary_service_id === service.id) || [];
+                if (catServices.length === 0) {
+                    html += '<p style="color: var(--gray); font-size: 13px; padding: 10px;">No services</p>';
+                } else {
+                    catServices.forEach(service => {
+                        const subs = subServices?.filter(sub => sub.primary_service_id === service.id) || [];
 
-                            html += `
-                                <div class="primary-service">
-                                    <div class="primary-service-header">
-                                        <div class="service-main-info">
-                                            <h4>
-                                                <span style="font-size: 18px;">🛠️</span>
-                                                ${service.service_name}
-                                            </h4>
-                                            <div class="service-info">
-                                                ${service.sac_code ? `<span class="sac-code">SAC ${service.sac_code}</span>` : ''}
-                                                <span class="rate">₹${parseFloat(service.default_rate || 0).toFixed(2)}</span>
-                                                <span class="gst">${parseFloat(service.default_gst_percentage || 0).toFixed(2)}% GST</span>
+                        html += `
+                            <div class="primary-service">
+                                <div class="primary-service-header">
+                                    <div class="service-main-info">
+                                        <h4>
+                                            <span>🛠️</span>
+                                            ${service.service_name}
+                                        </h4>
+                                        <div class="service-info">
+                                            ${service.sac_code ? `<span class="sac-code">SAC ${service.sac_code}</span>` : ''}
+                                            <span class="rate">₹${parseFloat(service.default_rate || 0).toFixed(2)}</span>
+                                            <span class="gst">${parseFloat(service.default_gst_percentage || 0).toFixed(2)}%</span>
+                                        </div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn-primary btn-icon" onclick="window.editService('${service.id}')" title="Edit">✏️</button>
+                                        <button class="btn-secondary btn-icon" onclick="window.editServiceRates('${service.id}')" title="Edit Rate">💰</button>
+                                        <button class="btn-danger btn-icon" onclick="window.deleteService('${service.id}')" title="Delete">🗑️</button>
+                                    </div>
+                                </div>
+                        `;
+
+                        if (subs.length > 0) {
+                            html += '<div class="sub-services">';
+                            subs.forEach(sub => {
+                                const typeClass = sub.sub_service_type === 1 ? 'sub-service-type-1' : 'sub-service-type-2';
+                                const typeLabel = sub.sub_service_type === 1 ? 'Type 1' : 'Type 2';
+
+                                html += `
+                                    <div class="sub-service ${typeClass}">
+                                        <div>
+                                            <h5>↳ ${sub.sub_service_name}</h5>
+                                            <div class="sub-service-details">
+                                                <span class="badge badge-type${sub.sub_service_type}">${typeLabel}</span>
+                                                ${sub.sac_code ? `<span>SAC: ${sub.sac_code}</span>` : ''}
+                                                <span>₹${parseFloat(sub.default_rate || 0).toFixed(2)}</span>
+                                                <span>${parseFloat(sub.default_gst_percentage || 0).toFixed(2)}%</span>
                                             </div>
                                         </div>
                                         <div class="action-buttons">
-                                            <button class="btn-primary btn-sm btn-icon" onclick="window.editService('${service.id}')" title="Edit service">✏️</button>
-                                            <button class="btn-danger btn-sm btn-icon" onclick="window.deleteService('${service.id}')" title="Delete service">🗑️</button>
+                                            <button class="btn-primary btn-icon" onclick="window.editSubService('${sub.id}')" title="Edit">✏️</button>
+                                            <button class="btn-secondary btn-icon" onclick="window.editSubServiceRate('${sub.id}')" title="Edit Rate">💰</button>
+                                            <button class="btn-danger btn-icon" onclick="window.deleteSubService('${sub.id}')" title="Delete">🗑️</button>
                                         </div>
                                     </div>
-                            `;
-
-                            if (subs.length > 0) {
-                                html += '<div class="sub-services">';
-                                subs.forEach(sub => {
-                                    const typeClass = sub.sub_service_type === 1 ? 'sub-service-type-1' : 'sub-service-type-2';
-                                    const typeLabel = sub.sub_service_type === 1 ? 'Type 1: Govt Fee' : 'Type 2: Office Support';
-
-                                    html += `
-                                        <div class="sub-service ${typeClass}">
-                                            <div>
-                                                <h5>↳ ${sub.sub_service_name}</h5>
-                                                <div class="sub-service-details">
-                                                    <span class="badge badge-type${sub.sub_service_type}">${typeLabel}</span>
-                                                    ${sub.sac_code ? `<span>SAC: ${sub.sac_code}</span>` : ''}
-                                                    <span>₹${parseFloat(sub.default_rate || 0).toFixed(2)}</span>
-                                                    <span>${parseFloat(sub.default_gst_percentage || 0).toFixed(2)}% GST</span>
-                                                </div>
-                                            </div>
-                                            <button class="btn-danger btn-sm btn-icon" onclick="window.deleteSubService('${sub.id}')" title="Delete sub-service">🗑️</button>
-                                        </div>
-                                    `;
-                                });
-                                html += '</div>';
-                            }
-
+                                `;
+                            });
                             html += '</div>';
-                        });
-                    }
+                        }
 
-                    html += `
-                            </div>
+                        html += '</div>';
+                    });
+                }
+
+                html += `
                         </div>
-                    `;
-                });
+                    </div>
+                `;
+            });
 
-                container.innerHTML = html;
+            container.innerHTML = html;
         }
 
         document.getElementById('addServiceBtn').addEventListener('click', () => {
@@ -1581,11 +1484,10 @@
 
             const hasSubServices = document.getElementById('hasSubServices').checked;
 
-            // Validate sub-service Type 1 name if has sub-services
             if (hasSubServices) {
                 const sub1Name = document.getElementById('subService1Name').value.trim();
                 if (!sub1Name) {
-                    showAlert('servicesAlert', '❌ Sub-Service 1 (Government Fee) name is required!', 'error');
+                    showAlert('servicesAlert', '❌ Sub-Service 1 name is required!', 'error');
                     setButtonLoading(submitBtn, false);
                     return;
                 }
@@ -1621,9 +1523,7 @@
                     serviceId = data.id;
                 }
 
-                // If has sub-services, create them
                 if (hasSubServices) {
-                    // Delete existing sub-services if editing
                     if (isEditMode) {
                         await supabase
                             .from('service_sub_items')
@@ -1631,7 +1531,6 @@
                             .eq('primary_service_id', serviceId);
                     }
 
-                    // Sub-Service 1
                     const sub1Name = document.getElementById('subService1Name').value.trim();
                     const sub1Rate = parseFloat(document.getElementById('subService1Rate').value) || 0;
 
@@ -1650,7 +1549,6 @@
                             });
                     }
 
-                    // Sub-Service 2
                     const sub2Rate = parseFloat(document.getElementById('subService2Rate').value) || 0;
 
                     await supabase
@@ -1729,6 +1627,56 @@
             }
         };
 
+        window.editServiceRates = async (id) => {
+            try {
+                const { data: service } = await supabase
+                    .from('service_items')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (service) {
+                    currentServiceId = id;
+                    document.getElementById('editServiceName').value = service.service_name;
+                    document.getElementById('editServiceSac').value = service.sac_code || 'N/A';
+                    document.getElementById('editServiceRate').value = service.default_rate || 0;
+                    document.getElementById('editServiceGst').value = service.default_gst_percentage || 0;
+                    document.getElementById('serviceRatesModal').classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error loading service:', error);
+                showAlert('servicesAlert', `❌ Failed to load service: ${error.message}`, 'error');
+            }
+        };
+
+        window.editSubService = async (id) => {
+            try {
+                const { data: subService } = await supabase
+                    .from('service_sub_items')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (subService) {
+                    currentServiceId = id;
+                    const typeLabel = subService.sub_service_type === 1 ? 'Type 1: Government Fee' : 'Type 2: Office Support';
+                    document.getElementById('editSubServiceName').value = subService.sub_service_name;
+                    document.getElementById('editSubServiceType').value = typeLabel;
+                    document.getElementById('editSubServiceSac').value = subService.sac_code || 'N/A';
+                    document.getElementById('editSubServiceRate').value = subService.default_rate || 0;
+                    document.getElementById('editSubServiceGst').value = subService.default_gst_percentage || 0;
+                    document.getElementById('subServiceModal').classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error loading sub-service:', error);
+                showAlert('servicesAlert', `❌ Failed to load sub-service: ${error.message}`, 'error');
+            }
+        };
+
+        window.editSubServiceRate = async (id) => {
+            window.editSubService(id);
+        };
+
         window.deleteService = async (id) => {
             if (!confirm('Delete this service and all its sub-services?')) return;
 
@@ -1762,6 +1710,59 @@
                 showAlert('servicesAlert', `❌ Error deleting: ${error.message}`, 'error');
             }
         };
+
+        document.getElementById('serviceRatesForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('serviceRatesSaveBtn');
+            setButtonLoading(submitBtn, true);
+
+            try {
+                await supabase
+                    .from('service_items')
+                    .update({
+                        default_rate: parseFloat(document.getElementById('editServiceRate').value) || 0,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentServiceId);
+
+                document.getElementById('serviceRatesModal').classList.remove('show');
+                await loadServiceTree();
+                showAlert('servicesAlert', '✅ Service rates updated!', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('servicesAlert', `❌ Error updating: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
+            }
+        });
+
+        document.getElementById('subServiceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('subServiceSaveBtn');
+            setButtonLoading(submitBtn, true);
+
+            try {
+                await supabase
+                    .from('service_sub_items')
+                    .update({
+                        sub_service_name: document.getElementById('editSubServiceName').value.trim(),
+                        default_rate: parseFloat(document.getElementById('editSubServiceRate').value) || 0,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentServiceId);
+
+                document.getElementById('subServiceModal').classList.remove('show');
+                await loadServiceTree();
+                showAlert('servicesAlert', '✅ Sub-service updated!', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('servicesAlert', `❌ Error updating: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
+            }
+        });
 
         // ==================== SEARCH & EXPORT ====================
         function setupSearch() {
@@ -1808,7 +1809,6 @@
                     (service.description || '').replace(/,/g, ';')
                 ]);
 
-                // Add sub-services
                 const subs = allSubServices.filter(sub => sub.primary_service_id === service.id);
                 subs.forEach(sub => {
                     rows.push([
@@ -1835,8 +1835,23 @@
             link.click();
             document.body.removeChild(link);
             
-            showAlert('servicesAlert', '✅ Services exported to CSV successfully!', 'success');
+            showAlert('servicesAlert', '✅ Services exported!', 'success');
         }
+
+        // ==================== ACCORDION FUNCTIONALITY ====================
+        window.toggleCategory = function(catId) {
+            const services = document.getElementById(`${catId}-services`);
+            const header = document.querySelector(`[data-cat-id="${catId}"] .category-header`);
+            const toggle = header.querySelector('.category-toggle');
+            
+            if (services.classList.contains('collapsed')) {
+                services.classList.remove('collapsed');
+                toggle.classList.remove('collapsed');
+            } else {
+                services.classList.add('collapsed');
+                toggle.classList.add('collapsed');
+            }
+        };
 
         // ==================== HELPERS ====================
         function showAlert(elementId, message, type) {
@@ -1849,10 +1864,8 @@
         function setupEventListeners() {
             setupSearch();
 
-            // Export CSV button
             document.getElementById('exportServicesBtn').addEventListener('click', exportToCSV);
             
-            // Add Category button
             document.getElementById('addCategoryBtn').addEventListener('click', () => {
                 isEditMode = false;
                 currentCategoryId = null;
@@ -1861,7 +1874,6 @@
                 document.getElementById('categoryModal').classList.add('show');
             });
             
-            // Tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tabName = this.dataset.tab;
@@ -1872,7 +1884,6 @@
                 });
             });
 
-            // Close modal on outside click
             document.querySelectorAll('.modal').forEach(modal => {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
@@ -1881,13 +1892,11 @@
                 });
             });
 
-            // Reset sub-services section when form is reset
             document.getElementById('serviceForm').addEventListener('reset', () => {
                 document.getElementById('hasSubServices').checked = false;
                 document.getElementById('subServicesSection').style.display = 'none';
             });
 
-            // Modal close buttons
             document.getElementById('closeCategoryModal').addEventListener('click', () => {
                 document.getElementById('categoryModal').classList.remove('show');
             });
@@ -1901,12 +1910,22 @@
             document.getElementById('cancelServiceBtn').addEventListener('click', () => {
                 document.getElementById('serviceModal').classList.remove('show');
             });
+
+            document.getElementById('closeServiceRatesModal').addEventListener('click', () => {
+                document.getElementById('serviceRatesModal').classList.remove('show');
+            });
+            document.getElementById('cancelServiceRatesBtn').addEventListener('click', () => {
+                document.getElementById('serviceRatesModal').classList.remove('show');
+            });
+
+            document.getElementById('closeSubServiceModal').addEventListener('click', () => {
+                document.getElementById('subServiceModal').classList.remove('show');
+            });
+            document.getElementById('cancelSubServiceBtn').addEventListener('click', () => {
+                document.getElementById('subServiceModal').classList.remove('show');
+            });
         }
 
-        // Make addInitialData accessible globally
-        window.loadInitialData = addInitialData;
-
-        // Initialize
         init();
     </script>
 </body>
