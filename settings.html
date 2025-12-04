@@ -1339,9 +1339,13 @@
             }
         }
 
-        async function addInitialData() {
-            // Add categories and services based on the business requirements
-            const categoriesToAdd = [
+        async function addInitialData(event) {
+            const loadBtn = event.target;
+            setButtonLoading(loadBtn, true);
+
+            try {
+                // Add categories and services based on the business requirements
+                const categoriesToAdd = [
                 { name: 'Photocopy/Printing', desc: 'Photocopying and printing services' },
                 { name: 'Registration Fees', desc: 'Registration and documentation fees' },
                 { name: 'E-Stamping', desc: 'E-Stamping services' },
@@ -1484,10 +1488,16 @@
                 }
             }
 
-            // Reload everything
-            await loadCategories();
-            await loadServiceTree();
-            showAlert('servicesAlert', '✅ Initial data loaded successfully!', 'success');
+                // Reload everything
+                await loadCategories();
+                await loadServiceTree();
+                showAlert('servicesAlert', '✅ Successfully loaded 12 categories with all services!', 'success');
+            } catch (error) {
+                console.error('Error loading initial data:', error);
+                showAlert('servicesAlert', `❌ Error loading data: ${error.message}`, 'error');
+            } finally {
+                setButtonLoading(loadBtn, false);
+            }
         }
 
         function renderServiceTree(categories, services, subServices) {
