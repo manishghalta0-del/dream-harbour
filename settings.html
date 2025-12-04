@@ -873,6 +873,7 @@
                 <div class="section-header">
                     <h2>🛠️ Service Configuration</h2>
                     <div style="display: flex; gap: 10px;">
+                        <button class="btn-secondary btn-sm" id="addCategoryBtn">➕ Add Category</button>
                         <button class="btn-secondary btn-sm" id="exportServicesBtn">📥 Export CSV</button>
                         <button class="btn-primary btn-sm" id="addServiceBtn">➕ Add Primary Service</button>
                     </div>
@@ -1150,14 +1151,6 @@
                 showAlert('servicesAlert', `❌ Failed to load categories: ${error.message}`, 'error');
             }
         }
-
-        document.getElementById('addCategoryBtn').addEventListener('click', () => {
-            isEditMode = false;
-            currentCategoryId = null;
-            document.getElementById('categoryModalTitle').textContent = 'Add Category';
-            document.getElementById('categoryForm').reset();
-            document.getElementById('categoryModal').classList.add('show');
-        });
 
         document.getElementById('categoryForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1858,6 +1851,16 @@
 
             // Export CSV button
             document.getElementById('exportServicesBtn').addEventListener('click', exportToCSV);
+            
+            // Add Category button
+            document.getElementById('addCategoryBtn').addEventListener('click', () => {
+                isEditMode = false;
+                currentCategoryId = null;
+                document.getElementById('categoryModalTitle').textContent = 'Add Category';
+                document.getElementById('categoryForm').reset();
+                document.getElementById('categoryModal').classList.add('show');
+            });
+            
             // Tabs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
