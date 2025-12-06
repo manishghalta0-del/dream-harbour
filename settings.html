@@ -1,9 +1,794 @@
-<!DOCTY
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Settings Pro</title>
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e3a8a;
+            --success-green: #10b981;
+            --success-light: #d1fae5;
+            --error-red: #ef4444;
+            --error-light: #fee2e2;
+            --warning-yellow: #f59e0b;
+            --warning-light: #fef3c7;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --gray-lighter: #f3f4f6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            background: white;
+            padding: 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--gray);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-blue);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-blue);
+            border-bottom-color: var(--primary-blue);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--error-red);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        .btn-icon {
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: auto;
+            min-height: auto;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: var(--success-light);
+            color: var(--success-green);
+            border-left: 4px solid var(--success-green);
+        }
+
+        .alert-error {
+            background: var(--error-light);
+            color: var(--error-red);
+            border-left: 4px solid var(--error-red);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .service-tree {
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 0;
+            margin-top: 20px;
+            max-height: none;
+            overflow-y: auto;
+        }
+
+        .service-category {
+            margin-bottom: 0;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .service-category:last-child {
+            border-bottom: none;
+        }
+
+        .service-category:hover {
+            box-shadow: none;
+        }
+
+        .category-header {
+            background: white;
+            border-left: none;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border-bottom: none;
+            transition: all 0.2s ease;
+        }
+
+        .category-header:hover {
+            background: var(--gray-lighter);
+        }
+
+        .category-header h3 {
+            font-size: 15px;
+            margin: 0;
+            color: var(--primary-blue);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .category-count {
+            background: var(--primary-blue);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .category-toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .category-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .category-services {
+            padding: 0;
+            background: #f8fafc;
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .category-services.collapsed {
+            max-height: 0;
+            display: none;
+        }
+
+        .primary-service {
+            background: white;
+            border-bottom: 1px solid var(--gray-light);
+            padding: 12px 20px;
+            transition: all 0.2s ease;
+            margin: 0;
+        }
+
+        .primary-service:hover {
+            background: #f0f4f8;
+            padding-left: 25px;
+        }
+
+        .primary-service:last-child {
+            border-bottom: none;
+        }
+
+        .primary-service-header {
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            background: transparent;
+            border: none;
+            gap: 12px;
+        }
+
+        .service-main-info {
+            flex: 1;
+        }
+
+        .primary-service-header h4 {
+            font-size: 14px;
+            color: var(--primary-dark);
+            margin: 0 0 6px 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .primary-service-header h4 span:first-child {
+            font-size: 14px;
+        }
+
+        .service-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--gray);
+        }
+
+        .service-info span {
+            background: var(--gray-lighter);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .service-info span::before {
+            font-size: 9px;
+        }
+
+        .service-info .sac-code {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .service-info .rate {
+            background: #d1fae5;
+            color: var(--success-green);
+        }
+
+        .service-info .gst {
+            background: #fef3c7;
+            color: var(--warning-yellow);
+        }
+
+        .sub-services {
+            padding: 8px 20px 12px 40px;
+            background: transparent;
+            border-top: none;
+        }
+
+        .sub-service {
+            background: white;
+            border: 1px solid var(--gray-light);
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.2s ease;
+        }
+
+        .sub-service:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transform: translateX(2px);
+        }
+
+        .sub-service-type-1 {
+            border-left: 3px solid var(--primary-blue);
+        }
+
+        .sub-service-type-2 {
+            border-left: 3px solid var(--success-green);
+        }
+
+        .sub-service h5 {
+            font-size: 13px;
+            margin: 0 0 4px 0;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .sub-service-details {
+            font-size: 11px;
+            color: var(--gray);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .sub-service-details .badge {
+            margin: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-type1 {
+            background: #dbeafe;
+            color: var(--primary-blue);
+        }
+
+        .badge-type2 {
+            background: var(--success-light);
+            color: var(--success-green);
+        }
+
+        .badge-active {
+            background: var(--success-light);
+            color: var(--success-green);
+        }
+
+        .badge-inactive {
+            background: var(--error-light);
+            color: var(--error-red);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .btn-loading {
+            position: relative;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideUp 0.4s ease;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--gray-light);
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            color: var(--primary-blue);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--gray);
+            padding: 0;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--error-light);
+            color: var(--error-red);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: var(--gray-lighter);
+            color: var(--primary-blue);
+        }
+
+        .nav-links a.active {
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        /* Skeleton Loader */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        .skeleton-text {
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-card {
+            height: 100px;
+            margin-bottom: 15px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 10px;
+            }
+            .nav-links a {
+                padding: 6px 12px;
+                font-size: 13px;
+            }
+        }
+    </style>
+<script>
 // ========================================
 // SETTINGS MANAGEMENT - Complete Implementation
 // ========================================
 
-// Initialize data structures from localStorage
+// Data structure
 let appData = {
     business: {
         name: 'Dream Harbour',
@@ -17,19 +802,19 @@ let appData = {
         defaultGst: 18
     },
     categories: [],
-    services: [],
-    stateCode: '27'
+    services: []
 };
 
-// Load data from localStorage on page load
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('✓ Settings page loaded');
     loadAllData();
-    populateCategoryDropdown();
     displayCategories();
+    populateCategoryDropdown();
 });
 
 // ========================================
-// BUSINESS SETTINGS FUNCTIONS
+// BUSINESS FUNCTIONS
 // ========================================
 
 function saveBusinessInfo() {
@@ -46,93 +831,39 @@ function saveBusinessInfo() {
     };
 
     saveToLocalStorage();
-    showAlert('✓ Business information saved successfully!', 'success');
-}
-
-function resetBusinessForm() {
-    document.getElementById('businessName').value = appData.business.name;
-    document.getElementById('gstin').value = appData.business.gstin;
-    document.getElementById('phone').value = appData.business.phone;
-    document.getElementById('email').value = appData.business.email;
-    document.getElementById('address').value = appData.business.address;
-    document.getElementById('city').value = appData.business.city;
-    document.getElementById('state').value = appData.business.state;
-    document.getElementById('pincode').value = appData.business.pincode;
-    document.getElementById('defaultGst').value = appData.business.defaultGst;
+    showAlert('✓ Business information saved!', 'success');
 }
 
 // ========================================
-// CATEGORY MANAGEMENT FUNCTIONS
+// CATEGORY FUNCTIONS
 // ========================================
 
 function addCategory() {
-    const modal = document.getElementById('categoryModal');
-    document.getElementById('categoryModalTitle').textContent = 'Add New Category';
-    document.getElementById('categoryForm').reset();
-    document.getElementById('categoryForm').dataset.editing = '';
-    if (modal) modal.style.display = 'flex';
-}
+    const name = prompt('Enter category name:');
+    if (!name) return;
 
-function saveCategoryModal() {
-    const name = document.getElementById('categoryName')?.value?.trim();
-    const desc = document.getElementById('categoryDesc')?.value?.trim();
-    const isEditing = document.getElementById('categoryForm').dataset.editing;
-
-    if (!name) {
-        showAlert('Category name is required', 'error');
-        return;
-    }
-
-    if (isEditing) {
-        // Update existing
-        const cat = appData.categories.find(c => c.id === isEditing);
-        if (cat) {
-            cat.name = name;
-            cat.description = desc;
-        }
-    } else {
-        // Add new
-        appData.categories.push({
-            id: 'cat_' + Date.now(),
-            name: name,
-            description: desc,
-            services: []
-        });
-    }
+    appData.categories.push({
+        id: 'cat_' + Date.now(),
+        name: name,
+        description: ''
+    });
 
     saveToLocalStorage();
-    closeCategoryModal();
     displayCategories();
     populateCategoryDropdown();
-    showAlert('✓ Category saved successfully!', 'success');
-}
-
-function editCategory(catId) {
-    const cat = appData.categories.find(c => c.id === catId);
-    if (cat) {
-        document.getElementById('categoryModalTitle').textContent = 'Edit Category';
-        document.getElementById('categoryName').value = cat.name;
-        document.getElementById('categoryDesc').value = cat.description;
-        document.getElementById('categoryForm').dataset.editing = catId;
-        const modal = document.getElementById('categoryModal');
-        if (modal) modal.style.display = 'flex';
-    }
+    showAlert('✓ Category added!', 'success');
 }
 
 function deleteCategory(catId) {
-    if (confirm('Are you sure you want to delete this category and all its services?')) {
-        appData.categories = appData.categories.filter(c => c.id !== catId);
-        appData.services = appData.services.filter(s => s.categoryId !== catId);
-        saveToLocalStorage();
-        displayCategories();
-        populateCategoryDropdown();
-        showAlert('✓ Category deleted!', 'success');
-    }
-}
+    if (!confirm('Delete this category?')) return;
 
-function closeCategoryModal() {
-    const modal = document.getElementById('categoryModal');
-    if (modal) modal.style.display = 'none';
+    appData.categories = appData.categories.filter(c => c.id !== catId);
+    appData.services = appData.services.filter(s => s.categoryId !== catId);
+
+    saveToLocalStorage();
+    displayCategories();
+    populateCategoryDropdown();
+    showAlert('✓ Category deleted!', 'success');
 }
 
 function displayCategories() {
@@ -140,239 +871,103 @@ function displayCategories() {
     if (!container) return;
 
     if (appData.categories.length === 0) {
-        container.innerHTML = '<div class="empty-state">No categories yet. <a href="javascript:addCategory()">Add one</a></div>';
+        container.innerHTML = '<p>No categories. <button onclick="addCategory()">Add one</button></p>';
         return;
     }
 
     container.innerHTML = appData.categories.map(cat => `
-        <div class="category-card">
-            <div class="category-header">
-                <h3>${cat.name}</h3>
-                <div class="category-actions">
-                    <button onclick="editCategory('${cat.id}')" class="btn-icon">✏️ Edit</button>
-                    <button onclick="deleteCategory('${cat.id}')" class="btn-icon">🗑️ Delete</button>
-                </div>
-            </div>
-            <p class="category-desc">${cat.description || 'No description'}</p>
-            <p class="service-count">Services: ${appData.services.filter(s => s.categoryId === cat.id).length}</p>
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
+            <strong>${cat.name}</strong>
+            <button onclick="deleteCategory('${cat.id}')">Delete</button>
         </div>
     `).join('');
 }
 
 // ========================================
-// SERVICE MANAGEMENT FUNCTIONS
+// SERVICE FUNCTIONS
 // ========================================
 
 function addService() {
-    const categoryId = document.getElementById('serviceCategory')?.value;
-    if (!categoryId) {
-        showAlert('Please select a category first', 'error');
+    const catId = document.getElementById('serviceCategory')?.value;
+    if (!catId) {
+        showAlert('Select a category first', 'error');
         return;
     }
 
-    document.getElementById('serviceModalTitle').textContent = 'Add New Service';
-    document.getElementById('serviceForm').reset();
-    document.getElementById('serviceForm').dataset.editing = '';
-    document.getElementById('serviceCategory').value = categoryId;
-    const modal = document.getElementById('serviceModal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function saveServiceModal() {
-    const categoryId = document.getElementById('serviceCategory')?.value;
     const name = document.getElementById('serviceName')?.value?.trim();
     const sac = document.getElementById('serviceSac')?.value?.trim();
     const rate = parseFloat(document.getElementById('serviceRate')?.value || 0);
-    const gst = parseInt(document.getElementById('serviceGst')?.value || appData.business.defaultGst);
-    const desc = document.getElementById('serviceDesc')?.value?.trim();
-    const isEditing = document.getElementById('serviceForm').dataset.editing;
+    const gst = parseInt(document.getElementById('serviceGst')?.value || 18);
 
     if (!name || !sac || rate <= 0) {
-        showAlert('Service name, SAC code, and rate are required', 'error');
+        showAlert('Fill all required fields', 'error');
         return;
     }
 
-    // Validate SAC code (should be 6 digits)
     if (!/^\d{6}$/.test(sac)) {
-        showAlert('SAC code must be 6 digits', 'error');
+        showAlert('SAC must be 6 digits', 'error');
         return;
     }
 
-    if (isEditing) {
-        // Update existing
-        const svc = appData.services.find(s => s.id === isEditing);
-        if (svc) {
-            svc.name = name;
-            svc.sac = sac;
-            svc.rate = rate;
-            svc.gst = gst;
-            svc.description = desc;
-        }
-    } else {
-        // Add new
-        appData.services.push({
-            id: 'svc_' + Date.now(),
-            categoryId: categoryId,
-            name: name,
-            sac: sac,
-            rate: rate,
-            gst: gst,
-            description: desc
-        });
-    }
+    appData.services.push({
+        id: 'svc_' + Date.now(),
+        categoryId: catId,
+        name: name,
+        sac: sac,
+        rate: rate,
+        gst: gst
+    });
 
     saveToLocalStorage();
-    closeServiceModal();
-    displayServices();
-    showAlert('✓ Service saved successfully!', 'success');
-}
+    showAlert('✓ Service added!', 'success');
 
-function editService(serviceId) {
-    const svc = appData.services.find(s => s.id === serviceId);
-    if (svc) {
-        document.getElementById('serviceModalTitle').textContent = 'Edit Service';
-        document.getElementById('serviceCategory').value = svc.categoryId;
-        document.getElementById('serviceName').value = svc.name;
-        document.getElementById('serviceSac').value = svc.sac;
-        document.getElementById('serviceRate').value = svc.rate;
-        document.getElementById('serviceGst').value = svc.gst;
-        document.getElementById('serviceDesc').value = svc.description || '';
-        document.getElementById('serviceForm').dataset.editing = serviceId;
-        const modal = document.getElementById('serviceModal');
-        if (modal) modal.style.display = 'flex';
-    }
+    document.getElementById('serviceName').value = '';
+    document.getElementById('serviceSac').value = '';
+    document.getElementById('serviceRate').value = '';
 }
 
 function deleteService(serviceId) {
-    if (confirm('Are you sure you want to delete this service?')) {
-        appData.services = appData.services.filter(s => s.id !== serviceId);
-        saveToLocalStorage();
-        displayServices();
-        showAlert('✓ Service deleted!', 'success');
-    }
-}
+    if (!confirm('Delete this service?')) return;
 
-function closeServiceModal() {
-    const modal = document.getElementById('serviceModal');
-    if (modal) modal.style.display = 'none';
-}
-
-function displayServices() {
-    const categoryId = document.getElementById('serviceCategory')?.value;
-    const container = document.getElementById('servicesContainer');
-    if (!container) return;
-
-    const services = categoryId 
-        ? appData.services.filter(s => s.categoryId === categoryId)
-        : appData.services;
-
-    if (services.length === 0) {
-        container.innerHTML = '<div class="empty-state">No services in this category</div>';
-        return;
-    }
-
-    container.innerHTML = services.map(svc => `
-        <div class="service-card">
-            <div class="service-header">
-                <h4>${svc.name}</h4>
-                <div class="service-actions">
-                    <button onclick="editService('${svc.id}')" class="btn-icon">✏️</button>
-                    <button onclick="deleteService('${svc.id}')" class="btn-icon">🗑️</button>
-                </div>
-            </div>
-            <div class="service-details">
-                <p><strong>SAC:</strong> ${svc.sac}</p>
-                <p><strong>Rate:</strong> ₹${svc.rate.toFixed(2)}</p>
-                <p><strong>GST:</strong> ${svc.gst}%</p>
-                ${svc.description ? '<p class="service-desc">' + svc.description + '</p>' : ''}
-            </div>
-        </div>
-    `).join('');
+    appData.services = appData.services.filter(s => s.id !== serviceId);
+    saveToLocalStorage();
+    showAlert('✓ Service deleted!', 'success');
 }
 
 function populateCategoryDropdown() {
     const dropdown = document.getElementById('serviceCategory');
     if (!dropdown) return;
 
-    dropdown.innerHTML = '<option value="">Select a category...</option>' + 
+    dropdown.innerHTML = '<option value="">Select category...</option>' +
         appData.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
-
-    // Add event listener for real-time service display
-    dropdown.addEventListener('change', displayServices);
 }
 
 // ========================================
-// IMPORT/EXPORT FUNCTIONS
+// EXPORT/IMPORT
 // ========================================
 
-function exportToJSON() {
-    const dataStr = JSON.stringify(appData, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dream-harbour-settings.json';
-    link.click();
-    showAlert('✓ Settings exported!', 'success');
-}
-
-function exportToCSV() {
-    let csv = 'Category,Service Name,SAC Code,Rate,GST %\n';
-
-    appData.services.forEach(svc => {
-        const cat = appData.categories.find(c => c.id === svc.categoryId)?.name || 'Uncategorized';
-        csv += \`"\${cat}","\${svc.name}",\${svc.sac},\${svc.rate},\${svc.gst}\n\`;
-    });
-
-    const csvBlob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(csvBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dream-harbour-services.csv';
-    link.click();
-    showAlert('✓ Services exported to CSV!', 'success');
-}
-
-function importFromJSON() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-
-    input.onchange = function(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-            try {
-                const imported = JSON.parse(event.target.result);
-                appData = imported;
-                saveToLocalStorage();
-                loadAllData();
-                showAlert('✓ Settings imported successfully!', 'success');
-                location.reload();
-            } catch(err) {
-                showAlert('Error importing file: ' + err.message, 'error');
-            }
-        };
-
-        reader.readAsText(file);
-    };
-
-    input.click();
+function exportJSON() {
+    const json = JSON.stringify(appData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'settings-backup.json';
+    a.click();
+    showAlert('✓ Exported!', 'success');
 }
 
 // ========================================
-// STORAGE FUNCTIONS
+// STORAGE
 // ========================================
 
 function saveToLocalStorage() {
     try {
         localStorage.setItem('dreamHarbourAppData', JSON.stringify(appData));
-        localStorage.setItem('dreamHarbourLastSaved', new Date().toISOString());
-        return true;
-    } catch(err) {
-        showAlert('Error saving to storage: ' + err.message, 'error');
-        return false;
+        console.log('✓ Saved to localStorage');
+    } catch(e) {
+        console.error('Storage error:', e);
+        showAlert('Error saving data', 'error');
     }
 }
 
@@ -381,9 +976,10 @@ function loadAllData() {
         const saved = localStorage.getItem('dreamHarbourAppData');
         if (saved) {
             appData = JSON.parse(saved);
+            console.log('✓ Loaded from localStorage');
         }
 
-        // Populate form fields
+        // Populate form
         document.getElementById('businessName').value = appData.business.name;
         document.getElementById('gstin').value = appData.business.gstin;
         document.getElementById('phone').value = appData.business.phone;
@@ -393,95 +989,28 @@ function loadAllData() {
         document.getElementById('state').value = appData.business.state;
         document.getElementById('pincode').value = appData.business.pincode;
         document.getElementById('defaultGst').value = appData.business.defaultGst;
-
-        console.log('✓ Data loaded from storage');
-    } catch(err) {
-        console.error('Error loading data:', err);
+    } catch(e) {
+        console.error('Load error:', e);
     }
 }
 
-function clearAllData() {
-    if (confirm('Are you sure? This will delete ALL settings, categories, and services!')) {
-        localStorage.removeItem('dreamHarbourAppData');
-        appData = {
-            business: {},
-            categories: [],
-            services: []
-        };
-        location.reload();
-    }
+function showAlert(msg, type) {
+    const alert = document.createElement('div');
+    alert.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:' + 
+        (type === 'success' ? '#10b981' : '#ef4444') + ';color:white;border-radius:5px;z-index:9999';
+    alert.textContent = msg;
+    document.body.appendChild(alert);
+    setTimeout(() => alert.remove(), 3000);
 }
 
-// ========================================
-// UI HELPER FUNCTIONS
-// ========================================
-
-function showAlert(message, type = 'info') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-' + type;
-    alertDiv.textContent = message;
-    alertDiv.style.cssText = \`
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-        background: \${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    \`;
-
-    document.body.appendChild(alertDiv);
-
-    setTimeout(() => {
-        alertDiv.style.animation = 'slideOut 0.3s ease-in';
-        setTimeout(() => alertDiv.remove(), 300);
-    }, 3000);
-}
-
-// Close modals on outside click
-document.addEventListener('click', function(event) {
-    const categoryModal = document.getElementById('categoryModal');
-    const serviceModal = document.getElementById('serviceModal');
-
-    if (categoryModal && event.target === categoryModal) {
-        closeCategoryModal();
-    }
-    if (serviceModal && event.target === serviceModal) {
-        closeServiceModal();
-    }
-});
-
-// Add keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeCategoryModal();
-        closeServiceModal();
-    }
-});
-
-// Export data structure for invoices.html to access
-window.dreamHarbourData = {
+// Export for invoices to access
+window.dreamHarbourSettings = {
     getBusinessInfo: () => appData.business,
     getAllServices: () => appData.services,
-    getCategories: () => appData.categories,
-    getServicesByCategory: (catId) => appData.services.filter(s => s.categoryId === catId),
-    exportData: () => JSON.stringify(appData)
+    getCategories: () => appData.categories
 };
-
-
-            @keyframes slideIn {
-                from { transform: translateX(400px); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(400px); opacity: 0; }
-            }
-</script></script>
+</script>
+</script>
     
     <style>
         :root {
