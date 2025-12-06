@@ -785,10 +785,9 @@
     </style>
 <script>
 // ========================================
-// SETTINGS MANAGEMENT - Complete Implementation
+// DREAM HARBOUR SETTINGS - COMPLETE v2
 // ========================================
 
-// Data structure
 let appData = {
     business: {
         name: 'Dream Harbour',
@@ -805,13 +804,53 @@ let appData = {
     services: []
 };
 
-// Initialize on page load
+// Initialize on load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✓ Settings page loaded');
+    console.log('✅ Settings page loaded');
     loadAllData();
     displayCategories();
     populateCategoryDropdown();
+    setupCategoryModal();
+    setupServiceModal();
 });
+
+// ========================================
+// MODAL SETUP
+// ========================================
+
+function setupCategoryModal() {
+    const closeBtn = document.getElementById('closeCategoryModal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeCategoryModal);
+    }
+
+    const cancelBtn = document.getElementById('cancelCategoryBtn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeCategoryModal);
+    }
+
+    const saveBtn = document.getElementById('categorySaveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveCategoryModal);
+    }
+}
+
+function setupServiceModal() {
+    const closeBtn = document.getElementById('closeServiceModal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeServiceModal);
+    }
+
+    const cancelBtn = document.getElementById('cancelServiceBtn');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeServiceModal);
+    }
+
+    const saveBtn = document.getElementById('saveServiceBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveServiceModal);
+    }
+}
 
 // ========================================
 // BUSINESS FUNCTIONS
@@ -832,6 +871,19 @@ function saveBusinessInfo() {
 
     saveToLocalStorage();
     showAlert('✓ Business information saved!', 'success');
+    console.log('✓ Business saved', appData.business);
+}
+
+function resetBusinessForm() {
+    document.getElementById('businessName').value = appData.business.name;
+    document.getElementById('gstin').value = appData.business.gstin;
+    document.getElementById('phone').value = appData.business.phone;
+    document.getElementById('email').value = appData.business.email;
+    document.getElementById('address').value = appData.business.address;
+    document.getElementById('city').value = appData.business.city;
+    document.getElementById('state').value = appData.business.state;
+    document.getElementById('pincode').value = appData.business.pincode;
+    document.getElementById('defaultGst').value = appData.business.defaultGst;
 }
 
 // ========================================
@@ -839,31 +891,64 @@ function saveBusinessInfo() {
 // ========================================
 
 function addCategory() {
-    const name = prompt('Enter category name:');
-    if (!name) return;
+    document.getElementById('categoryForm')?.reset();
+    document.getElementById('categoryForm').dataset.editing = '';
+    const modal = document.getElementById('categoryModal');
+    if (modal) modal.style.display = 'flex';
+}
 
-    appData.categories.push({
-        id: 'cat_' + Date.now(),
-        name: name,
-        description: ''
-    });
+function closeCategoryModal() {
+    const modal = document.getElementById('categoryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function saveCategoryModal() {
+    const name = document.getElementById('categoryName')?.value?.trim();
+    if (!name) {
+        showAlert('Category name is required', 'error');
+        return;
+    }
+
+    const isEditing = document.getElementById('categoryForm').dataset.editing;
+
+    if (isEditing) {
+        const cat = appData.categories.find(c => c.id === isEditing);
+        if (cat) {
+            cat.name = name;
+        }
+    } else {
+        appData.categories.push({
+            id: 'cat_' + Date.now(),
+            name: name
+        });
+    }
 
     saveToLocalStorage();
+    closeCategoryModal();
     displayCategories();
     populateCategoryDropdown();
-    showAlert('✓ Category added!', 'success');
+    showAlert('✓ Category saved!', 'success');
+}
+
+function editCategory(catId) {
+    const cat = appData.categories.find(c => c.id === catId);
+    if (cat) {
+        document.getElementById('categoryName').value = cat.name;
+        document.getElementById('categoryForm').dataset.editing = catId;
+        const modal = document.getElementById('categoryModal');
+        if (modal) modal.style.display = 'flex';
+    }
 }
 
 function deleteCategory(catId) {
-    if (!confirm('Delete this category?')) return;
-
-    appData.categories = appData.categories.filter(c => c.id !== catId);
-    appData.services = appData.services.filter(s => s.categoryId !== catId);
-
-    saveToLocalStorage();
-    displayCategories();
-    populateCategoryDropdown();
-    showAlert('✓ Category deleted!', 'success');
+    if (confirm('Delete category and all its services?')) {
+        appData.categories = appData.categories.filter(c => c.id !== catId);
+        appData.services = appData.services.filter(s => s.categoryId !== catId);
+        saveToLocalStorage();
+        displayCategories();
+        populateCategoryDropdown();
+        showAlert('✓ Category deleted!', 'success');
+    }
 }
 
 function displayCategories() {
@@ -871,16 +956,21 @@ function displayCategories() {
     if (!container) return;
 
     if (appData.categories.length === 0) {
-        container.innerHTML = '<p>No categories. <button onclick="addCategory()">Add one</button></p>';
+        container.innerHTML = '<p>No categories. Click "Add Category" to create one.</p>';
         return;
     }
 
-    container.innerHTML = appData.categories.map(cat => `
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-            <strong>${cat.name}</strong>
-            <button onclick="deleteCategory('${cat.id}')">Delete</button>
+    container.innerHTML = appData.categories.map(cat => \`
+        <div style="border:1px solid #ddd;padding:10px;margin:5px;border-radius:5px">
+            <div style="display:flex;justify-content:space-between">
+                <strong>\${cat.name}</strong>
+                <div>
+                    <button onclick="editCategory('\${cat.id}')" style="padding:5px 10px;margin:0 5px">Edit</button>
+                    <button onclick="deleteCategory('\${cat.id}')" style="padding:5px 10px;margin:0 5px;background:#ef4444;color:white">Delete</button>
+                </div>
+            </div>
         </div>
-    `).join('');
+    \`).join('');
 }
 
 // ========================================
@@ -894,44 +984,111 @@ function addService() {
         return;
     }
 
+    document.getElementById('serviceForm')?.reset();
+    document.getElementById('serviceForm').dataset.editing = '';
+    const modal = document.getElementById('serviceModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeServiceModal() {
+    const modal = document.getElementById('serviceModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function saveServiceModal() {
+    const catId = document.getElementById('serviceCategory')?.value;
     const name = document.getElementById('serviceName')?.value?.trim();
     const sac = document.getElementById('serviceSac')?.value?.trim();
     const rate = parseFloat(document.getElementById('serviceRate')?.value || 0);
     const gst = parseInt(document.getElementById('serviceGst')?.value || 18);
 
     if (!name || !sac || rate <= 0) {
-        showAlert('Fill all required fields', 'error');
+        showAlert('All fields required with valid values', 'error');
         return;
     }
 
     if (!/^\d{6}$/.test(sac)) {
-        showAlert('SAC must be 6 digits', 'error');
+        showAlert('SAC must be exactly 6 digits', 'error');
         return;
     }
 
-    appData.services.push({
-        id: 'svc_' + Date.now(),
-        categoryId: catId,
-        name: name,
-        sac: sac,
-        rate: rate,
-        gst: gst
-    });
+    const isEditing = document.getElementById('serviceForm').dataset.editing;
+
+    if (isEditing) {
+        const svc = appData.services.find(s => s.id === isEditing);
+        if (svc) {
+            svc.name = name;
+            svc.sac = sac;
+            svc.rate = rate;
+            svc.gst = gst;
+        }
+    } else {
+        appData.services.push({
+            id: 'svc_' + Date.now(),
+            categoryId: catId,
+            name: name,
+            sac: sac,
+            rate: rate,
+            gst: gst
+        });
+    }
 
     saveToLocalStorage();
-    showAlert('✓ Service added!', 'success');
+    closeServiceModal();
+    showAlert('✓ Service saved!', 'success');
+}
 
-    document.getElementById('serviceName').value = '';
-    document.getElementById('serviceSac').value = '';
-    document.getElementById('serviceRate').value = '';
+function editService(serviceId) {
+    const svc = appData.services.find(s => s.id === serviceId);
+    if (svc) {
+        document.getElementById('serviceCategory').value = svc.categoryId;
+        document.getElementById('serviceName').value = svc.name;
+        document.getElementById('serviceSac').value = svc.sac;
+        document.getElementById('serviceRate').value = svc.rate;
+        document.getElementById('serviceGst').value = svc.gst;
+        document.getElementById('serviceForm').dataset.editing = serviceId;
+        const modal = document.getElementById('serviceModal');
+        if (modal) modal.style.display = 'flex';
+    }
 }
 
 function deleteService(serviceId) {
-    if (!confirm('Delete this service?')) return;
+    if (confirm('Delete this service?')) {
+        appData.services = appData.services.filter(s => s.id !== serviceId);
+        saveToLocalStorage();
+        displayServices();
+        showAlert('✓ Service deleted!', 'success');
+    }
+}
 
-    appData.services = appData.services.filter(s => s.id !== serviceId);
-    saveToLocalStorage();
-    showAlert('✓ Service deleted!', 'success');
+function displayServices() {
+    const catId = document.getElementById('serviceCategory')?.value;
+    const container = document.getElementById('servicesContainer');
+    if (!container) return;
+
+    const services = catId 
+        ? appData.services.filter(s => s.categoryId === catId)
+        : [];
+
+    if (services.length === 0) {
+        container.innerHTML = '<p>No services in this category</p>';
+        return;
+    }
+
+    container.innerHTML = services.map(svc => \`
+        <div style="border:1px solid #e0e0e0;padding:10px;margin:5px;border-radius:5px">
+            <div style="display:flex;justify-content:space-between">
+                <div>
+                    <strong>\${svc.name}</strong><br/>
+                    SAC: \${svc.sac} | Rate: ₹\${svc.rate} | GST: \${svc.gst}%
+                </div>
+                <div>
+                    <button onclick="editService('\${svc.id}')" style="padding:5px 10px">Edit</button>
+                    <button onclick="deleteService('\${svc.id}')" style="padding:5px 10px;background:#ef4444;color:white">Delete</button>
+                </div>
+            </div>
+        </div>
+    \`).join('');
 }
 
 function populateCategoryDropdown() {
@@ -939,7 +1096,9 @@ function populateCategoryDropdown() {
     if (!dropdown) return;
 
     dropdown.innerHTML = '<option value="">Select category...</option>' +
-        appData.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+        appData.categories.map(cat => \`<option value="\${cat.id}">\${cat.name}</option>\`).join('');
+
+    dropdown.addEventListener('change', displayServices);
 }
 
 // ========================================
@@ -950,11 +1109,55 @@ function exportJSON() {
     const json = JSON.stringify(appData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'settings-backup.json';
-    a.click();
-    showAlert('✓ Exported!', 'success');
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dream-harbour-settings.json';
+    link.click();
+    showAlert('✓ Settings exported!', 'success');
+}
+
+function exportCSV() {
+    let csv = 'Category,Service Name,SAC Code,Rate,GST %\n';
+
+    appData.services.forEach(svc => {
+        const cat = appData.categories.find(c => c.id === svc.categoryId)?.name || 'Uncategorized';
+        csv += \`"\${cat}","\${svc.name}",\${svc.sac},\${svc.rate},\${svc.gst}\n\`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dream-harbour-services.csv';
+    link.click();
+    showAlert('✓ Services exported!', 'success');
+}
+
+function importJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            try {
+                const imported = JSON.parse(event.target.result);
+                appData = imported;
+                saveToLocalStorage();
+                location.reload();
+                showAlert('✓ Settings imported!', 'success');
+            } catch(err) {
+                showAlert('Error importing file', 'error');
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
+    input.click();
 }
 
 // ========================================
@@ -966,8 +1169,8 @@ function saveToLocalStorage() {
         localStorage.setItem('dreamHarbourAppData', JSON.stringify(appData));
         console.log('✓ Saved to localStorage');
     } catch(e) {
-        console.error('Storage error:', e);
         showAlert('Error saving data', 'error');
+        console.error(e);
     }
 }
 
@@ -980,35 +1183,56 @@ function loadAllData() {
         }
 
         // Populate form
-        document.getElementById('businessName').value = appData.business.name;
-        document.getElementById('gstin').value = appData.business.gstin;
-        document.getElementById('phone').value = appData.business.phone;
-        document.getElementById('email').value = appData.business.email;
-        document.getElementById('address').value = appData.business.address;
-        document.getElementById('city').value = appData.business.city;
-        document.getElementById('state').value = appData.business.state;
-        document.getElementById('pincode').value = appData.business.pincode;
-        document.getElementById('defaultGst').value = appData.business.defaultGst;
+        if (document.getElementById('businessName')) {
+            document.getElementById('businessName').value = appData.business.name;
+            document.getElementById('gstin').value = appData.business.gstin;
+            document.getElementById('phone').value = appData.business.phone;
+            document.getElementById('email').value = appData.business.email;
+            document.getElementById('address').value = appData.business.address;
+            document.getElementById('city').value = appData.business.city;
+            document.getElementById('state').value = appData.business.state;
+            document.getElementById('pincode').value = appData.business.pincode;
+            document.getElementById('defaultGst').value = appData.business.defaultGst;
+        }
     } catch(e) {
         console.error('Load error:', e);
     }
 }
 
-function showAlert(msg, type) {
-    const alert = document.createElement('div');
-    alert.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:' + 
-        (type === 'success' ? '#10b981' : '#ef4444') + ';color:white;border-radius:5px;z-index:9999';
-    alert.textContent = msg;
-    document.body.appendChild(alert);
-    setTimeout(() => alert.remove(), 3000);
+function clearAllData() {
+    if (confirm('Delete ALL data? This cannot be undone!')) {
+        localStorage.removeItem('dreamHarbourAppData');
+        location.reload();
+    }
 }
 
-// Export for invoices to access
+// ========================================
+// UI HELPERS
+// ========================================
+
+function showAlert(msg, type) {
+    const alert = document.createElement('div');
+    alert.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:8px;color:white;font-weight:600;z-index:9999;background:' +
+        (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6');
+    alert.textContent = msg;
+    document.body.appendChild(alert);
+
+    setTimeout(() => {
+        alert.style.opacity = '0';
+        alert.style.transition = 'opacity 0.3s';
+        setTimeout(() => alert.remove(), 300);
+    }, 2500);
+}
+
+// Export API
 window.dreamHarbourSettings = {
     getBusinessInfo: () => appData.business,
     getAllServices: () => appData.services,
-    getCategories: () => appData.categories
+    getCategories: () => appData.categories,
+    getServicesByCategory: (catId) => appData.services.filter(s => s.categoryId === catId)
 };
+
+console.log('✅ Settings script loaded');
 </script>
 </script>
     
