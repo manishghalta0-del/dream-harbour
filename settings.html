@@ -3,27 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Settings Pro</title>
-    
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    <title>Dream Harbour - Settings</title>
     <style>
-        :root {
-            --primary-blue: #1e40af;
-            --primary-light: #3b82f6;
-            --primary-dark: #1e3a8a;
-            --success-green: #10b981;
-            --success-light: #d1fae5;
-            --error-red: #ef4444;
-            --error-light: #fee2e2;
-            --warning-yellow: #f59e0b;
-            --warning-light: #fef3c7;
-            --gray: #6b7280;
-            --gray-light: #e5e7eb;
-            --gray-lighter: #f3f4f6;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -31,67 +12,64 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1000px;
             margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
         }
 
         .header {
-            background: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            text-align: center;
         }
 
         .header h1 {
             font-size: 28px;
-            color: var(--primary-blue);
             margin-bottom: 5px;
         }
 
         .header p {
-            color: var(--gray);
+            opacity: 0.9;
             font-size: 14px;
         }
 
-        .tabs-container {
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
-            overflow-x: auto;
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-bottom: 2px solid #f0f0f0;
         }
 
         .tab-btn {
-            padding: 12px 24px;
-            background: transparent;
+            padding: 12px 20px;
             border: none;
+            background: none;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            color: var(--gray);
+            color: #666;
             border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .tab-btn:hover {
-            color: var(--primary-blue);
+            transition: all 0.3s;
         }
 
         .tab-btn.active {
-            color: var(--primary-blue);
-            border-bottom-color: var(--primary-blue);
+            color: #667eea;
+            border-bottom-color: #667eea;
         }
 
         .tab-content {
@@ -100,141 +78,78 @@
 
         .tab-content.active {
             display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: var(--primary-blue);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            margin-bottom: 20px;
         }
 
-        .form-group.full {
-            grid-column: 1 / -1;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
         }
 
-        label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input, select, textarea {
-            padding: 12px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
             font-size: 14px;
             font-family: inherit;
-            transition: all 0.3s ease;
-            background: white;
         }
 
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-        }
-
-        textarea {
+        .form-group textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 60px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
         .button-group {
             display: flex;
-            gap: 12px;
-            margin-top: 25px;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         button {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
         }
 
         .btn-primary {
-            background: var(--primary-blue);
+            background: #667eea;
             color: white;
-            flex: 1;
         }
 
         .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+            background: #5568d3;
         }
 
         .btn-secondary {
-            background: var(--gray-light);
-            color: var(--gray);
+            background: #f0f0f0;
+            color: #333;
         }
 
         .btn-secondary:hover {
-            background: var(--gray);
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success-green);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
+            background: #e0e0e0;
         }
 
         .btn-danger {
-            background: var(--error-red);
+            background: #ef4444;
             color: white;
         }
 
@@ -242,308 +157,69 @@
             background: #dc2626;
         }
 
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 12px;
-        }
-
-        .btn-icon {
-            padding: 8px 12px;
-            font-size: 14px;
-            min-width: auto;
-            min-height: auto;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        .alert-success {
-            background: var(--success-light);
-            color: var(--success-green);
-            border-left: 4px solid var(--success-green);
-        }
-
-        .alert-error {
-            background: var(--error-light);
-            color: var(--error-red);
-            border-left: 4px solid var(--error-red);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .service-tree {
-            border: 2px solid var(--gray-light);
-            border-radius: 12px;
-            padding: 0;
+        .items-list {
             margin-top: 20px;
-            max-height: none;
-            overflow-y: auto;
         }
 
-        .service-category {
-            margin-bottom: 0;
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .service-category:last-child {
-            border-bottom: none;
-        }
-
-        .service-category:hover {
-            box-shadow: none;
-        }
-
-        .category-header {
-            background: white;
-            border-left: none;
-            padding: 16px 20px;
+        .item-card {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            cursor: pointer;
-            border-bottom: none;
-            transition: all 0.2s ease;
         }
 
-        .category-header:hover {
-            background: var(--gray-lighter);
-        }
-
-        .category-header h3 {
-            font-size: 15px;
-            margin: 0;
-            color: var(--primary-blue);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .category-count {
-            background: var(--primary-blue);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .category-toggle {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: transform 0.3s ease;
-        }
-
-        .category-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .category-services {
-            padding: 0;
-            background: #f8fafc;
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .category-services.collapsed {
-            max-height: 0;
-            display: none;
-        }
-
-        .primary-service {
-            background: white;
-            border-bottom: 1px solid var(--gray-light);
-            padding: 12px 20px;
-            transition: all 0.2s ease;
-            margin: 0;
-        }
-
-        .primary-service:hover {
-            background: #f0f4f8;
-            padding-left: 25px;
-        }
-
-        .primary-service:last-child {
-            border-bottom: none;
-        }
-
-        .primary-service-header {
-            padding: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            background: transparent;
-            border: none;
-            gap: 12px;
-        }
-
-        .service-main-info {
+        .item-info {
             flex: 1;
         }
 
-        .primary-service-header h4 {
+        .item-info h4 {
             font-size: 14px;
-            color: var(--primary-dark);
-            margin: 0 0 6px 0;
-            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .item-info p {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .item-actions {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 10px;
         }
 
-        .primary-service-header h4 span:first-child {
-            font-size: 14px;
+        .item-actions button {
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
-        .service-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 11px;
-            color: var(--gray);
-        }
-
-        .service-info span {
-            background: var(--gray-lighter);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            white-space: nowrap;
-        }
-
-        .service-info span::before {
-            font-size: 9px;
-        }
-
-        .service-info .sac-code {
-            background: #dbeafe;
-            color: var(--primary-blue);
-        }
-
-        .service-info .rate {
-            background: #d1fae5;
-            color: var(--success-green);
-        }
-
-        .service-info .gst {
-            background: #fef3c7;
-            color: var(--warning-yellow);
-        }
-
-        .sub-services {
-            padding: 8px 20px 12px 40px;
-            background: transparent;
-            border-top: none;
-        }
-
-        .sub-service {
-            background: white;
-            border: 1px solid var(--gray-light);
+        .alert {
+            padding: 15px;
             border-radius: 6px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            transition: all 0.2s ease;
+            margin-bottom: 20px;
+            font-size: 14px;
         }
 
-        .sub-service:hover {
-            border-color: var(--primary-light);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transform: translateX(2px);
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
         }
 
-        .sub-service-type-1 {
-            border-left: 3px solid var(--primary-blue);
+        .alert-error {
+            background: #fee2e2;
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
         }
 
-        .sub-service-type-2 {
-            border-left: 3px solid var(--success-green);
-        }
-
-        .sub-service h5 {
-            font-size: 13px;
-            margin: 0 0 4px 0;
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .sub-service-details {
-            font-size: 11px;
-            color: var(--gray);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .sub-service-details .badge {
-            margin: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .badge-type1 {
+        .alert-info {
             background: #dbeafe;
-            color: var(--primary-blue);
-        }
-
-        .badge-type2 {
-            background: var(--success-light);
-            color: var(--success-green);
-        }
-
-        .badge-active {
-            background: var(--success-light);
-            color: var(--success-green);
-        }
-
-        .badge-inactive {
-            background: var(--error-light);
-            color: var(--error-red);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 6px;
+            color: #0c2d6b;
+            border: 1px solid #93c5fd;
         }
 
         .modal {
@@ -551,10 +227,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -564,465 +239,344 @@
             display: flex;
         }
 
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .btn-loading {
-            position: relative;
-        }
-
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            top: 50%;
-            left: 50%;
-            margin-left: -8px;
-            margin-top: -8px;
-            border: 2px solid transparent;
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
         .modal-content {
             background: white;
-            border-radius: 15px;
+            border-radius: 8px;
             padding: 30px;
-            max-width: 600px;
             width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalSlideUp 0.4s ease;
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--gray-light);
-        }
-
-        .modal-header h3 {
-            font-size: 20px;
-            color: var(--primary-blue);
-            margin: 0;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: var(--gray);
-            padding: 0;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: var(--error-light);
-            color: var(--error-red);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Navigation Bar */
-        .nav-bar {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-blue);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--gray);
+            font-size: 18px;
             font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            background: var(--gray-lighter);
-            color: var(--primary-blue);
-        }
-
-        .nav-links a.active {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        /* Search Box */
-        .search-box {
-            position: relative;
             margin-bottom: 20px;
+            color: #333;
         }
 
-        .search-box input {
-            width: 100%;
-            padding: 12px 12px 12px 40px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .search-box::before {
-            content: '🔍';
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-        }
-
-        /* Skeleton Loader */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        .skeleton-text {
-            height: 20px;
-            margin-bottom: 10px;
-        }
-
-        .skeleton-card {
-            height: 100px;
-            margin-bottom: 15px;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                gap: 10px;
-            }
-            .nav-links a {
-                padding: 6px 12px;
-                font-size: 13px;
-            }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
         }
     </style>
-<script>
-// ========================================
-// DREAM HARBOUR SETTINGS - COMPLETE v2
-// ========================================
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Dream Harbour Settings</h1>
+            <p>Manage your business information and services</p>
+        </div>
 
-let appData = {
-    business: {
-        name: 'Dream Harbour',
-        gstin: '27XXXXX1234X1Z5',
-        phone: '+91 98765 43210',
-        email: 'info@dreamharbour.com',
-        address: '123 Business Street',
-        city: 'City Name',
-        state: 'State',
-        pincode: '123456',
-        defaultGst: 18
-    },
-    categories: [],
-    services: []
-};
+        <div class="content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('business')">💼 Business Info</button>
+                <button class="tab-btn" onclick="switchTab('services')">📋 Services</button>
+            </div>
 
-// Initialize on load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Settings page loaded');
-    loadAllData();
-    displayCategories();
-    populateCategoryDropdown();
-    setupCategoryModal();
-    setupServiceModal();
-});
+            <!-- Business Tab -->
+            <div id="business" class="tab-content active">
+                <h2 style="margin-bottom: 20px;">Business Information</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Business Name *</label>
+                        <input type="text" id="businessName" placeholder="Enter business name">
+                    </div>
+                    <div class="form-group">
+                        <label>GSTIN *</label>
+                        <input type="text" id="gstin" placeholder="27XXXXX1234X1Z5">
+                    </div>
+                </div>
 
-// ========================================
-// MODAL SETUP
-// ========================================
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone *</label>
+                        <input type="text" id="phone" placeholder="+91 98765 43210">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" placeholder="info@business.com">
+                    </div>
+                </div>
 
-function setupCategoryModal() {
-    const closeBtn = document.getElementById('closeCategoryModal');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeCategoryModal);
-    }
+                <div class="form-group">
+                    <label>Address *</label>
+                    <input type="text" id="address" placeholder="123 Business Street">
+                </div>
 
-    const cancelBtn = document.getElementById('cancelCategoryBtn');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeCategoryModal);
-    }
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>City *</label>
+                        <input type="text" id="city" placeholder="City Name">
+                    </div>
+                    <div class="form-group">
+                        <label>State *</label>
+                        <input type="text" id="state" placeholder="State">
+                    </div>
+                </div>
 
-    const saveBtn = document.getElementById('categorySaveBtn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveCategoryModal);
-    }
-}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Pincode *</label>
+                        <input type="text" id="pincode" placeholder="123456">
+                    </div>
+                    <div class="form-group">
+                        <label>Default GST % *</label>
+                        <input type="number" id="defaultGst" placeholder="18" value="18">
+                    </div>
+                </div>
 
-function setupServiceModal() {
-    const closeBtn = document.getElementById('closeServiceModal');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeServiceModal);
-    }
+                <div class="button-group">
+                    <button class="btn-primary" onclick="saveBusinessInfo()">💾 Save Business Info</button>
+                    <button class="btn-secondary" onclick="resetBusinessForm()">🔄 Reset</button>
+                </div>
+            </div>
 
-    const cancelBtn = document.getElementById('cancelServiceBtn');
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', closeServiceModal);
-    }
+            <!-- Services Tab -->
+            <div id="services" class="tab-content">
+                <h2 style="margin-bottom: 20px;">Services Management</h2>
 
-    const saveBtn = document.getElementById('saveServiceBtn');
-    if (saveBtn) {
-        saveBtn.addEventListener('click', saveServiceModal);
-    }
-}
+                <div class="form-group">
+                    <label>Select Category *</label>
+                    <select id="categorySelect" onchange="displayServices()">
+                        <option value="">Choose a category...</option>
+                    </select>
+                </div>
 
-// ========================================
-// BUSINESS FUNCTIONS
-// ========================================
+                <button class="btn-primary" onclick="openAddCategoryModal()" style="margin-bottom: 20px;">➕ Add New Category</button>
+                <button class="btn-primary" onclick="openAddServiceModal()" style="margin-bottom: 20px;">➕ Add New Service</button>
 
-function saveBusinessInfo() {
-    appData.business = {
-        name: document.getElementById('businessName')?.value || 'Dream Harbour',
-        gstin: document.getElementById('gstin')?.value || '',
-        phone: document.getElementById('phone')?.value || '',
-        email: document.getElementById('email')?.value || '',
-        address: document.getElementById('address')?.value || '',
-        city: document.getElementById('city')?.value || '',
-        state: document.getElementById('state')?.value || '',
-        pincode: document.getElementById('pincode')?.value || '',
-        defaultGst: parseInt(document.getElementById('defaultGst')?.value || 18)
+                <div class="items-list" id="servicesList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Category</div>
+            <div class="form-group">
+                <label>Category Name *</label>
+                <input type="text" id="categoryName" placeholder="e.g., Web Development">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveCategory()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Service</div>
+            <div class="form-group">
+                <label>Service Name *</label>
+                <input type="text" id="serviceName" placeholder="e.g., Website Design">
+            </div>
+            <div class="form-group">
+                <label>SAC Code * (6 digits)</label>
+                <input type="text" id="serviceSac" placeholder="998369">
+            </div>
+            <div class="form-group">
+                <label>Rate (₹) *</label>
+                <input type="number" id="serviceRate" placeholder="5000">
+            </div>
+            <div class="form-group">
+                <label>GST % *</label>
+                <select id="serviceGst">
+                    <option value="0">0%</option>
+                    <option value="5">5%</option>
+                    <option value="12">12%</option>
+                    <option selected value="18">18%</option>
+                    <option value="28">28%</option>
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-secondary" onclick="closeServiceModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveService()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Global data
+    let appData = {
+        business: {
+            name: 'Dream Harbour',
+            gstin: '27XXXXX1234X1Z5',
+            phone: '+91 98765 43210',
+            email: 'info@dreamharbour.com',
+            address: '123 Business Street',
+            city: 'City Name',
+            state: 'State',
+            pincode: '123456',
+            defaultGst: 18
+        },
+        categories: [],
+        services: []
     };
 
-    saveToLocalStorage();
-    showAlert('✓ Business information saved!', 'success');
-    console.log('✓ Business saved', appData.business);
-}
+    // Initialize
+    window.addEventListener('DOMContentLoaded', function() {
+        loadData();
+        displayCategories();
+    });
 
-function resetBusinessForm() {
-    document.getElementById('businessName').value = appData.business.name;
-    document.getElementById('gstin').value = appData.business.gstin;
-    document.getElementById('phone').value = appData.business.phone;
-    document.getElementById('email').value = appData.business.email;
-    document.getElementById('address').value = appData.business.address;
-    document.getElementById('city').value = appData.business.city;
-    document.getElementById('state').value = appData.business.state;
-    document.getElementById('pincode').value = appData.business.pincode;
-    document.getElementById('defaultGst').value = appData.business.defaultGst;
-}
-
-// ========================================
-// CATEGORY FUNCTIONS
-// ========================================
-
-function addCategory() {
-    document.getElementById('categoryForm')?.reset();
-    document.getElementById('categoryForm').dataset.editing = '';
-    const modal = document.getElementById('categoryModal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeCategoryModal() {
-    const modal = document.getElementById('categoryModal');
-    if (modal) modal.style.display = 'none';
-}
-
-function saveCategoryModal() {
-    const name = document.getElementById('categoryName')?.value?.trim();
-    if (!name) {
-        showAlert('Category name is required', 'error');
-        return;
+    // Load data from localStorage
+    function loadData() {
+        try {
+            const saved = localStorage.getItem('dreamHarbourAppData');
+            if (saved) {
+                appData = JSON.parse(saved);
+            }
+            populateForm();
+        } catch(e) {
+            console.error('Load error:', e);
+        }
     }
 
-    const isEditing = document.getElementById('categoryForm').dataset.editing;
-
-    if (isEditing) {
-        const cat = appData.categories.find(c => c.id === isEditing);
-        if (cat) {
-            cat.name = name;
+    // Save to localStorage
+    function saveData() {
+        try {
+            localStorage.setItem('dreamHarbourAppData', JSON.stringify(appData));
+            return true;
+        } catch(e) {
+            alert('Error saving data: ' + e.message);
+            return false;
         }
-    } else {
+    }
+
+    // Populate form with data
+    function populateForm() {
+        document.getElementById('businessName').value = appData.business.name;
+        document.getElementById('gstin').value = appData.business.gstin;
+        document.getElementById('phone').value = appData.business.phone;
+        document.getElementById('email').value = appData.business.email;
+        document.getElementById('address').value = appData.business.address;
+        document.getElementById('city').value = appData.business.city;
+        document.getElementById('state').value = appData.business.state;
+        document.getElementById('pincode').value = appData.business.pincode;
+        document.getElementById('defaultGst').value = appData.business.defaultGst;
+    }
+
+    // Save business info
+    function saveBusinessInfo() {
+        appData.business = {
+            name: document.getElementById('businessName').value || 'Dream Harbour',
+            gstin: document.getElementById('gstin').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            address: document.getElementById('address').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            pincode: document.getElementById('pincode').value,
+            defaultGst: parseInt(document.getElementById('defaultGst').value) || 18
+        };
+
+        if (saveData()) {
+            alert('Business information saved successfully!');
+        }
+    }
+
+    // Reset form
+    function resetBusinessForm() {
+        populateForm();
+    }
+
+    // Tab switching
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Display categories dropdown
+    function displayCategories() {
+        const select = document.getElementById('categorySelect');
+        select.innerHTML = '<option value="">Choose a category...</option>';
+        appData.categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+        });
+    }
+
+    // Open add category modal
+    function openAddCategoryModal() {
+        document.getElementById('categoryName').value = '';
+        document.getElementById('categoryModal').classList.add('show');
+    }
+
+    // Close category modal
+    function closeCategoryModal() {
+        document.getElementById('categoryModal').classList.remove('show');
+    }
+
+    // Save category
+    function saveCategory() {
+        const name = document.getElementById('categoryName').value.trim();
+        if (!name) {
+            alert('Category name is required');
+            return;
+        }
+
         appData.categories.push({
             id: 'cat_' + Date.now(),
             name: name
         });
-    }
 
-    saveToLocalStorage();
-    closeCategoryModal();
-    displayCategories();
-    populateCategoryDropdown();
-    showAlert('✓ Category saved!', 'success');
-}
-
-function editCategory(catId) {
-    const cat = appData.categories.find(c => c.id === catId);
-    if (cat) {
-        document.getElementById('categoryName').value = cat.name;
-        document.getElementById('categoryForm').dataset.editing = catId;
-        const modal = document.getElementById('categoryModal');
-        if (modal) modal.style.display = 'flex';
-    }
-}
-
-function deleteCategory(catId) {
-    if (confirm('Delete category and all its services?')) {
-        appData.categories = appData.categories.filter(c => c.id !== catId);
-        appData.services = appData.services.filter(s => s.categoryId !== catId);
-        saveToLocalStorage();
-        displayCategories();
-        populateCategoryDropdown();
-        showAlert('✓ Category deleted!', 'success');
-    }
-}
-
-function displayCategories() {
-    const container = document.getElementById('categoriesContainer');
-    if (!container) return;
-
-    if (appData.categories.length === 0) {
-        container.innerHTML = '<p>No categories. Click "Add Category" to create one.</p>';
-        return;
-    }
-
-    container.innerHTML = appData.categories.map(cat => \`
-        <div style="border:1px solid #ddd;padding:10px;margin:5px;border-radius:5px">
-            <div style="display:flex;justify-content:space-between">
-                <strong>\${cat.name}</strong>
-                <div>
-                    <button onclick="editCategory('\${cat.id}')" style="padding:5px 10px;margin:0 5px">Edit</button>
-                    <button onclick="deleteCategory('\${cat.id}')" style="padding:5px 10px;margin:0 5px;background:#ef4444;color:white">Delete</button>
-                </div>
-            </div>
-        </div>
-    \`).join('');
-}
-
-// ========================================
-// SERVICE FUNCTIONS
-// ========================================
-
-function addService() {
-    const catId = document.getElementById('serviceCategory')?.value;
-    if (!catId) {
-        showAlert('Select a category first', 'error');
-        return;
-    }
-
-    document.getElementById('serviceForm')?.reset();
-    document.getElementById('serviceForm').dataset.editing = '';
-    const modal = document.getElementById('serviceModal');
-    if (modal) modal.style.display = 'flex';
-}
-
-function closeServiceModal() {
-    const modal = document.getElementById('serviceModal');
-    if (modal) modal.style.display = 'none';
-}
-
-function saveServiceModal() {
-    const catId = document.getElementById('serviceCategory')?.value;
-    const name = document.getElementById('serviceName')?.value?.trim();
-    const sac = document.getElementById('serviceSac')?.value?.trim();
-    const rate = parseFloat(document.getElementById('serviceRate')?.value || 0);
-    const gst = parseInt(document.getElementById('serviceGst')?.value || 18);
-
-    if (!name || !sac || rate <= 0) {
-        showAlert('All fields required with valid values', 'error');
-        return;
-    }
-
-    if (!/^\d{6}$/.test(sac)) {
-        showAlert('SAC must be exactly 6 digits', 'error');
-        return;
-    }
-
-    const isEditing = document.getElementById('serviceForm').dataset.editing;
-
-    if (isEditing) {
-        const svc = appData.services.find(s => s.id === isEditing);
-        if (svc) {
-            svc.name = name;
-            svc.sac = sac;
-            svc.rate = rate;
-            svc.gst = gst;
+        if (saveData()) {
+            alert('Category added!');
+            closeCategoryModal();
+            displayCategories();
         }
-    } else {
+    }
+
+    // Open add service modal
+    function openAddServiceModal() {
+        const catId = document.getElementById('categorySelect').value;
+        if (!catId) {
+            alert('Please select a category first');
+            return;
+        }
+
+        document.getElementById('serviceName').value = '';
+        document.getElementById('serviceSac').value = '';
+        document.getElementById('serviceRate').value = '';
+        document.getElementById('serviceGst').value = '18';
+        document.getElementById('serviceModal').classList.add('show');
+    }
+
+    // Close service modal
+    function closeServiceModal() {
+        document.getElementById('serviceModal').classList.remove('show');
+    }
+
+    // Save service
+    function saveService() {
+        const catId = document.getElementById('categorySelect').value;
+        const name = document.getElementById('serviceName').value.trim();
+        const sac = document.getElementById('serviceSac').value.trim();
+        const rate = parseFloat(document.getElementById('serviceRate').value) || 0;
+        const gst = parseInt(document.getElementById('serviceGst').value) || 18;
+
+        if (!name || !sac || rate <= 0) {
+            alert('All fields are required with valid values');
+            return;
+        }
+
+        if (!/^\d{6}$/.test(sac)) {
+            alert('SAC code must be exactly 6 digits');
+            return;
+        }
+
         appData.services.push({
             id: 'svc_' + Date.now(),
             categoryId: catId,
@@ -1031,2130 +585,53 @@ function saveServiceModal() {
             rate: rate,
             gst: gst
         });
+
+        if (saveData()) {
+            alert('Service added!');
+            closeServiceModal();
+            displayServices();
+        }
     }
 
-    saveToLocalStorage();
-    closeServiceModal();
-    showAlert('✓ Service saved!', 'success');
-}
+    // Display services
+    function displayServices() {
+        const catId = document.getElementById('categorySelect').value;
+        const container = document.getElementById('servicesList');
 
-function editService(serviceId) {
-    const svc = appData.services.find(s => s.id === serviceId);
-    if (svc) {
-        document.getElementById('serviceCategory').value = svc.categoryId;
-        document.getElementById('serviceName').value = svc.name;
-        document.getElementById('serviceSac').value = svc.sac;
-        document.getElementById('serviceRate').value = svc.rate;
-        document.getElementById('serviceGst').value = svc.gst;
-        document.getElementById('serviceForm').dataset.editing = serviceId;
-        const modal = document.getElementById('serviceModal');
-        if (modal) modal.style.display = 'flex';
-    }
-}
+        if (!catId) {
+            container.innerHTML = '';
+            return;
+        }
 
-function deleteService(serviceId) {
-    if (confirm('Delete this service?')) {
-        appData.services = appData.services.filter(s => s.id !== serviceId);
-        saveToLocalStorage();
-        displayServices();
-        showAlert('✓ Service deleted!', 'success');
-    }
-}
+        const services = appData.services.filter(s => s.categoryId === catId);
 
-function displayServices() {
-    const catId = document.getElementById('serviceCategory')?.value;
-    const container = document.getElementById('servicesContainer');
-    if (!container) return;
+        if (services.length === 0) {
+            container.innerHTML = '<p style="color: #999; text-align: center;">No services in this category</p>';
+            return;
+        }
 
-    const services = catId 
-        ? appData.services.filter(s => s.categoryId === catId)
-        : [];
-
-    if (services.length === 0) {
-        container.innerHTML = '<p>No services in this category</p>';
-        return;
+        container.innerHTML = services.map(svc => `
+            <div class="item-card">
+                <div class="item-info">
+                    <h4>${svc.name}</h4>
+                    <p>SAC: ${svc.sac} | Rate: ₹${svc.rate} | GST: ${svc.gst}%</p>
+                </div>
+                <div class="item-actions">
+                    <button class="btn-secondary" onclick="deleteService('${svc.id}')">🗑️ Delete</button>
+                </div>
+            </div>
+        `).join('');
     }
 
-    container.innerHTML = services.map(svc => \`
-        <div style="border:1px solid #e0e0e0;padding:10px;margin:5px;border-radius:5px">
-            <div style="display:flex;justify-content:space-between">
-                <div>
-                    <strong>\${svc.name}</strong><br/>
-                    SAC: \${svc.sac} | Rate: ₹\${svc.rate} | GST: \${svc.gst}%
-                </div>
-                <div>
-                    <button onclick="editService('\${svc.id}')" style="padding:5px 10px">Edit</button>
-                    <button onclick="deleteService('\${svc.id}')" style="padding:5px 10px;background:#ef4444;color:white">Delete</button>
-                </div>
-            </div>
-        </div>
-    \`).join('');
-}
-
-function populateCategoryDropdown() {
-    const dropdown = document.getElementById('serviceCategory');
-    if (!dropdown) return;
-
-    dropdown.innerHTML = '<option value="">Select category...</option>' +
-        appData.categories.map(cat => \`<option value="\${cat.id}">\${cat.name}</option>\`).join('');
-
-    dropdown.addEventListener('change', displayServices);
-}
-
-// ========================================
-// EXPORT/IMPORT
-// ========================================
-
-function exportJSON() {
-    const json = JSON.stringify(appData, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dream-harbour-settings.json';
-    link.click();
-    showAlert('✓ Settings exported!', 'success');
-}
-
-function exportCSV() {
-    let csv = 'Category,Service Name,SAC Code,Rate,GST %\n';
-
-    appData.services.forEach(svc => {
-        const cat = appData.categories.find(c => c.id === svc.categoryId)?.name || 'Uncategorized';
-        csv += \`"\${cat}","\${svc.name}",\${svc.sac},\${svc.rate},\${svc.gst}\n\`;
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'dream-harbour-services.csv';
-    link.click();
-    showAlert('✓ Services exported!', 'success');
-}
-
-function importJSON() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json';
-
-    input.onchange = function(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-
-        reader.onload = function(event) {
-            try {
-                const imported = JSON.parse(event.target.result);
-                appData = imported;
-                saveToLocalStorage();
-                location.reload();
-                showAlert('✓ Settings imported!', 'success');
-            } catch(err) {
-                showAlert('Error importing file', 'error');
+    // Delete service
+    function deleteService(id) {
+        if (confirm('Delete this service?')) {
+            appData.services = appData.services.filter(s => s.id !== id);
+            if (saveData()) {
+                displayServices();
             }
-        };
-
-        reader.readAsText(file);
-    };
-
-    input.click();
-}
-
-// ========================================
-// STORAGE
-// ========================================
-
-function saveToLocalStorage() {
-    try {
-        localStorage.setItem('dreamHarbourAppData', JSON.stringify(appData));
-        console.log('✓ Saved to localStorage');
-    } catch(e) {
-        showAlert('Error saving data', 'error');
-        console.error(e);
+        }
     }
-}
-
-function loadAllData() {
-    try {
-        const saved = localStorage.getItem('dreamHarbourAppData');
-        if (saved) {
-            appData = JSON.parse(saved);
-            console.log('✓ Loaded from localStorage');
-        }
-
-        // Populate form
-        if (document.getElementById('businessName')) {
-            document.getElementById('businessName').value = appData.business.name;
-            document.getElementById('gstin').value = appData.business.gstin;
-            document.getElementById('phone').value = appData.business.phone;
-            document.getElementById('email').value = appData.business.email;
-            document.getElementById('address').value = appData.business.address;
-            document.getElementById('city').value = appData.business.city;
-            document.getElementById('state').value = appData.business.state;
-            document.getElementById('pincode').value = appData.business.pincode;
-            document.getElementById('defaultGst').value = appData.business.defaultGst;
-        }
-    } catch(e) {
-        console.error('Load error:', e);
-    }
-}
-
-function clearAllData() {
-    if (confirm('Delete ALL data? This cannot be undone!')) {
-        localStorage.removeItem('dreamHarbourAppData');
-        location.reload();
-    }
-}
-
-// ========================================
-// UI HELPERS
-// ========================================
-
-function showAlert(msg, type) {
-    const alert = document.createElement('div');
-    alert.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:8px;color:white;font-weight:600;z-index:9999;background:' +
-        (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6');
-    alert.textContent = msg;
-    document.body.appendChild(alert);
-
-    setTimeout(() => {
-        alert.style.opacity = '0';
-        alert.style.transition = 'opacity 0.3s';
-        setTimeout(() => alert.remove(), 300);
-    }, 2500);
-}
-
-// Export API
-window.dreamHarbourSettings = {
-    getBusinessInfo: () => appData.business,
-    getAllServices: () => appData.services,
-    getCategories: () => appData.categories,
-    getServicesByCategory: (catId) => appData.services.filter(s => s.categoryId === catId)
-};
-
-console.log('✅ Settings script loaded');
-</script>
-</script>
-    
-    <style>
-        :root {
-            --primary-blue: #1e40af;
-            --primary-light: #3b82f6;
-            --primary-dark: #1e3a8a;
-            --success-green: #10b981;
-            --success-light: #d1fae5;
-            --error-red: #ef4444;
-            --error-light: #fee2e2;
-            --warning-yellow: #f59e0b;
-            --warning-light: #fef3c7;
-            --gray: #6b7280;
-            --gray-light: #e5e7eb;
-            --gray-lighter: #f3f4f6;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .header h1 {
-            font-size: 28px;
-            color: var(--primary-blue);
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .tabs-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            overflow-x: auto;
-            background: white;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab-btn {
-            padding: 12px 24px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--gray);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .tab-btn:hover {
-            color: var(--primary-blue);
-        }
-
-        .tab-btn.active {
-            color: var(--primary-blue);
-            border-bottom-color: var(--primary-blue);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .card h2 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: var(--primary-blue);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
-
-        label {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input, select, textarea {
-            padding: 12px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: var(--primary-blue);
-            color: white;
-            flex: 1;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
-        }
-
-        .btn-secondary {
-            background: var(--gray-light);
-            color: var(--gray);
-        }
-
-        .btn-secondary:hover {
-            background: var(--gray);
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success-green);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
-            background: var(--error-red);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-sm {
-            padding: 8px 16px;
-            font-size: 12px;
-        }
-
-        .btn-icon {
-            padding: 8px 12px;
-            font-size: 14px;
-            min-width: auto;
-            min-height: auto;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        .alert-success {
-            background: var(--success-light);
-            color: var(--success-green);
-            border-left: 4px solid var(--success-green);
-        }
-
-        .alert-error {
-            background: var(--error-light);
-            color: var(--error-red);
-            border-left: 4px solid var(--error-red);
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .service-tree {
-            border: 2px solid var(--gray-light);
-            border-radius: 12px;
-            padding: 0;
-            margin-top: 20px;
-            max-height: none;
-            overflow-y: auto;
-        }
-
-        .service-category {
-            margin-bottom: 0;
-            background: white;
-            border-radius: 0;
-            box-shadow: none;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .service-category:last-child {
-            border-bottom: none;
-        }
-
-        .service-category:hover {
-            box-shadow: none;
-        }
-
-        .category-header {
-            background: white;
-            border-left: none;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            border-bottom: none;
-            transition: all 0.2s ease;
-        }
-
-        .category-header:hover {
-            background: var(--gray-lighter);
-        }
-
-        .category-header h3 {
-            font-size: 15px;
-            margin: 0;
-            color: var(--primary-blue);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .category-count {
-            background: var(--primary-blue);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .category-toggle {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            transition: transform 0.3s ease;
-        }
-
-        .category-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-
-        .category-services {
-            padding: 0;
-            background: #f8fafc;
-            max-height: 1000px;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-        }
-
-        .category-services.collapsed {
-            max-height: 0;
-            display: none;
-        }
-
-        .primary-service {
-            background: white;
-            border-bottom: 1px solid var(--gray-light);
-            padding: 12px 20px;
-            transition: all 0.2s ease;
-            margin: 0;
-        }
-
-        .primary-service:hover {
-            background: #f0f4f8;
-            padding-left: 25px;
-        }
-
-        .primary-service:last-child {
-            border-bottom: none;
-        }
-
-        .primary-service-header {
-            padding: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            background: transparent;
-            border: none;
-            gap: 12px;
-        }
-
-        .service-main-info {
-            flex: 1;
-        }
-
-        .primary-service-header h4 {
-            font-size: 14px;
-            color: var(--primary-dark);
-            margin: 0 0 6px 0;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .primary-service-header h4 span:first-child {
-            font-size: 14px;
-        }
-
-        .service-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 11px;
-            color: var(--gray);
-        }
-
-        .service-info span {
-            background: var(--gray-lighter);
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 3px;
-            white-space: nowrap;
-        }
-
-        .service-info span::before {
-            font-size: 9px;
-        }
-
-        .service-info .sac-code {
-            background: #dbeafe;
-            color: var(--primary-blue);
-        }
-
-        .service-info .rate {
-            background: #d1fae5;
-            color: var(--success-green);
-        }
-
-        .service-info .gst {
-            background: #fef3c7;
-            color: var(--warning-yellow);
-        }
-
-        .sub-services {
-            padding: 8px 20px 12px 40px;
-            background: transparent;
-            border-top: none;
-        }
-
-        .sub-service {
-            background: white;
-            border: 1px solid var(--gray-light);
-            border-radius: 6px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            transition: all 0.2s ease;
-        }
-
-        .sub-service:hover {
-            border-color: var(--primary-light);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transform: translateX(2px);
-        }
-
-        .sub-service-type-1 {
-            border-left: 3px solid var(--primary-blue);
-        }
-
-        .sub-service-type-2 {
-            border-left: 3px solid var(--success-green);
-        }
-
-        .sub-service h5 {
-            font-size: 13px;
-            margin: 0 0 4px 0;
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-
-        .sub-service-details {
-            font-size: 11px;
-            color: var(--gray);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .sub-service-details .badge {
-            margin: 0;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .badge-type1 {
-            background: #dbeafe;
-            color: var(--primary-blue);
-        }
-
-        .badge-type2 {
-            background: var(--success-light);
-            color: var(--success-green);
-        }
-
-        .badge-active {
-            background: var(--success-light);
-            color: var(--success-green);
-        }
-
-        .badge-inactive {
-            background: var(--error-light);
-            color: var(--error-red);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 6px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .btn-loading {
-            position: relative;
-        }
-
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            top: 50%;
-            left: 50%;
-            margin-left: -8px;
-            margin-top: -8px;
-            border: 2px solid transparent;
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: modalSlideUp 0.4s ease;
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--gray-light);
-        }
-
-        .modal-header h3 {
-            font-size: 20px;
-            color: var(--primary-blue);
-            margin: 0;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: var(--gray);
-            padding: 0;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-        }
-
-        .modal-close:hover {
-            background: var(--error-light);
-            color: var(--error-red);
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-
-        .empty-state svg {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Navigation Bar */
-        .nav-bar {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-blue);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: var(--gray);
-            font-weight: 600;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            background: var(--gray-lighter);
-            color: var(--primary-blue);
-        }
-
-        .nav-links a.active {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        /* Search Box */
-        .search-box {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 12px 12px 40px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .search-box::before {
-            content: '🔍';
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-        }
-
-        /* Skeleton Loader */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 8px;
-        }
-
-        .skeleton-text {
-            height: 20px;
-            margin-bottom: 10px;
-        }
-
-        .skeleton-card {
-            height: 100px;
-            margin-bottom: 15px;
-        }
-
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                gap: 10px;
-            }
-            .nav-links a {
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Navigation Bar -->
-        <nav class="nav-bar">
-            <div class="logo">⚓ Dream Harbour</div>
-            <div class="nav-links">
-                <a href="dashboard.html">📊 Dashboard</a>
-                <a href="invoices.html">📄 Invoices</a>
-                <a href="settings.html" class="active">⚙️ Settings</a>
-            </div>
-        </nav>
-        <!-- Header -->
-        <div class="header">
-            <h1>⚙️ Settings Pro</h1>
-            <p>Manage business information, service categories, and service configurations</p>
-        </div>
-
-        <!-- Tabs -->
-        <div class="tabs-container">
-            <button class="tab-btn active" data-tab="business">📋 Business Info</button>
-            <button class="tab-btn" data-tab="services">🛠️ Services & Categories</button>
-        </div>
-
-        <!-- Business Info Tab -->
-        <div class="tab-content active" id="business-tab">
-            <div class="card">
-                <div id="businessAlert"></div>
-                <h2>📋 Business Information</h2>
-                <form id="businessForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="businessName">Business Name *</label>
-                            <input type="text" id="businessName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gstin">GSTIN *</label>
-                            <input type="text" id="gstin" maxlength="15" pattern="[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}" title="Valid GSTIN format: 22AAAAA0000A1Z5" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone Number *</label>
-                            <input type="tel" id="phone" maxlength="10" pattern="[0-9]{10}" title="10-digit phone number" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email Address *</label>
-                            <input type="email" id="email" required>
-                        </div>
-                        <div class="form-group full">
-                            <label for="address">Address</label>
-                            <input type="text" id="address">
-                        </div>
-                        <div class="form-group">
-                            <label for="city">City</label>
-                            <input type="text" id="city">
-                        </div>
-                        <div class="form-group">
-                            <label for="state">State</label>
-                            <input type="text" id="state">
-                        </div>
-                        <div class="form-group">
-                            <label for="pincode">Pincode</label>
-                            <input type="text" id="pincode" maxlength="6" pattern="[0-9]{6}" title="6-digit pincode">
-                        </div>
-                        <div class="form-group">
-                            <label for="defaultGst">Default GST %</label>
-                            <input type="number" id="defaultGst" min="0" max="100" step="0.01" value="18">
-                        </div>
-                    </div>
-                    <div class="button-group">
-                        <button type="submit" class="btn-primary">💾 Save Business Info</button>
-                        <button type="reset" class="btn-secondary">🔄 Reset</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Services & Categories Tab -->
-        <div class="tab-content" id="services-tab">
-            <div class="card">
-                <div id="servicesAlert"></div>
-                <div class="section-header">
-                    <h2>🛠️ Service Configuration</h2>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-secondary btn-sm" id="addCategoryBtn">➕ Add Category</button>
-                        <button class="btn-secondary btn-sm" id="exportServicesBtn">📥 Export CSV</button>
-                        <button class="btn-primary btn-sm" id="addServiceBtn">➕ Add Service</button>
-                    </div>
-                </div>
-                <div class="search-box">
-                    <input type="search" id="serviceSearch" placeholder="Search services by name, SAC code, or category...">
-                </div>
-                <div class="service-tree" id="serviceTree"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Category Modal -->
-    <div class="modal" id="categoryModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="categoryModalTitle">Add Category</h3>
-                <button class="modal-close" id="closeCategoryModal">&times;</button>
-            </div>
-            <form id="categoryForm">
-                <div class="form-group">
-                    <label for="categoryName">Category Name *</label>
-                    <input type="text" id="categoryName" required>
-                </div>
-                <div class="form-group">
-                    <label for="categoryDesc">Description</label>
-                    <textarea id="categoryDesc"></textarea>
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="btn-primary" id="categorySaveBtn">💾 Save</button>
-                    <button type="button" class="btn-secondary" id="cancelCategoryBtn">❌ Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Service Modal -->
-    <div class="modal" id="serviceModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="serviceModalTitle">Add Primary Service</h3>
-                <button class="modal-close" id="closeServiceModal">&times;</button>
-            </div>
-            <form id="serviceForm">
-                <div class="form-group">
-                    <label for="serviceCategory">Category *</label>
-                    <select id="serviceCategory" required>
-                        <option value="">Select a category</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="serviceName">Service Name *</label>
-                    <input type="text" id="serviceName" required>
-                </div>
-                <div class="form-group">
-                    <label for="serviceSac">SAC Code (optional)</label>
-                    <input type="text" id="serviceSac" placeholder="e.g., 998595">
-                </div>
-                <div class="form-group">
-                    <label for="serviceRate">Default Rate (₹)</label>
-                    <input type="number" id="serviceRate" min="0" step="0.01" value="0">
-                </div>
-                <div class="form-group">
-                    <label for="serviceGst">Default GST %</label>
-                    <input type="number" id="serviceGst" min="0" max="100" step="0.01" value="18">
-                </div>
-                <div class="form-group">
-                    <label for="serviceDesc">Description</label>
-                    <textarea id="serviceDesc"></textarea>
-                </div>
-                <div class="form-group">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="hasSubServices">
-                        <label for="hasSubServices" style="text-transform: none;">This service has sub-services</label>
-                    </div>
-                </div>
-
-                <!-- Sub-Services Section -->
-                <div id="subServicesSection" style="display: none; margin-top: 20px;">
-                    <h4 style="color: var(--primary-blue); margin-bottom: 15px;">Configure Sub-Services</h4>
-                    
-                    <!-- Sub-Service Type 1 -->
-                    <div style="background: #dbeafe; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <h5 style="color: var(--primary-blue); margin-bottom: 10px;">📄 Sub-Service 1: Government/Main Fee</h5>
-                        <div class="form-group">
-                            <label for="subService1Name">Name *</label>
-                            <input type="text" id="subService1Name" placeholder="e.g., Registration Fees">
-                        </div>
-                        <div class="form-group">
-                            <label for="subService1Rate">Default Rate (₹)</label>
-                            <input type="number" id="subService1Rate" min="0" step="0.01" value="0">
-                        </div>
-                        <p style="font-size: 11px; color: var(--gray); margin-top: 5px;">
-                            ℹ️ No SAC Code, No GST (Government Fee)
-                        </p>
-                    </div>
-
-                    <!-- Sub-Service Type 2 -->
-                    <div style="background: #d1fae5; padding: 15px; border-radius: 8px;">
-                        <h5 style="color: var(--success-green); margin-bottom: 10px;">🏢 Sub-Service 2: Office Support</h5>
-                        <div class="form-group">
-                            <label for="subService2Name">Name</label>
-                            <input type="text" id="subService2Name" value="Specialized Office Support Services" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="subService2Sac">SAC Code</label>
-                            <input type="text" id="subService2Sac" value="998595" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="subService2Rate">Default Rate (₹)</label>
-                            <input type="number" id="subService2Rate" min="0" step="0.01" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label for="subService2Gst">GST %</label>
-                            <input type="number" id="subService2Gst" value="18" readonly>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button type="submit" class="btn-primary" id="serviceSaveBtn">💾 Save Service</button>
-                    <button type="button" class="btn-secondary" id="cancelServiceBtn">❌ Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Service Rates Modal -->
-    <div class="modal" id="serviceRatesModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Service Rates</h3>
-                <button class="modal-close" id="closeServiceRatesModal">&times;</button>
-            </div>
-            <form id="serviceRatesForm">
-                <div class="form-group">
-                    <label for="editServiceName">Service Name</label>
-                    <input type="text" id="editServiceName" readonly style="background: #f3f4f6;">
-                </div>
-                <div class="form-group">
-                    <label for="editServiceSac">SAC Code</label>
-                    <input type="text" id="editServiceSac" readonly style="background: #f3f4f6;">
-                </div>
-                <div class="form-group">
-                    <label for="editServiceRate">Default Rate (₹) *</label>
-                    <input type="number" id="editServiceRate" min="0" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="editServiceGst">Default GST %</label>
-                    <input type="number" id="editServiceGst" min="0" max="100" step="0.01" readonly style="background: #f3f4f6;">
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="btn-primary" id="serviceRatesSaveBtn">💾 Update Rate</button>
-                    <button type="button" class="btn-secondary" id="cancelServiceRatesBtn">❌ Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Sub-Service Modal -->
-    <div class="modal" id="subServiceModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Sub-Service</h3>
-                <button class="modal-close" id="closeSubServiceModal">&times;</button>
-            </div>
-            <form id="subServiceForm">
-                <div class="form-group">
-                    <label for="editSubServiceName">Sub-Service Name *</label>
-                    <input type="text" id="editSubServiceName" required>
-                </div>
-                <div class="form-group">
-                    <label for="editSubServiceType">Type</label>
-                    <input type="text" id="editSubServiceType" readonly style="background: #f3f4f6;">
-                </div>
-                <div class="form-group">
-                    <label for="editSubServiceSac">SAC Code</label>
-                    <input type="text" id="editSubServiceSac" readonly style="background: #f3f4f6;">
-                </div>
-                <div class="form-group">
-                    <label for="editSubServiceRate">Default Rate (₹) *</label>
-                    <input type="number" id="editSubServiceRate" min="0" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="editSubServiceGst">GST %</label>
-                    <input type="number" id="editSubServiceGst" min="0" max="100" step="0.01" readonly style="background: #f3f4f6;">
-                </div>
-                <div class="button-group">
-                    <button type="submit" class="btn-primary" id="subServiceSaveBtn">💾 Update</button>
-                    <button type="button" class="btn-secondary" id="cancelSubServiceBtn">❌ Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script type="module">
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
-        const { createClient } = window.supabase;
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // State
-        let currentCategoryId = null;
-        let currentServiceId = null;
-        let isEditMode = false;
-        let allServices = [];
-        let allCategories = [];
-        let allSubServices = [];
-
-        // Initialize
-        async function init() {
-            setupEventListeners();
-            showLoadingState();
-            await loadBusinessInfo();
-            await loadCategories();
-            await loadServiceTree();
-            hideLoadingState();
-        }
-
-        // Loading States
-        function showLoadingState() {
-            const trees = document.querySelectorAll('#serviceTree, #categoriesList');
-            trees.forEach(tree => {
-                tree.innerHTML = `
-                    <div class="skeleton skeleton-card"></div>
-                    <div class="skeleton skeleton-card"></div>
-                    <div class="skeleton skeleton-card"></div>
-                `;
-            });
-        }
-
-        function hideLoadingState() {
-            // Loading complete - content already rendered
-        }
-
-        function setButtonLoading(button, loading) {
-            if (loading) {
-                button.disabled = true;
-                button.classList.add('btn-loading');
-                button.dataset.originalText = button.textContent;
-                button.textContent = '';
-            } else {
-                button.disabled = false;
-                button.classList.remove('btn-loading');
-                button.textContent = button.dataset.originalText || button.textContent;
-            }
-        }
-
-        // ==================== BUSINESS INFO ====================
-        async function loadBusinessInfo() {
-            try {
-                const { data } = await supabase
-                    .from('business_settings')
-                    .select('*')
-                    .limit(1);
-
-                if (data && data.length > 0) {
-                    const b = data[0];
-                    document.getElementById('businessName').value = b.business_name || '';
-                    document.getElementById('gstin').value = b.gstin || '';
-                    document.getElementById('phone').value = b.phone || '';
-                    document.getElementById('email').value = b.email || '';
-                    document.getElementById('address').value = b.address || '';
-                    document.getElementById('city').value = b.city || '';
-                    document.getElementById('state').value = b.state || '';
-                    document.getElementById('pincode').value = b.pincode || '';
-                    document.getElementById('defaultGst').value = b.default_gst_percentage || 18;
-                }
-            } catch (error) {
-                console.error('Error loading business info:', error);
-                showAlert('businessAlert', `❌ Failed to load business info: ${error.message}`, 'error');
-            }
-        }
-
-        document.getElementById('businessForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            setButtonLoading(submitBtn, true);
-
-            const businessData = {
-                business_name: document.getElementById('businessName').value.trim(),
-                gstin: document.getElementById('gstin').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                address: document.getElementById('address').value.trim(),
-                city: document.getElementById('city').value.trim(),
-                state: document.getElementById('state').value.trim(),
-                pincode: document.getElementById('pincode').value.trim(),
-                default_gst_percentage: parseFloat(document.getElementById('defaultGst').value),
-                updated_at: new Date().toISOString()
-            };
-
-            try {
-                const { data: existing } = await supabase
-                    .from('business_settings')
-                    .select('id')
-                    .limit(1);
-
-                if (existing && existing.length > 0) {
-                    await supabase
-                        .from('business_settings')
-                        .update(businessData)
-                        .eq('id', existing[0].id);
-                } else {
-                    await supabase
-                        .from('business_settings')
-                        .insert({ ...businessData, created_at: new Date().toISOString() });
-                }
-
-                showAlert('businessAlert', '✅ Business information saved successfully!', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('businessAlert', `❌ Error saving: ${error.message}`, 'error');
-            } finally {
-                setButtonLoading(submitBtn, false);
-            }
-        });
-
-        // ==================== CATEGORIES ====================
-        async function loadCategories() {
-            try {
-                const { data, error } = await supabase
-                    .from('service_categories')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('display_order');
-
-                if (error) throw error;
-
-                allCategories = data || [];
-                const select = document.getElementById('serviceCategory');
-
-                if (!data || data.length === 0) {
-                    select.innerHTML = '<option value="">Select a category</option>';
-                } else {
-                    select.innerHTML = '<option value="">Select a category</option>' + 
-                        data.map(cat => `<option value="${cat.id}">${cat.category_name}</option>`).join('');
-                }
-
-            } catch (error) {
-                console.error('Error loading categories:', error);
-                showAlert('servicesAlert', `❌ Failed to load categories: ${error.message}`, 'error');
-            }
-        }
-
-        document.getElementById('categoryForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('categorySaveBtn');
-            setButtonLoading(submitBtn, true);
-
-            const categoryName = document.getElementById('categoryName').value.trim();
-
-            if (!isEditMode) {
-                const { data: existing } = await supabase
-                    .from('service_categories')
-                    .select('id')
-                    .eq('category_name', categoryName)
-                    .eq('is_active', true);
-
-                if (existing && existing.length > 0) {
-                    showAlert('servicesAlert', '❌ Category with this name already exists!', 'error');
-                    setButtonLoading(submitBtn, false);
-                    return;
-                }
-            }
-
-            const categoryData = {
-                category_name: categoryName,
-                description: document.getElementById('categoryDesc').value.trim(),
-                updated_at: new Date().toISOString()
-            };
-
-            try {
-                if (isEditMode && currentCategoryId) {
-                    await supabase
-                        .from('service_categories')
-                        .update(categoryData)
-                        .eq('id', currentCategoryId);
-                } else {
-                    await supabase
-                        .from('service_categories')
-                        .insert({ ...categoryData, is_active: true, created_at: new Date().toISOString() });
-                }
-
-                document.getElementById('categoryModal').classList.remove('show');
-                await loadCategories();
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Category saved successfully!', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error saving: ${error.message}`, 'error');
-            } finally {
-                setButtonLoading(submitBtn, false);
-            }
-        });
-
-        window.editCategory = async (id) => {
-            try {
-                const { data } = await supabase
-                    .from('service_categories')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (data) {
-                    isEditMode = true;
-                    currentCategoryId = id;
-                    document.getElementById('categoryModalTitle').textContent = 'Edit Category';
-                    document.getElementById('categoryName').value = data.category_name;
-                    document.getElementById('categoryDesc').value = data.description || '';
-                    document.getElementById('categoryModal').classList.add('show');
-                }
-            } catch (error) {
-                console.error('Error loading category:', error);
-                showAlert('servicesAlert', `❌ Failed to load category: ${error.message}`, 'error');
-            }
-        };
-
-        window.deleteCategory = async (id) => {
-            const { data: services } = await supabase
-                .from('service_items')
-                .select('id')
-                .eq('category_id', id)
-                .eq('is_active', true);
-
-            if (services && services.length > 0) {
-                showAlert('servicesAlert', `❌ Cannot delete! This category has ${services.length} active service(s). Please delete or move them first.`, 'error');
-                return;
-            }
-
-            if (!confirm('Delete this category? This action cannot be undone.')) return;
-
-            try {
-                await supabase
-                    .from('service_categories')
-                    .update({ is_active: false })
-                    .eq('id', id);
-
-                await loadCategories();
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Category deleted', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error deleting: ${error.message}`, 'error');
-            }
-        };
-
-        // ==================== SERVICES ====================
-        async function loadServiceTree() {
-            try {
-                const { data: categories, error: catError } = await supabase
-                    .from('service_categories')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('display_order');
-
-                if (catError) throw catError;
-
-                const { data: services, error: servError } = await supabase
-                    .from('service_items')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('display_order');
-
-                if (servError) throw servError;
-
-                const { data: subServices, error: subError } = await supabase
-                    .from('service_sub_items')
-                    .select('*')
-                    .eq('is_active', true)
-                    .order('sub_service_type');
-
-                if (subError) throw subError;
-
-                allCategories = categories || [];
-                allServices = services || [];
-                allSubServices = subServices || [];
-
-                renderServiceTree(allCategories, allServices, allSubServices);
-
-            } catch (error) {
-                console.error('Error loading service tree:', error);
-                showAlert('servicesAlert', `❌ Failed to load services: ${error.message}`, 'error');
-            }
-        }
-
-        function renderServiceTree(categories, services, subServices) {
-            const container = document.getElementById('serviceTree');
-
-            if (!categories || categories.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <p>No categories yet. Add categories first!</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '';
-
-            categories.forEach(cat => {
-                const catServices = services?.filter(s => s.category_id === cat.id) || [];
-                const catId = `cat-${cat.id}`;
-
-                html += `
-                    <div class="service-category" data-cat-id="${catId}">
-                        <div class="category-header" onclick="window.toggleCategory('${catId}')">
-                            <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
-                                <div class="category-toggle">▶</div>
-                                <div>
-                                    <h3>
-                                        <span style="font-size: 18px;">📁</span>
-                                        ${cat.category_name}
-                                        <span class="category-count">${catServices.length}</span>
-                                    </h3>
-                                </div>
-                            </div>
-                            <div class="action-buttons" onclick="event.stopPropagation();">
-                                <button class="btn-primary btn-icon" onclick="window.editCategory('${cat.id}')" title="Edit">✏️</button>
-                                <button class="btn-danger btn-icon" onclick="window.deleteCategory('${cat.id}')" title="Delete">🗑️</button>
-                            </div>
-                        </div>
-                        <div class="category-services" id="${catId}-services">
-                `;
-
-                if (catServices.length === 0) {
-                    html += '<p style="color: var(--gray); font-size: 13px; padding: 10px;">No services</p>';
-                } else {
-                    catServices.forEach(service => {
-                        const subs = subServices?.filter(sub => sub.primary_service_id === service.id) || [];
-
-                        html += `
-                            <div class="primary-service">
-                                <div class="primary-service-header">
-                                    <div class="service-main-info">
-                                        <h4>
-                                            <span>🛠️</span>
-                                            ${service.service_name}
-                                        </h4>
-                                        <div class="service-info">
-                                            ${service.sac_code ? `<span class="sac-code">SAC ${service.sac_code}</span>` : ''}
-                                            <span class="rate">₹${parseFloat(service.default_rate || 0).toFixed(2)}</span>
-                                            <span class="gst">${parseFloat(service.default_gst_percentage || 0).toFixed(2)}%</span>
-                                        </div>
-                                    </div>
-                                    <div class="action-buttons">
-                                        <button class="btn-primary btn-icon" onclick="window.editService('${service.id}')" title="Edit">✏️</button>
-                                        <button class="btn-secondary btn-icon" onclick="window.editServiceRates('${service.id}')" title="Edit Rate">💰</button>
-                                        <button class="btn-danger btn-icon" onclick="window.deleteService('${service.id}')" title="Delete">🗑️</button>
-                                    </div>
-                                </div>
-                        `;
-
-                        if (subs.length > 0) {
-                            html += '<div class="sub-services">';
-                            subs.forEach(sub => {
-                                const typeClass = sub.sub_service_type === 1 ? 'sub-service-type-1' : 'sub-service-type-2';
-                                const typeLabel = sub.sub_service_type === 1 ? 'Type 1' : 'Type 2';
-
-                                html += `
-                                    <div class="sub-service ${typeClass}">
-                                        <div>
-                                            <h5>↳ ${sub.sub_service_name}</h5>
-                                            <div class="sub-service-details">
-                                                <span class="badge badge-type${sub.sub_service_type}">${typeLabel}</span>
-                                                ${sub.sac_code ? `<span>SAC: ${sub.sac_code}</span>` : ''}
-                                                <span>₹${parseFloat(sub.default_rate || 0).toFixed(2)}</span>
-                                                <span>${parseFloat(sub.default_gst_percentage || 0).toFixed(2)}%</span>
-                                            </div>
-                                        </div>
-                                        <div class="action-buttons">
-                                            <button class="btn-primary btn-icon" onclick="window.editSubService('${sub.id}')" title="Edit">✏️</button>
-                                            <button class="btn-secondary btn-icon" onclick="window.editSubServiceRate('${sub.id}')" title="Edit Rate">💰</button>
-                                            <button class="btn-danger btn-icon" onclick="window.deleteSubService('${sub.id}')" title="Delete">🗑️</button>
-                                        </div>
-                                    </div>
-                                `;
-                            });
-                            html += '</div>';
-                        }
-
-                        html += '</div>';
-                    });
-                }
-
-                html += `
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        document.getElementById('addServiceBtn').addEventListener('click', () => {
-            isEditMode = false;
-            currentServiceId = null;
-            document.getElementById('serviceModalTitle').textContent = 'Add Primary Service';
-            document.getElementById('serviceForm').reset();
-            document.getElementById('hasSubServices').checked = false;
-            document.getElementById('subServicesSection').style.display = 'none';
-            document.getElementById('serviceModal').classList.add('show');
-        });
-
-        document.getElementById('hasSubServices').addEventListener('change', (e) => {
-            document.getElementById('subServicesSection').style.display = e.target.checked ? 'block' : 'none';
-        });
-
-        document.getElementById('serviceForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('serviceSaveBtn');
-            setButtonLoading(submitBtn, true);
-
-            const hasSubServices = document.getElementById('hasSubServices').checked;
-
-            if (hasSubServices) {
-                const sub1Name = document.getElementById('subService1Name').value.trim();
-                if (!sub1Name) {
-                    showAlert('servicesAlert', '❌ Sub-Service 1 name is required!', 'error');
-                    setButtonLoading(submitBtn, false);
-                    return;
-                }
-            }
-
-            const serviceData = {
-                category_id: document.getElementById('serviceCategory').value,
-                service_name: document.getElementById('serviceName').value.trim(),
-                sac_code: document.getElementById('serviceSac').value.trim() || null,
-                default_rate: parseFloat(document.getElementById('serviceRate').value) || 0,
-                default_gst_percentage: parseFloat(document.getElementById('serviceGst').value) || 0,
-                description: document.getElementById('serviceDesc').value.trim(),
-                has_sub_services: hasSubServices,
-                is_primary_service: true,
-                updated_at: new Date().toISOString()
-            };
-
-            try {
-                let serviceId;
-
-                if (isEditMode && currentServiceId) {
-                    await supabase
-                        .from('service_items')
-                        .update(serviceData)
-                        .eq('id', currentServiceId);
-                    serviceId = currentServiceId;
-                } else {
-                    const { data } = await supabase
-                        .from('service_items')
-                        .insert({ ...serviceData, is_active: true, created_at: new Date().toISOString() })
-                        .select()
-                        .single();
-                    serviceId = data.id;
-                }
-
-                if (hasSubServices) {
-                    if (isEditMode) {
-                        await supabase
-                            .from('service_sub_items')
-                            .delete()
-                            .eq('primary_service_id', serviceId);
-                    }
-
-                    const sub1Name = document.getElementById('subService1Name').value.trim();
-                    const sub1Rate = parseFloat(document.getElementById('subService1Rate').value) || 0;
-
-                    if (sub1Name) {
-                        await supabase
-                            .from('service_sub_items')
-                            .insert({
-                                primary_service_id: serviceId,
-                                sub_service_name: sub1Name,
-                                sub_service_type: 1,
-                                sac_code: null,
-                                default_rate: sub1Rate,
-                                default_gst_percentage: 0,
-                                is_active: true,
-                                created_at: new Date().toISOString()
-                            });
-                    }
-
-                    const sub2Rate = parseFloat(document.getElementById('subService2Rate').value) || 0;
-
-                    await supabase
-                        .from('service_sub_items')
-                        .insert({
-                            primary_service_id: serviceId,
-                            sub_service_name: 'Specialized Office Support Services',
-                            sub_service_type: 2,
-                            sac_code: '998595',
-                            default_rate: sub2Rate,
-                            default_gst_percentage: 18,
-                            is_active: true,
-                            created_at: new Date().toISOString()
-                        });
-                }
-
-                document.getElementById('serviceModal').classList.remove('show');
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Service saved successfully!', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error saving: ${error.message}`, 'error');
-            } finally {
-                setButtonLoading(submitBtn, false);
-            }
-        });
-
-        window.editService = async (id) => {
-            try {
-                const { data: service } = await supabase
-                    .from('service_items')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                const { data: subs } = await supabase
-                    .from('service_sub_items')
-                    .select('*')
-                    .eq('primary_service_id', id)
-                    .order('sub_service_type');
-
-                if (service) {
-                    isEditMode = true;
-                    currentServiceId = id;
-                    document.getElementById('serviceModalTitle').textContent = 'Edit Service';
-                    document.getElementById('serviceCategory').value = service.category_id;
-                    document.getElementById('serviceName').value = service.service_name;
-                    document.getElementById('serviceSac').value = service.sac_code || '';
-                    document.getElementById('serviceRate').value = service.default_rate || 0;
-                    document.getElementById('serviceGst').value = service.default_gst_percentage || 0;
-                    document.getElementById('serviceDesc').value = service.description || '';
-                    
-                    const hasSubServices = service.has_sub_services && subs && subs.length > 0;
-                    document.getElementById('hasSubServices').checked = hasSubServices;
-                    document.getElementById('subServicesSection').style.display = hasSubServices ? 'block' : 'none';
-
-                    if (hasSubServices) {
-                        const sub1 = subs.find(s => s.sub_service_type === 1);
-                        const sub2 = subs.find(s => s.sub_service_type === 2);
-
-                        if (sub1) {
-                            document.getElementById('subService1Name').value = sub1.sub_service_name;
-                            document.getElementById('subService1Rate').value = sub1.default_rate || 0;
-                        }
-
-                        if (sub2) {
-                            document.getElementById('subService2Rate').value = sub2.default_rate || 0;
-                        }
-                    }
-
-                    document.getElementById('serviceModal').classList.add('show');
-                }
-            } catch (error) {
-                console.error('Error loading service:', error);
-                showAlert('servicesAlert', `❌ Failed to load service: ${error.message}`, 'error');
-            }
-        };
-
-        window.editServiceRates = async (id) => {
-            try {
-                const { data: service } = await supabase
-                    .from('service_items')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (service) {
-                    currentServiceId = id;
-                    document.getElementById('editServiceName').value = service.service_name;
-                    document.getElementById('editServiceSac').value = service.sac_code || 'N/A';
-                    document.getElementById('editServiceRate').value = service.default_rate || 0;
-                    document.getElementById('editServiceGst').value = service.default_gst_percentage || 0;
-                    document.getElementById('serviceRatesModal').classList.add('show');
-                }
-            } catch (error) {
-                console.error('Error loading service:', error);
-                showAlert('servicesAlert', `❌ Failed to load service: ${error.message}`, 'error');
-            }
-        };
-
-        window.editSubService = async (id) => {
-            try {
-                const { data: subService } = await supabase
-                    .from('service_sub_items')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (subService) {
-                    currentServiceId = id;
-                    const typeLabel = subService.sub_service_type === 1 ? 'Type 1: Government Fee' : 'Type 2: Office Support';
-                    document.getElementById('editSubServiceName').value = subService.sub_service_name;
-                    document.getElementById('editSubServiceType').value = typeLabel;
-                    document.getElementById('editSubServiceSac').value = subService.sac_code || 'N/A';
-                    document.getElementById('editSubServiceRate').value = subService.default_rate || 0;
-                    document.getElementById('editSubServiceGst').value = subService.default_gst_percentage || 0;
-                    document.getElementById('subServiceModal').classList.add('show');
-                }
-            } catch (error) {
-                console.error('Error loading sub-service:', error);
-                showAlert('servicesAlert', `❌ Failed to load sub-service: ${error.message}`, 'error');
-            }
-        };
-
-        window.editSubServiceRate = async (id) => {
-            window.editSubService(id);
-        };
-
-        window.deleteService = async (id) => {
-            if (!confirm('Delete this service and all its sub-services?')) return;
-
-            try {
-                await supabase
-                    .from('service_items')
-                    .update({ is_active: false })
-                    .eq('id', id);
-
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Service deleted', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error deleting: ${error.message}`, 'error');
-            }
-        };
-
-        window.deleteSubService = async (id) => {
-            if (!confirm('Delete this sub-service?')) return;
-
-            try {
-                await supabase
-                    .from('service_sub_items')
-                    .delete()
-                    .eq('id', id);
-
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Sub-service deleted', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error deleting: ${error.message}`, 'error');
-            }
-        };
-
-        document.getElementById('serviceRatesForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('serviceRatesSaveBtn');
-            setButtonLoading(submitBtn, true);
-
-            try {
-                await supabase
-                    .from('service_items')
-                    .update({
-                        default_rate: parseFloat(document.getElementById('editServiceRate').value) || 0,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', currentServiceId);
-
-                document.getElementById('serviceRatesModal').classList.remove('show');
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Service rates updated!', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error updating: ${error.message}`, 'error');
-            } finally {
-                setButtonLoading(submitBtn, false);
-            }
-        });
-
-        document.getElementById('subServiceForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('subServiceSaveBtn');
-            setButtonLoading(submitBtn, true);
-
-            try {
-                await supabase
-                    .from('service_sub_items')
-                    .update({
-                        sub_service_name: document.getElementById('editSubServiceName').value.trim(),
-                        default_rate: parseFloat(document.getElementById('editSubServiceRate').value) || 0,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', currentServiceId);
-
-                document.getElementById('subServiceModal').classList.remove('show');
-                await loadServiceTree();
-                showAlert('servicesAlert', '✅ Sub-service updated!', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showAlert('servicesAlert', `❌ Error updating: ${error.message}`, 'error');
-            } finally {
-                setButtonLoading(submitBtn, false);
-            }
-        });
-
-        // ==================== SEARCH & EXPORT ====================
-        function setupSearch() {
-            const searchInput = document.getElementById('serviceSearch');
-            searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase().trim();
-                
-                if (!searchTerm) {
-                    renderServiceTree(allCategories, allServices, allSubServices);
-                    return;
-                }
-
-                const filteredServices = allServices.filter(service => {
-                    const category = allCategories.find(c => c.id === service.category_id);
-                    const categoryName = category ? category.category_name.toLowerCase() : '';
-                    
-                    return service.service_name.toLowerCase().includes(searchTerm) ||
-                           (service.sac_code && service.sac_code.toLowerCase().includes(searchTerm)) ||
-                           categoryName.includes(searchTerm);
-                });
-
-                const relevantCategories = allCategories.filter(cat => 
-                    filteredServices.some(s => s.category_id === cat.id)
-                );
-
-                renderServiceTree(relevantCategories, filteredServices, allSubServices);
-            });
-        }
-
-        function exportToCSV() {
-            const rows = [
-                ['Category', 'Service Name', 'SAC Code', 'Rate (₹)', 'GST %', 'Has Sub-Services', 'Description']
-            ];
-
-            allServices.forEach(service => {
-                const category = allCategories.find(c => c.id === service.category_id);
-                rows.push([
-                    category ? category.category_name : '',
-                    service.service_name,
-                    service.sac_code || '',
-                    service.default_rate || 0,
-                    service.default_gst_percentage || 0,
-                    service.has_sub_services ? 'Yes' : 'No',
-                    (service.description || '').replace(/,/g, ';')
-                ]);
-
-                const subs = allSubServices.filter(sub => sub.primary_service_id === service.id);
-                subs.forEach(sub => {
-                    rows.push([
-                        '',
-                        `  └─ ${sub.sub_service_name}`,
-                        sub.sac_code || '',
-                        sub.default_rate || 0,
-                        sub.default_gst_percentage || 0,
-                        '',
-                        `Type ${sub.sub_service_type}`
-                    ]);
-                });
-            });
-
-            const csvContent = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `dream-harbour-services-${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showAlert('servicesAlert', '✅ Services exported!', 'success');
-        }
-
-        // ==================== ACCORDION FUNCTIONALITY ====================
-        window.toggleCategory = function(catId) {
-            const services = document.getElementById(`${catId}-services`);
-            const header = document.querySelector(`[data-cat-id="${catId}"] .category-header`);
-            const toggle = header.querySelector('.category-toggle');
-            
-            if (services.classList.contains('collapsed')) {
-                services.classList.remove('collapsed');
-                toggle.classList.remove('collapsed');
-            } else {
-                services.classList.add('collapsed');
-                toggle.classList.add('collapsed');
-            }
-        };
-
-        // ==================== HELPERS ====================
-        function showAlert(elementId, message, type) {
-            const alert = document.getElementById(elementId);
-            alert.className = `alert alert-${type} show`;
-            alert.textContent = message;
-            setTimeout(() => alert.classList.remove('show'), 5000);
-        }
-
-        function setupEventListeners() {
-            setupSearch();
-
-            document.getElementById('exportServicesBtn').addEventListener('click', exportToCSV);
-            
-            document.getElementById('addCategoryBtn').addEventListener('click', () => {
-                isEditMode = false;
-                currentCategoryId = null;
-                document.getElementById('categoryModalTitle').textContent = 'Add Category';
-                document.getElementById('categoryForm').reset();
-                document.getElementById('categoryModal').classList.add('show');
-            });
-            
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const tabName = this.dataset.tab;
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById(`${tabName}-tab`).classList.add('active');
-                });
-            });
-
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        modal.classList.remove('show');
-                    }
-                });
-            });
-
-            document.getElementById('serviceForm').addEventListener('reset', () => {
-                document.getElementById('hasSubServices').checked = false;
-                document.getElementById('subServicesSection').style.display = 'none';
-            });
-
-            document.getElementById('closeCategoryModal').addEventListener('click', () => {
-                document.getElementById('categoryModal').classList.remove('show');
-            });
-            document.getElementById('cancelCategoryBtn').addEventListener('click', () => {
-                document.getElementById('categoryModal').classList.remove('show');
-            });
-
-            document.getElementById('closeServiceModal').addEventListener('click', () => {
-                document.getElementById('serviceModal').classList.remove('show');
-            });
-            document.getElementById('cancelServiceBtn').addEventListener('click', () => {
-                document.getElementById('serviceModal').classList.remove('show');
-            });
-
-            document.getElementById('closeServiceRatesModal').addEventListener('click', () => {
-                document.getElementById('serviceRatesModal').classList.remove('show');
-            });
-            document.getElementById('cancelServiceRatesBtn').addEventListener('click', () => {
-                document.getElementById('serviceRatesModal').classList.remove('show');
-            });
-
-            document.getElementById('closeSubServiceModal').addEventListener('click', () => {
-                document.getElementById('subServiceModal').classList.remove('show');
-            });
-            document.getElementById('cancelSubServiceBtn').addEventListener('click', () => {
-                document.getElementById('subServiceModal').classList.remove('show');
-            });
-        }
-
-        init();
     </script>
 </body>
 </html>
