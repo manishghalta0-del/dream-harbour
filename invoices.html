@@ -3,418 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Invoices</title>
+    <title>Dream Harbour Invoices</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .company-info {
-            opacity: 0.95;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .form-section {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .form-section h2 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #333;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: #333;
-            font-size: 13px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: inherit;
-        }
-
-        .search-box {
-            position: relative;
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .dropdown-item {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            font-size: 13px;
-        }
-
-        .dropdown-item:hover {
-            background: #f9f9f9;
-        }
-
-        .dropdown-category {
-            padding: 8px 10px;
-            font-weight: 600;
-            background: #f5f5f5;
-            color: #666;
-            font-size: 12px;
-        }
-
-        .dropdown-service {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .dropdown-service:hover {
-            background: #fffbea;
-        }
-
-        .service-name {
-            font-weight: 500;
-            font-size: 13px;
-        }
-
-        .service-meta {
-            font-size: 12px;
-            color: #666;
-            margin-top: 2px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .table-section {
-            grid-column: 1 / -1;
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .table-section h2 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #333;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        table th {
-            background: #f9f9f9;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #333;
-            border-bottom: 2px solid #ddd;
-        }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        table tr:hover {
-            background: #f9f9f9;
-        }
-
-        .preview-section {
-            grid-column: 1 / -1;
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .preview-section h2 {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: #333;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .totals {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .total-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .total-label {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-
-        .total-value {
-            font-size: 20px;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 6px;
-            color: white;
-            font-weight: 600;
-            z-index: 2000;
-            animation: slideIn 0.3s ease;
-        }
-
-        .notification-success {
-            background: #10b981;
-        }
-
-        .notification-error {
-            background: #ef4444;
-        }
-
-        .notification-info {
-            background: #3b82f6;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .totals {
-                grid-template-columns: 1fr;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { background: #667eea; color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 24px; }
+        .company-info { font-size: 13px; opacity: 0.9; }
+        .company-info div { margin: 3px 0; }
+        .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .form-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .form-section h2 { font-size: 16px; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 4px; font-weight: bold; font-size: 13px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+        .search-container { position: relative; }
+        .dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; z-index: 100; display: none; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .dropdown-item { padding: 8px; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 12px; }
+        .dropdown-item:hover { background: #f9f9f9; }
+        .full-width { grid-column: 1 / -1; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        table th { background: #f9f9f9; padding: 10px; text-align: left; font-weight: bold; border-bottom: 2px solid #ddd; }
+        table td { padding: 10px; border-bottom: 1px solid #eee; }
+        table tr:hover { background: #f9f9f9; }
+        .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+        .total-box { background: #f9f9f9; padding: 15px; border-radius: 4px; text-align: center; }
+        .total-label { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .total-value { font-size: 18px; font-weight: bold; color: #667eea; }
+        button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-danger { background: #ef4444; color: white; font-size: 11px; padding: 4px 8px; }
+        .button-group { display: flex; gap: 10px; margin-top: 15px; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; font-weight: bold; z-index: 2000; animation: slideIn 0.3s ease; }
+        .notification-success { background: #10b981; }
+        .notification-error { background: #ef4444; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } .totals { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
-            <h1>📄 Invoice Generator</h1>
-            <div class="company-info">
-                <div class="company-name">Dream Harbour</div>
-                <div class="company-address">123 Business Street</div>
-                <div class="company-gstin">GSTIN: 27XXXXX1234X1Z5</div>
-                <div class="company-phone">Phone: +91 98765 43210</div>
+            <div>
+                <h1>📄 Invoice Generator</h1>
+                <div class="company-info">
+                    <div class="company-name">Dream Harbour</div>
+                    <div class="company-address">123 Business Street</div>
+                    <div class="company-gstin">GSTIN: 27XXXXX1234X1Z5</div>
+                </div>
             </div>
-            <button class="btn-secondary" onclick="openSettings()" style="width: auto; margin-top: 15px;">⚙️ Settings</button>
+            <button class="btn-secondary" onclick="openSettings()">Settings</button>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Customer Section -->
+        <div class="main-grid">
             <div class="form-section">
-                <h2>👤 Customer Details</h2>
-
+                <h2>Customer Details</h2>
                 <div class="form-group">
-                    <label>Customer Mobile</label>
-                    <input type="text" id="customerMobile" placeholder="9876543210">
+                    <label>Mobile</label>
+                    <input type="text" id="customerMobile">
                 </div>
-
                 <div class="form-group">
-                    <label>Customer Name *</label>
-                    <input type="text" id="customerName" placeholder="John Doe">
+                    <label>Name *</label>
+                    <input type="text" id="customerName">
                 </div>
-
                 <div class="form-group">
                     <label>Company</label>
-                    <input type="text" id="customerCompany" placeholder="Acme Inc">
+                    <input type="text" id="customerCompany">
                 </div>
-
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="customerEmail" placeholder="customer@example.com">
-                </div>
-
                 <div class="form-group">
                     <label>Address</label>
-                    <input type="text" id="customerAddress" placeholder="123 Customer Street">
+                    <input type="text" id="customerAddress">
                 </div>
             </div>
 
-            <!-- Invoice Section -->
             <div class="form-section">
-                <h2>📋 Invoice Details</h2>
-
+                <h2>Invoice Details</h2>
                 <div class="form-group">
-                    <label>Invoice Date</label>
+                    <label>Date</label>
                     <input type="date" id="invoiceDate">
                 </div>
-
                 <div class="form-group">
-                    <label>Payment Status</label>
+                    <label>Status</label>
                     <select id="paymentStatus">
                         <option value="Pending">Pending</option>
                         <option value="Paid">Paid</option>
-                        <option value="Partial">Partially Paid</option>
+                        <option value="Partial">Partial</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Service Selection -->
-            <div class="form-section">
-                <h2>🔍 Add Service</h2>
-
-                <div class="form-group search-box">
-                    <label>Search Services</label>
+            <div class="form-section full-width">
+                <h2>Add Service</h2>
+                <div class="form-group search-container">
+                    <label>Search Service</label>
                     <input type="text" id="serviceSearch" placeholder="Type service name or SAC code...">
                     <div class="dropdown" id="serviceDropdown"></div>
                 </div>
-
-                <div class="form-group">
-                    <label>Service Name</label>
-                    <input type="text" id="serviceNameInput" readonly placeholder="Auto-filled from search">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Service</label>
+                        <input type="text" id="serviceNameInput" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>SAC</label>
+                        <input type="text" id="serviceSacInput" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Qty</label>
+                        <input type="number" id="serviceQtyInput" value="1" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Rate (₹)</label>
+                        <input type="number" id="serviceRateInput" readonly>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label>SAC Code</label>
-                    <input type="text" id="serviceSacInput" readonly placeholder="Auto-filled from search">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>GST %</label>
+                        <input type="number" id="serviceGstInput" readonly>
+                    </div>
+                    <button class="btn-primary" onclick="addLineItem()" style="margin-top: 20px;">Add Service</button>
                 </div>
-
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" id="serviceQtyInput" value="1" min="1">
-                </div>
-
-                <div class="form-group">
-                    <label>Rate</label>
-                    <input type="number" id="serviceRateInput" readonly placeholder="Auto-filled from search">
-                </div>
-
-                <div class="form-group">
-                    <label>GST %</label>
-                    <input type="number" id="serviceGstInput" readonly placeholder="Auto-filled from search">
-                </div>
-
-                <button class="btn-primary" onclick="addLineItem()">➕ Add Service</button>
             </div>
         </div>
 
-        <!-- Line Items Table -->
-        <div class="table-section">
-            <h2>📊 Invoice Items</h2>
+        <div class="form-section">
+            <h2>Invoice Items</h2>
             <table>
                 <thead>
                     <tr>
@@ -430,177 +147,133 @@
                     </tr>
                 </thead>
                 <tbody id="invoiceLinesBody">
-                    <tr>
-                        <td colspan="9" style="text-align: center; color: #999;">No items added yet. Add a service above.</td>
-                    </tr>
+                    <tr><td colspan="9" style="text-align: center; color: #999;">No items added</td></tr>
                 </tbody>
             </table>
-        </div>
 
-        <!-- Preview Section -->
-        <div class="preview-section">
-            <h2>💰 Invoice Summary</h2>
             <div class="totals">
-                <div class="total-item">
-                    <div class="total-label">Subtotal (Without GST)</div>
+                <div class="total-box">
+                    <div class="total-label">Subtotal</div>
                     <div class="total-value" id="previewSubtotal">₹0.00</div>
                 </div>
-                <div class="total-item">
+                <div class="total-box">
                     <div class="total-label">Total GST</div>
                     <div class="total-value" id="previewTotalGST">₹0.00</div>
                 </div>
-                <div class="total-item">
+                <div class="total-box">
                     <div class="total-label">Grand Total</div>
                     <div class="total-value" id="previewTotalAmount">₹0.00</div>
                 </div>
             </div>
 
-            <div class="button-group" style="margin-top: 30px;">
-                <button class="btn-primary" onclick="saveDraft()">💾 Save Draft</button>
-                <button class="btn-secondary" onclick="clearInvoice()">🗑️ Clear</button>
+            <div class="button-group">
+                <button class="btn-primary" onclick="saveDraft()">Save Draft</button>
+                <button class="btn-secondary" onclick="clearForm()">Clear</button>
             </div>
         </div>
     </div>
 
     <script>
-    // Global data
-    let businessSettings = {
-        business: {},
-        services: [],
-        categories: []
+    let businessSettings = { business: {}, services: [], categories: [] };
+    let invoiceData = { lineItems: [] };
+
+    window.onload = function() {
+        loadSettings();
+        setupSearch();
+        document.getElementById('invoiceDate').valueAsDate = new Date();
     };
 
-    let invoiceData = {
-        lineItems: []
-    };
-
-    // Initialize
-    window.addEventListener('DOMContentLoaded', function() {
-        loadBusinessSettings();
-        setupServiceSearch();
-        setTodayDate();
-    });
-
-    // Load settings from localStorage
-    function loadBusinessSettings() {
-        try {
-            const saved = localStorage.getItem('dreamHarbourAppData');
-            if (saved) {
-                businessSettings = JSON.parse(saved);
-                updateHeader();
-                buildServiceDropdown();
-            }
-        } catch(e) {
-            console.error('Error loading settings:', e);
-            showNotification('Error loading settings', 'error');
+    function loadSettings() {
+        const saved = localStorage.getItem('dreamHarbourData');
+        if (saved) {
+            businessSettings = JSON.parse(saved);
+            updateHeader();
+            buildDropdown();
         }
     }
 
-    // Update header with company info
     function updateHeader() {
         const biz = businessSettings.business;
         document.querySelector('.company-name').textContent = biz.name || 'Dream Harbour';
         document.querySelector('.company-address').textContent = biz.address || '123 Business Street';
-        document.querySelector('.company-gstin').textContent = 'GSTIN: ' + (biz.gstin || 'Not configured');
-        document.querySelector('.company-phone').textContent = 'Phone: ' + (biz.phone || 'Not configured');
+        document.querySelector('.company-gstin').textContent = 'GSTIN: ' + (biz.gstin || '27XXXXX1234X1Z5');
     }
 
-    // Build service dropdown
-    function buildServiceDropdown() {
+    function buildDropdown() {
         const dropdown = document.getElementById('serviceDropdown');
-
-        if (!businessSettings.services || businessSettings.services.length === 0) {
-            dropdown.innerHTML = '<div style="padding: 10px; color: #999;"><strong>No services configured</strong><br/>Open Settings to add services</div>';
+        if (businessSettings.services.length === 0) {
+            dropdown.innerHTML = '<div style="padding: 10px; color: #999;">Open Settings to add services</div>';
             return;
         }
 
         let html = '';
-        const categories = businessSettings.categories || [];
-
-        categories.forEach(cat => {
+        businessSettings.categories.forEach(cat => {
             const services = businessSettings.services.filter(s => s.categoryId === cat.id);
             if (services.length > 0) {
-                html += '<div class="dropdown-category">' + cat.name + '</div>';
+                html += '<div style="font-weight: bold; background: #f0f0f0; padding: 8px; color: #666;">' + cat.name + '</div>';
                 services.forEach((svc, idx) => {
-                    html += '<div class="dropdown-service" onclick="selectService(' + idx + ')">' +
-                        '<div class="service-name">' + svc.name + '</div>' +
-                        '<div class="service-meta">SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</div>' +
-                        '</div>';
+                    html += '<div class="dropdown-item" onclick="selectService(' + idx + ')" style="background: white;"><strong>' + svc.name + '</strong><br/><small>SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</small></div>';
                 });
             }
         });
-
-        dropdown.innerHTML = html || '<div style="padding: 10px; color: #999;">No services available</div>';
+        dropdown.innerHTML = html;
     }
 
-    // Setup service search
-    function setupServiceSearch() {
+    function setupSearch() {
         const searchInput = document.getElementById('serviceSearch');
         const dropdown = document.getElementById('serviceDropdown');
 
         searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-
+            const query = this.value.toLowerCase();
             if (query.length === 0) {
-                buildServiceDropdown();
+                buildDropdown();
                 dropdown.style.display = 'none';
                 return;
             }
 
-            const filtered = businessSettings.services.filter(svc =>
-                svc.name.toLowerCase().includes(query) ||
-                svc.sac.includes(query)
+            const filtered = businessSettings.services.filter(s =>
+                s.name.toLowerCase().includes(query) || s.sac.includes(query)
             );
 
             if (filtered.length === 0) {
-                dropdown.innerHTML = '<div style="padding: 10px; color: #999;">No services match: ' + query + '</div>';
+                dropdown.innerHTML = '<div style="padding: 10px; color: #999;">No results for: ' + query + '</div>';
             } else {
                 let html = '';
-                filtered.forEach((svc, idx) => {
-                    const realIdx = businessSettings.services.indexOf(svc);
-                    html += '<div class="dropdown-service" onclick="selectService(' + realIdx + ')" style="background: #fffbea;">' +
-                        '<div class="service-name">' + svc.name + '</div>' +
-                        '<div class="service-meta">SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</div>' +
-                        '</div>';
+                filtered.forEach(svc => {
+                    const idx = businessSettings.services.indexOf(svc);
+                    html += '<div class="dropdown-item" onclick="selectService(' + idx + ')" style="background: #fffbea;"><strong>' + svc.name + '</strong><br/><small>SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</small></div>';
                 });
                 dropdown.innerHTML = html;
             }
-
             dropdown.style.display = 'block';
         });
 
         searchInput.addEventListener('focus', function() {
             if (this.value.length === 0) {
-                buildServiceDropdown();
+                buildDropdown();
                 dropdown.style.display = 'block';
             }
         });
 
         document.addEventListener('click', function(e) {
-            if (!dropdown.contains(e.target) && e.target !== searchInput) {
+            if (e.target !== searchInput && !dropdown.contains(e.target)) {
                 dropdown.style.display = 'none';
             }
         });
     }
 
-    // Select service
     function selectService(idx) {
         const svc = businessSettings.services[idx];
-        if (!svc) return;
-
         document.getElementById('serviceNameInput').value = svc.name;
         document.getElementById('serviceSacInput').value = svc.sac;
         document.getElementById('serviceRateInput').value = svc.rate;
         document.getElementById('serviceQtyInput').value = '1';
         document.getElementById('serviceGstInput').value = svc.gst;
-
         document.getElementById('serviceSearch').value = '';
         document.getElementById('serviceDropdown').style.display = 'none';
-
         showNotification('Service selected: ' + svc.name, 'success');
     }
 
-    // Add line item
     function addLineItem() {
         const name = document.getElementById('serviceNameInput').value.trim();
         const sac = document.getElementById('serviceSacInput').value.trim();
@@ -608,52 +281,47 @@
         const rate = parseFloat(document.getElementById('serviceRateInput').value) || 0;
         const gst = parseFloat(document.getElementById('serviceGstInput').value) || 18;
 
-        if (!name || !sac || qty <= 0 || rate <= 0) {
-            showNotification('Please fill all fields with valid values', 'error');
+        if (!name || !sac || rate <= 0) {
+            showNotification('Fill all service fields', 'error');
             return;
         }
 
         const amount = qty * rate;
-        const gstAmount = (amount * gst) / 100;
-        const total = amount + gstAmount;
+        const gstAmt = (amount * gst) / 100;
 
         invoiceData.lineItems.push({
-            id: 'line_' + Date.now(),
+            id: Date.now(),
             description: name,
             sac: sac,
             qty: qty,
             rate: rate,
             amount: amount,
             gst: gst,
-            gstAmount: gstAmount,
-            total: total
+            gstAmount: gstAmt,
+            total: amount + gstAmt
         });
 
-        // Clear form
         document.getElementById('serviceNameInput').value = '';
         document.getElementById('serviceSacInput').value = '';
-        document.getElementById('serviceQtyInput').value = '1';
         document.getElementById('serviceRateInput').value = '';
         document.getElementById('serviceGstInput').value = '';
+        document.getElementById('serviceQtyInput').value = '1';
 
-        updateLineItemsDisplay();
+        updateTable();
         updateTotals();
-        showNotification('Service added to invoice', 'success');
+        showNotification('Service added', 'success');
     }
 
-    // Remove line item
-    function removeLineItem(lineId) {
-        invoiceData.lineItems = invoiceData.lineItems.filter(l => l.id !== lineId);
-        updateLineItemsDisplay();
+    function removeLineItem(id) {
+        invoiceData.lineItems = invoiceData.lineItems.filter(l => l.id !== id);
+        updateTable();
         updateTotals();
     }
 
-    // Update line items display
-    function updateLineItemsDisplay() {
+    function updateTable() {
         const tbody = document.getElementById('invoiceLinesBody');
-
         if (invoiceData.lineItems.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">No items. Add a service above.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">No items added</td></tr>';
             return;
         }
 
@@ -667,12 +335,11 @@
                 <td>${item.gst}%</td>
                 <td>₹${item.gstAmount.toFixed(2)}</td>
                 <td>₹${item.total.toFixed(2)}</td>
-                <td><button class="btn-secondary" onclick="removeLineItem('${item.id}')" style="width: 60px; padding: 6px;">Delete</button></td>
+                <td><button class="btn-danger" onclick="removeLineItem(${item.id})">Delete</button></td>
             </tr>
         `).join('');
     }
 
-    // Update totals
     function updateTotals() {
         const subtotal = invoiceData.lineItems.reduce((sum, item) => sum + item.amount, 0);
         const totalGst = invoiceData.lineItems.reduce((sum, item) => sum + item.gstAmount, 0);
@@ -683,82 +350,51 @@
         document.getElementById('previewTotalAmount').textContent = '₹' + grandTotal.toFixed(2);
     }
 
-    // Save draft
     function saveDraft() {
-        const custName = document.getElementById('customerName').value.trim();
-        if (!custName) {
-            showNotification('Enter customer name', 'error');
-            return;
-        }
+        const name = document.getElementById('customerName').value.trim();
+        if (!name) { showNotification('Enter customer name', 'error'); return; }
+        if (invoiceData.lineItems.length === 0) { showNotification('Add at least one service', 'error'); return; }
 
-        if (invoiceData.lineItems.length === 0) {
-            showNotification('Add at least one service', 'error');
-            return;
-        }
+        let drafts = [];
+        const saved = localStorage.getItem('dreamHarbourDrafts');
+        if (saved) drafts = JSON.parse(saved);
 
-        const draft = {
-            id: 'draft_' + Date.now(),
-            customerName: custName,
+        drafts.push({
+            id: Date.now(),
+            customerName: name,
             customerMobile: document.getElementById('customerMobile').value,
             customerCompany: document.getElementById('customerCompany').value,
-            customerEmail: document.getElementById('customerEmail').value,
             customerAddress: document.getElementById('customerAddress').value,
             invoiceDate: document.getElementById('invoiceDate').value,
             paymentStatus: document.getElementById('paymentStatus').value,
             lineItems: JSON.parse(JSON.stringify(invoiceData.lineItems)),
             savedAt: new Date().toISOString()
-        };
+        });
 
-        let drafts = [];
-        try {
-            const saved = localStorage.getItem('dreamHarbourDrafts');
-            if (saved) drafts = JSON.parse(saved);
-        } catch(e) {}
-
-        drafts.push(draft);
         localStorage.setItem('dreamHarbourDrafts', JSON.stringify(drafts));
-
         showNotification('Invoice saved as draft', 'success');
     }
 
-    // Clear invoice
-    function clearInvoice() {
-        if (confirm('Clear current invoice?')) {
-            invoiceData.lineItems = [];
-            document.getElementById('customerName').value = '';
-            document.getElementById('customerMobile').value = '';
-            document.getElementById('customerCompany').value = '';
-            document.getElementById('customerEmail').value = '';
-            document.getElementById('customerAddress').value = '';
-            updateLineItemsDisplay();
-            updateTotals();
-            showNotification('Invoice cleared', 'success');
-        }
+    function clearForm() {
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerMobile').value = '';
+        document.getElementById('customerCompany').value = '';
+        document.getElementById('customerAddress').value = '';
+        invoiceData.lineItems = [];
+        updateTable();
+        updateTotals();
     }
 
-    // Open settings
     function openSettings() {
-        window.open('settings.html', 'settings_window', 'width=1000,height=800');
+        window.open('settings.html', 'settings', 'width=900,height=600');
     }
 
-    // Set today date
-    function setTodayDate() {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('invoiceDate').value = today;
-    }
-
-    // Show notification
     function showNotification(msg, type) {
         const notif = document.createElement('div');
         notif.className = 'notification notification-' + type;
         notif.textContent = msg;
         document.body.appendChild(notif);
-
-        setTimeout(() => {
-            notif.style.opacity = '0';
-            notif.style.transition = 'opacity 0.3s';
-            setTimeout(() => notif.remove(), 300);
-        }, 2500);
+        setTimeout(() => notif.remove(), 2500);
     }
     </script>
 </body>
