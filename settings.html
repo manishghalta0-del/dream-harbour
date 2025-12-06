@@ -1,12 +1,487 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Settings Pro</title>
-    
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!DOCTY
+// ========================================
+// SETTINGS MANAGEMENT - Complete Implementation
+// ========================================
+
+// Initialize data structures from localStorage
+let appData = {
+    business: {
+        name: 'Dream Harbour',
+        gstin: '27XXXXX1234X1Z5',
+        phone: '+91 98765 43210',
+        email: 'info@dreamharbour.com',
+        address: '123 Business Street',
+        city: 'City Name',
+        state: 'State',
+        pincode: '123456',
+        defaultGst: 18
+    },
+    categories: [],
+    services: [],
+    stateCode: '27'
+};
+
+// Load data from localStorage on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadAllData();
+    populateCategoryDropdown();
+    displayCategories();
+});
+
+// ========================================
+// BUSINESS SETTINGS FUNCTIONS
+// ========================================
+
+function saveBusinessInfo() {
+    appData.business = {
+        name: document.getElementById('businessName')?.value || 'Dream Harbour',
+        gstin: document.getElementById('gstin')?.value || '',
+        phone: document.getElementById('phone')?.value || '',
+        email: document.getElementById('email')?.value || '',
+        address: document.getElementById('address')?.value || '',
+        city: document.getElementById('city')?.value || '',
+        state: document.getElementById('state')?.value || '',
+        pincode: document.getElementById('pincode')?.value || '',
+        defaultGst: parseInt(document.getElementById('defaultGst')?.value || 18)
+    };
+
+    saveToLocalStorage();
+    showAlert('✓ Business information saved successfully!', 'success');
+}
+
+function resetBusinessForm() {
+    document.getElementById('businessName').value = appData.business.name;
+    document.getElementById('gstin').value = appData.business.gstin;
+    document.getElementById('phone').value = appData.business.phone;
+    document.getElementById('email').value = appData.business.email;
+    document.getElementById('address').value = appData.business.address;
+    document.getElementById('city').value = appData.business.city;
+    document.getElementById('state').value = appData.business.state;
+    document.getElementById('pincode').value = appData.business.pincode;
+    document.getElementById('defaultGst').value = appData.business.defaultGst;
+}
+
+// ========================================
+// CATEGORY MANAGEMENT FUNCTIONS
+// ========================================
+
+function addCategory() {
+    const modal = document.getElementById('categoryModal');
+    document.getElementById('categoryModalTitle').textContent = 'Add New Category';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryForm').dataset.editing = '';
+    if (modal) modal.style.display = 'flex';
+}
+
+function saveCategoryModal() {
+    const name = document.getElementById('categoryName')?.value?.trim();
+    const desc = document.getElementById('categoryDesc')?.value?.trim();
+    const isEditing = document.getElementById('categoryForm').dataset.editing;
+
+    if (!name) {
+        showAlert('Category name is required', 'error');
+        return;
+    }
+
+    if (isEditing) {
+        // Update existing
+        const cat = appData.categories.find(c => c.id === isEditing);
+        if (cat) {
+            cat.name = name;
+            cat.description = desc;
+        }
+    } else {
+        // Add new
+        appData.categories.push({
+            id: 'cat_' + Date.now(),
+            name: name,
+            description: desc,
+            services: []
+        });
+    }
+
+    saveToLocalStorage();
+    closeCategoryModal();
+    displayCategories();
+    populateCategoryDropdown();
+    showAlert('✓ Category saved successfully!', 'success');
+}
+
+function editCategory(catId) {
+    const cat = appData.categories.find(c => c.id === catId);
+    if (cat) {
+        document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+        document.getElementById('categoryName').value = cat.name;
+        document.getElementById('categoryDesc').value = cat.description;
+        document.getElementById('categoryForm').dataset.editing = catId;
+        const modal = document.getElementById('categoryModal');
+        if (modal) modal.style.display = 'flex';
+    }
+}
+
+function deleteCategory(catId) {
+    if (confirm('Are you sure you want to delete this category and all its services?')) {
+        appData.categories = appData.categories.filter(c => c.id !== catId);
+        appData.services = appData.services.filter(s => s.categoryId !== catId);
+        saveToLocalStorage();
+        displayCategories();
+        populateCategoryDropdown();
+        showAlert('✓ Category deleted!', 'success');
+    }
+}
+
+function closeCategoryModal() {
+    const modal = document.getElementById('categoryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function displayCategories() {
+    const container = document.getElementById('categoriesContainer');
+    if (!container) return;
+
+    if (appData.categories.length === 0) {
+        container.innerHTML = '<div class="empty-state">No categories yet. <a href="javascript:addCategory()">Add one</a></div>';
+        return;
+    }
+
+    container.innerHTML = appData.categories.map(cat => `
+        <div class="category-card">
+            <div class="category-header">
+                <h3>${cat.name}</h3>
+                <div class="category-actions">
+                    <button onclick="editCategory('${cat.id}')" class="btn-icon">✏️ Edit</button>
+                    <button onclick="deleteCategory('${cat.id}')" class="btn-icon">🗑️ Delete</button>
+                </div>
+            </div>
+            <p class="category-desc">${cat.description || 'No description'}</p>
+            <p class="service-count">Services: ${appData.services.filter(s => s.categoryId === cat.id).length}</p>
+        </div>
+    `).join('');
+}
+
+// ========================================
+// SERVICE MANAGEMENT FUNCTIONS
+// ========================================
+
+function addService() {
+    const categoryId = document.getElementById('serviceCategory')?.value;
+    if (!categoryId) {
+        showAlert('Please select a category first', 'error');
+        return;
+    }
+
+    document.getElementById('serviceModalTitle').textContent = 'Add New Service';
+    document.getElementById('serviceForm').reset();
+    document.getElementById('serviceForm').dataset.editing = '';
+    document.getElementById('serviceCategory').value = categoryId;
+    const modal = document.getElementById('serviceModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function saveServiceModal() {
+    const categoryId = document.getElementById('serviceCategory')?.value;
+    const name = document.getElementById('serviceName')?.value?.trim();
+    const sac = document.getElementById('serviceSac')?.value?.trim();
+    const rate = parseFloat(document.getElementById('serviceRate')?.value || 0);
+    const gst = parseInt(document.getElementById('serviceGst')?.value || appData.business.defaultGst);
+    const desc = document.getElementById('serviceDesc')?.value?.trim();
+    const isEditing = document.getElementById('serviceForm').dataset.editing;
+
+    if (!name || !sac || rate <= 0) {
+        showAlert('Service name, SAC code, and rate are required', 'error');
+        return;
+    }
+
+    // Validate SAC code (should be 6 digits)
+    if (!/^\d{6}$/.test(sac)) {
+        showAlert('SAC code must be 6 digits', 'error');
+        return;
+    }
+
+    if (isEditing) {
+        // Update existing
+        const svc = appData.services.find(s => s.id === isEditing);
+        if (svc) {
+            svc.name = name;
+            svc.sac = sac;
+            svc.rate = rate;
+            svc.gst = gst;
+            svc.description = desc;
+        }
+    } else {
+        // Add new
+        appData.services.push({
+            id: 'svc_' + Date.now(),
+            categoryId: categoryId,
+            name: name,
+            sac: sac,
+            rate: rate,
+            gst: gst,
+            description: desc
+        });
+    }
+
+    saveToLocalStorage();
+    closeServiceModal();
+    displayServices();
+    showAlert('✓ Service saved successfully!', 'success');
+}
+
+function editService(serviceId) {
+    const svc = appData.services.find(s => s.id === serviceId);
+    if (svc) {
+        document.getElementById('serviceModalTitle').textContent = 'Edit Service';
+        document.getElementById('serviceCategory').value = svc.categoryId;
+        document.getElementById('serviceName').value = svc.name;
+        document.getElementById('serviceSac').value = svc.sac;
+        document.getElementById('serviceRate').value = svc.rate;
+        document.getElementById('serviceGst').value = svc.gst;
+        document.getElementById('serviceDesc').value = svc.description || '';
+        document.getElementById('serviceForm').dataset.editing = serviceId;
+        const modal = document.getElementById('serviceModal');
+        if (modal) modal.style.display = 'flex';
+    }
+}
+
+function deleteService(serviceId) {
+    if (confirm('Are you sure you want to delete this service?')) {
+        appData.services = appData.services.filter(s => s.id !== serviceId);
+        saveToLocalStorage();
+        displayServices();
+        showAlert('✓ Service deleted!', 'success');
+    }
+}
+
+function closeServiceModal() {
+    const modal = document.getElementById('serviceModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function displayServices() {
+    const categoryId = document.getElementById('serviceCategory')?.value;
+    const container = document.getElementById('servicesContainer');
+    if (!container) return;
+
+    const services = categoryId 
+        ? appData.services.filter(s => s.categoryId === categoryId)
+        : appData.services;
+
+    if (services.length === 0) {
+        container.innerHTML = '<div class="empty-state">No services in this category</div>';
+        return;
+    }
+
+    container.innerHTML = services.map(svc => `
+        <div class="service-card">
+            <div class="service-header">
+                <h4>${svc.name}</h4>
+                <div class="service-actions">
+                    <button onclick="editService('${svc.id}')" class="btn-icon">✏️</button>
+                    <button onclick="deleteService('${svc.id}')" class="btn-icon">🗑️</button>
+                </div>
+            </div>
+            <div class="service-details">
+                <p><strong>SAC:</strong> ${svc.sac}</p>
+                <p><strong>Rate:</strong> ₹${svc.rate.toFixed(2)}</p>
+                <p><strong>GST:</strong> ${svc.gst}%</p>
+                ${svc.description ? '<p class="service-desc">' + svc.description + '</p>' : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+function populateCategoryDropdown() {
+    const dropdown = document.getElementById('serviceCategory');
+    if (!dropdown) return;
+
+    dropdown.innerHTML = '<option value="">Select a category...</option>' + 
+        appData.categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+
+    // Add event listener for real-time service display
+    dropdown.addEventListener('change', displayServices);
+}
+
+// ========================================
+// IMPORT/EXPORT FUNCTIONS
+// ========================================
+
+function exportToJSON() {
+    const dataStr = JSON.stringify(appData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dream-harbour-settings.json';
+    link.click();
+    showAlert('✓ Settings exported!', 'success');
+}
+
+function exportToCSV() {
+    let csv = 'Category,Service Name,SAC Code,Rate,GST %\n';
+
+    appData.services.forEach(svc => {
+        const cat = appData.categories.find(c => c.id === svc.categoryId)?.name || 'Uncategorized';
+        csv += \`"\${cat}","\${svc.name}",\${svc.sac},\${svc.rate},\${svc.gst}\n\`;
+    });
+
+    const csvBlob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(csvBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dream-harbour-services.csv';
+    link.click();
+    showAlert('✓ Services exported to CSV!', 'success');
+}
+
+function importFromJSON() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            try {
+                const imported = JSON.parse(event.target.result);
+                appData = imported;
+                saveToLocalStorage();
+                loadAllData();
+                showAlert('✓ Settings imported successfully!', 'success');
+                location.reload();
+            } catch(err) {
+                showAlert('Error importing file: ' + err.message, 'error');
+            }
+        };
+
+        reader.readAsText(file);
+    };
+
+    input.click();
+}
+
+// ========================================
+// STORAGE FUNCTIONS
+// ========================================
+
+function saveToLocalStorage() {
+    try {
+        localStorage.setItem('dreamHarbourAppData', JSON.stringify(appData));
+        localStorage.setItem('dreamHarbourLastSaved', new Date().toISOString());
+        return true;
+    } catch(err) {
+        showAlert('Error saving to storage: ' + err.message, 'error');
+        return false;
+    }
+}
+
+function loadAllData() {
+    try {
+        const saved = localStorage.getItem('dreamHarbourAppData');
+        if (saved) {
+            appData = JSON.parse(saved);
+        }
+
+        // Populate form fields
+        document.getElementById('businessName').value = appData.business.name;
+        document.getElementById('gstin').value = appData.business.gstin;
+        document.getElementById('phone').value = appData.business.phone;
+        document.getElementById('email').value = appData.business.email;
+        document.getElementById('address').value = appData.business.address;
+        document.getElementById('city').value = appData.business.city;
+        document.getElementById('state').value = appData.business.state;
+        document.getElementById('pincode').value = appData.business.pincode;
+        document.getElementById('defaultGst').value = appData.business.defaultGst;
+
+        console.log('✓ Data loaded from storage');
+    } catch(err) {
+        console.error('Error loading data:', err);
+    }
+}
+
+function clearAllData() {
+    if (confirm('Are you sure? This will delete ALL settings, categories, and services!')) {
+        localStorage.removeItem('dreamHarbourAppData');
+        appData = {
+            business: {},
+            categories: [],
+            services: []
+        };
+        location.reload();
+    }
+}
+
+// ========================================
+// UI HELPER FUNCTIONS
+// ========================================
+
+function showAlert(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = 'alert alert-' + type;
+    alertDiv.textContent = message;
+    alertDiv.style.cssText = \`
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        background: \${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    \`;
+
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+        alertDiv.style.animation = 'slideOut 0.3s ease-in';
+        setTimeout(() => alertDiv.remove(), 300);
+    }, 3000);
+}
+
+// Close modals on outside click
+document.addEventListener('click', function(event) {
+    const categoryModal = document.getElementById('categoryModal');
+    const serviceModal = document.getElementById('serviceModal');
+
+    if (categoryModal && event.target === categoryModal) {
+        closeCategoryModal();
+    }
+    if (serviceModal && event.target === serviceModal) {
+        closeServiceModal();
+    }
+});
+
+// Add keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCategoryModal();
+        closeServiceModal();
+    }
+});
+
+// Export data structure for invoices.html to access
+window.dreamHarbourData = {
+    getBusinessInfo: () => appData.business,
+    getAllServices: () => appData.services,
+    getCategories: () => appData.categories,
+    getServicesByCategory: (catId) => appData.services.filter(s => s.categoryId === catId),
+    exportData: () => JSON.stringify(appData)
+};
+
+
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+</script></script>
     
     <style>
         :root {
