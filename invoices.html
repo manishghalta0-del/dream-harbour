@@ -1102,7 +1102,7 @@
     </style>
 <script>
 // ========================================
-// INVOICES - Settings Integration
+// INVOICES - Settings Integration v2
 // ========================================
 
 let businessSettings = {
@@ -1117,16 +1117,16 @@ let invoiceData = {
     lineItems: []
 };
 
-// Load settings on page load
+// Load on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✓ Invoices page loaded');
+    console.log('✅ Invoices page loaded');
     loadBusinessSettings();
     initializeForm();
-    setupEvents();
+    setupAllEvents();
 });
 
 // ========================================
-// LOAD SETTINGS
+// LOAD SETTINGS FROM STORAGE
 // ========================================
 
 function loadBusinessSettings() {
@@ -1136,12 +1136,14 @@ function loadBusinessSettings() {
             businessSettings = JSON.parse(saved);
             console.log('✓ Settings loaded from localStorage');
             updateCompanyDetails();
-            updateServiceDropdown();
+            buildServiceDropdown();
         } else {
-            console.warn('No settings found. Configure in settings.html first');
+            console.warn('⚠️ No settings found. Open settings page first');
+            showNotification('⚠️ No settings configured. Go to Settings page', 'info');
         }
     } catch(e) {
         console.error('Error loading settings:', e);
+        showNotification('Error loading settings', 'error');
     }
 }
 
@@ -1152,41 +1154,47 @@ function updateCompanyDetails() {
     const companyName = document.querySelector('.company-name');
     if (companyName) companyName.textContent = biz.name || 'Dream Harbour';
 
-    const companyAddress = document.querySelector('.company-address');
-    if (companyAddress) companyAddress.textContent = biz.address || '123 Business Street';
+    const address = document.querySelector('.company-address');
+    if (address) address.textContent = biz.address || '123 Business Street';
 
-    const companyGstin = document.querySelector('.company-gstin');
-    if (companyGstin) companyGstin.textContent = 'GSTIN: ' + (biz.gstin || '27XXXXX1234X1Z5');
+    const gstin = document.querySelector('.company-gstin');
+    if (gstin) gstin.textContent = 'GSTIN: ' + (biz.gstin || 'Not configured');
 
-    const companyContact = document.querySelector('.company-contact');
-    if (companyContact) companyContact.textContent = 'Phone: ' + (biz.phone || '+91 98765 43210');
+    const phone = document.querySelector('.company-contact');
+    if (phone) phone.textContent = 'Phone: ' + (biz.phone || 'Not configured');
 }
 
-function updateServiceDropdown() {
+function buildServiceDropdown() {
     const dropdown = document.getElementById('serviceDropdown');
     if (!dropdown) return;
 
-    if (businessSettings.services.length === 0) {
-        dropdown.innerHTML = '<div>No services configured. <a href="settings_FIXED.html">Configure in Settings</a></div>';
+    if (!businessSettings.services || businessSettings.services.length === 0) {
+        dropdown.innerHTML = '<div style="padding:10px"><strong>No services configured</strong><br/>' +
+            '<a href="settings_FIXED.html" target="_blank" style="color:blue">Go to Settings to add services</a></div>';
         return;
     }
 
     let html = '';
-    const categories = businessSettings.categories;
+    const categories = businessSettings.categories || [];
 
+    // Group services by category
     categories.forEach(cat => {
-        const services = businessSettings.services.filter(s => s.categoryId === cat.id);
-        if (services.length > 0) {
-            html += '<div style="font-weight:bold;padding:5px">' + cat.name + '</div>';
-            services.forEach((svc, idx) => {
-                html += '<div style="padding:5px;cursor:pointer" onclick="selectService(' + idx + ')">' +
-                    svc.name + ' (SAC: ' + svc.sac + ', ₹' + svc.rate + ', GST: ' + svc.gst + '%)' +
+        const catServices = businessSettings.services.filter(s => s.categoryId === cat.id);
+        if (catServices.length > 0) {
+            html += '<div style="font-weight:bold;padding:10px 5px;border-bottom:1px solid #ddd;background:#f5f5f5">' + 
+                cat.name + '</div>';
+            catServices.forEach((svc, idx) => {
+                html += '<div class="service-option" onclick="selectService(' + idx + ')" style="' +
+                    'padding:8px 10px;cursor:pointer;border-bottom:1px solid #eee;hover:background:#f9f9f9">' +
+                    '<div style="font-weight:500">' + svc.name + '</div>' +
+                    '<div style="font-size:12px;color:#666">SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</div>' +
                     '</div>';
             });
         }
     });
 
-    dropdown.innerHTML = html;
+    dropdown.innerHTML = html || '<div style="padding:10px">No services available</div>';
+    dropdown.style.display = 'none'; // Hidden until search
 }
 
 function selectService(idx) {
@@ -1196,18 +1204,95 @@ function selectService(idx) {
     document.getElementById('serviceNameInput').value = svc.name;
     document.getElementById('serviceSacInput').value = svc.sac;
     document.getElementById('serviceRateInput').value = svc.rate;
+    document.getElementById('serviceQtyInput').value = '1';
     document.getElementById('serviceGstInput').value = svc.gst;
 
-    showAlert('✓ Service selected', 'info');
+    // Close dropdown
+    const dropdown = document.getElementById('serviceDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+
+    document.getElementById('serviceSearch').value = '';
+
+    showNotification('✓ Service selected: ' + svc.name, 'success');
+    console.log('✓ Service selected:', svc);
 }
 
 // ========================================
-// FORM FUNCTIONS
+// SERVICE SEARCH WITH FILTERING
+// ========================================
+
+function setupServiceSearch() {
+    const searchInput = document.getElementById('serviceSearch');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        const dropdown = document.getElementById('serviceDropdown');
+
+        if (query.length === 0) {
+            // Rebuild full dropdown
+            buildServiceDropdown();
+            return;
+        }
+
+        // Filter services
+        const filtered = businessSettings.services.filter(svc =>
+            svc.name.toLowerCase().includes(query) ||
+            svc.sac.includes(query)
+        );
+
+        if (filtered.length === 0) {
+            dropdown.innerHTML = '<div style="padding:10px;color:#999">No services match: ' + query + '</div>';
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        // Build filtered HTML
+        let html = '';
+        filtered.forEach((svc, idx) => {
+            const realIdx = businessSettings.services.indexOf(svc);
+            html += '<div class="service-option" onclick="selectService(' + realIdx + ')" style="' +
+                'padding:8px 10px;cursor:pointer;border-bottom:1px solid #eee;background:#fffbea">' +
+                '<div style="font-weight:500">' + svc.name + '</div>' +
+                '<div style="font-size:12px;color:#666">SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</div>' +
+                '</div>';
+        });
+
+        dropdown.innerHTML = html;
+        dropdown.style.display = 'block';
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('serviceDropdown');
+        const searchBox = document.getElementById('serviceSearch');
+
+        if (dropdown && !dropdown.contains(e.target) && !searchBox?.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    // Show dropdown on focus
+    searchInput.addEventListener('focus', function() {
+        const dropdown = document.getElementById('serviceDropdown');
+        if (dropdown && this.value.length === 0) {
+            dropdown.style.display = 'block';
+        }
+    });
+
+    console.log('✓ Service search setup complete');
+}
+
+// ========================================
+// INVOICE FUNCTIONS
 // ========================================
 
 function initializeForm() {
-    document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
-    updateTotals();
+    const today = new Date().toISOString().split('T')[0];
+    if (document.getElementById('invoiceDate')) {
+        document.getElementById('invoiceDate').value = today;
+    }
+    updateLineItemsDisplay();
 }
 
 function addLineItem() {
@@ -1217,13 +1302,14 @@ function addLineItem() {
     const rate = parseFloat(document.getElementById('serviceRateInput')?.value || 0);
     const gst = parseFloat(document.getElementById('serviceGstInput')?.value || 18);
 
-    if (!name || !sac || rate <= 0) {
-        showAlert('Fill all fields', 'error');
+    if (!name || !sac || qty <= 0 || rate <= 0) {
+        showNotification('Fill all service fields with valid values', 'error');
         return;
     }
 
     const amount = qty * rate;
     const gstAmt = (amount * gst) / 100;
+    const total = amount + gstAmt;
 
     invoiceData.lineItems.push({
         id: 'line_' + Date.now(),
@@ -1234,7 +1320,7 @@ function addLineItem() {
         amount: amount,
         gst: gst,
         gstAmount: gstAmt,
-        total: amount + gstAmt
+        total: total
     });
 
     // Clear form
@@ -1244,41 +1330,42 @@ function addLineItem() {
     document.getElementById('serviceRateInput').value = '';
     document.getElementById('serviceGstInput').value = businessSettings.business.defaultGst || 18;
 
-    updateLineItems();
-    updateTotals();
-    showAlert('✓ Service added', 'success');
+    updateLineItemsDisplay();
+    updateInvoiceTotals();
+    showNotification('✓ Service added to invoice', 'success');
 }
 
 function removeLineItem(lineId) {
     invoiceData.lineItems = invoiceData.lineItems.filter(l => l.id !== lineId);
-    updateLineItems();
-    updateTotals();
+    updateLineItemsDisplay();
+    updateInvoiceTotals();
+    showNotification('✓ Service removed', 'success');
 }
 
-function updateLineItems() {
+function updateLineItemsDisplay() {
     const tbody = document.getElementById('invoiceLinesBody');
     if (!tbody) return;
 
     if (invoiceData.lineItems.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8">No items. Add service above.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px">No services added. Add one above.</td></tr>';
         return;
     }
 
-    tbody.innerHTML = invoiceData.lineItems.map(item => `
+    tbody.innerHTML = invoiceData.lineItems.map(item => \`
         <tr>
-            <td>${item.description}</td>
-            <td>${item.sac}</td>
-            <td>${item.qty}</td>
-            <td>₹${item.rate.toFixed(2)}</td>
-            <td>₹${item.amount.toFixed(2)}</td>
-            <td>${item.gst}%</td>
-            <td>₹${item.gstAmount.toFixed(2)}</td>
-            <td><button onclick="removeLineItem('${item.id}')">Delete</button></td>
+            <td>\${item.description}</td>
+            <td>\${item.sac}</td>
+            <td>\${item.qty}</td>
+            <td>₹\${item.rate.toFixed(2)}</td>
+            <td>₹\${item.amount.toFixed(2)}</td>
+            <td>\${item.gst}%</td>
+            <td>₹\${item.gstAmount.toFixed(2)}</td>
+            <td><button onclick="removeLineItem('\${item.id}')" style="padding:5px 10px;background:#ef4444;color:white;border:none;border-radius:4px;cursor:pointer">Delete</button></td>
         </tr>
-    `).join('');
+    \`).join('');
 }
 
-function updateTotals() {
+function updateInvoiceTotals() {
     const subtotal = invoiceData.lineItems.reduce((sum, item) => sum + item.amount, 0);
     const totalGst = invoiceData.lineItems.reduce((sum, item) => sum + item.gstAmount, 0);
     const grandTotal = subtotal + totalGst;
@@ -1291,14 +1378,21 @@ function updateTotals() {
 }
 
 function saveDraft() {
-    const custName = document.getElementById('customerName')?.value;
+    const custName = document.getElementById('customerName')?.value?.trim();
     if (!custName) {
-        showAlert('Enter customer name', 'error');
+        showNotification('Enter customer name', 'error');
+        return;
+    }
+
+    if (invoiceData.lineItems.length === 0) {
+        showNotification('Add at least one service', 'error');
         return;
     }
 
     invoiceData.customerName = custName;
     invoiceData.customerMobile = document.getElementById('customerMobile')?.value;
+    invoiceData.invoiceDate = document.getElementById('invoiceDate')?.value;
+    invoiceData.paymentStatus = document.getElementById('paymentStatus')?.value;
 
     let drafts = [];
     try {
@@ -1308,59 +1402,82 @@ function saveDraft() {
 
     drafts.push({
         id: 'draft_' + Date.now(),
-        data: invoiceData,
-        saved: new Date().toISOString()
+        data: JSON.parse(JSON.stringify(invoiceData)),
+        savedAt: new Date().toISOString()
     });
 
     localStorage.setItem('dreamHarbourDrafts', JSON.stringify(drafts));
-    showAlert('✓ Draft saved', 'success');
+    showNotification('✓ Invoice saved as draft', 'success');
+    console.log('✓ Draft saved');
+}
+
+function clearInvoice() {
+    if (confirm('Clear current invoice?')) {
+        invoiceData = { customerName: '', customerMobile: '', lineItems: [] };
+        document.getElementById('customerName').value = '';
+        document.getElementById('customerMobile').value = '';
+        document.getElementById('serviceNameInput').value = '';
+        updateLineItemsDisplay();
+        updateInvoiceTotals();
+        showNotification('✓ Invoice cleared', 'success');
+    }
 }
 
 function openSettings() {
-    window.open('settings_FIXED.html', 'settings');
+    window.open('settings_FIXED.html', 'settings_window');
 }
 
 // ========================================
 // UI HELPERS
 // ========================================
 
-function showAlert(msg, type) {
-    const alert = document.createElement('div');
-    alert.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px;background:' +
-        (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6') + 
-        ';color:white;border-radius:5px;z-index:9999';
-    alert.textContent = msg;
-    document.body.appendChild(alert);
-    setTimeout(() => alert.remove(), 3000);
-}
+function setupAllEvents() {
+    setupServiceSearch();
 
-function setupEvents() {
-    // Service search
-    const serviceSearch = document.getElementById('serviceSearch');
-    if (serviceSearch) {
-        serviceSearch.addEventListener('input', function() {
-            const dropdown = document.getElementById('serviceDropdown');
-            if (this.value.length > 0) {
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
-            }
-        });
-    }
-
-    // Customer mobile search
+    // Customer mobile Tab key
     const mobileInput = document.getElementById('customerMobile');
     if (mobileInput) {
         mobileInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab' || e.key === 'Enter') {
-                e.preventDefault();
-                showAlert('Customer search feature coming soon', 'info');
+            if (e.key === 'Tab') {
+                console.log('Customer mobile entered:', this.value);
             }
         });
     }
 
-    console.log('✓ Event listeners attached');
+    console.log('✓ All events set up');
 }
+
+function showNotification(msg, type) {
+    const notif = document.createElement('div');
+    notif.style.cssText = 'position:fixed;top:20px;right:20px;padding:15px 20px;border-radius:8px;' +
+        'color:white;font-weight:600;z-index:9999;' +
+        'background:' + (type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6') +
+        ';box-shadow:0 4px 12px rgba(0,0,0,0.15)';
+    notif.textContent = msg;
+    document.body.appendChild(notif);
+
+    setTimeout(() => {
+        notif.style.opacity = '0';
+        notif.style.transition = 'opacity 0.3s';
+        setTimeout(() => notif.remove(), 300);
+    }, 2500);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl+N: New invoice
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        clearInvoice();
+    }
+    // Ctrl+S: Save draft
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        saveDraft();
+    }
+});
+
+console.log('✅ Invoices script loaded');
 </script>
 </script>
 
