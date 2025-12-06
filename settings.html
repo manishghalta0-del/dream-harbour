@@ -3,364 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Settings</title>
+    <title>Dream Harbour Settings</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .tab-btn {
-            padding: 12px 20px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .items-list {
-            margin-top: 20px;
-        }
-
-        .item-card {
-            background: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-info {
-            flex: 1;
-        }
-
-        .item-info h4 {
-            font-size: 14px;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .item-info p {
-            font-size: 12px;
-            color: #666;
-        }
-
-        .item-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .item-actions button {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #6ee7b7;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #7f1d1d;
-            border: 1px solid #fca5a5;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            color: #0c2d6b;
-            border: 1px solid #93c5fd;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-header {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: flex-end;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: #667eea; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; }
+        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; color: #666; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-danger { background: #ef4444; color: white; }
+        .item-card { background: #f9f9f9; border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .item-info { flex: 1; }
+        .item-info h4 { margin-bottom: 5px; color: #333; }
+        .item-info p { font-size: 12px; color: #666; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>⚙️ Dream Harbour Settings</h1>
-            <p>Manage your business information and services</p>
+            <p>Manage your business and services</p>
         </div>
 
         <div class="content">
-            <!-- Tabs -->
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('business')">💼 Business Info</button>
-                <button class="tab-btn" onclick="switchTab('services')">📋 Services</button>
+                <button class="tab-btn active" onclick="switchTab('business')">Business Info</button>
+                <button class="tab-btn" onclick="switchTab('services')">Services</button>
             </div>
 
-            <!-- Business Tab -->
             <div id="business" class="tab-content active">
-                <h2 style="margin-bottom: 20px;">Business Information</h2>
+                <h2>Business Information</h2>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Business Name *</label>
-                        <input type="text" id="businessName" placeholder="Enter business name">
+                        <label>Business Name</label>
+                        <input type="text" id="businessName">
                     </div>
                     <div class="form-group">
-                        <label>GSTIN *</label>
-                        <input type="text" id="gstin" placeholder="27XXXXX1234X1Z5">
+                        <label>GSTIN</label>
+                        <input type="text" id="gstin">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Phone *</label>
-                        <input type="text" id="phone" placeholder="+91 98765 43210">
+                        <label>Phone</label>
+                        <input type="text" id="phone">
                     </div>
                     <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" id="email" placeholder="info@business.com">
+                        <label>Email</label>
+                        <input type="email" id="email">
                     </div>
                 </div>
-
                 <div class="form-group">
-                    <label>Address *</label>
-                    <input type="text" id="address" placeholder="123 Business Street">
+                    <label>Address</label>
+                    <input type="text" id="address">
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label>City *</label>
-                        <input type="text" id="city" placeholder="City Name">
+                        <label>City</label>
+                        <input type="text" id="city">
                     </div>
                     <div class="form-group">
-                        <label>State *</label>
-                        <input type="text" id="state" placeholder="State">
+                        <label>State</label>
+                        <input type="text" id="state">
                     </div>
                 </div>
-
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Pincode *</label>
-                        <input type="text" id="pincode" placeholder="123456">
+                        <label>Pincode</label>
+                        <input type="text" id="pincode">
                     </div>
                     <div class="form-group">
-                        <label>Default GST % *</label>
-                        <input type="number" id="defaultGst" placeholder="18" value="18">
+                        <label>Default GST %</label>
+                        <input type="number" id="defaultGst" value="18">
                     </div>
                 </div>
-
                 <div class="button-group">
-                    <button class="btn-primary" onclick="saveBusinessInfo()">💾 Save Business Info</button>
-                    <button class="btn-secondary" onclick="resetBusinessForm()">🔄 Reset</button>
+                    <button class="btn-primary" onclick="saveBusinessInfo()">Save</button>
+                    <button class="btn-secondary" onclick="loadBusinessData()">Reset</button>
                 </div>
             </div>
 
-            <!-- Services Tab -->
             <div id="services" class="tab-content">
-                <h2 style="margin-bottom: 20px;">Services Management</h2>
-
+                <h2>Services Management</h2>
                 <div class="form-group">
-                    <label>Select Category *</label>
-                    <select id="categorySelect" onchange="displayServices()">
-                        <option value="">Choose a category...</option>
+                    <label>Select Category</label>
+                    <select id="categorySelect" onchange="loadServices()">
+                        <option value="">Choose category...</option>
                     </select>
                 </div>
-
-                <button class="btn-primary" onclick="openAddCategoryModal()" style="margin-bottom: 20px;">➕ Add New Category</button>
-                <button class="btn-primary" onclick="openAddServiceModal()" style="margin-bottom: 20px;">➕ Add New Service</button>
-
-                <div class="items-list" id="servicesList"></div>
+                <button class="btn-primary" onclick="addCategoryModal()">Add Category</button>
+                <button class="btn-primary" onclick="addServiceModal()">Add Service</button>
+                <div id="servicesList" style="margin-top: 20px;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Category Modal -->
     <div id="categoryModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add Category</div>
             <div class="form-group">
-                <label>Category Name *</label>
-                <input type="text" id="categoryName" placeholder="e.g., Web Development">
+                <label>Category Name</label>
+                <input type="text" id="categoryNameInput">
             </div>
             <div class="modal-buttons">
                 <button class="btn-secondary" onclick="closeCategoryModal()">Cancel</button>
@@ -369,25 +130,24 @@
         </div>
     </div>
 
-    <!-- Service Modal -->
     <div id="serviceModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add Service</div>
             <div class="form-group">
-                <label>Service Name *</label>
-                <input type="text" id="serviceName" placeholder="e.g., Website Design">
+                <label>Service Name</label>
+                <input type="text" id="serviceNameInput">
             </div>
             <div class="form-group">
-                <label>SAC Code * (6 digits)</label>
-                <input type="text" id="serviceSac" placeholder="998369">
+                <label>SAC Code (6 digits)</label>
+                <input type="text" id="serviceSacInput" maxlength="6">
             </div>
             <div class="form-group">
-                <label>Rate (₹) *</label>
-                <input type="number" id="serviceRate" placeholder="5000">
+                <label>Rate (₹)</label>
+                <input type="number" id="serviceRateInput">
             </div>
             <div class="form-group">
-                <label>GST % *</label>
-                <select id="serviceGst">
+                <label>GST %</label>
+                <select id="serviceGstInput">
                     <option value="0">0%</option>
                     <option value="5">5%</option>
                     <option value="12">12%</option>
@@ -403,55 +163,53 @@
     </div>
 
     <script>
-    // Global data
     let appData = {
-        business: {
-            name: 'Dream Harbour',
-            gstin: '27XXXXX1234X1Z5',
-            phone: '+91 98765 43210',
-            email: 'info@dreamharbour.com',
-            address: '123 Business Street',
-            city: 'City Name',
-            state: 'State',
-            pincode: '123456',
-            defaultGst: 18
-        },
+        business: { name: '', gstin: '', phone: '', email: '', address: '', city: '', state: '', pincode: '', defaultGst: 18 },
         categories: [],
         services: []
     };
 
-    // Initialize
-    window.addEventListener('DOMContentLoaded', function() {
+    window.onload = function() {
         loadData();
-        displayCategories();
-    });
+        loadBusinessData();
+        loadCategoryDropdown();
+    };
 
-    // Load data from localStorage
     function loadData() {
-        try {
-            const saved = localStorage.getItem('dreamHarbourAppData');
-            if (saved) {
-                appData = JSON.parse(saved);
-            }
-            populateForm();
-        } catch(e) {
-            console.error('Load error:', e);
+        const saved = localStorage.getItem('dreamHarbourData');
+        if (saved) {
+            appData = JSON.parse(saved);
         }
     }
 
-    // Save to localStorage
     function saveData() {
-        try {
-            localStorage.setItem('dreamHarbourAppData', JSON.stringify(appData));
-            return true;
-        } catch(e) {
-            alert('Error saving data: ' + e.message);
-            return false;
-        }
+        localStorage.setItem('dreamHarbourData', JSON.stringify(appData));
+        alert('Data saved successfully!');
     }
 
-    // Populate form with data
-    function populateForm() {
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function saveBusinessInfo() {
+        appData.business = {
+            name: document.getElementById('businessName').value,
+            gstin: document.getElementById('gstin').value,
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            address: document.getElementById('address').value,
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            pincode: document.getElementById('pincode').value,
+            defaultGst: parseInt(document.getElementById('defaultGst').value)
+        };
+        saveData();
+    }
+
+    function loadBusinessData() {
         document.getElementById('businessName').value = appData.business.name;
         document.getElementById('gstin').value = appData.business.gstin;
         document.getElementById('phone').value = appData.business.phone;
@@ -463,174 +221,90 @@
         document.getElementById('defaultGst').value = appData.business.defaultGst;
     }
 
-    // Save business info
-    function saveBusinessInfo() {
-        appData.business = {
-            name: document.getElementById('businessName').value || 'Dream Harbour',
-            gstin: document.getElementById('gstin').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
-            address: document.getElementById('address').value,
-            city: document.getElementById('city').value,
-            state: document.getElementById('state').value,
-            pincode: document.getElementById('pincode').value,
-            defaultGst: parseInt(document.getElementById('defaultGst').value) || 18
-        };
-
-        if (saveData()) {
-            alert('Business information saved successfully!');
-        }
-    }
-
-    // Reset form
-    function resetBusinessForm() {
-        populateForm();
-    }
-
-    // Tab switching
-    function switchTab(tabName) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-        document.getElementById(tabName).classList.add('active');
-        event.target.classList.add('active');
-    }
-
-    // Display categories dropdown
-    function displayCategories() {
+    function loadCategoryDropdown() {
         const select = document.getElementById('categorySelect');
-        select.innerHTML = '<option value="">Choose a category...</option>';
+        select.innerHTML = '<option value="">Choose category...</option>';
         appData.categories.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat.id;
-            option.textContent = cat.name;
-            select.appendChild(option);
+            const opt = document.createElement('option');
+            opt.value = cat.id;
+            opt.text = cat.name;
+            select.appendChild(opt);
         });
     }
 
-    // Open add category modal
-    function openAddCategoryModal() {
-        document.getElementById('categoryName').value = '';
+    function addCategoryModal() {
+        document.getElementById('categoryNameInput').value = '';
         document.getElementById('categoryModal').classList.add('show');
     }
 
-    // Close category modal
     function closeCategoryModal() {
         document.getElementById('categoryModal').classList.remove('show');
     }
 
-    // Save category
     function saveCategory() {
-        const name = document.getElementById('categoryName').value.trim();
-        if (!name) {
-            alert('Category name is required');
-            return;
-        }
-
-        appData.categories.push({
-            id: 'cat_' + Date.now(),
-            name: name
-        });
-
-        if (saveData()) {
-            alert('Category added!');
-            closeCategoryModal();
-            displayCategories();
-        }
+        const name = document.getElementById('categoryNameInput').value.trim();
+        if (!name) { alert('Enter category name'); return; }
+        appData.categories.push({ id: Date.now().toString(), name: name });
+        saveData();
+        closeCategoryModal();
+        loadCategoryDropdown();
     }
 
-    // Open add service modal
-    function openAddServiceModal() {
+    function addServiceModal() {
         const catId = document.getElementById('categorySelect').value;
-        if (!catId) {
-            alert('Please select a category first');
-            return;
-        }
-
-        document.getElementById('serviceName').value = '';
-        document.getElementById('serviceSac').value = '';
-        document.getElementById('serviceRate').value = '';
-        document.getElementById('serviceGst').value = '18';
+        if (!catId) { alert('Select category first'); return; }
+        document.getElementById('serviceNameInput').value = '';
+        document.getElementById('serviceSacInput').value = '';
+        document.getElementById('serviceRateInput').value = '';
+        document.getElementById('serviceGstInput').value = '18';
         document.getElementById('serviceModal').classList.add('show');
     }
 
-    // Close service modal
     function closeServiceModal() {
         document.getElementById('serviceModal').classList.remove('show');
     }
 
-    // Save service
     function saveService() {
         const catId = document.getElementById('categorySelect').value;
-        const name = document.getElementById('serviceName').value.trim();
-        const sac = document.getElementById('serviceSac').value.trim();
-        const rate = parseFloat(document.getElementById('serviceRate').value) || 0;
-        const gst = parseInt(document.getElementById('serviceGst').value) || 18;
+        const name = document.getElementById('serviceNameInput').value.trim();
+        const sac = document.getElementById('serviceSacInput').value.trim();
+        const rate = parseFloat(document.getElementById('serviceRateInput').value);
+        const gst = parseInt(document.getElementById('serviceGstInput').value);
 
-        if (!name || !sac || rate <= 0) {
-            alert('All fields are required with valid values');
-            return;
-        }
+        if (!name || !sac || !rate) { alert('Fill all fields'); return; }
+        if (sac.length !== 6 || isNaN(sac)) { alert('SAC must be 6 digits'); return; }
 
-        if (!/^\d{6}$/.test(sac)) {
-            alert('SAC code must be exactly 6 digits');
-            return;
-        }
-
-        appData.services.push({
-            id: 'svc_' + Date.now(),
-            categoryId: catId,
-            name: name,
-            sac: sac,
-            rate: rate,
-            gst: gst
-        });
-
-        if (saveData()) {
-            alert('Service added!');
-            closeServiceModal();
-            displayServices();
-        }
+        appData.services.push({ id: Date.now().toString(), categoryId: catId, name: name, sac: sac, rate: rate, gst: gst });
+        saveData();
+        closeServiceModal();
+        loadServices();
     }
 
-    // Display services
-    function displayServices() {
+    function loadServices() {
         const catId = document.getElementById('categorySelect').value;
-        const container = document.getElementById('servicesList');
-
-        if (!catId) {
-            container.innerHTML = '';
-            return;
-        }
-
+        const list = document.getElementById('servicesList');
         const services = appData.services.filter(s => s.categoryId === catId);
 
         if (services.length === 0) {
-            container.innerHTML = '<p style="color: #999; text-align: center;">No services in this category</p>';
+            list.innerHTML = '<p>No services in this category</p>';
             return;
         }
 
-        container.innerHTML = services.map(svc => `
+        list.innerHTML = services.map(s => `
             <div class="item-card">
                 <div class="item-info">
-                    <h4>${svc.name}</h4>
-                    <p>SAC: ${svc.sac} | Rate: ₹${svc.rate} | GST: ${svc.gst}%</p>
+                    <h4>${s.name}</h4>
+                    <p>SAC: ${s.sac} | Rate: ₹${s.rate} | GST: ${s.gst}%</p>
                 </div>
-                <div class="item-actions">
-                    <button class="btn-secondary" onclick="deleteService('${svc.id}')">🗑️ Delete</button>
-                </div>
+                <button class="btn-danger" onclick="deleteService('${s.id}')">Delete</button>
             </div>
         `).join('');
     }
 
-    // Delete service
     function deleteService(id) {
-        if (confirm('Delete this service?')) {
-            appData.services = appData.services.filter(s => s.id !== id);
-            if (saveData()) {
-                displayServices();
-            }
-        }
+        appData.services = appData.services.filter(s => s.id !== id);
+        saveData();
+        loadServices();
     }
     </script>
 </body>
