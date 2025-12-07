@@ -34,6 +34,10 @@
         .modal-content { background: white; padding: 30px; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
         .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
         .modal-buttons { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .notification { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 4px; color: white; font-weight: bold; z-index: 2000; animation: slideIn 0.3s ease; }
+        .notification-success { background: #10b981; }
+        .notification-error { background: #ef4444; }
+        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -45,8 +49,8 @@
 
         <div class="content">
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('business')">Business Info</button>
-                <button class="tab-btn" onclick="switchTab('services')">Services</button>
+                <button class="tab-btn active" onclick="switchTab(event, 'business')">Business Info</button>
+                <button class="tab-btn" onclick="switchTab(event, 'services')">Services</button>
             </div>
 
             <div id="business" class="tab-content active">
@@ -178,58 +182,72 @@
     function loadData() {
         const saved = localStorage.getItem('dreamHarbourData');
         if (saved) {
-            appData = JSON.parse(saved);
+            try {
+                appData = JSON.parse(saved);
+                // Ensure all required properties exist
+                if (!appData.business) appData.business = { defaultGst: 18 };
+                if (!appData.categories) appData.categories = [];
+                if (!appData.services) appData.services = [];
+            } catch (e) {
+                console.error('Error loading data:', e);
+                showNotification('Error loading data, using defaults', 'error');
+            }
         }
     }
 
     function saveData() {
         localStorage.setItem('dreamHarbourData', JSON.stringify(appData));
-        alert('Data saved successfully!');
+        showNotification('Data saved successfully!', 'success');
     }
 
-    function switchTab(tab) {
+    function switchTab(event, tab) {
+        // Remove active class from all tabs and content
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        
+        // Add active class to clicked tab
         document.getElementById(tab).classList.add('active');
         event.target.classList.add('active');
     }
 
     function saveBusinessInfo() {
         appData.business = {
-            name: document.getElementById('businessName').value,
-            gstin: document.getElementById('gstin').value,
-            phone: document.getElementById('phone').value,
-            email: document.getElementById('email').value,
-            address: document.getElementById('address').value,
-            city: document.getElementById('city').value,
-            state: document.getElementById('state').value,
-            pincode: document.getElementById('pincode').value,
-            defaultGst: parseInt(document.getElementById('defaultGst').value)
+            name: document.getElementById('businessName').value.trim(),
+            gstin: document.getElementById('gstin').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            address: document.getElementById('address').value.trim(),
+            city: document.getElementById('city').value.trim(),
+            state: document.getElementById('state').value.trim(),
+            pincode: document.getElementById('pincode').value.trim(),
+            defaultGst: parseInt(document.getElementById('defaultGst').value) || 18
         };
         saveData();
     }
 
     function loadBusinessData() {
-        document.getElementById('businessName').value = appData.business.name;
-        document.getElementById('gstin').value = appData.business.gstin;
-        document.getElementById('phone').value = appData.business.phone;
-        document.getElementById('email').value = appData.business.email;
-        document.getElementById('address').value = appData.business.address;
-        document.getElementById('city').value = appData.business.city;
-        document.getElementById('state').value = appData.business.state;
-        document.getElementById('pincode').value = appData.business.pincode;
-        document.getElementById('defaultGst').value = appData.business.defaultGst;
+        document.getElementById('businessName').value = appData.business.name || '';
+        document.getElementById('gstin').value = appData.business.gstin || '';
+        document.getElementById('phone').value = appData.business.phone || '';
+        document.getElementById('email').value = appData.business.email || '';
+        document.getElementById('address').value = appData.business.address || '';
+        document.getElementById('city').value = appData.business.city || '';
+        document.getElementById('state').value = appData.business.state || '';
+        document.getElementById('pincode').value = appData.business.pincode || '';
+        document.getElementById('defaultGst').value = appData.business.defaultGst || 18;
     }
 
     function loadCategoryDropdown() {
         const select = document.getElementById('categorySelect');
         select.innerHTML = '<option value="">Choose category...</option>';
-        appData.categories.forEach(cat => {
-            const opt = document.createElement('option');
-            opt.value = cat.id;
-            opt.text = cat.name;
-            select.appendChild(opt);
-        });
+        if (appData.categories && appData.categories.length > 0) {
+            appData.categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.text = cat.name;
+                select.appendChild(opt);
+            });
+        }
     }
 
     function addCategoryModal() {
@@ -243,7 +261,11 @@
 
     function saveCategory() {
         const name = document.getElementById('categoryNameInput').value.trim();
-        if (!name) { alert('Enter category name'); return; }
+        if (!name) { 
+            showNotification('Enter category name', 'error');
+            return; 
+        }
+        if (!appData.categories) appData.categories = [];
         appData.categories.push({ id: Date.now().toString(), name: name });
         saveData();
         closeCategoryModal();
@@ -252,7 +274,10 @@
 
     function addServiceModal() {
         const catId = document.getElementById('categorySelect').value;
-        if (!catId) { alert('Select category first'); return; }
+        if (!catId) { 
+            showNotification('Select category first', 'error');
+            return; 
+        }
         document.getElementById('serviceNameInput').value = '';
         document.getElementById('serviceSacInput').value = '';
         document.getElementById('serviceRateInput').value = '';
@@ -271,10 +296,28 @@
         const rate = parseFloat(document.getElementById('serviceRateInput').value);
         const gst = parseInt(document.getElementById('serviceGstInput').value);
 
-        if (!name || !sac || !rate) { alert('Fill all fields'); return; }
-        if (sac.length !== 6 || isNaN(sac)) { alert('SAC must be 6 digits'); return; }
+        if (!name || !sac || !rate) { 
+            showNotification('Fill all fields', 'error');
+            return; 
+        }
+        if (sac.length !== 6 || isNaN(sac)) { 
+            showNotification('SAC must be 6 digits', 'error');
+            return; 
+        }
+        if (rate < 0) {
+            showNotification('Rate cannot be negative', 'error');
+            return;
+        }
 
-        appData.services.push({ id: Date.now().toString(), categoryId: catId, name: name, sac: sac, rate: rate, gst: gst });
+        if (!appData.services) appData.services = [];
+        appData.services.push({ 
+            id: Date.now().toString(), 
+            categoryId: catId, 
+            name: name, 
+            sac: sac, 
+            rate: rate, 
+            gst: gst 
+        });
         saveData();
         closeServiceModal();
         loadServices();
@@ -283,6 +326,12 @@
     function loadServices() {
         const catId = document.getElementById('categorySelect').value;
         const list = document.getElementById('servicesList');
+        
+        if (!catId) {
+            list.innerHTML = '<p>Select a category to view services</p>';
+            return;
+        }
+
         const services = appData.services.filter(s => s.categoryId === catId);
 
         if (services.length === 0) {
@@ -302,9 +351,19 @@
     }
 
     function deleteService(id) {
-        appData.services = appData.services.filter(s => s.id !== id);
-        saveData();
-        loadServices();
+        if (confirm('Are you sure you want to delete this service?')) {
+            appData.services = appData.services.filter(s => s.id !== id);
+            saveData();
+            loadServices();
+        }
+    }
+
+    function showNotification(msg, type) {
+        const notif = document.createElement('div');
+        notif.className = 'notification notification-' + type;
+        notif.textContent = msg;
+        document.body.appendChild(notif);
+        setTimeout(() => notif.remove(), 2500);
     }
     </script>
 </body>
