@@ -145,83 +145,99 @@
         <div id="success" class="success"></div>
     </div>
 
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
-
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        window.handleLogin = async function(event) {
-            event.preventDefault();
-
-            const phone = document.getElementById('phone').value.trim();
-            const pin = document.getElementById('pin').value.trim();
-            const errorEl = document.getElementById('error');
-            const successEl = document.getElementById('success');
-            const submitBtn = document.querySelector('button[type="submit"]');
-
-            errorEl.textContent = '';
-            errorEl.classList.remove('show');
-            successEl.textContent = '';
-            successEl.classList.remove('show');
-
-            if (!phone || phone.length !== 10) {
-                errorEl.textContent = 'Please enter a valid 10-digit phone number';
-                errorEl.classList.add('show');
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Wait for Supabase to load
+        function initializeApp() {
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                setTimeout(initializeApp, 100);
                 return;
             }
 
-            if (!pin || pin.length !== 6) {
-                errorEl.textContent = 'Please enter a valid 6-digit PIN';
-                errorEl.classList.add('show');
-                return;
-            }
+            const SUPABASE_URL = 'https://jvbuwigpqhcmwpfxgspq.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2YnV3aWdwcWhjbXdwZnhnc3BxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA1MjEwODgsImV4cCI6MTg4ODI4NzA4OH0.aMHT5VzqcPaWiswY84NeI7dQMrQY-FNf88sxgL8fVN0';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Logging in...';
+            window.handleLogin = async function(event) {
+                event.preventDefault();
 
-            try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('id, phone_number, full_name, role, is_active')
-                    .eq('phone_number', phone)
-                    .eq('pin', pin)
-                    .eq('is_active', true)
-                    .single();
+                const phone = document.getElementById('phone').value.trim();
+                const pin = document.getElementById('pin').value.trim();
+                const errorEl = document.getElementById('error');
+                const successEl = document.getElementById('success');
+                const submitBtn = document.querySelector('button[type="submit"]');
 
-                if (error || !data) {
-                    errorEl.textContent = 'Invalid phone number or PIN. Please try again.';
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                successEl.textContent = '';
+                successEl.classList.remove('show');
+
+                if (!phone || phone.length !== 10) {
+                    errorEl.textContent = 'Please enter a valid 10-digit phone number';
                     errorEl.classList.add('show');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Login';
                     return;
                 }
 
-                const userData = {
-                    id: data.id,
-                    phoneNumber: data.phone_number,
-                    fullName: data.full_name,
-                    role: data.role,
-                    loginTime: Date.now()
-                };
+                if (!pin || pin.length !== 6) {
+                    errorEl.textContent = 'Please enter a valid 6-digit PIN';
+                    errorEl.classList.add('show');
+                    return;
+                }
 
-                localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
-                localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Logging in...';
 
-                successEl.textContent = 'Login successful! Redirecting...';
-                successEl.classList.add('show');
+                try {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('id, phone_number, full_name, role, is_active')
+                        .eq('phone_number', phone)
+                        .eq('pin', pin)
+                        .eq('is_active', true)
+                        .single();
 
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+                    if (error || !data) {
+                        errorEl.textContent = 'Invalid phone number or PIN. Please try again.';
+                        errorEl.classList.add('show');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Login';
+                        return;
+                    }
 
-            } catch (error) {
-                console.error('Login error:', error);
-                errorEl.textContent = 'An error occurred. Please try again.';
-                errorEl.classList.add('show');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Login';
+                    const userData = {
+                        id: data.id,
+                        phoneNumber: data.phone_number,
+                        fullName: data.full_name,
+                        role: data.role,
+                        loginTime: Date.now()
+                    };
+
+                    localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
+                    localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
+
+                    successEl.textContent = 'Login successful! Redirecting...';
+                    successEl.classList.add('show');
+
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+
+                } catch (error) {
+                    console.error('Login error:', error);
+                    errorEl.textContent = 'An error occurred. Please try again.';
+                    errorEl.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Login';
+                }
             }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
         }
     </script>
 </body>
