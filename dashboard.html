@@ -73,6 +73,29 @@
             font-size: 24px;
         }
 
+        .session-timer {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .extend-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .extend-btn:hover {
+            background: #5568d3;
+        }
+
         .logout-btn {
             padding: 10px 20px;
             background: #d32f2f;
@@ -87,11 +110,46 @@
             background: #b71c1c;
         }
 
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -13px;
+        }
+
         .content {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .stats {
@@ -118,6 +176,77 @@
         .stat-card .value {
             font-size: 28px;
             font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .subtitle {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #999;
         }
 
         @media (max-width: 768px) {
@@ -135,6 +264,15 @@
             .main-content {
                 margin-left: 0;
             }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -143,7 +281,8 @@
         <div class="sidebar">
             <h2>📊 Dream Harbour</h2>
             <a href="dashboard.html" class="nav-link active">📊 Overview</a>
-            <a href="invoices.html" class="nav-link">📄 Invoices</a>
+            <a href="#invoices-tab" class="nav-link">📄 Invoices</a>
+            <a href="#customers-tab" class="nav-link">👥 Customers</a>
             <a href="settings.html" class="nav-link">⚙️ Settings</a>
             <a href="#" id="logoutBtn" class="nav-link" style="margin-top: 30px; background: #d32f2f;">🚪 Logout</a>
         </div>
@@ -151,37 +290,98 @@
         <div class="main-content">
             <div class="header">
                 <h1>Dashboard</h1>
-                <button class="logout-btn" id="logoutBtn2">Logout</button>
+                <div style="display: flex; gap: 20px; align-items: center;">
+                    <div class="session-timer">
+                        ⏰ Your session will expire in <span id="sessionTimer">5</span> minutes
+                        <button class="extend-btn" onclick="extendSession()">Extend Session</button>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn2">Logout</button>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+                <button class="tab" onclick="showTab('invoices')">📄 Invoices</button>
+                <button class="tab" onclick="showTab('customers')">👥 Customers</button>
             </div>
 
             <div class="content">
-                <h2>Welcome to Dream Harbour</h2>
-                <p>Your invoice management system is ready to use.</p>
+                <!-- Overview Tab -->
+                <div id="overview" class="tab-content active">
+                    <h2>Welcome to Dream Harbour</h2>
+                    <p>Your invoice management system is ready to use.</p>
 
-                <div class="stats">
-                    <div class="stat-card">
-                        <h3>Total Revenue</h3>
-                        <div class="value">₹0.00</div>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <h3>Total Revenue</h3>
+                            <div class="value" id="totalRevenue">₹0.00</div>
+                            <div class="subtitle">📈 Updated today</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Invoices</h3>
+                            <div class="value" id="totalInvoices">0</div>
+                            <div class="subtitle">Created so far</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Pending Amount</h3>
+                            <div class="value" id="pendingAmount">₹0.00</div>
+                            <div class="subtitle">From pending invoices</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Customers</h3>
+                            <div class="value" id="totalCustomers">0</div>
+                            <div class="subtitle">All registered</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total GST Collected</h3>
+                            <div class="value" id="totalGST">₹0.00</div>
+                            <div class="subtitle">From all invoices</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Paid Invoices</h3>
+                            <div class="value" id="paidInvoices">0</div>
+                            <div class="subtitle">Successfully completed</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <h3>Total Invoices</h3>
-                        <div class="value">0</div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">Revenue Trend</div>
+                        <canvas id="revenueChart" style="max-height: 300px;"></canvas>
                     </div>
-                    <div class="stat-card">
-                        <h3>Pending Amount</h3>
-                        <div class="value">₹0.00</div>
+
+                    <div class="chart-container">
+                        <div class="chart-title">Invoice Status</div>
+                        <canvas id="statusChart" style="max-height: 300px;"></canvas>
                     </div>
-                    <div class="stat-card">
-                        <h3>Total Customers</h3>
-                        <div class="value">0</div>
+                </div>
+
+                <!-- Invoices Tab -->
+                <div id="invoices" class="tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>📋 Recent Invoices</h2>
+                        <button class="btn-primary" onclick="redirectToInvoices()">➕ Create Invoice</button>
                     </div>
+                    <div id="invoicesList" class="loading">Loading invoices...</div>
+                </div>
+
+                <!-- Customers Tab -->
+                <div id="customers" class="tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>👥 All Customers</h2>
+                        <button class="btn-primary">➕ Add Customer</button>
+                    </div>
+                    <div id="customersList" class="loading">Loading customers...</div>
                 </div>
             </div>
         </div>
     </div>
 
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let sessionTimeRemaining = 5;
+        let supabase;
+
         function initializeDashboard() {
             if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
                 setTimeout(initializeDashboard, 100);
@@ -195,10 +395,10 @@
                 return;
             }
 
-            const SUPABASE_URL = 'https://jvbuwigpqhcmwpfxgspq.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2YnV3aWdwcWhjbXdwZnhnc3BxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA1MjEwODgsImV4cCI6MTg4ODI4NzA4OH0.aMHT5VzqcPaWiswY84NeI7dQMrQY-FNf88sxgL8fVN0';
+            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
             
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
             function logout() {
                 localStorage.removeItem('dreamHarbourUser');
@@ -211,6 +411,176 @@
                 logout();
             });
             document.getElementById('logoutBtn2').addEventListener('click', logout);
+
+            // Session timer
+            setInterval(updateSessionTimer, 1000);
+
+            // Load dashboard data
+            loadDashboardData();
+
+            // Initialize charts
+            initializeCharts();
+        }
+
+        function updateSessionTimer() {
+            sessionTimeRemaining--;
+            document.getElementById('sessionTimer').textContent = sessionTimeRemaining;
+            if (sessionTimeRemaining <= 0) {
+                alert('Session expired. Please login again.');
+                localStorage.removeItem('dreamHarbourUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function extendSession() {
+            sessionTimeRemaining = 5;
+            alert('Session extended for 5 more minutes');
+        }
+
+        async function loadDashboardData() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('dreamHarbourUser'));
+                
+                // Load invoices
+                const { data: invoices } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .eq('user_id', userData.id)
+                    .order('created_at', { ascending: false })
+                    .limit(10);
+
+                // Load customers
+                const { data: customers } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .eq('user_id', userData.id);
+
+                // Calculate stats
+                let totalRevenue = 0;
+                let pendingAmount = 0;
+                let paidInvoices = 0;
+                let totalGST = 0;
+
+                if (invoices) {
+                    invoices.forEach(inv => {
+                        totalRevenue += inv.total_amount || 0;
+                        totalGST += inv.total_gst || 0;
+                        if (inv.status === 'pending') pendingAmount += inv.total_amount || 0;
+                        if (inv.status === 'paid') paidInvoices++;
+                    });
+                }
+
+                // Update stats
+                document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
+                document.getElementById('totalInvoices').textContent = invoices ? invoices.length : 0;
+                document.getElementById('pendingAmount').textContent = '₹' + pendingAmount.toFixed(2);
+                document.getElementById('totalCustomers').textContent = customers ? customers.length : 0;
+                document.getElementById('totalGST').textContent = '₹' + totalGST.toFixed(2);
+                document.getElementById('paidInvoices').textContent = paidInvoices;
+
+                // Display invoices in tab
+                displayInvoices(invoices);
+
+                // Display customers in tab
+                displayCustomers(customers);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function displayInvoices(invoices) {
+            const container = document.getElementById('invoicesList');
+            if (!invoices || invoices.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No invoices found. <a href="invoices.html">Create one now</a></p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Invoice #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>';
+            invoices.forEach(inv => {
+                html += `<tr>
+                    <td>${inv.invoice_number}</td>
+                    <td>${inv.customer_name}</td>
+                    <td>₹${(inv.total_amount || 0).toFixed(2)}</td>
+                    <td><span style="background: ${inv.status === 'paid' ? '#4caf50' : inv.status === 'pending' ? '#ff9800' : '#f44336'}; color: white; padding: 4px 8px; border-radius: 3px;">${inv.status}</span></td>
+                    <td>${new Date(inv.created_at).toLocaleDateString()}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function displayCustomers(customers) {
+            const container = document.getElementById('customersList');
+            if (!customers || customers.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">No customers found yet.</p>';
+                return;
+            }
+
+            let html = '<table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>City</th></tr></thead><tbody>';
+            customers.forEach(cust => {
+                html += `<tr>
+                    <td>${cust.name}</td>
+                    <td>${cust.phone}</td>
+                    <td>${cust.email}</td>
+                    <td>${cust.city}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function initializeCharts() {
+            // Revenue Trend Chart
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [0, 0, 0, 0],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Invoice Status Chart
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Paid', 'Pending', 'Overdue'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: ['#4caf50', '#ff9800', '#f44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true
+                }
+            });
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function redirectToInvoices() {
+            window.location.href = 'invoices.html';
         }
 
         // Initialize when DOM is ready
