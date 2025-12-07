@@ -1,3 +1,5 @@
+<!-- ENHANCED index.html - DreamHarbour Login Page [OPTIMIZED & PRODUCTION-READY] -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -627,16 +629,13 @@
                         type="password" 
                         id="pinInput" 
                         class="form-group__input"
-                        placeholder="6-digit PIN (Use: 123456)"
+                        placeholder="6-digit PIN"
                         maxlength="6"
                         pattern="[0-9]{6}"
                         inputmode="numeric"
                         required
                         aria-label="Security PIN"
                     />
-                </div>
-                <div class="form-group" style="font-size: 12px; color: var(--gray);">
-                    <strong>Demo PIN:</strong> 123456
                 </div>
                 <div class="button-group">
                     <button type="button" id="backBtn" class="btn-secondary">← Back</button>
@@ -652,169 +651,175 @@
     </div>
 
     <script type="module">
-        // ==================== CONFIGURATION ====================
-        // Demo credentials for testing (since backend may not be configured)
-        const DEMO_CREDENTIALS = {
-            '9999999999': { pin: '123456', fullName: 'Demo User', role: 'admin' },
-            '9876543210': { pin: '654321', fullName: 'Test User', role: 'user' }
-        };
+        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js'
+        
+        // FIXED: Only use ES module import, removed duplicate CDN script
+        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm')
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
         // ==================== STATE ====================
-        let currentPhone = '';
-        const PHONE_REGEX = /^\d{10}$/;
-        const PIN_REGEX = /^\d{6}$/;
+        let currentPhone = ''
+        const PHONE_REGEX = /^\d{10}$/
+        const PIN_REGEX = /^\d{6}$/
 
         // ==================== DOM ELEMENTS ====================
-        const phoneForm = document.getElementById('phoneForm');
-        const pinForm = document.getElementById('pinForm');
-        const phoneInput = document.getElementById('phoneInput');
-        const pinInput = document.getElementById('pinInput');
-        const backBtn = document.getElementById('backBtn');
-        const pinSubmitBtn = document.getElementById('pinSubmitBtn');
-        const alertContainer = document.getElementById('alertContainer');
-        const step1 = document.getElementById('step1');
-        const step2 = document.getElementById('step2');
+        const phoneForm = document.getElementById('phoneForm')
+        const pinForm = document.getElementById('pinForm')
+        const phoneInput = document.getElementById('phoneInput')
+        const pinInput = document.getElementById('pinInput')
+        const backBtn = document.getElementById('backBtn')
+        const pinSubmitBtn = document.getElementById('pinSubmitBtn')
+        const alertContainer = document.getElementById('alertContainer')
+        const step1 = document.getElementById('step1')
+        const step2 = document.getElementById('step2')
 
         // ==================== EVENT LISTENERS ====================
-        phoneForm.addEventListener('submit', handlePhoneSubmit);
-        pinForm.addEventListener('submit', handlePinSubmit);
-        backBtn.addEventListener('click', goBackToPhone);
+        phoneForm.addEventListener('submit', handlePhoneSubmit)
+        pinForm.addEventListener('submit', handlePinSubmit)
+        backBtn.addEventListener('click', goBackToPhone)
         
         phoneInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
-        });
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10)
+        })
         
         pinInput.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6);
-        });
+            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6)
+        })
 
         pinInput.addEventListener('input', (e) => {
             if (e.target.value.length === 6) {
-                setTimeout(() => pinForm.requestSubmit(), 100);
+                setTimeout(() => pinForm.requestSubmit(), 100)
             }
-        });
+        })
 
         // ==================== PHONE FORM HANDLER ====================
         async function handlePhoneSubmit(e) {
-            e.preventDefault();
-            clearAlert();
+            e.preventDefault()
+            clearAlert()
 
-            currentPhone = phoneInput.value.trim();
+            currentPhone = phoneInput.value.trim()
 
             if (!PHONE_REGEX.test(currentPhone)) {
-                showAlert('Please enter a valid 10-digit phone number', 'error');
-                phoneInput.focus();
-                return;
+                showAlert('Please enter a valid 10-digit phone number', 'error')
+                phoneInput.focus()
+                return
             }
 
-            proceedToStep2();
+            proceedToStep2()
         }
 
         // ==================== PIN FORM HANDLER ====================
         async function handlePinSubmit(e) {
-            e.preventDefault();
-            clearAlert();
+            e.preventDefault()
+            clearAlert()
 
-            const pin = pinInput.value.trim();
+            const pin = pinInput.value.trim()
 
             if (!PIN_REGEX.test(pin)) {
-                showAlert('Please enter a valid 6-digit PIN', 'error');
-                pinInput.focus();
-                return;
+                showAlert('Please enter a valid 6-digit PIN', 'error')
+                pinInput.focus()
+                return
             }
 
-            await authenticateUser(currentPhone, pin);
+            await authenticateUser(currentPhone, pin)
         }
 
         // ==================== AUTHENTICATION ====================
         async function authenticateUser(phoneNumber, pin) {
-            const btn = pinSubmitBtn;
-            const originalText = btn.textContent;
+            const btn = pinSubmitBtn
+            const originalText = btn.textContent
 
             try {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="loader"></span> Signing in...';
+                btn.disabled = true
+                btn.innerHTML = '<span class="loader"></span> Signing in...'
 
-                // Check demo credentials first
-                const demoUser = DEMO_CREDENTIALS[phoneNumber];
-                
-                if (demoUser && demoUser.pin === pin) {
-                    const userData = {
-                        id: phoneNumber,
-                        phoneNumber: phoneNumber,
-                        fullName: demoUser.fullName,
-                        role: demoUser.role,
-                        timestamp: Date.now()
-                    };
-                    localStorage.setItem('user', JSON.stringify(userData));
-                    showAlert('✓ Login successful! Redirecting...', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                    return;
+                // FIXED: Using proper createClient from ES module
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('phone_number', phoneNumber)
+                    .eq('pin', pin)
+                    .eq('is_active', true)
+                    .single()
+
+                if (error || !data) {
+                    showAlert('Invalid phone number or PIN', 'error')
+                    pinInput.focus()
+                    pinInput.select()
+                    return
                 }
 
-                // If no demo match, show error
-                showAlert('Invalid phone number or PIN. Try 9999999999 / 123456', 'error');
-                pinInput.focus();
-                pinInput.select();
+                const userData = {
+                    id: data.id,
+                    phoneNumber: data.phone_number,
+                    fullName: data.full_name,
+                    role: data.role,
+                    timestamp: Date.now()
+                }
+
+                localStorage.setItem('user', JSON.stringify(userData))
+                showAlert('✓ Login successful! Redirecting...', 'success')
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html'
+                }, 1500)
 
             } catch (error) {
-                console.error('Authentication error:', error);
-                showAlert('Connection error. Please try again.', 'error');
-                pinInput.focus();
+                console.error('Authentication error:', error)
+                showAlert('Connection error. Please try again.', 'error')
+                pinInput.focus()
 
             } finally {
-                btn.disabled = false;
-                btn.textContent = originalText;
+                btn.disabled = false
+                btn.textContent = originalText
             }
         }
 
         // ==================== STEP NAVIGATION ====================
         function proceedToStep2() {
-            phoneForm.classList.remove('active');
-            pinForm.classList.add('active');
-            step1.classList.add('completed');
-            step1.classList.remove('active');
-            step2.classList.add('active');
-            pinInput.focus();
+            phoneForm.classList.remove('active')
+            pinForm.classList.add('active')
+            step1.classList.add('completed')
+            step1.classList.remove('active')
+            step2.classList.add('active')
+            pinInput.focus()
         }
 
         function goBackToPhone() {
-            clearAlert();
-            phoneForm.classList.add('active');
-            pinForm.classList.remove('active');
-            step2.classList.remove('active');
-            step1.classList.remove('completed');
-            step1.classList.add('active');
-            pinInput.value = '';
-            phoneInput.focus();
+            clearAlert()
+            phoneForm.classList.add('active')
+            pinForm.classList.remove('active')
+            step2.classList.remove('active')
+            step1.classList.remove('completed')
+            step1.classList.add('active')
+            pinInput.value = ''
+            phoneInput.focus()
         }
 
         // ==================== ALERTS ====================
         function showAlert(message, type = 'info') {
-            clearAlert();
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} show`;
-            alertDiv.setAttribute('role', 'alert');
+            clearAlert()
+            const alertDiv = document.createElement('div')
+            alertDiv.className = `alert alert-${type} show`
+            alertDiv.setAttribute('role', 'alert')
             alertDiv.innerHTML = `
                 <span class="alert__icon">
                     ${type === 'error' ? '❌' : type === 'success' ? '✓' : 'ℹ'}
                 </span>
                 <span class="alert__message">${escapeHtml(message)}</span>
                 <button class="alert__close" type="button" aria-label="Close alert">×</button>
-            `;
-            const closeBtn = alertDiv.querySelector('.alert__close');
-            closeBtn.addEventListener('click', () => alertDiv.remove());
-            alertContainer.innerHTML = '';
-            alertContainer.appendChild(alertDiv);
+            `
+            const closeBtn = alertDiv.querySelector('.alert__close')
+            closeBtn.addEventListener('click', () => alertDiv.remove())
+            alertContainer.innerHTML = ''
+            alertContainer.appendChild(alertDiv)
             if (type !== 'error') {
-                setTimeout(() => alertDiv.remove(), 6000);
+                setTimeout(() => alertDiv.remove(), 6000)
             }
         }
 
         function clearAlert() {
-            alertContainer.innerHTML = '';
+            alertContainer.innerHTML = ''
         }
 
         // ==================== UTILITIES ====================
@@ -825,24 +830,24 @@
                 '>': '&gt;',
                 '"': '&quot;',
                 "'": '&#039;'
-            };
-            return String(text).replace(/[&<>"']/g, m => map[m]);
+            }
+            return String(text).replace(/[&<>"']/g, m => map[m])
         }
 
         // ==================== KEYBOARD SHORTCUTS ====================
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 if (phoneForm.classList.contains('active') && phoneInput.value.length === 10) {
-                    phoneForm.requestSubmit();
+                    phoneForm.requestSubmit()
                 }
                 if (pinForm.classList.contains('active') && pinInput.value.length === 6) {
-                    pinForm.requestSubmit();
+                    pinForm.requestSubmit()
                 }
             }
             if (e.key === 'Escape' && pinForm.classList.contains('active')) {
-                goBackToPhone();
+                goBackToPhone()
             }
-        });
+        })
     </script>
 </body>
 </html>
