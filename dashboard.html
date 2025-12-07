@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dream Harbour - Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -252,17 +251,6 @@
             margin-top: 20px;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray);
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
         button {
             padding: 10px 20px;
             border: none;
@@ -282,16 +270,6 @@
         .btn-primary:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: var(--gray-light);
-            color: var(--gray);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary-light);
-            color: white;
         }
 
         .loading {
@@ -315,585 +293,27 @@
             100% { transform: rotate(360deg); }
         }
 
-        .quick-actions {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .action-btn {
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-            text-decoration: none;
-        }
-
-        .action-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-    
-        /* =====================================================
-           ACCESSIBILITY ENHANCEMENTS
-           ===================================================== */
-
-        /* Focus visible styles for keyboard navigation */
-        *:focus-visible {
-            outline: 3px solid var(--primary-blue);
-            outline-offset: 2px;
-            border-radius: 4px;
-        }
-
-        button:focus-visible,
-        a:focus-visible {
-            outline: 3px solid var(--primary-blue);
-            outline-offset: 3px;
-        }
-
-        /* Skip to content link for screen readers */
-        .skip-link {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            background: var(--primary-blue);
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 4px;
-            z-index: 100;
-            font-weight: 600;
-        }
-
-        .skip-link:focus {
-            top: 10px;
-            left: 10px;
-        }
-
-        /* Screen reader only content */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-
-        /* =====================================================
-           LOADING STATES
-           ===================================================== */
-
-        /* Loading overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            backdrop-filter: blur(4px);
-        }
-
-        .loading-overlay.show {
-            display: flex;
-        }
-
-        .loading-content {
-            text-align: center;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--gray-light);
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: var(--primary-blue);
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        /* Skeleton loading for cards */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s ease-in-out infinite;
-            border-radius: 8px;
-            height: 20px;
-            margin-bottom: 10px;
-        }
-
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        .skeleton-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .skeleton-title {
-            height: 24px;
-            width: 60%;
-            margin-bottom: 15px;
-        }
-
-        .skeleton-text {
-            height: 16px;
-            width: 100%;
-            margin-bottom: 8px;
-        }
-
-        .skeleton-chart {
-            height: 300px;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        /* =====================================================
-           EMPTY STATES
-           ===================================================== */
-
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .empty-state-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.5;
+            font-size: 48px;
+            margin-bottom: 16px;
         }
 
         .empty-state-title {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 600;
             color: var(--gray);
             margin-bottom: 10px;
         }
-
-        .empty-state-text {
-            font-size: 16px;
-            color: var(--gray);
-            margin-bottom: 20px;
-        }
-
-        .empty-state-action {
-            display: inline-block;
-            padding: 12px 24px;
-            background: var(--primary-blue);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .empty-state-action:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        /* =====================================================
-           NETWORK STATUS INDICATOR
-           ===================================================== */
-
-        .network-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 600;
-            display: none;
-            z-index: 1000;
-            animation: slideInDown 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .network-status.offline {
-            background: var(--error-red);
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .network-status.online {
-            background: var(--success-green);
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        @keyframes slideInDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* =====================================================
-           NOTIFICATION SYSTEM
-           ===================================================== */
-
-        .notification-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 9998;
-            max-width: 400px;
-        }
-
-        .notification {
-            background: white;
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            animation: slideInRight 0.3s ease;
-            border-left: 4px solid;
-        }
-
-        .notification.success {
-            border-left-color: var(--success-green);
-        }
-
-        .notification.error {
-            border-left-color: var(--error-red);
-        }
-
-        .notification.info {
-            border-left-color: var(--primary-blue);
-        }
-
-        .notification-icon {
-            font-size: 20px;
-            flex-shrink: 0;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 700;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .notification-message {
-            font-size: 13px;
-            color: var(--gray);
-        }
-
-        .notification-close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: var(--gray);
-            padding: 0;
-            flex-shrink: 0;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        /* =====================================================
-           SESSION TIMEOUT WARNING
-           ===================================================== */
-
-        .session-warning {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #fef3c7;
-            color: #92400e;
-            padding: 16px 24px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: none;
-            align-items: center;
-            gap: 12px;
-            z-index: 9997;
-            border: 2px solid #fbbf24;
-        }
-
-        .session-warning.show {
-            display: flex;
-        }
-
-        .session-warning-text {
-            font-weight: 600;
-        }
-
-        .session-warning-btn {
-            background: #92400e;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        /* =====================================================
-           ENHANCED RESPONSIVE DESIGN
-           ===================================================== */
-
-        /* Large desktop */
-        @media (max-width: 1440px) {
-            .container {
-                max-width: 1200px;
-            }
-        }
-
-        /* Desktop */
-        @media (max-width: 1024px) {
-            .container {
-                max-width: 960px;
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-        }
-
-        /* Tablet */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .navbar {
-                justify-content: center;
-            }
-
-            .nav-btn {
-                font-size: 13px;
-                padding: 10px 16px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 15px;
-            }
-
-            .charts-container {
-                grid-template-columns: 1fr !important;
-            }
-
-            .quick-actions {
-                grid-template-columns: 1fr !important;
-            }
-
-            .notification-container {
-                left: 10px;
-                right: 10px;
-                max-width: none;
-            }
-        }
-
-        /* Mobile */
-        @media (max-width: 480px) {
-            .header {
-                padding: 20px 15px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .container {
-                padding: 10px;
-            }
-
-            .nav-btn {
-                font-size: 12px;
-                padding: 8px 12px;
-                flex: 1;
-                text-align: center;
-            }
-
-            .navbar {
-                gap: 8px;
-            }
-
-            .logout-btn {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
-
-            .user-info {
-                gap: 10px;
-                font-size: 13px;
-            }
-
-            .empty-state {
-                padding: 40px 15px;
-            }
-
-            .empty-state-icon {
-                font-size: 48px;
-            }
-
-            .empty-state-title {
-                font-size: 20px;
-            }
-
-            .session-warning {
-                left: 10px;
-                right: 10px;
-                transform: none;
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-
-        /* =====================================================
-           PRINT STYLES
-           ===================================================== */
-
-        @media print {
-            .header {
-                background: white;
-                color: black;
-                box-shadow: none;
-            }
-
-            .logout-btn,
-            .navbar,
-            .network-status,
-            .notification-container,
-            .loading-overlay {
-                display: none !important;
-            }
-
-            body {
-                background: white;
-            }
-
-            .container {
-                max-width: 100%;
-            }
-        }
-
-        /* =====================================================
-           UTILITY CLASSES
-           ===================================================== */
-
-        .hidden {
-            display: none !important;
-        }
-
-        .visible {
-            display: block !important;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mt-20 {
-            margin-top: 20px;
-        }
-
-        .mb-20 {
-            margin-bottom: 20px;
-        }
-
-        /* Improved button states */
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        button:active:not(:disabled) {
-            transform: scale(0.98);
-        }
-
     </style>
 </head>
 <body>
-    <!-- Skip to content link for accessibility -->
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-
-    <!-- Network status indicator -->
-    <div class="network-status" id="networkStatus" role="status" aria-live="polite"></div>
-
-    <!-- Loading overlay -->
-    <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading dashboard...</div>
-        </div>
-    </div>
-
-    <!-- Notification container -->
-    <div class="notification-container" id="notificationContainer" role="region" aria-label="Notifications"></div>
-
-    <!-- Session timeout warning -->
-    <div class="session-warning" id="sessionWarning" role="alert" aria-live="assertive">
-        <span class="session-warning-text">⏰ Your session will expire in <span id="sessionTimeLeft">5</span> minutes</span>
-        <button class="session-warning-btn" onclick="extendSession()" aria-label="Extend session">Extend Session</button>
-    </div>
-
     <!-- Header -->
     <header class="header" role="banner">
         <div class="header-content">
@@ -902,7 +322,7 @@
             </div>
             <div class="user-info">
                 <span id="userFullName" aria-label="User name">Loading...</span>
-                <a href="index.html" class="logout-btn" onclick="logout(event)" role="button" aria-label="Logout">🚪 Logout</a>
+                <button class="logout-btn" onclick="logout()" aria-label="Logout">🚪 Logout</button>
             </div>
         </div>
     </header>
@@ -913,85 +333,50 @@
         <nav class="navbar" role="navigation" aria-label="Main navigation">
             <button class="nav-btn active" data-page="overview" aria-label="Overview page" aria-current="page">📊 Overview</button>
             <button class="nav-btn" data-page="invoices" aria-label="Invoices page">📄 Invoices</button>
-            <button class="nav-btn" data-page="customers" aria-label="Customers page">👥 Customers</button>
             <a href="settings.html" class="nav-btn" aria-label="Settings page">⚙️ Settings</a>
+            <a href="invoices.html" class="nav-btn" aria-label="Invoice generator">✏️ Create Invoice</a>
         </nav>
 
         <!-- Overview Page -->
         <div id="overview-page" role="main" aria-label="Overview content">
             <!-- Stats Grid -->
             <div class="stats-grid" role="region" aria-label="Statistics summary">
-                <div class="stat-card" role="article" aria-labelledby="total-revenue-label">
+                <div class="stat-card">
                     <div class="stat-icon" aria-hidden="true">💰</div>
-                    <div class="stat-label" id="total-revenue-label">Total Revenue</div>
-                    <div class="stat-value" id="totalRevenue" aria-live="polite">₹0.00</div>
-                    <div class="stat-subtext" id="revenueChange" aria-live="polite">📈 Updated today</div>
+                    <div class="stat-label">Total Drafts</div>
+                    <div class="stat-value" id="totalDrafts" aria-live="polite">0</div>
+                    <div class="stat-subtext">Invoice drafts saved</div>
                 </div>
 
-                <div class="stat-card" role="article" aria-labelledby="total-invoices-label">
-                    <div class="stat-icon" aria-hidden="true">🧾</div>
-                    <div class="stat-label" id="total-invoices-label">Total Invoices</div>
-                    <div class="stat-value" id="totalInvoices" aria-live="polite">0</div>
-                    <div class="stat-subtext" id="invoiceChange">Created so far</div>
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">📋</div>
+                    <div class="stat-label">Business Info</div>
+                    <div class="stat-value" id="businessStatus" aria-live="polite">✓</div>
+                    <div class="stat-subtext">Configured</div>
                 </div>
 
-                <div class="stat-card" role="article" aria-labelledby="pending-amount-label">
-                    <div class="stat-icon" aria-hidden="true">⏳</div>
-                    <div class="stat-label" id="pending-amount-label">Pending Amount</div>
-                    <div class="stat-value" id="pendingAmount" aria-live="polite">₹0.00</div>
-                    <div class="stat-subtext" id="pendingCount">From pending invoices</div>
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">📦</div>
+                    <div class="stat-label">Services Added</div>
+                    <div class="stat-value" id="servicesCount" aria-live="polite">0</div>
+                    <div class="stat-subtext">Total services</div>
                 </div>
 
-                <div class="stat-card" role="article" aria-labelledby="total-customers-label">
-                    <div class="stat-icon" aria-hidden="true">👥</div>
-                    <div class="stat-label" id="total-customers-label">Total Customers</div>
-                    <div class="stat-value" id="totalCustomers" aria-live="polite">0</div>
-                    <div class="stat-subtext">All registered</div>
-                </div>
-
-                <div class="stat-card" role="article" aria-labelledby="total-gst-label">
-                    <div class="stat-icon" aria-hidden="true">🔧</div>
-                    <div class="stat-label" id="total-gst-label">Total GST Collected</div>
-                    <div class="stat-value" id="totalGst" aria-live="polite">₹0.00</div>
-                    <div class="stat-subtext">From all invoices</div>
-                </div>
-
-                <div class="stat-card" role="article" aria-labelledby="paid-invoices-label">
-                    <div class="stat-icon" aria-hidden="true">✅</div>
-                    <div class="stat-label" id="paid-invoices-label">Paid Invoices</div>
-                    <div class="stat-value" id="paidInvoices" aria-live="polite">0</div>
-                    <div class="stat-subtext">Successfully completed</div>
+                <div class="stat-card">
+                    <div class="stat-icon" aria-hidden="true">📁</div>
+                    <div class="stat-label">Categories</div>
+                    <div class="stat-value" id="categoriesCount" aria-live="polite">0</div>
+                    <div class="stat-subtext">Service categories</div>
                 </div>
             </div>
 
-            <!-- Charts -->
-            <div class="content-grid" role="region" aria-label="Charts">
-                <div class="card" role="article">
-                    <h2 id="revenue-chart-title">Revenue Trend</h2>
-                    <div class="chart-container" role="img" aria-labelledby="revenue-chart-title">
-                        <canvas id="revenueChart" aria-label="Revenue trend chart"></canvas>
-                    </div>
-                </div>
-
-                <div class="card" role="article">
-                    <h2 id="status-chart-title">Invoice Status</h2>
-                    <div class="chart-container" role="img" aria-labelledby="status-chart-title">
-                        <canvas id="statusChart" aria-label="Invoice status distribution chart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Invoices -->
-            <div class="card" role="region" aria-labelledby="recent-invoices-title">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="recent-invoices-title" style="margin: 0;">📋 Recent Invoices</h2>
-                    <a href="invoices.html" class="btn-primary" role="button" aria-label="Create new invoice">➕ Create Invoice</a>
-                </div>
-
-                <div id="recentInvoicesContainer" aria-live="polite" aria-busy="false">
+            <!-- Recent Drafts -->
+            <div class="card" role="region">
+                <h2>📋 Recent Invoice Drafts</h2>
+                <div id="recentDraftsContainer" aria-live="polite" aria-busy="false">
                     <div class="loading">
-                        <div class="spinner" role="status" aria-label="Loading recent invoices"></div>
-                        <p>Loading invoices...</p>
+                        <div class="spinner" role="status" aria-label="Loading drafts"></div>
+                        <p>Loading drafts...</p>
                     </div>
                 </div>
             </div>
@@ -999,404 +384,128 @@
 
         <!-- Invoices Page -->
         <div id="invoices-page" style="display: none;" role="main" aria-label="Invoices content">
-            <div class="card" role="region" aria-labelledby="all-invoices-title">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="all-invoices-title" style="margin: 0;">📄 All Invoices</h2>
-                    <a href="invoices.html" class="btn-primary" role="button" aria-label="Create new invoice">➕ Create New Invoice</a>
-                </div>
-
+            <div class="card" role="region">
+                <h2>📄 All Invoices</h2>
                 <div id="allInvoicesContainer" aria-live="polite" aria-busy="false">
-                    <div class="loading">
-                        <div class="spinner" role="status" aria-label="Loading all invoices"></div>
-                        <p>Loading invoices...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Customers Page -->
-        <div id="customers-page" style="display: none;" role="main" aria-label="Customers content">
-            <div class="card" role="region" aria-labelledby="all-customers-title">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="all-customers-title" style="margin: 0;">👥 All Customers</h2>
-                    <a href="customers.html" class="btn-primary" role="button" aria-label="Add new customer">➕ Add Customer</a>
-                </div>
-
-                <div id="allCustomersContainer" aria-live="polite" aria-busy="false">
-                    <div class="loading">
-                        <div class="spinner" role="status" aria-label="Loading customers"></div>
-                        <p>Loading customers...</p>
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📄</div>
+                        <h3 class="empty-state-title">No Invoices Yet</h3>
+                        <p>Create your first invoice to get started</p>
+                        <button class="btn-primary" onclick="window.location.href='invoices.html'" style="margin-top: 20px;">Create Invoice</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-<script type="module">
-    import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <script>
+        // ==================== STATE ====================
+        let dreamHarbourData = { business: {}, services: [], categories: [] };
 
-    // ==================== GLOBAL STATE ====================
-    let revenueChart, statusChart;
-    let sessionTimeout;
-    let sessionWarningTimeout;
-    const SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
-    const WARNING_BEFORE_EXPIRY = 5 * 60 * 1000; // 5 minutes before expiry
+        // ==================== INITIALIZATION ====================
+        async function init() {
+            try {
+                // Validate session
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    window.location.href = 'index.html';
+                    return;
+                }
 
-    // ==================== DOM ELEMENTS ====================
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const networkStatus = document.getElementById('networkStatus');
-    const notificationContainer = document.getElementById('notificationContainer');
-    const sessionWarning = document.getElementById('sessionWarning');
-    const sessionTimeLeft = document.getElementById('sessionTimeLeft');
+                const user = JSON.parse(userStr);
+                document.getElementById('userFullName').textContent = user.fullName || 'User';
 
-    // ==================== UTILITY FUNCTIONS ====================
+                // Load dashboard data
+                await loadDashboard();
 
-    // Show/hide loading overlay
-    function showLoading(message = 'Loading...') {
-        const loadingText = loadingOverlay.querySelector('.loading-text');
-        loadingText.textContent = message;
-        loadingOverlay.classList.add('show');
-        loadingOverlay.setAttribute('aria-busy', 'true');
-    }
-
-    function hideLoading() {
-        loadingOverlay.classList.remove('show');
-        loadingOverlay.setAttribute('aria-busy', 'false');
-    }
-
-    // Notification system
-    function showNotification(title, message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.setAttribute('role', 'alert');
-        notification.innerHTML = `
-            <span class="notification-icon" aria-hidden="true">
-                ${type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ'}
-            </span>
-            <div class="notification-content">
-                <div class="notification-title">${escapeHtml(title)}</div>
-                <div class="notification-message">${escapeHtml(message)}</div>
-            </div>
-            <button class="notification-close" aria-label="Close notification">×</button>
-        `;
-
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => notification.remove());
-
-        notificationContainer.appendChild(notification);
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => notification.remove(), 5000);
-    }
-
-    // HTML sanitization
-    function escapeHtml(text) {
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return String(text).replace(/[&<>"']/g, m => map[m]);
-    }
-
-    // ==================== SESSION MANAGEMENT ====================
-
-    function validateSession() {
-        try {
-            const userStr = localStorage.getItem('user');
-            if (!userStr) {
-                return false;
-            }
-
-            const user = JSON.parse(userStr);
-
-            // Validate user data structure
-            if (!user.id || !user.phoneNumber || !user.timestamp) {
-                localStorage.removeItem('user');
-                return false;
-            }
-
-            // Check if session expired
-            const elapsed = Date.now() - user.timestamp;
-            if (elapsed > SESSION_DURATION) {
-                localStorage.removeItem('user');
-                return false;
-            }
-
-            return user;
-        } catch (error) {
-            console.error('Session validation error:', error);
-            localStorage.removeItem('user');
-            return false;
-        }
-    }
-
-    function startSessionTimer() {
-        // Clear existing timers
-        clearTimeout(sessionTimeout);
-        clearTimeout(sessionWarningTimeout);
-
-        // Show warning 5 minutes before expiry
-        sessionWarningTimeout = setTimeout(() => {
-            sessionWarning.classList.add('show');
-            startCountdown();
-        }, SESSION_DURATION - WARNING_BEFORE_EXPIRY);
-
-        // Auto logout on expiry
-        sessionTimeout = setTimeout(() => {
-            showNotification('Session Expired', 'Please log in again', 'error');
-            setTimeout(() => {
-                localStorage.removeItem('user');
+                // Setup navigation
+                setupNavigation();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Error loading dashboard. Please log in again.');
                 window.location.href = 'index.html';
-            }, 2000);
-        }, SESSION_DURATION);
-    }
-
-    function startCountdown() {
-        let timeLeft = 5 * 60; // 5 minutes in seconds
-
-        const countdownInterval = setInterval(() => {
-            timeLeft--;
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            sessionTimeLeft.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-            if (timeLeft <= 0) {
-                clearInterval(countdownInterval);
             }
-        }, 1000);
-    }
-
-    function extendSession() {
-        const user = validateSession();
-        if (user) {
-            user.timestamp = Date.now();
-            localStorage.setItem('user', JSON.stringify(user));
-            sessionWarning.classList.remove('show');
-            startSessionTimer();
-            showNotification('Session Extended', 'Your session has been extended', 'success');
-        }
-    }
-
-    // Make extendSession global
-    window.extendSession = extendSession;
-
-    // ==================== NETWORK STATUS ====================
-
-    function checkNetworkStatus() {
-        if (!navigator.onLine) {
-            networkStatus.innerHTML = '⚠️ No internet connection';
-            networkStatus.className = 'network-status offline';
-            return false;
-        }
-        return true;
-    }
-
-    window.addEventListener('online', () => {
-        networkStatus.innerHTML = '✓ Back online';
-        networkStatus.className = 'network-status online';
-        setTimeout(() => {
-            networkStatus.className = 'network-status';
-        }, 3000);
-        showNotification('Connection Restored', 'You are back online', 'success');
-    });
-
-    window.addEventListener('offline', () => {
-        networkStatus.innerHTML = '⚠️ No internet connection';
-        networkStatus.className = 'network-status offline';
-        showNotification('Connection Lost', 'Please check your internet connection', 'error');
-    });
-
-    // ==================== INITIALIZATION ====================
-
-    async function init() {
-        showLoading('Initializing dashboard...');
-
-        // Validate session
-        const user = validateSession();
-        if (!user) {
-            hideLoading();
-            window.location.href = 'index.html';
-            return;
         }
 
-        try {
-            // Display user name
-            document.getElementById('userFullName').textContent = user.fullName || 'User';
-
-            // Start session timer
-            startSessionTimer();
-
-            // Check network
-            checkNetworkStatus();
-
-            // Load dashboard data
-            await loadDashboard();
-
-            // Setup navigation
-            setupNavigation();
-
-            hideLoading();
-            showNotification('Welcome!', 'Dashboard loaded successfully', 'success');
-        } catch (error) {
-            hideLoading();
-            console.error('Initialization error:', error);
-            showNotification('Error', 'Failed to load dashboard', 'error');
-        }
-    }
-
-    // ==================== LOAD DASHBOARD DATA ====================
-
-    async function loadDashboard() {
-        try {
-            showLoading('Loading dashboard data...');
-
-            await Promise.all([
-                loadStats(),
-                loadRecentInvoices(),
-                loadCharts()
-            ]);
-        } catch (error) {
-            console.error('Error loading dashboard:', error);
-            showNotification('Loading Error', 'Some data could not be loaded', 'error');
-            throw error;
-        }
-    }
-
-    // ==================== LOAD STATISTICS ====================
-
-    async function loadStats() {
-        try {
-            if (!checkNetworkStatus()) {
-                throw new Error('No internet connection');
-            }
-
-            // Get invoices with retry logic
-            let invoices = null;
-            let retries = 3;
-
-            while (retries > 0 && !invoices) {
-                try {
-                    const { data, error } = await supabase
-                        .from('invoices')
-                        .select('total_amount, total_gst, payment_status');
-
-                    if (error) throw error;
-                    invoices = data;
-                } catch (err) {
-                    retries--;
-                    if (retries === 0) throw err;
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+        // ==================== LOAD DASHBOARD ====================
+        async function loadDashboard() {
+            try {
+                // Load data from localStorage
+                const saved = localStorage.getItem('dreamHarbourData');
+                if (saved) {
+                    dreamHarbourData = JSON.parse(saved);
                 }
+
+                // Load statistics
+                loadStats();
+                loadRecentDrafts();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
             }
-
-            // Get customers count
-            const { count: customerCount, error: customerError } = await supabase
-                .from('customers')
-                .select('*', { count: 'exact', head: true });
-
-            if (customerError) throw customerError;
-
-            // Calculate statistics
-            const totalRevenue = invoices?.reduce((sum, inv) => sum + (parseFloat(inv.total_amount) || 0), 0) || 0;
-            const totalGst = invoices?.reduce((sum, inv) => sum + (parseFloat(inv.total_gst) || 0), 0) || 0;
-            const totalInvoices = invoices?.length || 0;
-            const paidInvoices = invoices?.filter(inv => inv.payment_status === 'Paid').length || 0;
-            const pendingAmount = invoices?.filter(inv => inv.payment_status === 'Pending')
-                .reduce((sum, inv) => sum + (parseFloat(inv.total_amount) || 0), 0) || 0;
-
-            // Update DOM with ARIA live regions
-            updateStatValue('totalRevenue', formatCurrency(totalRevenue));
-            updateStatValue('totalInvoices', totalInvoices);
-            updateStatValue('pendingAmount', formatCurrency(pendingAmount));
-            updateStatValue('totalCustomers', customerCount || 0);
-            updateStatValue('totalGst', formatCurrency(totalGst));
-            updateStatValue('paidInvoices', paidInvoices);
-
-        } catch (error) {
-            console.error('Error loading stats:', error);
-            showEmptyState('stats', 'Failed to load statistics');
-            throw error;
         }
-    }
 
-    function updateStatValue(id, value) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.textContent = value;
-            // Trigger screen reader announcement
-            element.setAttribute('aria-live', 'polite');
+        // ==================== LOAD STATISTICS ====================
+        function loadStats() {
+            // Calculate drafts
+            const drafts = JSON.parse(localStorage.getItem('dreamHarbourDrafts') || '[]');
+            document.getElementById('totalDrafts').textContent = drafts.length;
+
+            // Business status
+            const hasBusinessInfo = dreamHarbourData.business && dreamHarbourData.business.name;
+            document.getElementById('businessStatus').textContent = hasBusinessInfo ? '✓' : '✗';
+
+            // Services and categories
+            const servicesCount = (dreamHarbourData.services || []).length;
+            const categoriesCount = (dreamHarbourData.categories || []).length;
+            document.getElementById('servicesCount').textContent = servicesCount;
+            document.getElementById('categoriesCount').textContent = categoriesCount;
         }
-    }
 
-    // ==================== LOAD RECENT INVOICES ====================
+        // ==================== LOAD RECENT DRAFTS ====================
+        function loadRecentDrafts() {
+            const container = document.getElementById('recentDraftsContainer');
+            const drafts = JSON.parse(localStorage.getItem('dreamHarbourDrafts') || '[]');
 
-    async function loadRecentInvoices() {
-        const container = document.getElementById('recentInvoicesContainer');
-        container.setAttribute('aria-busy', 'true');
-
-        try {
-            if (!checkNetworkStatus()) {
-                throw new Error('No internet connection');
-            }
-
-            const { data: invoices, error } = await supabase
-                .from('invoices')
-                .select(`
-                    *,
-                    customer:customers(business_name)
-                `)
-                .order('created_at', { ascending: false })
-                .limit(5);
-
-            if (error) throw error;
-
-            container.setAttribute('aria-busy', 'false');
-
-            if (!invoices || invoices.length === 0) {
-                container.innerHTML = createEmptyState(
-                    '📭',
-                    'No Invoices Yet',
-                    'Create your first invoice to get started',
-                    'invoices.html',
-                    'Create Invoice'
-                );
+            if (!drafts || drafts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3 class="empty-state-title">No Drafts Yet</h3>
+                        <p>Create your first invoice draft to get started</p>
+                        <button class="btn-primary" onclick="window.location.href='invoices.html'" style="margin-top: 20px;">Create Invoice</button>
+                    </div>
+                `;
                 return;
             }
 
-            // Create table with proper ARIA
+            // Show last 5 drafts
+            const recentDrafts = drafts.slice(-5).reverse();
             let html = `
                 <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse;" role="table" aria-label="Recent invoices">
+                    <table class="table">
                         <thead>
-                            <tr style="background: #f8fafc; border-bottom: 2px solid #e5e7eb;">
-                                <th style="padding: 12px; text-align: left;" scope="col">Invoice #</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">Customer</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">Date</th>
-                                <th style="padding: 12px; text-align: right;" scope="col">Amount</th>
-                                <th style="padding: 12px; text-align: center;" scope="col">Status</th>
+                            <tr>
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Items</th>
+                                <th scope="col">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
             `;
 
-            invoices.forEach(invoice => {
-                const statusClass = invoice.payment_status === 'Paid' ? 'success' : 
-                                  invoice.payment_status === 'Pending' ? 'warning' : 'error';
+            recentDrafts.forEach(draft => {
+                const date = new Date(draft.savedAt);
+                const formattedDate = date.toLocaleDateString('en-IN');
+                const itemsCount = draft.lineItems?.length || 0;
+                const total = draft.lineItems?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
 
                 html += `
-                    <tr style="border-bottom: 1px solid #e5e7eb;" role="row">
-                        <td style="padding: 12px;" role="cell">${escapeHtml(invoice.invoice_number)}</td>
-                        <td style="padding: 12px;" role="cell">${escapeHtml(invoice.customer?.business_name || 'N/A')}</td>
-                        <td style="padding: 12px;" role="cell">${formatDate(invoice.created_at)}</td>
-                        <td style="padding: 12px; text-align: right;" role="cell">${formatCurrency(invoice.total_amount)}</td>
-                        <td style="padding: 12px; text-align: center;" role="cell">
-                            <span class="status-badge ${statusClass}" role="status">${escapeHtml(invoice.payment_status)}</span>
-                        </td>
+                    <tr>
+                        <td>${escapeHtml(draft.customerName)}</td>
+                        <td>${formattedDate}</td>
+                        <td>${itemsCount}</td>
+                        <td>₹${total.toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -1408,444 +517,62 @@
             `;
 
             container.innerHTML = html;
-
-        } catch (error) {
-            container.setAttribute('aria-busy', 'false');
-            console.error('Error loading recent invoices:', error);
-            container.innerHTML = createEmptyState(
-                '⚠️',
-                'Error Loading Invoices',
-                'Please try refreshing the page',
-                null,
-                null
-            );
         }
-    }
 
-    // ==================== LOAD CHARTS ====================
+        // ==================== NAVIGATION ====================
+        function setupNavigation() {
+            const navButtons = document.querySelectorAll('.nav-btn[data-page]');
 
-    async function loadCharts() {
-        try {
-            if (!checkNetworkStatus()) {
-                throw new Error('No internet connection');
-            }
+            navButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = this.getAttribute('data-page');
 
-            const { data: invoices, error } = await supabase
-                .from('invoices')
-                .select('created_at, total_amount, payment_status');
+                    // Update active state
+                    navButtons.forEach(b => {
+                        b.classList.remove('active');
+                        b.removeAttribute('aria-current');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-current', 'page');
 
-            if (error) throw error;
+                    // Hide all pages
+                    document.querySelectorAll('[id$="-page"]').forEach(p => {
+                        p.style.display = 'none';
+                    });
 
-            // Prepare revenue trend data (last 7 days)
-            const last7Days = [];
-            const today = new Date();
-            for (let i = 6; i >= 0; i--) {
-                const date = new Date(today);
-                date.setDate(date.getDate() - i);
-                last7Days.push(date.toISOString().split('T')[0]);
-            }
-
-            const revenueByDate = last7Days.map(date => {
-                const dayInvoices = invoices?.filter(inv => 
-                    inv.created_at?.startsWith(date)
-                ) || [];
-                return dayInvoices.reduce((sum, inv) => sum + (parseFloat(inv.total_amount) || 0), 0);
-            });
-
-            // Create revenue chart
-            const revenueCtx = document.getElementById('revenueChart');
-            if (revenueCtx) {
-                if (revenueChart) revenueChart.destroy();
-
-                revenueChart = new Chart(revenueCtx, {
-                    type: 'line',
-                    data: {
-                        labels: last7Days.map(date => formatDateShort(date)),
-                        datasets: [{
-                            label: 'Revenue',
-                            data: revenueByDate,
-                            borderColor: '#1e40af',
-                            backgroundColor: 'rgba(30, 64, 175, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        return 'Revenue: ' + formatCurrency(context.parsed.y);
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return '₹' + value.toLocaleString();
-                                    }
-                                }
-                            }
-                        }
+                    // Show selected page
+                    const targetPage = document.getElementById(`${page}-page`);
+                    if (targetPage) {
+                        targetPage.style.display = 'block';
                     }
                 });
-            }
+            });
+        }
 
-            // Prepare status distribution data
-            const statusCounts = {
-                Paid: invoices?.filter(inv => inv.payment_status === 'Paid').length || 0,
-                Pending: invoices?.filter(inv => inv.payment_status === 'Pending').length || 0,
-                Overdue: invoices?.filter(inv => inv.payment_status === 'Overdue').length || 0
+        // ==================== LOGOUT ====================
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // ==================== UTILITIES ====================
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
             };
-
-            // Create status chart
-            const statusCtx = document.getElementById('statusChart');
-            if (statusCtx) {
-                if (statusChart) statusChart.destroy();
-
-                statusChart = new Chart(statusCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Paid', 'Pending', 'Overdue'],
-                        datasets: [{
-                            data: [statusCounts.Paid, statusCounts.Pending, statusCounts.Overdue],
-                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
-                            borderWidth: 0
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
-                            }
-                        }
-                    }
-                });
-            }
-
-        } catch (error) {
-            console.error('Error loading charts:', error);
-            // Show empty state for charts
-            document.getElementById('revenueChart')?.parentElement?.parentElement.querySelector('h2')
-                ?.insertAdjacentHTML('afterend', '<p style="text-align: center; color: #6b7280; padding: 40px;">Unable to load chart data</p>');
-        }
-    }
-
-    // ==================== NAVIGATION ====================
-
-    function setupNavigation() {
-        const navButtons = document.querySelectorAll('.nav-btn[data-page]');
-
-        navButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const page = this.getAttribute('data-page');
-
-                // Update active state
-                navButtons.forEach(b => {
-                    b.classList.remove('active');
-                    b.removeAttribute('aria-current');
-                });
-                this.classList.add('active');
-                this.setAttribute('aria-current', 'page');
-
-                // Hide all pages
-                document.querySelectorAll('[id$="-page"]').forEach(p => {
-                    p.style.display = 'none';
-                });
-
-                // Show selected page
-                const targetPage = document.getElementById(`${page}-page`);
-                if (targetPage) {
-                    targetPage.style.display = 'block';
-
-                    // Load data for specific pages
-                    if (page === 'invoices') {
-                        loadAllInvoices();
-                    } else if (page === 'customers') {
-                        loadAllCustomers();
-                    }
-
-                    // Announce page change to screen readers
-                    announceToScreenReader(`${page} page loaded`);
-                }
-            });
-        });
-    }
-
-    // ==================== LOAD ALL INVOICES ====================
-
-    async function loadAllInvoices() {
-        const container = document.getElementById('allInvoicesContainer');
-        container.setAttribute('aria-busy', 'true');
-
-        try {
-            const { data: invoices, error } = await supabase
-                .from('invoices')
-                .select(`
-                    *,
-                    customer:customers(business_name)
-                `)
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-
-            container.setAttribute('aria-busy', 'false');
-
-            if (!invoices || invoices.length === 0) {
-                container.innerHTML = createEmptyState(
-                    '📭',
-                    'No Invoices Found',
-                    'Start by creating your first invoice',
-                    'invoices.html',
-                    'Create First Invoice'
-                );
-                return;
-            }
-
-            let html = `
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse;" role="table" aria-label="All invoices">
-                        <thead>
-                            <tr style="background: #f8fafc; border-bottom: 2px solid #e5e7eb;">
-                                <th style="padding: 12px; text-align: left;" scope="col">Invoice #</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">Customer</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">Date</th>
-                                <th style="padding: 12px; text-align: right;" scope="col">Amount</th>
-                                <th style="padding: 12px; text-align: center;" scope="col">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            invoices.forEach(invoice => {
-                const statusClass = invoice.payment_status === 'Paid' ? 'success' : 
-                                  invoice.payment_status === 'Pending' ? 'warning' : 'error';
-
-                html += `
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px;">${escapeHtml(invoice.invoice_number)}</td>
-                        <td style="padding: 12px;">${escapeHtml(invoice.customer?.business_name || 'N/A')}</td>
-                        <td style="padding: 12px;">${formatDate(invoice.created_at)}</td>
-                        <td style="padding: 12px; text-align: right;">${formatCurrency(invoice.total_amount)}</td>
-                        <td style="padding: 12px; text-align: center;">
-                            <span class="status-badge ${statusClass}" role="status">${escapeHtml(invoice.payment_status)}</span>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            container.innerHTML = html;
-
-        } catch (error) {
-            container.setAttribute('aria-busy', 'false');
-            console.error('Error loading invoices:', error);
-            container.innerHTML = createEmptyState(
-                '⚠️',
-                'Error Loading Data',
-                'Please try again later',
-                null,
-                null
-            );
-        }
-    }
-
-    // ==================== LOAD ALL CUSTOMERS ====================
-
-    async function loadAllCustomers() {
-        const container = document.getElementById('allCustomersContainer');
-        container.setAttribute('aria-busy', 'true');
-
-        try {
-            const { data: customers, error } = await supabase
-                .from('customers')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) throw error;
-
-            container.setAttribute('aria-busy', 'false');
-
-            if (!customers || customers.length === 0) {
-                container.innerHTML = createEmptyState(
-                    '👥',
-                    'No Customers Yet',
-                    'Add your first customer to get started',
-                    'customers.html',
-                    'Add First Customer'
-                );
-                return;
-            }
-
-            let html = `
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse;" role="table" aria-label="All customers">
-                        <thead>
-                            <tr style="background: #f8fafc; border-bottom: 2px solid #e5e7eb;">
-                                <th style="padding: 12px; text-align: left;" scope="col">Business Name</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">Contact</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">Email</th>
-                                <th style="padding: 12px; text-align: left;" scope="col">GST Number</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            customers.forEach(customer => {
-                html += `
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 12px;">${escapeHtml(customer.business_name)}</td>
-                        <td style="padding: 12px;">${escapeHtml(customer.contact_number || 'N/A')}</td>
-                        <td style="padding: 12px;">${escapeHtml(customer.email || 'N/A')}</td>
-                        <td style="padding: 12px;">${escapeHtml(customer.gst_number || 'N/A')}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            container.innerHTML = html;
-
-        } catch (error) {
-            container.setAttribute('aria-busy', 'false');
-            console.error('Error loading customers:', error);
-            container.innerHTML = createEmptyState(
-                '⚠️',
-                'Error Loading Data',
-                'Please try again later',
-                null,
-                null
-            );
-        }
-    }
-
-    // ==================== EMPTY STATE CREATOR ====================
-
-    function createEmptyState(icon, title, text, actionUrl, actionText) {
-        return `
-            <div class="empty-state" role="status">
-                <div class="empty-state-icon" aria-hidden="true">${icon}</div>
-                <h3 class="empty-state-title">${escapeHtml(title)}</h3>
-                <p class="empty-state-text">${escapeHtml(text)}</p>
-                ${actionUrl && actionText ? `
-                    <a href="${actionUrl}" class="empty-state-action" role="button">${escapeHtml(actionText)}</a>
-                ` : ''}
-            </div>
-        `;
-    }
-
-    // ==================== UTILITY FUNCTIONS ====================
-
-    function formatCurrency(amount) {
-        return '₹' + parseFloat(amount || 0).toLocaleString('en-IN', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
-
-    function formatDate(dateString) {
-        if (!dateString) return 'N/A';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    }
-
-    function formatDateShort(dateString) {
-        if (!dateString) return '';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-IN', {
-            month: 'short',
-            day: 'numeric'
-        });
-    }
-
-    function announceToScreenReader(message) {
-        const announcement = document.createElement('div');
-        announcement.setAttribute('role', 'status');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.className = 'sr-only';
-        announcement.textContent = message;
-        document.body.appendChild(announcement);
-        setTimeout(() => announcement.remove(), 1000);
-    }
-
-    // ==================== LOGOUT ====================
-
-    function logout(event) {
-        if (event) event.preventDefault();
-
-        // Clear session
-        localStorage.removeItem('user');
-        clearTimeout(sessionTimeout);
-        clearTimeout(sessionWarningTimeout);
-
-        showNotification('Logged Out', 'You have been successfully logged out', 'success');
-
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
-    }
-
-    // Make logout global
-    window.logout = logout;
-
-    // ==================== KEYBOARD SHORTCUTS ====================
-
-    document.addEventListener('keydown', (e) => {
-        // Alt + 1 for Overview
-        if (e.altKey && e.key === '1') {
-            e.preventDefault();
-            document.querySelector('[data-page="overview"]')?.click();
+            return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Alt + 2 for Invoices
-        if (e.altKey && e.key === '2') {
-            e.preventDefault();
-            document.querySelector('[data-page="invoices"]')?.click();
+        // ==================== START ====================
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
         }
-
-        // Alt + 3 for Customers
-        if (e.altKey && e.key === '3') {
-            e.preventDefault();
-            document.querySelector('[data-page="customers"]')?.click();
-        }
-
-        // Escape to close notifications
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.notification').forEach(n => n.remove());
-        }
-    });
-
-    // ==================== START APPLICATION ====================
-
-    // Initialize on page load
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
-
-</script>
+    </script>
+</body>
 </html>
