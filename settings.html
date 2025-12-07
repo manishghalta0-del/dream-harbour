@@ -58,6 +58,33 @@
             padding: 20px;
         }
 
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -13px;
+        }
+
         .content {
             background: white;
             padding: 20px;
@@ -65,9 +92,23 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .content h1 {
             margin-bottom: 20px;
             font-size: 28px;
+        }
+
+        .content h2 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 18px;
         }
 
         .form-group {
@@ -79,6 +120,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #333;
+            font-size: 14px;
         }
 
         input, textarea, select {
@@ -103,8 +145,9 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             margin-right: 10px;
+            margin-top: 10px;
         }
 
         .btn:hover {
@@ -117,6 +160,97 @@
 
         .btn-secondary:hover {
             background: #777;
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .service-list {
+            margin-top: 20px;
+        }
+
+        .service-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-info {
+            flex: 1;
+        }
+
+        .service-info h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .service-info p {
+            font-size: 12px;
+            color: #666;
+            margin: 2px 0;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .service-actions button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
         }
 
         @media (max-width: 768px) {
@@ -134,6 +268,10 @@
             .main-content {
                 margin-left: 0;
             }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -141,71 +279,288 @@
     <div class="container">
         <div class="sidebar">
             <h2>📊 Dream Harbour</h2>
-            <a href="dashboard.html" class="nav-link">📊 Overview</a>
+            <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
             <a href="invoices.html" class="nav-link">📄 Invoices</a>
             <a href="settings.html" class="nav-link active">⚙️ Settings</a>
             <a href="#" id="logoutBtn" class="nav-link" style="margin-top: 30px; background: #d32f2f;">🚪 Logout</a>
         </div>
 
         <div class="main-content">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('business')">Business Info</button>
+                <button class="tab-btn" onclick="switchTab('services')">Services</button>
+            </div>
+
             <div class="content">
-                <h1>⚙️ Settings</h1>
+                <!-- Business Info Tab -->
+                <div id="business" class="tab-content active">
+                    <h1>⚙️ Manage your business and services</h1>
 
-                <form id="settingsForm">
-                    <h2 style="margin-top: 30px; margin-bottom: 15px;">Business Information</h2>
-                    
+                    <h2>Business Information</h2>
+                    <form id="businessForm">
+                        <div class="form-group">
+                            <label for="businessName">Business Name</label>
+                            <input type="text" id="businessName" placeholder="Enter your business name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gstin">GSTIN</label>
+                            <input type="text" id="gstin" placeholder="Enter your GSTIN" pattern="[0-9A-Z]{15}">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" placeholder="Enter phone number">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" placeholder="Enter email address">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <textarea id="address" rows="2" placeholder="Enter full address"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" placeholder="Enter city">
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state" placeholder="Enter state">
+                            </div>
+                            <div class="form-group">
+                                <label for="pincode">Pincode</label>
+                                <input type="text" id="pincode" placeholder="Enter pincode" pattern="[0-9]{6}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="defaultGST">Default GST %</label>
+                            <select id="defaultGST">
+                                <option>0%</option>
+                                <option>5%</option>
+                                <option selected>18%</option>
+                                <option>12%</option>
+                                <option>28%</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn">💾 Save</button>
+                        <button type="reset" class="btn btn-secondary">🔄 Reset</button>
+                    </form>
+                </div>
+
+                <!-- Services Tab -->
+                <div id="services" class="tab-content">
+                    <h1>Services Management</h1>
+
                     <div class="form-group">
-                        <label for="businessName">Business Name</label>
-                        <input type="text" id="businessName" placeholder="Enter business name">
+                        <label>Select Category</label>
+                        <select id="categorySelect">
+                            <option>Choose category...</option>
+                            <option>IT Services</option>
+                            <option>Consulting</option>
+                            <option>Design</option>
+                            <option>Development</option>
+                            <option>Other</option>
+                        </select>
+                        <button class="btn" onclick="openAddCategoryModal()">+ Add Category</button>
                     </div>
 
-                    <div class="form-group">
-                        <label for="gstin">GSTIN</label>
-                        <input type="text" id="gstin" placeholder="Enter GSTIN">
-                    </div>
+                    <button class="btn" onclick="openAddServiceModal()">+ Add Service</button>
 
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" placeholder="Enter email">
+                    <div class="service-list" id="serviceList">
+                        <p style="text-align: center; color: #999;">No services added yet. Click "Add Service" to get started.</p>
                     </div>
-
-                    <div class="form-group">
-                        <label for="address">Address</label>
-                        <textarea id="address" rows="4" placeholder="Enter full address"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn">💾 Save Settings</button>
-                    <button type="reset" class="btn btn-secondary">🔄 Reset</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+    <!-- Add Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                + Add Category
+                <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Category Name</label>
+                <input type="text" id="categoryName" placeholder="Enter category name">
+            </div>
+            <button class="btn" onclick="addCategory()">Save</button>
+            <button class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+        </div>
+    </div>
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- Add Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                + Add Service
+                <button class="close-btn" onclick="closeModal('serviceModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Service Name</label>
+                <input type="text" id="serviceName" placeholder="Enter service name">
+            </div>
+            <div class="form-group">
+                <label>SAC Code (6 digits)</label>
+                <input type="text" id="serviceCode" placeholder="e.g. 999199" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label>Rate (₹)</label>
+                <input type="number" id="serviceRate" placeholder="Enter rate" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>GST %</label>
+                <select id="serviceGST">
+                    <option>0%</option>
+                    <option selected>5%</option>
+                    <option>12%</option>
+                    <option>18%</option>
+                    <option>28%</option>
+                </select>
+            </div>
+            <button class="btn" onclick="addService()">Save</button>
+            <button class="btn btn-secondary" onclick="closeModal('serviceModal')">Cancel</button>
+        </div>
+    </div>
 
-        function logout() {
-            localStorage.removeItem('dreamHarbourUser');
-            localStorage.removeItem('dreamHarbourLoginTime');
-            window.location.href = 'index.html';
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        let supabase;
+        let services = [];
+
+        function initializeSettings() {
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                setTimeout(initializeSettings, 100);
+                return;
+            }
+
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+            
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('dreamHarbourUser');
+                window.location.href = 'index.html';
+            });
+
+            document.getElementById('businessForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('💾 Business information saved successfully!');
+            });
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-
-        // Check if user is logged in
-        const user = localStorage.getItem('dreamHarbourUser');
-        if (!user) {
-            window.location.href = 'index.html';
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
         }
 
-        // Handle settings form
-        document.getElementById('settingsForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Settings saved successfully!');
-        });
+        function openAddCategoryModal() {
+            document.getElementById('categoryModal').style.display = 'block';
+        }
+
+        function openAddServiceModal() {
+            document.getElementById('serviceModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function addCategory() {
+            const name = document.getElementById('categoryName').value;
+            if (!name) {
+                alert('Please enter a category name');
+                return;
+            }
+            alert('Category "' + name + '" added successfully!');
+            closeModal('categoryModal');
+            document.getElementById('categoryName').value = '';
+        }
+
+        function addService() {
+            const name = document.getElementById('serviceName').value;
+            const code = document.getElementById('serviceCode').value;
+            const rate = document.getElementById('serviceRate').value;
+            const gst = document.getElementById('serviceGST').value;
+
+            if (!name || !code || !rate) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            services.push({ name, code, rate, gst });
+            renderServices();
+            closeModal('serviceModal');
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceCode').value = '';
+            document.getElementById('serviceRate').value = '';
+        }
+
+        function renderServices() {
+            const list = document.getElementById('serviceList');
+            if (services.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: #999;">No services added yet. Click "Add Service" to get started.</p>';
+                return;
+            }
+
+            list.innerHTML = services.map((service, idx) => `
+                <div class="service-item">
+                    <div class="service-info">
+                        <h3>${service.name}</h3>
+                        <p>SAC: ${service.code} | Rate: ₹${service.rate} | GST: ${service.gst}</p>
+                    </div>
+                    <div class="service-actions">
+                        <button class="btn" onclick="editService(${idx})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteService(${idx})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteService(idx) {
+            if (confirm('Are you sure you want to delete this service?')) {
+                services.splice(idx, 1);
+                renderServices();
+            }
+        }
+
+        function editService(idx) {
+            alert('Edit functionality coming soon!');
+        }
+
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeSettings);
+        } else {
+            initializeSettings();
+        }
     </script>
 </body>
 </html>
