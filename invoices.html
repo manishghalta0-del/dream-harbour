@@ -186,9 +186,18 @@
     function loadSettings() {
         const saved = localStorage.getItem('dreamHarbourData');
         if (saved) {
-            businessSettings = JSON.parse(saved);
-            updateHeader();
-            buildDropdown();
+            try {
+                businessSettings = JSON.parse(saved);
+                // Ensure all required properties exist
+                if (!businessSettings.business) businessSettings.business = {};
+                if (!businessSettings.services) businessSettings.services = [];
+                if (!businessSettings.categories) businessSettings.categories = [];
+                updateHeader();
+                buildDropdown();
+            } catch (e) {
+                console.error('Error loading settings:', e);
+                showNotification('Error loading settings', 'error');
+            }
         }
     }
 
@@ -201,22 +210,29 @@
 
     function buildDropdown() {
         const dropdown = document.getElementById('serviceDropdown');
-        if (businessSettings.services.length === 0) {
+        if (!businessSettings.services || businessSettings.services.length === 0) {
             dropdown.innerHTML = '<div style="padding: 10px; color: #999;">Open Settings to add services</div>';
             return;
         }
 
         let html = '';
-        businessSettings.categories.forEach(cat => {
-            const services = businessSettings.services.filter(s => s.categoryId === cat.id);
-            if (services.length > 0) {
-                html += '<div style="font-weight: bold; background: #f0f0f0; padding: 8px; color: #666;">' + cat.name + '</div>';
-                services.forEach((svc, idx) => {
-                    html += '<div class="dropdown-item" onclick="selectService(' + idx + ')" style="background: white;"><strong>' + svc.name + '</strong><br/><small>SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</small></div>';
-                });
-            }
-        });
-        dropdown.innerHTML = html;
+        if (businessSettings.categories && businessSettings.categories.length > 0) {
+            businessSettings.categories.forEach(cat => {
+                const services = businessSettings.services.filter(s => s.categoryId === cat.id);
+                if (services.length > 0) {
+                    html += '<div style="font-weight: bold; background: #f0f0f0; padding: 8px; color: #666;">' + cat.name + '</div>';
+                    services.forEach((svc, idx) => {
+                        html += '<div class="dropdown-item" onclick="selectService(' + idx + ')" style="background: white;"><strong>' + svc.name + '</strong><br/><small>SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</small></div>';
+                    });
+                }
+            });
+        } else {
+            // If no categories, just list all services
+            businessSettings.services.forEach((svc, idx) => {
+                html += '<div class="dropdown-item" onclick="selectService(' + idx + ')" style="background: white;"><strong>' + svc.name + '</strong><br/><small>SAC: ' + svc.sac + ' | ₹' + svc.rate + ' | GST: ' + svc.gst + '%</small></div>';
+            });
+        }
+        dropdown.innerHTML = html || '<div style="padding: 10px; color: #999;">No services available</div>';
     }
 
     function setupSearch() {
@@ -263,6 +279,10 @@
     }
 
     function selectService(idx) {
+        if (!businessSettings.services || idx >= businessSettings.services.length) {
+            showNotification('Invalid service selection', 'error');
+            return;
+        }
         const svc = businessSettings.services[idx];
         document.getElementById('serviceNameInput').value = svc.name;
         document.getElementById('serviceSacInput').value = svc.sac;
