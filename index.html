@@ -146,15 +146,12 @@
     </div>
 
     <script type="module">
-        // FIXED: Removed duplicate Supabase import - only keep ONE source
-        // Import Supabase client library
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
         import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
-        // Initialize Supabase client
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function handleLogin(event) {
+        window.handleLogin = async function(event) {
             event.preventDefault();
 
             const phone = document.getElementById('phone').value.trim();
@@ -163,13 +160,11 @@
             const successEl = document.getElementById('success');
             const submitBtn = document.querySelector('button[type="submit"]');
 
-            // Clear previous messages
             errorEl.textContent = '';
             errorEl.classList.remove('show');
             successEl.textContent = '';
             successEl.classList.remove('show');
 
-            // Validate inputs
             if (!phone || phone.length !== 10) {
                 errorEl.textContent = 'Please enter a valid 10-digit phone number';
                 errorEl.classList.add('show');
@@ -186,7 +181,6 @@
             submitBtn.textContent = 'Logging in...';
 
             try {
-                // Query Supabase for user
                 const { data, error } = await supabase
                     .from('users')
                     .select('id, phone_number, full_name, role, is_active')
@@ -203,7 +197,6 @@
                     return;
                 }
 
-                // Store user info in localStorage
                 const userData = {
                     id: data.id,
                     phoneNumber: data.phone_number,
