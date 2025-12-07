@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dream Harbour - Invoices</title>
+    <title>Dream Harbour - Invoice Generator</title>
     <style>
         * {
             margin: 0;
@@ -19,8 +19,10 @@
 
         .container {
             display: grid;
-            grid-template-columns: 250px 1fr;
+            grid-template-columns: 1fr 350px;
             min-height: 100vh;
+            gap: 20px;
+            padding: 20px;
         }
 
         .sidebar {
@@ -30,6 +32,8 @@
             position: fixed;
             height: 100vh;
             width: 250px;
+            left: 0;
+            top: 0;
             overflow-y: auto;
         }
 
@@ -58,43 +62,119 @@
             padding: 20px;
         }
 
-        .content {
+        .invoice-header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .invoice-header h1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .company-info {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .invoice-body {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .form-section {
             background: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .content h1 {
-            margin-bottom: 20px;
-            font-size: 28px;
+        .form-section h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
         }
 
-        .btn-primary {
-            padding: 12px 20px;
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #555;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 8px 12px;
             background: #667eea;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            margin-bottom: 20px;
+            font-size: 13px;
+            margin-right: 8px;
         }
 
-        .btn-primary:hover {
+        .btn:hover {
             background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #999;
+        }
+
+        .btn-secondary:hover {
+            background: #777;
+        }
+
+        .btn-danger {
+            background: #f44336;
+        }
+
+        .btn-danger:hover {
+            background: #da190b;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
+            font-size: 13px;
         }
 
         th, td {
-            padding: 12px;
+            padding: 8px;
+            text-align: right;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th:first-child, td:first-child {
             text-align: left;
-            border-bottom: 1px solid #ddd;
         }
 
         th {
@@ -102,15 +182,47 @@
             font-weight: 600;
         }
 
-        tr:hover {
+        .summary-box {
             background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .summary-row.total {
+            font-weight: 600;
+            font-size: 16px;
+            border-top: 2px solid #667eea;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        .settings-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .settings-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 1200px) {
+            .invoice-body {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-
             .sidebar {
                 position: relative;
                 width: 100%;
@@ -121,62 +233,296 @@
             .main-content {
                 margin-left: 0;
             }
+
+            .container {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <h2>📊 Dream Harbour</h2>
-            <a href="dashboard.html" class="nav-link">📊 Overview</a>
-            <a href="invoices.html" class="nav-link active">📄 Invoices</a>
-            <a href="settings.html" class="nav-link">⚙️ Settings</a>
-            <a href="#" id="logoutBtn" class="nav-link" style="margin-top: 30px; background: #d32f2f;">🚪 Logout</a>
-        </div>
+    <div class="sidebar">
+        <h2>📊 Dream Harbour</h2>
+        <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+        <a href="invoices.html" class="nav-link active">📄 Invoices</a>
+        <a href="settings.html" class="nav-link">⚙️ Settings</a>
+        <a href="#" id="logoutBtn" class="nav-link" style="margin-top: 30px; background: #d32f2f;">🚪 Logout</a>
+    </div>
 
-        <div class="main-content">
-            <div class="content">
-                <h1>📄 Invoices</h1>
-                <button class="btn-primary">➕ Create New Invoice</button>
+    <div class="main-content">
+        <div class="invoice-body">
+            <!-- Main Invoice Form -->
+            <div>
+                <div class="invoice-header">
+                    <h1>📄 Invoice Generator</h1>
+                    <div class="company-info">
+                        <strong>Dream Harbour</strong><br>
+                        123 Business Street<br>
+                        GSTIN: 27XXXXX1234X1Z5
+                    </div>
+                    <a href="settings.html" class="settings-link">⚙️ Edit company details</a>
+                </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Invoice #</th>
-                            <th>Customer</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="5" style="text-align: center; padding: 30px;">No invoices yet. Create one to get started!</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="form-section">
+                    <h2>Customer Details</h2>
+                    <div class="form-group">
+                        <label>Mobile</label>
+                        <input type="tel" id="customerPhone" placeholder="Enter mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="customerName" placeholder="Enter customer name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Company</label>
+                        <input type="text" id="customerCompany" placeholder="Enter company name">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="customerAddress" rows="2" placeholder="Enter address"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Invoice Details</h2>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="invoiceDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="invoiceStatus">
+                            <option>Pending</option>
+                            <option>Paid</option>
+                            <option>Partial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2>Add Service/Item</h2>
+                    <div class="form-group">
+                        <label>Search Service</label>
+                        <input type="text" id="serviceSearch" placeholder="Search or type service name">
+                    </div>
+                    <table id="searchResults" style="display:none;">
+                        <tbody></tbody>
+                    </table>
+                    <button class="btn" onclick="addCustomService()">+ Add Custom Service</button>
+                </div>
+
+                <div class="form-section">
+                    <h2>Invoice Items</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>SAC</th>
+                                <th>Qty</th>
+                                <th>Rate</th>
+                                <th>Amount</th>
+                                <th>GST %</th>
+                                <th>GST Amt</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceItems">
+                            <tr>
+                                <td colspan="9" style="text-align: center; color: #999;">No items added</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="summary-box">
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">₹0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Total GST</span>
+                            <span id="totalGST">₹0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Grand Total</span>
+                            <span id="grandTotal">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="saveDraft()">💾 Save Draft</button>
+                    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div>
+                <div class="form-section">
+                    <h2>📄 Add Category</h2>
+                    <div class="form-group">
+                        <label>Select Category</label>
+                        <select id="categorySelect">
+                            <option>Choose category...</option>
+                            <option>IT Services</option>
+                            <option>Consulting</option>
+                            <option>Design</option>
+                            <option>Development</option>
+                        </select>
+                    </div>
+                    <button class="btn">+ Add Category</button>
+                </div>
+
+                <div class="form-section" style="margin-top: 20px;">
+                    <h2>+ Add Service</h2>
+                    <div class="form-group">
+                        <label>Service Name</label>
+                        <input type="text" id="serviceName" placeholder="Enter service name">
+                    </div>
+                    <div class="form-group">
+                        <label>SAC Code (6 digits)</label>
+                        <input type="text" id="sacCode" placeholder="e.g. 999199" maxlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label>Rate (₹)</label>
+                        <input type="number" id="serviceRate" placeholder="Enter rate" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>GST %</label>
+                        <select id="serviceGST">
+                            <option>0%</option>
+                            <option selected>5%</option>
+                            <option>12%</option>
+                            <option>18%</option>
+                            <option>28%</option>
+                        </select>
+                    </div>
+                    <button class="btn">+ Save Service</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        let supabase;
+        let invoiceItemsData = [];
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        function initializeInvoices() {
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                setTimeout(initializeInvoices, 100);
+                return;
+            }
 
-        function logout() {
-            localStorage.removeItem('dreamHarbourUser');
-            localStorage.removeItem('dreamHarbourLoginTime');
-            window.location.href = 'index.html';
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+            
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('dreamHarbourUser');
+                window.location.href = 'index.html';
+            });
+
+            // Set today's date
+            document.getElementById('invoiceDate').valueAsDate = new Date();
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', logout);
+        function addCustomService() {
+            const name = prompt('Enter service name:');
+            if (!name) return;
+            const rate = prompt('Enter rate (₹):');
+            if (!rate) return;
+            const gst = prompt('Enter GST % (0/5/12/18/28):');
+            if (!gst) return;
 
-        // Check if user is logged in
-        const user = localStorage.getItem('dreamHarbourUser');
-        if (!user) {
-            window.location.href = 'index.html';
+            addInvoiceItem({
+                name: name,
+                sac: '999199',
+                rate: parseFloat(rate),
+                gst: parseInt(gst),
+                qty: 1
+            });
+        }
+
+        function addInvoiceItem(item) {
+            const amount = item.qty * item.rate;
+            const gstAmount = amount * (item.gst / 100);
+            const total = amount + gstAmount;
+
+            const itemData = {
+                ...item,
+                amount,
+                gstAmount,
+                total
+            };
+
+            invoiceItemsData.push(itemData);
+            updateInvoiceTable();
+            updateTotals();
+        }
+
+        function updateInvoiceTable() {
+            const tbody = document.getElementById('invoiceItems');
+            if (invoiceItemsData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">No items added</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = invoiceItemsData.map((item, idx) => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.sac}</td>
+                    <td>${item.qty}</td>
+                    <td>₹${item.rate.toFixed(2)}</td>
+                    <td>₹${item.amount.toFixed(2)}</td>
+                    <td>${item.gst}%</td>
+                    <td>₹${item.gstAmount.toFixed(2)}</td>
+                    <td>₹${item.total.toFixed(2)}</td>
+                    <td><button class="btn btn-danger" onclick="removeItem(${idx})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function removeItem(index) {
+            invoiceItemsData.splice(index, 1);
+            updateInvoiceTable();
+            updateTotals();
+        }
+
+        function updateTotals() {
+            const subtotal = invoiceItemsData.reduce((sum, item) => sum + item.amount, 0);
+            const totalGST = invoiceItemsData.reduce((sum, item) => sum + item.gstAmount, 0);
+            const grandTotal = subtotal + totalGST;
+
+            document.getElementById('subtotal').textContent = '₹' + subtotal.toFixed(2);
+            document.getElementById('totalGST').textContent = '₹' + totalGST.toFixed(2);
+            document.getElementById('grandTotal').textContent = '₹' + grandTotal.toFixed(2);
+        }
+
+        function saveDraft() {
+            alert('Invoice saved as draft!');
+        }
+
+        function clearForm() {
+            invoiceItemsData = [];
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerCompany').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerAddress').value = '';
+            updateInvoiceTable();
+            updateTotals();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeInvoices);
+        } else {
+            initializeInvoices();
         }
     </script>
 </body>
