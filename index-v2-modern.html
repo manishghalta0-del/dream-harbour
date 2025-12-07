@@ -1,0 +1,459 @@
+<!-- Dream Harbour - Modern Login Design (Same Supabase Flow) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-blur {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .bg-blur-1 {
+            top: -100px;
+            right: -100px;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .bg-blur-2 {
+            bottom: -150px;
+            left: -100px;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0px, 0px); }
+            50% { transform: translate(30px, 30px); }
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 50px 45px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 56px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.4));
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.4)); }
+            50% { filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.7)); }
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(102, 126, 234, 0.6);
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2), inset 0 0 20px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .message {
+            font-size: 12px;
+            margin-top: 14px;
+            padding: 12px 14px;
+            border-radius: 8px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.15);
+            border: 1px solid rgba(81, 207, 102, 0.3);
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .info {
+            background: rgba(102, 126, 234, 0.15);
+            color: rgba(102, 126, 234, 0.9);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .info.show {
+            display: block;
+        }
+
+        .debug-panel {
+            margin-top: 18px;
+            padding: 12px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            font-size: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .debug-panel h4 {
+            margin-top: 0;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .debug-log {
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: rgba(255, 255, 255, 0.4);
+            line-height: 1.3;
+        }
+
+        .debug-log .log-item {
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .debug-log .success {
+            color: #51cf66;
+        }
+
+        .debug-log .error {
+            color: #ff6b6b;
+        }
+
+        .debug-log .info {
+            color: #667eea;
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                padding: 40px 25px;
+                margin: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .logo {
+                font-size: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-blur bg-blur-1"></div>
+    <div class="bg-blur bg-blur-2"></div>
+
+    <div class="login-container">
+        <div class="logo">🏛️</div>
+        <h1>Dream Harbour</h1>
+        <p class="subtitle">Invoice Management System</p>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
+            <div class="form-group">
+                <label for="phone">Phone Number (10 digits)</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your 10-digit phone number" maxlength="10" inputmode="numeric" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pin">PIN (6 digits)</label>
+                <input type="password" id="pin" name="pin" placeholder="Enter your 6-digit PIN" maxlength="6" inputmode="numeric" required>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <div id="info" class="message info"></div>
+        <div id="error" class="message error"></div>
+        <div id="success" class="message success"></div>
+
+        <div class="debug-panel">
+            <h4>🔍 Debug Console</h4>
+            <div id="debugLog" class="debug-log"></div>
+        </div>
+    </div>
+
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const DEBUG = true;
+        let supabase = null;
+        const logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push({ message: logMessage, type });
+            console.log(logMessage);
+            updateDebugPanel();
+        }
+
+        function updateDebugPanel() {
+            const debugLog = document.getElementById('debugLog');
+            debugLog.innerHTML = logs.map(log => 
+                `<div class="log-item ${log.type}">${log.message}</div>`
+            ).join('');
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        function initializeApp() {
+            log('Initializing application...', 'info');
+
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                log('Supabase not yet loaded, retrying...', 'info');
+                setTimeout(initializeApp, 100);
+                return;
+            }
+
+            log('Supabase library loaded successfully', 'success');
+
+            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+            
+            log(`Connecting to Supabase: ${SUPABASE_URL}`, 'info');
+            
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                log('Supabase client created successfully', 'success');
+                document.getElementById('info').textContent = '✅ Supabase connected! Ready to login.';
+                document.getElementById('info').classList.add('show');
+            } catch (error) {
+                log(`Failed to create Supabase client: ${error.message}`, 'error');
+                document.getElementById('error').textContent = '❌ Failed to initialize. See console for details.';
+                document.getElementById('error').classList.add('show');
+                return;
+            }
+
+            window.handleLogin = async function(event) {
+                event.preventDefault();
+                log('Login attempt started', 'info');
+
+                const phone = document.getElementById('phone').value.trim();
+                const pin = document.getElementById('pin').value.trim();
+                const errorEl = document.getElementById('error');
+                const successEl = document.getElementById('success');
+                const infoEl = document.getElementById('info');
+                const submitBtn = document.querySelector('button[type="submit"]');
+
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                successEl.textContent = '';
+                successEl.classList.remove('show');
+                infoEl.textContent = '';
+                infoEl.classList.remove('show');
+
+                if (!phone || phone.length !== 10) {
+                    const msg = 'Please enter a valid 10-digit phone number';
+                    log(msg, 'error');
+                    errorEl.textContent = msg;
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                if (!pin || pin.length !== 6) {
+                    const msg = 'Please enter a valid 6-digit PIN';
+                    log(msg, 'error');
+                    errorEl.textContent = msg;
+                    errorEl.classList.add('show');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Logging in...';
+                log(`Attempting login with phone: ${phone}`, 'info');
+
+                try {
+                    log('Querying users table...', 'info');
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('id, phone_number, full_name, role, is_active')
+                        .eq('phone_number', phone)
+                        .eq('pin', pin)
+                        .eq('is_active', true)
+                        .single();
+
+                    if (error) {
+                        log(`Supabase query error: ${JSON.stringify(error)}`, 'error');
+                        errorEl.textContent = `❌ Database error: ${error.message}\n\nPlease check:\n1. Users table exists\n2. Test user exists with this phone/PIN\n3. Supabase credentials are correct`;
+                        errorEl.classList.add('show');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Login';
+                        return;
+                    }
+
+                    if (!data) {
+                        log('No user found with provided credentials', 'error');
+                        errorEl.textContent = '❌ Invalid phone number or PIN. Please try again.\n\nIf you just created the user, make sure:\n- Phone number is correct (10 digits)\n- PIN is correct (6 digits)\n- is_active field is TRUE';
+                        errorEl.classList.add('show');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Login';
+                        return;
+                    }
+
+                    log(`User found: ${data.full_name}`, 'success');
+
+                    const userData = {
+                        id: data.id,
+                        phoneNumber: data.phone_number,
+                        fullName: data.full_name,
+                        role: data.role,
+                        loginTime: Date.now()
+                    };
+
+                    localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
+                    localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
+                    log('User data saved to localStorage', 'success');
+
+                    successEl.textContent = '✅ Login successful! Redirecting to dashboard...';
+                    successEl.classList.add('show');
+
+                    setTimeout(() => {
+                        log('Redirecting to dashboard', 'info');
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+
+                } catch (error) {
+                    log(`Unexpected error: ${error.message}\n${error.stack}`, 'error');
+                    errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the debug console for details.`;
+                    errorEl.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Login';
+                }
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
