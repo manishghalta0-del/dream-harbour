@@ -1,9 +1,11 @@
+<!-- Dream Harbour Dashboard -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dream Harbour - Dashboard</title>
+    <!-- REMOVED DUPLICATE: Only one Supabase import -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
@@ -67,9 +69,6 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
         }
 
         .logout-btn:hover {
@@ -126,8 +125,6 @@
             padding: 25px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .stat-card::before {
@@ -250,329 +247,173 @@
             height: 300px;
             margin-top: 20px;
         }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary-blue);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--gray);
-        }
-
-        .spinner {
-            border: 4px solid var(--gray-light);
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .empty-state-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--gray);
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header" role="banner">
+    <header class="header">
         <div class="header-content">
-            <div>
-                <h1>🚢 Dream Harbour Dashboard</h1>
-            </div>
+            <h1>🚢 Dream Harbour Dashboard</h1>
             <div class="user-info">
-                <span id="userFullName" aria-label="User name">Loading...</span>
-                <button class="logout-btn" onclick="logout()" aria-label="Logout">🚪 Logout</button>
+                <span id="userName">User</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <div class="container" id="main-content">
-        <!-- Navigation -->
-        <nav class="navbar" role="navigation" aria-label="Main navigation">
-            <button class="nav-btn active" data-page="overview" aria-label="Overview page" aria-current="page">📊 Overview</button>
-            <button class="nav-btn" data-page="invoices" aria-label="Invoices page">📄 Invoices</button>
-            <a href="settings.html" class="nav-btn" aria-label="Settings page">⚙️ Settings</a>
-            <a href="invoices.html" class="nav-btn" aria-label="Invoice generator">✏️ Create Invoice</a>
+    <div class="container">
+        <nav class="navbar">
+            <button class="nav-btn active" data-page="overview">📊 Overview</button>
+            <button class="nav-btn" data-page="invoices">📄 Invoices</button>
+            <button class="nav-btn" data-page="customers">👥 Customers</button>
+            <a href="settings.html" class="nav-btn">⚙️ Settings</a>
         </nav>
 
         <!-- Overview Page -->
-        <div id="overview-page" role="main" aria-label="Overview content">
-            <!-- Stats Grid -->
-            <div class="stats-grid" role="region" aria-label="Statistics summary">
+        <div id="overview-page" class="page-content">
+            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon" aria-hidden="true">💰</div>
-                    <div class="stat-label">Total Drafts</div>
-                    <div class="stat-value" id="totalDrafts" aria-live="polite">0</div>
-                    <div class="stat-subtext">Invoice drafts saved</div>
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value" id="totalRevenue">₹0.00</div>
+                    <div class="stat-subtext">📈 Updated today</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon" aria-hidden="true">📋</div>
-                    <div class="stat-label">Business Info</div>
-                    <div class="stat-value" id="businessStatus" aria-live="polite">✓</div>
-                    <div class="stat-subtext">Configured</div>
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-label">Total Invoices</div>
+                    <div class="stat-value" id="totalInvoices">0</div>
+                    <div class="stat-subtext">Created so far</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon" aria-hidden="true">📦</div>
-                    <div class="stat-label">Services Added</div>
-                    <div class="stat-value" id="servicesCount" aria-live="polite">0</div>
-                    <div class="stat-subtext">Total services</div>
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-label">Pending Amount</div>
+                    <div class="stat-value" id="pendingAmount">₹0.00</div>
+                    <div class="stat-subtext">From pending invoices</div>
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon" aria-hidden="true">📁</div>
-                    <div class="stat-label">Categories</div>
-                    <div class="stat-value" id="categoriesCount" aria-live="polite">0</div>
-                    <div class="stat-subtext">Service categories</div>
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-subtext">All registered</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🏷️</div>
+                    <div class="stat-label">Total GST Collected</div>
+                    <div class="stat-value" id="totalGST">₹0.00</div>
+                    <div class="stat-subtext">From all invoices</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-label">Paid Invoices</div>
+                    <div class="stat-value" id="paidInvoices">0</div>
+                    <div class="stat-subtext">Successfully completed</div>
                 </div>
             </div>
 
-            <!-- Recent Drafts -->
-            <div class="card" role="region">
-                <h2>📋 Recent Invoice Drafts</h2>
-                <div id="recentDraftsContainer" aria-live="polite" aria-busy="false">
-                    <div class="loading">
-                        <div class="spinner" role="status" aria-label="Loading drafts"></div>
-                        <p>Loading drafts...</p>
+            <div class="content-grid">
+                <div class="card">
+                    <h2>Revenue Trend</h2>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
+
+                <div class="card">
+                    <h2>Invoice Status</h2>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Recent Invoices</h2>
+                <div id="recentInvoices"></div>
+                <button class="nav-btn" style="margin-top: 20px;" onclick="window.location.href='invoices.html'">
+                    ➕ Create Invoice
+                </button>
             </div>
         </div>
 
         <!-- Invoices Page -->
-        <div id="invoices-page" style="display: none;" role="main" aria-label="Invoices content">
-            <div class="card" role="region">
+        <div id="invoices-page" class="page-content" style="display: none;">
+            <div class="card">
                 <h2>📄 All Invoices</h2>
-                <div id="allInvoicesContainer" aria-live="polite" aria-busy="false">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📄</div>
-                        <h3 class="empty-state-title">No Invoices Yet</h3>
-                        <p>Create your first invoice to get started</p>
-                        <button class="btn-primary" onclick="window.location.href='invoices.html'" style="margin-top: 20px;">Create Invoice</button>
-                    </div>
-                </div>
+                <div id="allInvoices"></div>
+                <button class="nav-btn" style="margin-top: 20px;" onclick="window.location.href='invoices.html'">
+                    ➕ Create New Invoice
+                </button>
+            </div>
+        </div>
+
+        <!-- Customers Page -->
+        <div id="customers-page" class="page-content" style="display: none;">
+            <div class="card">
+                <h2>👥 All Customers</h2>
+                <div id="allCustomers"></div>
+                <button class="nav-btn" style="margin-top: 20px;" onclick="window.location.href='settings.html'">
+                    ➕ Add Customer
+                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // ==================== STATE ====================
-        let dreamHarbourData = { business: {}, services: [], categories: [] };
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 
-        // ==================== INITIALIZATION ====================
-        async function init() {
-            try {
-                // Validate session
-                const userStr = localStorage.getItem('user');
-                if (!userStr) {
-                    window.location.href = 'index.html';
-                    return;
-                }
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-                const user = JSON.parse(userStr);
-                document.getElementById('userFullName').textContent = user.fullName || 'User';
-
-                // Load dashboard data
-                await loadDashboard();
-
-                // Setup navigation
-                setupNavigation();
-            } catch (error) {
-                console.error('Initialization error:', error);
-                alert('Error loading dashboard. Please log in again.');
+        // Load user info
+        function loadUserInfo() {
+            const user = JSON.parse(localStorage.getItem('dreamHarbourUser') || '{}');
+            if (!user.id) {
                 window.location.href = 'index.html';
+                return;
             }
+            document.getElementById('userName').textContent = user.fullName || 'User';
         }
 
-        // ==================== LOAD DASHBOARD ====================
+        // Logout
+        function logout() {
+            localStorage.removeItem('dreamHarbourUser');
+            localStorage.removeItem('dreamHarbourLoginTime');
+            window.location.href = 'index.html';
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-btn[data-page]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const page = this.getAttribute('data-page');
+                document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+                document.getElementById(page + '-page').style.display = 'block';
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Load data
         async function loadDashboard() {
             try {
-                // Load data from localStorage
-                const saved = localStorage.getItem('dreamHarbourData');
-                if (saved) {
-                    dreamHarbourData = JSON.parse(saved);
-                }
+                // Load invoices
+                const { data: invoices } = await supabase.from('invoices').select('*');
+                const { data: customers } = await supabase.from('customers').select('*');
 
-                // Load statistics
-                loadStats();
-                loadRecentDrafts();
+                // Update stats
+                document.getElementById('totalInvoices').textContent = invoices?.length || 0;
+                document.getElementById('totalCustomers').textContent = customers?.length || 0;
             } catch (error) {
                 console.error('Error loading dashboard:', error);
             }
         }
 
-        // ==================== LOAD STATISTICS ====================
-        function loadStats() {
-            // Calculate drafts
-            const drafts = JSON.parse(localStorage.getItem('dreamHarbourDrafts') || '[]');
-            document.getElementById('totalDrafts').textContent = drafts.length;
-
-            // Business status
-            const hasBusinessInfo = dreamHarbourData.business && dreamHarbourData.business.name;
-            document.getElementById('businessStatus').textContent = hasBusinessInfo ? '✓' : '✗';
-
-            // Services and categories
-            const servicesCount = (dreamHarbourData.services || []).length;
-            const categoriesCount = (dreamHarbourData.categories || []).length;
-            document.getElementById('servicesCount').textContent = servicesCount;
-            document.getElementById('categoriesCount').textContent = categoriesCount;
-        }
-
-        // ==================== LOAD RECENT DRAFTS ====================
-        function loadRecentDrafts() {
-            const container = document.getElementById('recentDraftsContainer');
-            const drafts = JSON.parse(localStorage.getItem('dreamHarbourDrafts') || '[]');
-
-            if (!drafts || drafts.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <h3 class="empty-state-title">No Drafts Yet</h3>
-                        <p>Create your first invoice draft to get started</p>
-                        <button class="btn-primary" onclick="window.location.href='invoices.html'" style="margin-top: 20px;">Create Invoice</button>
-                    </div>
-                `;
-                return;
-            }
-
-            // Show last 5 drafts
-            const recentDrafts = drafts.slice(-5).reverse();
-            let html = `
-                <div style="overflow-x: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Customer Name</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Items</th>
-                                <th scope="col">Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            recentDrafts.forEach(draft => {
-                const date = new Date(draft.savedAt);
-                const formattedDate = date.toLocaleDateString('en-IN');
-                const itemsCount = draft.lineItems?.length || 0;
-                const total = draft.lineItems?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
-
-                html += `
-                    <tr>
-                        <td>${escapeHtml(draft.customerName)}</td>
-                        <td>${formattedDate}</td>
-                        <td>${itemsCount}</td>
-                        <td>₹${total.toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            container.innerHTML = html;
-        }
-
-        // ==================== NAVIGATION ====================
-        function setupNavigation() {
-            const navButtons = document.querySelectorAll('.nav-btn[data-page]');
-
-            navButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const page = this.getAttribute('data-page');
-
-                    // Update active state
-                    navButtons.forEach(b => {
-                        b.classList.remove('active');
-                        b.removeAttribute('aria-current');
-                    });
-                    this.classList.add('active');
-                    this.setAttribute('aria-current', 'page');
-
-                    // Hide all pages
-                    document.querySelectorAll('[id$="-page"]').forEach(p => {
-                        p.style.display = 'none';
-                    });
-
-                    // Show selected page
-                    const targetPage = document.getElementById(`${page}-page`);
-                    if (targetPage) {
-                        targetPage.style.display = 'block';
-                    }
-                });
-            });
-        }
-
-        // ==================== LOGOUT ====================
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }
-
-        // ==================== UTILITIES ====================
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return String(text).replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // ==================== START ====================
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        // Initialize
+        loadUserInfo();
+        loadDashboard();
     </script>
 </body>
 </html>
