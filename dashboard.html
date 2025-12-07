@@ -180,25 +180,44 @@
         </div>
     </div>
 
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        function initializeDashboard() {
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                setTimeout(initializeDashboard, 100);
+                return;
+            }
 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            // Check if user is logged in FIRST
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
 
-        function logout() {
-            localStorage.removeItem('dreamHarbourUser');
-            localStorage.removeItem('dreamHarbourLoginTime');
-            window.location.href = 'index.html';
+            const SUPABASE_URL = 'https://jvbuwigpqhcmwpfxgspq.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2YnV3aWdwcWhjbXdwZnhnc3BxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzA1MjEwODgsImV4cCI6MTg4ODI4NzA4OH0.aMHT5VzqcPaWiswY84NeI7dQMrQY-FNf88sxgL8fVN0';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            function logout() {
+                localStorage.removeItem('dreamHarbourUser');
+                localStorage.removeItem('dreamHarbourLoginTime');
+                window.location.href = 'index.html';
+            }
+
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+            });
+            document.getElementById('logoutBtn2').addEventListener('click', logout);
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('logoutBtn2').addEventListener('click', logout);
-
-        // Check if user is logged in
-        const user = localStorage.getItem('dreamHarbourUser');
-        if (!user) {
-            window.location.href = 'index.html';
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+        } else {
+            initializeDashboard();
         }
     </script>
 </body>
