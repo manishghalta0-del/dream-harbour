@@ -1,4 +1,4 @@
-<!-- Dream Harbour - Enhanced Login Page -->
+<!-- Dream Harbour - Enhanced Login Page with DEBUG MODE -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,11 +98,18 @@
             cursor: not-allowed;
         }
 
-        .error {
-            color: #d32f2f;
+        .message {
             font-size: 14px;
             margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
             display: none;
+        }
+
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            border: 1px solid #ef5350;
         }
 
         .error.show {
@@ -111,13 +118,62 @@
 
         .success {
             color: #388e3c;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
+            background: #e8f5e9;
+            border: 1px solid #66bb6a;
         }
 
         .success.show {
             display: block;
+        }
+
+        .info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #42a5f5;
+            font-size: 12px;
+        }
+
+        .info.show {
+            display: block;
+        }
+
+        .debug-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
+        .debug-panel h4 {
+            margin-top: 0;
+            color: #666;
+        }
+
+        .debug-log {
+            font-family: monospace;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .debug-log .log-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .debug-log .success {
+            color: #4caf50;
+        }
+
+        .debug-log .error {
+            color: #f44336;
+        }
+
+        .debug-log .info {
+            color: #2196f3;
         }
     </style>
 </head>
@@ -141,53 +197,107 @@
             <button type="submit" class="btn">Login</button>
         </form>
 
-        <div id="error" class="error"></div>
-        <div id="success" class="success"></div>
+        <div id="info" class="message info"></div>
+        <div id="error" class="message error"></div>
+        <div id="success" class="message success"></div>
+
+        <!-- Debug Panel -->
+        <div class="debug-panel">
+            <h4>🔍 Debug Console</h4>
+            <div id="debugLog" class="debug-log"></div>
+        </div>
     </div>
 
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const DEBUG = true;  // Enable debug logging
+        let supabase = null;
+        const logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push({ message: logMessage, type });
+            console.log(logMessage);
+            updateDebugPanel();
+        }
+
+        function updateDebugPanel() {
+            const debugLog = document.getElementById('debugLog');
+            debugLog.innerHTML = logs.map(log => 
+                `<div class="log-item ${log.type}">${log.message}</div>`
+            ).join('');
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
         function initializeApp() {
+            log('Initializing application...', 'info');
+
             if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                log('Supabase not yet loaded, retrying...', 'info');
                 setTimeout(initializeApp, 100);
                 return;
             }
 
+            log('Supabase library loaded successfully', 'success');
+
             const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
             
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            log(`Connecting to Supabase: ${SUPABASE_URL}`, 'info');
+            
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                log('Supabase client created successfully', 'success');
+                document.getElementById('info').textContent = '✅ Supabase connected! Ready to login.';
+                document.getElementById('info').classList.add('show');
+            } catch (error) {
+                log(`Failed to create Supabase client: ${error.message}`, 'error');
+                document.getElementById('error').textContent = '❌ Failed to initialize. See console for details.';
+                document.getElementById('error').classList.add('show');
+                return;
+            }
 
             window.handleLogin = async function(event) {
                 event.preventDefault();
+                log('Login attempt started', 'info');
 
                 const phone = document.getElementById('phone').value.trim();
                 const pin = document.getElementById('pin').value.trim();
                 const errorEl = document.getElementById('error');
                 const successEl = document.getElementById('success');
+                const infoEl = document.getElementById('info');
                 const submitBtn = document.querySelector('button[type="submit"]');
 
                 errorEl.textContent = '';
                 errorEl.classList.remove('show');
                 successEl.textContent = '';
                 successEl.classList.remove('show');
+                infoEl.textContent = '';
+                infoEl.classList.remove('show');
 
                 if (!phone || phone.length !== 10) {
-                    errorEl.textContent = 'Please enter a valid 10-digit phone number';
+                    const msg = 'Please enter a valid 10-digit phone number';
+                    log(msg, 'error');
+                    errorEl.textContent = msg;
                     errorEl.classList.add('show');
                     return;
                 }
 
                 if (!pin || pin.length !== 6) {
-                    errorEl.textContent = 'Please enter a valid 6-digit PIN';
+                    const msg = 'Please enter a valid 6-digit PIN';
+                    log(msg, 'error');
+                    errorEl.textContent = msg;
                     errorEl.classList.add('show');
                     return;
                 }
 
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Logging in...';
+                log(`Attempting login with phone: ${phone}`, 'info');
 
                 try {
+                    log('Querying users table...', 'info');
                     const { data, error } = await supabase
                         .from('users')
                         .select('id, phone_number, full_name, role, is_active')
@@ -196,13 +306,25 @@
                         .eq('is_active', true)
                         .single();
 
-                    if (error || !data) {
-                        errorEl.textContent = 'Invalid phone number or PIN. Please try again.';
+                    if (error) {
+                        log(`Supabase query error: ${JSON.stringify(error)}`, 'error');
+                        errorEl.textContent = `❌ Database error: ${error.message}\n\nPlease check:\n1. Users table exists\n2. Test user exists with this phone/PIN\n3. Supabase credentials are correct`;
                         errorEl.classList.add('show');
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Login';
                         return;
                     }
+
+                    if (!data) {
+                        log('No user found with provided credentials', 'error');
+                        errorEl.textContent = '❌ Invalid phone number or PIN. Please try again.\n\nIf you just created the user, make sure:\n- Phone number is correct (10 digits)\n- PIN is correct (6 digits)\n- is_active field is TRUE';
+                        errorEl.classList.add('show');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Login';
+                        return;
+                    }
+
+                    log(`User found: ${data.full_name}`, 'success');
 
                     const userData = {
                         id: data.id,
@@ -214,17 +336,19 @@
 
                     localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
                     localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
+                    log('User data saved to localStorage', 'success');
 
-                    successEl.textContent = 'Login successful! Redirecting...';
+                    successEl.textContent = '✅ Login successful! Redirecting to dashboard...';
                     successEl.classList.add('show');
 
                     setTimeout(() => {
+                        log('Redirecting to dashboard', 'info');
                         window.location.href = 'dashboard.html';
                     }, 1500);
 
                 } catch (error) {
-                    console.error('Login error:', error);
-                    errorEl.textContent = 'An error occurred. Please try again.';
+                    log(`Unexpected error: ${error.message}\n${error.stack}`, 'error');
+                    errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the debug console for details.`;
                     errorEl.classList.add('show');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Login';
