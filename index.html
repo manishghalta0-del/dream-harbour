@@ -209,49 +209,6 @@
             display: block;
         }
 
-        .debug-panel {
-            margin-top: 18px;
-            padding: 12px 14px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 8px;
-            font-size: 10px;
-            max-height: 160px;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .debug-panel h4 {
-            margin-top: 0;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 10px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-            letter-spacing: 0.3px;
-        }
-
-        .debug-log {
-            font-family: 'Monaco', 'Courier New', monospace;
-            color: rgba(255, 255, 255, 0.4);
-            line-height: 1.3;
-        }
-
-        .debug-log .log-item {
-            padding: 2px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .debug-log .success {
-            color: #51cf66;
-        }
-
-        .debug-log .error {
-            color: #ff6b6b;
-        }
-
-        .debug-log .info {
-            color: #667eea;
-        }
-
         @media (max-width: 600px) {
             .login-container {
                 padding: 40px 25px;
@@ -294,58 +251,36 @@
         <div id="info" class="message info"></div>
         <div id="error" class="message error"></div>
         <div id="success" class="message success"></div>
-
-        <div class="debug-panel">
-            <h4>🔍 Debug Console</h4>
-            <div id="debugLog" class="debug-log"></div>
-        </div>
     </div>
 
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const DEBUG = true;
         let supabase = null;
-        const logs = [];
-
-        function log(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const logMessage = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
-            logs.push({ message: logMessage, type });
-            console.log(logMessage);
-            updateDebugPanel();
-        }
-
-        function updateDebugPanel() {
-            const debugLog = document.getElementById('debugLog');
-            debugLog.innerHTML = logs.map(log => 
-                `<div class="log-item ${log.type}">${log.message}</div>`
-            ).join('');
-            debugLog.scrollTop = debugLog.scrollHeight;
-        }
 
         function initializeApp() {
-            log('Initializing application...', 'info');
+            console.log('✅ Initializing application...');
 
             if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
-                log('Supabase not yet loaded, retrying...', 'info');
+                console.log('⏳ Supabase not yet loaded, retrying...');
                 setTimeout(initializeApp, 100);
                 return;
             }
 
-            log('Supabase library loaded successfully', 'success');
+            console.log('✅ Supabase library loaded successfully');
 
             const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
             
-            log(`Connecting to Supabase: ${SUPABASE_URL}`, 'info');
+            console.log(`🔗 Connecting to Supabase: ${SUPABASE_URL}`);
             
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                log('Supabase client created successfully', 'success');
-                document.getElementById('info').textContent = '✅ Supabase connected! Ready to login.';
+                console.log('✅ Supabase client created successfully');
+                document.getElementById('info').textContent = '✅ Ready to login.';
                 document.getElementById('info').classList.add('show');
             } catch (error) {
-                log(`Failed to create Supabase client: ${error.message}`, 'error');
+                console.error(`❌ Failed to create Supabase client: ${error.message}`);
                 document.getElementById('error').textContent = '❌ Failed to initialize. See console for details.';
                 document.getElementById('error').classList.add('show');
                 return;
@@ -353,7 +288,7 @@
 
             window.handleLogin = async function(event) {
                 event.preventDefault();
-                log('Login attempt started', 'info');
+                console.log('🔐 Login attempt started');
 
                 const phone = document.getElementById('phone').value.trim();
                 const pin = document.getElementById('pin').value.trim();
@@ -371,7 +306,7 @@
 
                 if (!phone || phone.length !== 10) {
                     const msg = 'Please enter a valid 10-digit phone number';
-                    log(msg, 'error');
+                    console.error(msg);
                     errorEl.textContent = msg;
                     errorEl.classList.add('show');
                     return;
@@ -379,7 +314,7 @@
 
                 if (!pin || pin.length !== 6) {
                     const msg = 'Please enter a valid 6-digit PIN';
-                    log(msg, 'error');
+                    console.error(msg);
                     errorEl.textContent = msg;
                     errorEl.classList.add('show');
                     return;
@@ -387,10 +322,10 @@
 
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Logging in...';
-                log(`Attempting login with phone: ${phone}`, 'info');
+                console.log(`📱 Attempting login with phone: ${phone}`);
 
                 try {
-                    log('Querying users table...', 'info');
+                    console.log('📊 Querying users table...');
                     const { data, error } = await supabase
                         .from('users')
                         .select('id, phone_number, full_name, role, is_active')
@@ -400,7 +335,7 @@
                         .single();
 
                     if (error) {
-                        log(`Supabase query error: ${JSON.stringify(error)}`, 'error');
+                        console.error(`❌ Supabase query error: ${JSON.stringify(error)}`);
                         errorEl.textContent = `❌ Database error: ${error.message}\n\nPlease check:\n1. Users table exists\n2. Test user exists with this phone/PIN\n3. Supabase credentials are correct`;
                         errorEl.classList.add('show');
                         submitBtn.disabled = false;
@@ -409,7 +344,7 @@
                     }
 
                     if (!data) {
-                        log('No user found with provided credentials', 'error');
+                        console.error('❌ No user found with provided credentials');
                         errorEl.textContent = '❌ Invalid phone number or PIN. Please try again.\n\nIf you just created the user, make sure:\n- Phone number is correct (10 digits)\n- PIN is correct (6 digits)\n- is_active field is TRUE';
                         errorEl.classList.add('show');
                         submitBtn.disabled = false;
@@ -417,7 +352,7 @@
                         return;
                     }
 
-                    log(`User found: ${data.full_name}`, 'success');
+                    console.log(`✅ User found: ${data.full_name}`);
 
                     const userData = {
                         id: data.id,
@@ -429,19 +364,19 @@
 
                     localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
                     localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
-                    log('User data saved to localStorage', 'success');
+                    console.log('💾 User data saved to localStorage');
 
                     successEl.textContent = '✅ Login successful! Redirecting to dashboard...';
                     successEl.classList.add('show');
 
                     setTimeout(() => {
-                        log('Redirecting to dashboard', 'info');
+                        console.log('🔄 Redirecting to dashboard');
                         window.location.href = 'dashboard.html';
                     }, 1500);
 
                 } catch (error) {
-                    log(`Unexpected error: ${error.message}\n${error.stack}`, 'error');
-                    errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the debug console for details.`;
+                    console.error(`❌ Unexpected error: ${error.message}\n${error.stack}`);
+                    errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the console for details.`;
                     errorEl.classList.add('show');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Login';
