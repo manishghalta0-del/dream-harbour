@@ -328,6 +328,10 @@
         /* Tab Content */
         .tab-content {
             width: 100%;
+            display: none;
+        }
+
+        .tab-content.active {
             display: block !important;
         }
 
@@ -350,9 +354,6 @@
             border-left: 4px solid var(--primary-color);
             position: relative;
             overflow: hidden;
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
         }
 
         .stat-card:hover {
@@ -520,6 +521,11 @@
             border-radius: 6px;
             margin-bottom: 20px;
             font-size: 13px;
+            display: none;
+        }
+
+        .error-alert.show {
+            display: block;
         }
 
         .error-alert-title {
@@ -706,7 +712,7 @@
             <!-- Content Area -->
             <div class="content-area">
                 <!-- Error Alert -->
-                <div id="errorAlert" class="error-alert" style="display: none;">
+                <div id="errorAlert" class="error-alert">
                     <div class="error-alert-title">⚠️ Connection Issue</div>
                     <div id="errorMessage">Unable to load data. Using fallback values.</div>
                 </div>
@@ -719,40 +725,40 @@
                 </div>
 
                 <!-- Overview Tab -->
-                <div id="overview" class="tab-content" style="display: block;">
+                <div id="overview" class="tab-content active">
                     <!-- Stats Grid -->
                     <div class="stats-grid">
-                        <div class="stat-card accent-1" style="display: block; visibility: visible; opacity: 1;">
+                        <div class="stat-card accent-1">
                             <div class="stat-icon">💰</div>
                             <div class="stat-label">Total Revenue</div>
                             <div class="stat-value" id="totalRevenue">₹0.00</div>
                             <div class="stat-change">📈 Updated today</div>
                         </div>
-                        <div class="stat-card accent-2" style="display: block; visibility: visible; opacity: 1;">
+                        <div class="stat-card accent-2">
                             <div class="stat-icon">📋</div>
                             <div class="stat-label">Total Invoices</div>
                             <div class="stat-value" id="totalInvoices">0</div>
                             <div class="stat-change">Created so far</div>
                         </div>
-                        <div class="stat-card accent-3" style="display: block; visibility: visible; opacity: 1;">
+                        <div class="stat-card accent-3">
                             <div class="stat-icon">✅</div>
                             <div class="stat-label">Paid Invoices</div>
                             <div class="stat-value" id="paidInvoices">0</div>
                             <div class="stat-change">Successfully completed</div>
                         </div>
-                        <div class="stat-card accent-4" style="display: block; visibility: visible; opacity: 1;">
+                        <div class="stat-card accent-4">
                             <div class="stat-icon">⏳</div>
                             <div class="stat-label">Pending Amount</div>
                             <div class="stat-value" id="pendingAmount">₹0.00</div>
                             <div class="stat-change">From pending invoices</div>
                         </div>
-                        <div class="stat-card accent-5" style="display: block; visibility: visible; opacity: 1;">
+                        <div class="stat-card accent-5">
                             <div class="stat-icon">👥</div>
                             <div class="stat-label">Total Customers</div>
                             <div class="stat-value" id="totalCustomers">0</div>
                             <div class="stat-change">All registered</div>
                         </div>
-                        <div class="stat-card accent-6" style="display: block; visibility: visible; opacity: 1;">
+                        <div class="stat-card accent-6">
                             <div class="stat-icon">🏛️</div>
                             <div class="stat-label">GST Collected</div>
                             <div class="stat-value" id="totalGST">₹0.00</div>
@@ -773,7 +779,7 @@
                 </div>
 
                 <!-- Invoices Tab -->
-                <div id="invoices" class="tab-content" style="display: none;">
+                <div id="invoices" class="tab-content">
                     <div class="content-box">
                         <div class="content-header">
                             <div class="content-title">📋 Recent Invoices</div>
@@ -789,7 +795,7 @@
                 </div>
 
                 <!-- Customers Tab -->
-                <div id="customers" class="tab-content" style="display: none;">
+                <div id="customers" class="tab-content">
                     <div class="content-box">
                         <div class="content-header">
                             <div class="content-title">👥 All Customers</div>
@@ -807,14 +813,13 @@
         </div>
     </div>
 
-    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let supabase = null;
         let sessionTimeRemaining = 30;
         let revenueChart = null;
         let statusChart = null;
         let dataLoadError = false;
+        let dashboardInitialized = false;
 
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
@@ -830,51 +835,111 @@
         function showErrorAlert(message) {
             const alert = document.getElementById('errorAlert');
             document.getElementById('errorMessage').textContent = message;
-            alert.style.display = 'block';
+            alert.classList.add('show');
             log(message, 'error');
         }
 
         function hideErrorAlert() {
-            document.getElementById('errorAlert').style.display = 'none';
+            document.getElementById('errorAlert').classList.remove('show');
         }
 
-        function initializeDashboard() {
-            log('Initializing dashboard...', 'info');
+        async function loadSupabaseLibrary() {
+            return new Promise((resolve) => {
+                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                    resolve(true);
+                    return;
+                }
+
+                // Load Supabase
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                script.async = true;
+                script.onload = () => {
+                    log('Supabase library loaded', 'success');
+                    resolve(true);
+                };
+                script.onerror = () => {
+                    log('Failed to load Supabase library', 'error');
+                    resolve(false);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        async function loadChartsLibrary() {
+            return new Promise((resolve) => {
+                if (typeof Chart !== 'undefined') {
+                    resolve(true);
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                script.async = true;
+                script.onload = () => {
+                    log('Chart.js library loaded', 'success');
+                    resolve(true);
+                };
+                script.onerror = () => {
+                    log('Failed to load Chart.js library', 'error');
+                    resolve(false);
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initializeDashboard() {
+            if (dashboardInitialized) return;
+            dashboardInitialized = true;
+
+            log('🚀 Initializing dashboard...', 'info');
 
             // Check if user is logged in
             const user = localStorage.getItem('dreamHarbourUser');
             if (!user) {
-                log('No user found. Redirecting to login...', 'warning');
+                log('❌ No user found. Redirecting to login...', 'warning');
                 window.location.href = 'index.html';
                 return;
             }
 
-            const userData = JSON.parse(user);
-            log(`User logged in: ${userData.fullName}`, 'success');
-            document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+            try {
+                const userData = JSON.parse(user);
+                log(`✅ User logged in: ${userData.fullName}`, 'success');
+                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+            } catch (e) {
+                log('Error parsing user data', 'error');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load libraries
+            log('📦 Loading required libraries...', 'info');
+            const supabbaseLoaded = await loadSupabaseLibrary();
+            const chartsLoaded = await loadChartsLibrary();
+
+            if (!supabbaseLoaded) {
+                log('⚠️ Supabase not loaded, using fallback', 'warning');
+                loadFallbackData();
+                return;
+            }
 
             // Initialize Supabase
             const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
 
             try {
-                if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
-                    log('Supabase library not loaded yet. Retrying...', 'warning');
-                    setTimeout(initializeDashboard, 100);
-                    return;
-                }
-
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                log('Supabase initialized successfully', 'success');
+                log('✅ Supabase initialized successfully', 'success');
 
                 // Session timer
                 setInterval(updateSessionTimer, 1000);
-                log('Session timer started', 'info');
+                log('⏱️ Session timer started', 'info');
 
                 // Load data
-                loadDashboardData();
+                log('📥 Loading dashboard data...', 'info');
+                await loadDashboardData();
             } catch (error) {
-                log(`Initialization error: ${error.message}`, 'error');
+                log(`❌ Initialization error: ${error.message}`, 'error');
                 showErrorAlert(`Initialization failed: ${error.message}`);
                 loadFallbackData();
             }
@@ -884,7 +949,7 @@
             sessionTimeRemaining--;
             document.getElementById('sessionTimer').textContent = sessionTimeRemaining;
             if (sessionTimeRemaining <= 0) {
-                log('Session expired', 'warning');
+                log('⏰ Session expired', 'warning');
                 alert('Session expired. Please login again.');
                 logout();
             }
@@ -893,7 +958,7 @@
         function extendSession() {
             sessionTimeRemaining = 30;
             hideErrorAlert();
-            log('Session extended for 30 more minutes', 'success');
+            log('✅ Session extended for 30 more minutes', 'success');
             alert('Session extended for 30 more minutes');
         }
 
@@ -904,7 +969,7 @@
 
         async function loadDashboardData() {
             try {
-                log('Loading dashboard data from Supabase...', 'info');
+                if (!supabase) throw new Error('Supabase not initialized');
 
                 const { data: invoices, error: invoicesError } = await supabase
                     .from('invoices')
@@ -924,7 +989,7 @@
                     throw new Error(`Customers query failed: ${customersError.message}`);
                 }
 
-                log(`Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
+                log(`✅ Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
 
                 updateDashboardStats(invoices, customers);
                 displayInvoices(invoices);
@@ -932,7 +997,7 @@
                 initializeCharts(invoices);
                 hideErrorAlert();
             } catch (error) {
-                log(`Error loading dashboard data: ${error.message}`, 'error');
+                log(`❌ Error loading dashboard data: ${error.message}`, 'error');
                 showErrorAlert(`Failed to load data: ${error.message}. Using fallback values.`);
                 dataLoadError = true;
                 loadFallbackData();
@@ -952,7 +1017,7 @@
                     if (inv.status === 'pending') pendingAmount += inv.total_amount || 0;
                     if (inv.status === 'paid') paidInvoices++;
                 });
-                log(`Calculated stats - Revenue: ₹${totalRevenue}, Pending: ₹${pendingAmount}, Paid: ${paidInvoices}`, 'info');
+                log(`💰 Stats - Revenue: ₹${totalRevenue}, Pending: ₹${pendingAmount}, Paid: ${paidInvoices}`, 'info');
             }
 
             document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
@@ -964,7 +1029,7 @@
         }
 
         function loadFallbackData() {
-            log('Using fallback data (empty state)', 'warning');
+            log('📌 Using fallback data (empty state)', 'warning');
             updateDashboardStats([], []);
             displayInvoices(null);
             displayCustomers(null);
@@ -974,7 +1039,7 @@
         function displayInvoices(invoices) {
             const container = document.getElementById('invoicesList');
             if (!invoices || invoices.length === 0) {
-                log('No invoices to display', 'info');
+                log('📭 No invoices to display', 'info');
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
@@ -1009,13 +1074,13 @@
             });
             html += '</tbody></table>';
             container.innerHTML = html;
-            log(`Displayed ${invoices.length} invoices`, 'success');
+            log(`✅ Displayed ${invoices.length} invoices`, 'success');
         }
 
         function displayCustomers(customers) {
             const container = document.getElementById('customersList');
             if (!customers || customers.length === 0) {
-                log('No customers to display', 'info');
+                log('👥 No customers to display', 'info');
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">👥</div>
@@ -1046,12 +1111,25 @@
             });
             html += '</tbody></table>';
             container.innerHTML = html;
-            log(`Displayed ${customers.length} customers`, 'success');
+            log(`✅ Displayed ${customers.length} customers`, 'success');
         }
 
         function initializeCharts(invoices) {
-            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            if (typeof Chart === 'undefined') {
+                log('⚠️ Chart.js not available yet', 'warning');
+                return;
+            }
+
+            const revenueCanvas = document.getElementById('revenueChart');
+            const statusCanvas = document.getElementById('statusChart');
+
+            if (!revenueCanvas || !statusCanvas) {
+                log('⚠️ Chart canvases not found', 'warning');
+                return;
+            }
+
+            const revenueCtx = revenueCanvas.getContext('2d');
+            const statusCtx = statusCanvas.getContext('2d');
 
             if (revenueChart) revenueChart.destroy();
             if (statusChart) statusChart.destroy();
@@ -1085,7 +1163,7 @@
                 });
             }
 
-            log(`Chart data - Paid: ${paidCount}, Pending: ${pendingCount}, Overdue: ${overdueCount}`, 'info');
+            log(`📊 Chart data - Paid: ${paidCount}, Pending: ${pendingCount}, Overdue: ${overdueCount}`, 'info');
 
             statusChart = new Chart(statusCtx, {
                 type: 'doughnut',
@@ -1106,18 +1184,22 @@
         function showTab(tabName, event) {
             if (event) event.preventDefault();
 
-            log(`Switching to ${tabName} tab`, 'info');
+            log(`📑 Switching to ${tabName} tab`, 'info');
 
             document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
+                tab.classList.remove('active');
             });
             document.querySelectorAll('.tab-button').forEach(tab => {
                 tab.classList.remove('active');
             });
 
-            document.getElementById(tabName).style.display = 'block';
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
+
             document.querySelectorAll('.tab-button').forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(tabName) || btn.onclick.toString().includes(tabName)) {
+                if (btn.textContent.toLowerCase().includes(tabName) || btn.onclick?.toString().includes(tabName)) {
                     btn.classList.add('active');
                 }
             });
@@ -1129,19 +1211,14 @@
         }
 
         function logout() {
-            log('User logging out...', 'info');
+            log('🚪 User logging out...', 'info');
             localStorage.removeItem('dreamHarbourUser');
             localStorage.removeItem('dreamHarbourLoginTime');
             window.location.href = 'index.html';
         }
 
-        log('Dashboard script loaded', 'success');
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeDashboard);
-        } else {
-            initializeDashboard();
-        }
+        log('✅ Dashboard script loaded', 'success');
+        initializeDashboard();
     </script>
 </body>
 </html>
