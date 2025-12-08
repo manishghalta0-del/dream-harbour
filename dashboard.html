@@ -724,6 +724,7 @@
         let statusChart = null;
         let dataLoadError = false;
         let dashboardInitialized = false;
+        let chartsInitialized = false;
         let sessionInterval = null;
 
         function log(message, type = 'info') {
@@ -800,7 +801,10 @@
         }
 
         async function initializeDashboard() {
-            if (dashboardInitialized) return;
+            if (dashboardInitialized) {
+                log('⚠️ Dashboard already initialized, skipping', 'warning');
+                return;
+            }
             dashboardInitialized = true;
 
             log('🚀 Initializing dashboard...', 'info');
@@ -985,6 +989,11 @@
         }
 
         function initializeCharts(invoices) {
+            if (chartsInitialized) {
+                log('⚠️ Charts already initialized, skipping', 'warning');
+                return;
+            }
+
             if (typeof Chart === 'undefined') {
                 log('⚠️ Chart.js not available yet', 'warning');
                 return;
@@ -997,6 +1006,9 @@
                 log('⚠️ Chart canvases not found', 'warning');
                 return;
             }
+
+            chartsInitialized = true;
+            log('📈 Initializing charts (ONCE)', 'info');
 
             const revenueCtx = revenueCanvas.getContext('2d');
             const statusCtx = statusCanvas.getContext('2d');
@@ -1021,7 +1033,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    animation: { duration: 0 }
+                    animation: false
                 }
             });
 
@@ -1046,9 +1058,11 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: { duration: 0 }
+                    animation: false
                 }
             });
+
+            log('✅ Charts initialized successfully', 'success');
         }
 
         function showTab(tabName, event) {
@@ -1091,8 +1105,6 @@
         } else {
             initializeDashboard();
         }
-
-        window.addEventListener('load', initializeDashboard);
     </script>
 </body>
 </html>
