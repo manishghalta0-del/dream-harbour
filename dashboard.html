@@ -48,7 +48,6 @@
             zoom: 100%;
         }
 
-        /* Layout */
         .dashboard-container {
             display: grid;
             grid-template-columns: 260px 1fr;
@@ -56,7 +55,6 @@
             gap: 0;
         }
 
-        /* Sidebar Navigation */
         .sidebar {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: var(--white);
@@ -67,6 +65,8 @@
             overflow-y: auto;
             box-shadow: var(--shadow-md);
             z-index: 100;
+            top: 0;
+            left: 0;
         }
 
         .sidebar::-webkit-scrollbar {
@@ -176,7 +176,6 @@
             word-break: break-word;
         }
 
-        /* Main Content */
         .main-content {
             margin-left: 260px;
             display: flex;
@@ -286,16 +285,15 @@
             font-size: 12px;
         }
 
-        /* Content Area */
         .content-area {
             flex: 1;
             padding: 25px;
             overflow-y: auto;
             background: var(--light-bg);
-            min-height: calc(100vh - 70px);
+            display: block !important;
+            visibility: visible !important;
         }
 
-        /* Tabs */
         .tabs-container {
             display: flex;
             gap: 5px;
@@ -330,7 +328,6 @@
             background: rgba(102, 126, 234, 0.1);
         }
 
-        /* Tab Content */
         .tab-content {
             width: 100%;
             display: none;
@@ -340,7 +337,6 @@
             display: block !important;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -359,6 +355,8 @@
             border-left: 4px solid var(--primary-color);
             position: relative;
             overflow: hidden;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .stat-card:hover {
@@ -402,7 +400,6 @@
             opacity: 0.1;
         }
 
-        /* Content Box */
         .content-box {
             background: var(--white);
             border-radius: 8px;
@@ -425,7 +422,6 @@
             color: var(--text-primary);
         }
 
-        /* Table */
         .table-wrapper {
             overflow-x: auto;
             border-radius: 6px;
@@ -476,7 +472,6 @@
         .status-pending { background: rgba(255, 152, 0, 0.15); color: #e65100; }
         .status-overdue { background: rgba(244, 67, 54, 0.15); color: #c62828; }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 40px 20px;
@@ -494,7 +489,6 @@
             margin-bottom: 15px;
         }
 
-        /* Loading State */
         .loading {
             text-align: center;
             padding: 40px 20px;
@@ -516,7 +510,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Error Alert */
         .error-alert {
             background: #fff5f5;
             border: 1px solid #feb2b2;
@@ -538,7 +531,6 @@
             margin-bottom: 5px;
         }
 
-        /* Charts */
         .chart-container {
             background: var(--white);
             border-radius: 8px;
@@ -556,7 +548,6 @@
             color: var(--text-primary);
         }
 
-        /* Responsive Design */
         @media (max-width: 1024px) {
             .dashboard-container {
                 grid-template-columns: 1fr;
@@ -653,7 +644,6 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Sidebar -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">🏛️</div>
@@ -692,9 +682,7 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
-            <!-- Top Bar -->
             <div class="topbar">
                 <div class="topbar-left">
                     <button class="btn btn-secondary btn-sm hamburger" style="display: none;" onclick="toggleSidebar()">
@@ -705,7 +693,7 @@
 
                 <div class="topbar-right">
                     <div class="session-info">
-                        ⏰ Session expires in <span class="session-timer" id="sessionTimer">30</span>
+                        ⏰ Session expires in <span class="session-timer" id="sessionTimer">30 min</span>
                         <button class="btn btn-sm" style="background: transparent; color: inherit; padding: 0; margin-left: 10px; text-decoration: underline;" onclick="extendSession()">
                             Extend
                         </button>
@@ -714,24 +702,19 @@
                 </div>
             </div>
 
-            <!-- Content Area -->
             <div class="content-area">
-                <!-- Error Alert -->
                 <div id="errorAlert" class="error-alert">
                     <div class="error-alert-title">⚠️ Connection Issue</div>
                     <div id="errorMessage">Unable to load data. Using fallback values.</div>
                 </div>
 
-                <!-- Tabs -->
                 <div class="tabs-container">
                     <button class="tab-button active" onclick="showTab('overview', event)">📊 Overview</button>
                     <button class="tab-button" onclick="showTab('invoices', event)">📄 Invoices</button>
                     <button class="tab-button" onclick="showTab('customers', event)">👥 Customers</button>
                 </div>
 
-                <!-- Overview Tab -->
                 <div id="overview" class="tab-content active">
-                    <!-- Stats Grid -->
                     <div class="stats-grid">
                         <div class="stat-card accent-1">
                             <div class="stat-icon">💰</div>
@@ -771,7 +754,6 @@
                         </div>
                     </div>
 
-                    <!-- Charts -->
                     <div class="chart-container">
                         <div class="chart-title">📈 Revenue Trend (Monthly)</div>
                         <canvas id="revenueChart" height="80"></canvas>
@@ -783,7 +765,6 @@
                     </div>
                 </div>
 
-                <!-- Invoices Tab -->
                 <div id="invoices" class="tab-content">
                     <div class="content-box">
                         <div class="content-header">
@@ -799,7 +780,6 @@
                     </div>
                 </div>
 
-                <!-- Customers Tab -->
                 <div id="customers" class="tab-content">
                     <div class="content-box">
                         <div class="content-header">
@@ -820,7 +800,7 @@
 
     <script>
         let supabase = null;
-        let sessionTimeRemaining = 1800; // 30 minutes in seconds
+        let sessionTimeRemaining = 1800;
         let revenueChart = null;
         let statusChart = null;
         let dataLoadError = false;
@@ -840,18 +820,22 @@
 
         function showErrorAlert(message) {
             const alert = document.getElementById('errorAlert');
-            document.getElementById('errorMessage').textContent = message;
-            alert.classList.add('show');
+            if (alert) {
+                document.getElementById('errorMessage').textContent = message;
+                alert.classList.add('show');
+            }
             log(message, 'error');
         }
 
         function hideErrorAlert() {
-            document.getElementById('errorAlert').classList.remove('show');
+            const alert = document.getElementById('errorAlert');
+            if (alert) alert.classList.remove('show');
         }
 
         function updateSessionDisplay() {
             const minutes = Math.floor(sessionTimeRemaining / 60);
-            document.getElementById('sessionTimer').textContent = minutes + ' min';
+            const timerEl = document.getElementById('sessionTimer');
+            if (timerEl) timerEl.textContent = minutes + ' min';
         }
 
         async function loadSupabaseLibrary() {
@@ -860,7 +844,6 @@
                     resolve(true);
                     return;
                 }
-
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
                 script.async = true;
@@ -882,7 +865,6 @@
                     resolve(true);
                     return;
                 }
-
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
                 script.async = true;
@@ -914,7 +896,8 @@
             try {
                 const userData = JSON.parse(user);
                 log(`✅ User logged in: ${userData.fullName}`, 'success');
-                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+                const userEl = document.getElementById('userNameDisplay');
+                if (userEl) userEl.textContent = userData.fullName || 'User';
             } catch (e) {
                 log('❌ Error parsing user data', 'error');
                 window.location.href = 'index.html';
@@ -925,12 +908,12 @@
             const supabbaseLoaded = await loadSupabaseLibrary();
             await loadChartsLibrary();
 
-            // Display session timer
             updateSessionDisplay();
 
             if (!supabbaseLoaded) {
                 log('⚠️ Supabase not loaded, using fallback', 'warning');
                 loadFallbackData();
+                startSessionTimer();
                 return;
             }
 
@@ -940,27 +923,30 @@
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 log('✅ Supabase initialized successfully', 'success');
-
-                // Session timer - update every second
-                sessionInterval = setInterval(() => {
-                    sessionTimeRemaining--;
-                    updateSessionDisplay();
-                    if (sessionTimeRemaining <= 0) {
-                        log('⏰ Session expired', 'warning');
-                        clearInterval(sessionInterval);
-                        alert('Session expired. Please login again.');
-                        logout();
-                    }
-                }, 1000);
-                log('⏱️ Session timer started', 'info');
-
+                startSessionTimer();
                 log('📥 Loading dashboard data...', 'info');
                 await loadDashboardData();
             } catch (error) {
                 log(`❌ Initialization error: ${error.message}`, 'error');
                 showErrorAlert(`Initialization failed: ${error.message}`);
                 loadFallbackData();
+                startSessionTimer();
             }
+        }
+
+        function startSessionTimer() {
+            if (sessionInterval) clearInterval(sessionInterval);
+            sessionInterval = setInterval(() => {
+                sessionTimeRemaining--;
+                updateSessionDisplay();
+                if (sessionTimeRemaining <= 0) {
+                    log('⏰ Session expired', 'warning');
+                    clearInterval(sessionInterval);
+                    alert('Session expired. Please login again.');
+                    logout();
+                }
+            }, 1000);
+            log('⏱️ Session timer started', 'info');
         }
 
         function extendSession() {
@@ -986,17 +972,13 @@
                     .order('created_at', { ascending: false })
                     .limit(10);
 
-                if (invoicesError) {
-                    throw new Error(`Invoices query failed: ${invoicesError.message}`);
-                }
+                if (invoicesError) throw new Error(`Invoices query failed: ${invoicesError.message}`);
 
                 const { data: customers, error: customersError } = await supabase
                     .from('customers')
                     .select('*');
 
-                if (customersError) {
-                    throw new Error(`Customers query failed: ${customersError.message}`);
-                }
+                if (customersError) throw new Error(`Customers query failed: ${customersError.message}`);
 
                 log(`✅ Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
 
@@ -1046,39 +1028,18 @@
 
         function displayInvoices(invoices) {
             const container = document.getElementById('invoicesList');
+            if (!container) return;
+
             if (!invoices || invoices.length === 0) {
                 log('📭 No invoices to display', 'info');
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <div class="empty-state-text">No invoices found yet</div>
-                        <a href="invoices.html" class="btn btn-primary btn-sm">Create First Invoice</a>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No invoices found yet</div><a href="invoices.html" class="btn btn-primary btn-sm">Create First Invoice</a></div>`;
                 return;
             }
 
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Invoice #</th>
-                        <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
+            let html = `<table><thead><tr><th>Invoice #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
             invoices.forEach(inv => {
                 const statusClass = inv.status === 'paid' ? 'status-paid' : inv.status === 'pending' ? 'status-pending' : 'status-overdue';
-                html += `<tr>
-                    <td><strong>${inv.invoice_number}</strong></td>
-                    <td>${inv.customer_name}</td>
-                    <td>₹${(inv.total_amount || 0).toFixed(2)}</td>
-                    <td><span class="status-badge ${statusClass}">${inv.status}</span></td>
-                    <td>${new Date(inv.created_at).toLocaleDateString()}</td>
-                </tr>`;
+                html += `<tr><td><strong>${inv.invoice_number}</strong></td><td>${inv.customer_name}</td><td>₹${(inv.total_amount || 0).toFixed(2)}</td><td><span class="status-badge ${statusClass}">${inv.status}</span></td><td>${new Date(inv.created_at).toLocaleDateString()}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -1087,35 +1048,17 @@
 
         function displayCustomers(customers) {
             const container = document.getElementById('customersList');
+            if (!container) return;
+
             if (!customers || customers.length === 0) {
                 log('👥 No customers to display', 'info');
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">👥</div>
-                        <div class="empty-state-text">No customers found yet</div>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No customers found yet</div></div>`;
                 return;
             }
 
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>City</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-
+            let html = `<table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>City</th></tr></thead><tbody>`;
             customers.forEach(cust => {
-                html += `<tr>
-                    <td><strong>${cust.name}</strong></td>
-                    <td>${cust.phone}</td>
-                    <td>${cust.email}</td>
-                    <td>${cust.city}</td>
-                </tr>`;
+                html += `<tr><td><strong>${cust.name}</strong></td><td>${cust.phone}</td><td>${cust.email}</td><td>${cust.city}</td></tr>`;
             });
             html += '</tbody></table>';
             container.innerHTML = html;
@@ -1189,7 +1132,6 @@
 
         function showTab(tabName, event) {
             if (event) event.preventDefault();
-
             log(`📑 Switching to ${tabName} tab`, 'info');
 
             document.querySelectorAll('.tab-content').forEach(tab => {
@@ -1200,9 +1142,7 @@
             });
 
             const tabElement = document.getElementById(tabName);
-            if (tabElement) {
-                tabElement.classList.add('active');
-            }
+            if (tabElement) tabElement.classList.add('active');
 
             document.querySelectorAll('.tab-button').forEach(btn => {
                 if (btn.textContent.toLowerCase().includes(tabName) || btn.onclick?.toString().includes(tabName)) {
@@ -1224,10 +1164,14 @@
         }
 
         log('✅ Dashboard script loaded', 'success');
-        window.addEventListener('DOMContentLoaded', initializeDashboard);
-        if (document.readyState === 'complete') {
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDashboard);
+        } else {
             initializeDashboard();
         }
+
+        window.addEventListener('load', initializeDashboard);
     </script>
 </body>
 </html>
