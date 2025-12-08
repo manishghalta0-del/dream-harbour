@@ -286,6 +286,8 @@
             flex: 1;
             padding: 25px;
             overflow-y: auto;
+            background: var(--light-bg);
+            min-height: calc(100vh - 70px);
         }
 
         /* Tabs */
@@ -323,12 +325,20 @@
             background: rgba(102, 126, 234, 0.1);
         }
 
+        /* Tab Content */
+        .tab-content {
+            width: 100%;
+            display: block !important;
+        }
+
         /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
             margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
         }
 
         .stat-card {
@@ -340,6 +350,9 @@
             border-left: 4px solid var(--primary-color);
             position: relative;
             overflow: hidden;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         .stat-card:hover {
@@ -521,6 +534,8 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
+            position: relative;
+            z-index: 1;
         }
 
         .chart-title {
@@ -704,40 +719,40 @@
                 </div>
 
                 <!-- Overview Tab -->
-                <div id="overview" class="tab-content">
+                <div id="overview" class="tab-content" style="display: block;">
                     <!-- Stats Grid -->
                     <div class="stats-grid">
-                        <div class="stat-card accent-1">
+                        <div class="stat-card accent-1" style="display: block; visibility: visible; opacity: 1;">
                             <div class="stat-icon">💰</div>
                             <div class="stat-label">Total Revenue</div>
                             <div class="stat-value" id="totalRevenue">₹0.00</div>
                             <div class="stat-change">📈 Updated today</div>
                         </div>
-                        <div class="stat-card accent-2">
+                        <div class="stat-card accent-2" style="display: block; visibility: visible; opacity: 1;">
                             <div class="stat-icon">📋</div>
                             <div class="stat-label">Total Invoices</div>
                             <div class="stat-value" id="totalInvoices">0</div>
                             <div class="stat-change">Created so far</div>
                         </div>
-                        <div class="stat-card accent-3">
+                        <div class="stat-card accent-3" style="display: block; visibility: visible; opacity: 1;">
                             <div class="stat-icon">✅</div>
                             <div class="stat-label">Paid Invoices</div>
                             <div class="stat-value" id="paidInvoices">0</div>
                             <div class="stat-change">Successfully completed</div>
                         </div>
-                        <div class="stat-card accent-4">
+                        <div class="stat-card accent-4" style="display: block; visibility: visible; opacity: 1;">
                             <div class="stat-icon">⏳</div>
                             <div class="stat-label">Pending Amount</div>
                             <div class="stat-value" id="pendingAmount">₹0.00</div>
                             <div class="stat-change">From pending invoices</div>
                         </div>
-                        <div class="stat-card accent-5">
+                        <div class="stat-card accent-5" style="display: block; visibility: visible; opacity: 1;">
                             <div class="stat-icon">👥</div>
                             <div class="stat-label">Total Customers</div>
                             <div class="stat-value" id="totalCustomers">0</div>
                             <div class="stat-change">All registered</div>
                         </div>
-                        <div class="stat-card accent-6">
+                        <div class="stat-card accent-6" style="display: block; visibility: visible; opacity: 1;">
                             <div class="stat-icon">🏛️</div>
                             <div class="stat-label">GST Collected</div>
                             <div class="stat-value" id="totalGST">₹0.00</div>
