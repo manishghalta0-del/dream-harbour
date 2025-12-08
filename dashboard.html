@@ -515,6 +515,8 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: var(--shadow-sm);
+            height: 350px;
+            position: relative;
         }
 
         .chart-title {
@@ -522,6 +524,18 @@
             font-weight: 700;
             margin-bottom: 16px;
             color: var(--text-primary);
+        }
+
+        .chart-wrapper {
+            height: 280px;
+            position: relative;
+            width: 100%;
+        }
+
+        .chart-wrapper canvas {
+            max-height: 280px !important;
+            height: 280px !important;
+            width: 100% !important;
         }
 
         @media (max-width: 1024px) {
@@ -675,12 +689,16 @@
 
                     <div class="chart-container">
                         <div class="chart-title">📈 Revenue Trend (Monthly)</div>
-                        <canvas id="revenueChart" height="80"></canvas>
+                        <div class="chart-wrapper">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
                     </div>
 
                     <div class="chart-container">
                         <div class="chart-title">📊 Invoice Status Distribution</div>
-                        <canvas id="statusChart" height="80"></canvas>
+                        <div class="chart-wrapper">
+                            <canvas id="statusChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -1033,7 +1051,8 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    animation: false
+                    animation: false,
+                    resize: false
                 }
             });
 
@@ -1058,7 +1077,8 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: false
+                    animation: false,
+                    resize: false
                 }
             });
 
