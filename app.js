@@ -4,7 +4,7 @@
 let supabase = null;
 let currentUser = null;
 let sessionTimer = null;
-const SESSION_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes (increased from 5 for better UX)
 
 // ==================== SUPABASE INITIALIZATION ====================
 async function initSupabase() {
@@ -18,7 +18,7 @@ async function initSupabase() {
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk2NzAxODUsImV4cCI6MjA0NTI0NjE4NX0.E9Z-6DH7V-eVaM3_J0Kj8xzH6Py5W_Y_K8L9M0N1O2P';
         
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        logDebug('Supabase initialized successfully', 'success');
+        console.log('✅ Supabase initialized successfully');
         
         // Check if user already logged in
         const savedUser = getUserSession();
@@ -26,7 +26,7 @@ async function initSupabase() {
             startSessionTimer();
         }
     } catch (error) {
-        logDebug(`Supabase init error: ${error.message}`, 'error');
+        console.error(`❌ Supabase init error: ${error.message}`);
     }
 }
 
@@ -35,7 +35,7 @@ function saveUserSession(user) {
     currentUser = user;
     localStorage.setItem('dreamHarbourUser', JSON.stringify(user));
     localStorage.setItem('sessionStartTime', Date.now().toString());
-    logDebug(`User logged in: ${user.full_name}`, 'success');
+    console.log(`✅ User logged in: ${user.full_name}`);
     startSessionTimer();
 }
 
@@ -77,7 +77,7 @@ async function loginUser(phone, pin) {
         
         return data;
     } catch (error) {
-        logDebug(`Login error: ${error.message}`, 'error');
+        console.error(`❌ Login error: ${error.message}`);
         throw error;
     }
 }
@@ -93,7 +93,7 @@ async function fetchCategories() {
         if (error) throw error;
         return data || [];
     } catch (error) {
-        logDebug(`Error fetching categories: ${error.message}`, 'error');
+        console.error(`❌ Error fetching categories: ${error.message}`);
         return [];
     }
 }
@@ -111,7 +111,7 @@ async function fetchServicesByCategory(categoryId) {
         if (error) throw error;
         return data || [];
     } catch (error) {
-        logDebug(`Error fetching services: ${error.message}`, 'error');
+        console.error(`❌ Error fetching services: ${error.message}`);
         return [];
     }
 }
@@ -128,7 +128,7 @@ async function fetchSubServices(serviceId) {
         if (error) throw error;
         return data || [];
     } catch (error) {
-        logDebug(`Error fetching sub-services: ${error.message}`, 'error');
+        console.error(`❌ Error fetching sub-services: ${error.message}`);
         return [];
     }
 }
@@ -144,7 +144,7 @@ async function fetchBusinessSettings() {
         if (error && error.code !== 'PGRST116') throw error;
         return data || {};
     } catch (error) {
-        logDebug(`Error fetching business settings: ${error.message}`, 'error');
+        console.error(`❌ Error fetching business settings: ${error.message}`);
         return {};
     }
 }
@@ -160,7 +160,7 @@ async function fetchInvoices(limit = 10) {
         if (error) throw error;
         return data || [];
     } catch (error) {
-        logDebug(`Error fetching invoices: ${error.message}`, 'error');
+        console.error(`❌ Error fetching invoices: ${error.message}`);
         return [];
     }
 }
@@ -175,7 +175,7 @@ async function fetchCustomers() {
         if (error) throw error;
         return data || [];
     } catch (error) {
-        logDebug(`Error fetching customers: ${error.message}`, 'error');
+        console.error(`❌ Error fetching customers: ${error.message}`);
         return [];
     }
 }
@@ -188,10 +188,10 @@ async function saveInvoice(invoiceData) {
             .select();
         
         if (error) throw error;
-        logDebug('Invoice saved successfully', 'success');
+        console.log('✅ Invoice saved successfully');
         return data?.[0] || null;
     } catch (error) {
-        logDebug(`Error saving invoice: ${error.message}`, 'error');
+        console.error(`❌ Error saving invoice: ${error.message}`);
         throw error;
     }
 }
@@ -204,10 +204,10 @@ async function saveInvoiceItems(items) {
             .select();
         
         if (error) throw error;
-        logDebug(`${items.length} invoice items saved`, 'success');
+        console.log(`✅ ${items.length} invoice items saved`);
         return data || [];
     } catch (error) {
-        logDebug(`Error saving invoice items: ${error.message}`, 'error');
+        console.error(`❌ Error saving invoice items: ${error.message}`);
         throw error;
     }
 }
@@ -219,10 +219,10 @@ async function updateBusinessSettings(settings) {
             .upsert([settings]);
         
         if (error) throw error;
-        logDebug('Business settings updated', 'success');
+        console.log('✅ Business settings updated');
         return data?.[0] || null;
     } catch (error) {
-        logDebug(`Error updating settings: ${error.message}`, 'error');
+        console.error(`❌ Error updating settings: ${error.message}`);
         throw error;
     }
 }
@@ -242,26 +242,6 @@ function showLoader(show = true) {
     if (loader) {
         loader.style.display = show ? 'flex' : 'none';
     }
-}
-
-// ==================== DEBUG CONSOLE ====================
-const debugLogs = [];
-
-function logDebug(message, type = 'info') {
-    const time = new Date().toLocaleTimeString();
-    const log = { time, message, type };
-    debugLogs.push(log);
-    
-    const debugConsole = document.getElementById('debug-console');
-    if (debugConsole) {
-        const logEntry = document.createElement('div');
-        logEntry.className = `debug-log debug-${type}`;
-        logEntry.textContent = `[${time}] ${type.toUpperCase()}: ${message}`;
-        debugConsole.appendChild(logEntry);
-        debugConsole.scrollTop = debugConsole.scrollHeight;
-    }
-    
-    console.log(`[${type.toUpperCase()}] ${message}`);
 }
 
 // ==================== VALIDATORS ====================
@@ -287,14 +267,6 @@ function formatCurrency(amount) {
 
 function calculateGST(amount, gstPercentage) {
     return (amount * gstPercentage) / 100;
-}
-
-function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
 }
 
 function formatDate(date) {
