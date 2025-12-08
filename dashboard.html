@@ -922,6 +922,7 @@
                 if (customersError) throw new Error(`Customers query failed: ${customersError.message}`);
 
                 log(`✅ Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
+                log(`📊 Invoice data: ${JSON.stringify(invoices?.slice(0, 1))}`, 'info');
 
                 updateDashboardStats(invoices, customers);
                 displayInvoices(invoices);
@@ -944,19 +945,34 @@
 
             if (invoices && invoices.length > 0) {
                 invoices.forEach(inv => {
-                    totalRevenue += inv.total_amount || 0;
-                    totalGST += inv.total_gst || 0;
-                    if (inv.status === 'pending') pendingAmount += inv.total_amount || 0;
-                    if (inv.status === 'paid') paidInvoices++;
+                    const amount = parseFloat(inv.total_amount) || 0;
+                    const gst = parseFloat(inv.total_gst) || 0;
+                    const status = String(inv.status).toLowerCase().trim();
+
+                    log(`📌 Processing invoice: status='${status}', amount=${amount}, gst=${gst}`, 'info');
+
+                    totalRevenue += amount;
+                    totalGST += gst;
+
+                    if (status === 'pending') {
+                        pendingAmount += amount;
+                        log(`  ➕ Added to pending: ${amount}`, 'info');
+                    }
+                    if (status === 'paid') {
+                        paidInvoices++;
+                        log(`  ✅ Counted as paid`, 'info');
+                    }
                 });
             }
 
+            log(`💰 Total Revenue: ${totalRevenue}, Pending: ${pendingAmount}, Paid Count: ${paidInvoices}, GST: ${totalGST}`, 'success');
+
             document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
             document.getElementById('totalInvoices').textContent = invoices ? invoices.length : 0;
+            document.getElementById('paidInvoices').textContent = paidInvoices;
             document.getElementById('pendingAmount').textContent = '₹' + pendingAmount.toFixed(2);
             document.getElementById('totalCustomers').textContent = customers ? customers.length : 0;
             document.getElementById('totalGST').textContent = '₹' + totalGST.toFixed(2);
-            document.getElementById('paidInvoices').textContent = paidInvoices;
         }
 
         function loadFallbackData() {
@@ -1026,7 +1042,7 @@
             }
 
             chartsInitialized = true;
-            log('📈 Initializing charts (ONCE)', 'info');
+            log('📈 Initializing charts with real data', 'info');
 
             const revenueCtx = revenueCanvas.getContext('2d');
             const statusCtx = statusCanvas.getContext('2d');
@@ -1034,17 +1050,29 @@
             if (revenueChart) revenueChart.destroy();
             if (statusChart) statusChart.destroy();
 
+            // Revenue Trend - Calculate monthly data from invoices
+            let monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+            if (invoices && invoices.length > 0) {
+                invoices.forEach(inv => {
+                    const date = new Date(inv.created_at);
+                    const month = date.getMonth();
+                    monthlyData[month] += parseFloat(inv.total_amount) || 0;
+                });
+            }
+
             revenueChart = new Chart(revenueCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
                         label: 'Revenue',
-                        data: [0, 0, 0, 0],
+                        data: monthlyData,
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4,
-                        fill: true
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 4
                     }]
                 },
                 options: {
@@ -1052,18 +1080,32 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     animation: false,
-                    resize: false
+                    resize: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toFixed(0);
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
+            // Status Distribution - Count by status
             let paidCount = 0, pendingCount = 0, overdueCount = 0;
             if (invoices && invoices.length > 0) {
                 invoices.forEach(inv => {
-                    if (inv.status === 'paid') paidCount++;
-                    else if (inv.status === 'pending') pendingCount++;
-                    else if (inv.status === 'overdue') overdueCount++;
+                    const status = String(inv.status).toLowerCase().trim();
+                    if (status === 'paid') paidCount++;
+                    else if (status === 'pending') pendingCount++;
+                    else if (status === 'overdue') overdueCount++;
                 });
             }
+
+            log(`📊 Chart data - Paid: ${paidCount}, Pending: ${pendingCount}, Overdue: ${overdueCount}`, 'info');
 
             statusChart = new Chart(statusCtx, {
                 type: 'doughnut',
@@ -1082,7 +1124,7 @@
                 }
             });
 
-            log('✅ Charts initialized successfully', 'success');
+            log('✅ Charts initialized successfully with data', 'success');
         }
 
         function showTab(tabName, event) {
