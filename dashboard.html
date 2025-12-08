@@ -293,40 +293,6 @@
             width: 100%;
         }
 
-        .tabs-container {
-            display: flex;
-            gap: 5px;
-            background: var(--white);
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
-            flex-wrap: wrap;
-        }
-
-        .tab-button {
-            padding: 10px 16px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border-radius: 6px;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .tab-button:hover {
-            background: var(--light-bg);
-            color: var(--text-primary);
-        }
-
-        .tab-button.active {
-            color: var(--primary-color);
-            background: rgba(102, 126, 234, 0.1);
-        }
-
         .tab-content {
             width: 100%;
             display: none;
@@ -648,12 +614,6 @@
                 <div id="errorAlert" class="error-alert">
                     <div class="error-alert-title">⚠️ Connection Issue</div>
                     <div id="errorMessage">Unable to load data. Using fallback values.</div>
-                </div>
-
-                <div class="tabs-container">
-                    <button class="tab-button active" onclick="showTab('overview', event)">📊 Overview</button>
-                    <button class="tab-button" onclick="showTab('invoices', event)">📄 Invoices</button>
-                    <button class="tab-button" onclick="showTab('customers', event)">👥 Customers</button>
                 </div>
 
                 <div id="overview" class="tab-content active">
@@ -1079,16 +1039,16 @@
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
-            document.querySelectorAll('.tab-button').forEach(tab => {
-                tab.classList.remove('active');
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
             });
 
             const tabElement = document.getElementById(tabName);
             if (tabElement) tabElement.classList.add('active');
 
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(tabName) || btn.onclick?.toString().includes(tabName)) {
-                    btn.classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.onclick?.toString().includes(tabName)) {
+                    link.classList.add('active');
                 }
             });
 
