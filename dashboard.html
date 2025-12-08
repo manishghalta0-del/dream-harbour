@@ -42,7 +42,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: #ffcccc !important;
+            background: var(--light-bg);
             color: var(--text-primary);
             line-height: 1.6;
             zoom: 100%;
@@ -181,7 +181,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background: #ccffcc !important;
+            background: var(--light-bg);
             width: calc(100% - 260px);
         }
 
@@ -291,7 +291,7 @@
             flex: 1;
             padding: 25px;
             overflow-y: auto;
-            background: #ffff99 !important;
+            background: var(--light-bg);
             display: block !important;
             visibility: visible !important;
             width: 100%;
@@ -300,7 +300,7 @@
         .tabs-container {
             display: flex;
             gap: 5px;
-            background: #ff99ff !important;
+            background: var(--white);
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -342,7 +342,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 16px;
             margin-bottom: 25px;
             position: relative;
@@ -351,7 +351,7 @@
         }
 
         .stat-card {
-            background: #ff6666 !important;
+            background: var(--white);
             border-radius: 8px;
             padding: 20px;
             box-shadow: var(--shadow-sm);
@@ -577,10 +577,6 @@
 
             .hamburger {
                 display: flex !important;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
             }
         }
 
