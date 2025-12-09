@@ -252,6 +252,13 @@
             background: #da190b;
         }
 
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-right: 5px;
+            margin-top: 0;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -291,6 +298,13 @@
         .category-actions {
             display: flex;
             gap: 5px;
+            align-items: center;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: #999;
+            margin-right: 10px;
         }
 
         .service-grid {
@@ -325,6 +339,7 @@
             font-size: 12px;
             color: var(--text-secondary);
             line-height: 1.5;
+            margin-bottom: 8px;
         }
 
         .service-actions {
@@ -336,6 +351,45 @@
         .service-actions button {
             padding: 4px 8px;
             font-size: 11px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
         }
 
         .loading {
@@ -419,6 +473,12 @@
             color: #999;
         }
 
+        .add-btn-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
         @media (max-width: 1024px) {
             .settings-container {
                 display: block;
@@ -453,6 +513,11 @@
 
             .service-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .category-actions {
+                flex-direction: column;
+                gap: 8px;
             }
         }
     </style>
@@ -553,6 +618,10 @@
                         <h1>📁 Service Categories & Items</h1>
                         <p style="color: var(--text-secondary); margin-bottom: 20px;">View and manage all service categories and items</p>
 
+                        <div class="add-btn-section">
+                            <button class="btn" onclick="openAddCategoryModal()">➕ Add Category</button>
+                        </div>
+
                         <div id="categoriesLoading" class="loading">
                             <div class="spinner"></div>
                             <div>Loading categories and services...</div>
@@ -569,6 +638,60 @@
         </div>
     </div>
 
+    <!-- Add Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="categoryModalTitle">➕ Add Category</span>
+                <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="categoryName">Category Name *</label>
+                <input type="text" id="categoryName" placeholder="Enter category name" required>
+            </div>
+            <div class="form-group">
+                <label for="categoryDescription">Description</label>
+                <textarea id="categoryDescription" rows="2" placeholder="Enter category description"></textarea>
+            </div>
+            <button class="btn" onclick="saveCategory()">💾 Save</button>
+            <button class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="serviceModalTitle">➕ Add Service</span>
+                <button class="close-btn" onclick="closeModal('serviceModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="serviceName">Service Name *</label>
+                <input type="text" id="serviceName" placeholder="Enter service name" required>
+            </div>
+            <div class="form-group">
+                <label for="serviceSAC">SAC Code</label>
+                <input type="text" id="serviceSAC" placeholder="e.g., 998595" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label for="serviceRate">Default Rate (₹)</label>
+                <input type="number" id="serviceRate" placeholder="Leave blank for custom" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label for="serviceGST">GST %</label>
+                <select id="serviceGST">
+                    <option value="0">0% (No GST)</option>
+                    <option value="5">5%</option>
+                    <option value="12">12%</option>
+                    <option value="18" selected>18%</option>
+                    <option value="28">28%</option>
+                </select>
+            </div>
+            <button class="btn" onclick="saveService()">💾 Save</button>
+            <button class="btn btn-secondary" onclick="closeModal('serviceModal')">Cancel</button>
+        </div>
+    </div>
+
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         let supabase;
@@ -576,6 +699,9 @@
         let categoriesData = [];
         let servicesData = [];
         let subServicesData = [];
+        let editingCategoryId = null;
+        let editingServiceId = null;
+        let editingCategoryForService = null;
 
         // Initialize application
         function initializeApp() {
@@ -748,7 +874,10 @@
                         <div class="category-header">
                             <div class="category-name">📁 ${category.category_name}</div>
                             <div class="category-actions">
-                                <span style="font-size: 12px; color: #999;">${categoryServices.length} service(s)</span>
+                                <span class="category-count">${categoryServices.length} service(s)</span>
+                                <button class="btn btn-sm" onclick="editCategory('${category.id}', '${category.category_name}')">✏️ Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCategory('${category.id}')">🗑️ Delete</button>
+                                <button class="btn btn-sm" onclick="openAddServiceModal('${category.id}')">➕ Add Service</button>
                             </div>
                         </div>
 
@@ -764,9 +893,13 @@
                                 <div class="service-name">${service.service_name}</div>
                             </div>
                             <div class="service-details">
-                                ${service.sac_code ? `<div>SAC Code: <strong>${service.sac_code}</strong></div>` : ''}
+                                ${service.sac_code ? `<div>SAC: <strong>${service.sac_code}</strong></div>` : ''}
                                 ${service.default_gst_percentage > 0 ? `<div>GST: <strong>${service.default_gst_percentage}%</strong></div>` : '<div style="color: #999;">No GST</div>'}
-                                ${service.default_rate > 0 ? `<div>Rate: <strong>₹${service.default_rate.toFixed(2)}</strong></div>` : '<div style="color: #999;">Rate: Custom</div>'}
+                                ${service.default_rate > 0 ? `<div>Rate: <strong>₹${service.default_rate.toFixed(2)}</strong></div>` : '<div style="color: #999;">Custom Rate</div>'}
+                            </div>
+                            <div class="service-actions">
+                                <button class="btn btn-sm" onclick="editService('${service.id}', '${service.category_id}')">✏️ Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteService('${service.id}')">🗑️ Delete</button>
                             </div>
 
                             ${subServices.length > 0 ? `
@@ -796,6 +929,173 @@
             categoryList.innerHTML = html;
         }
 
+        function openAddCategoryModal() {
+            editingCategoryId = null;
+            document.getElementById('categoryModalTitle').textContent = '➕ Add Category';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+            openModal('categoryModal');
+        }
+
+        function editCategory(categoryId, categoryName) {
+            editingCategoryId = categoryId;
+            document.getElementById('categoryModalTitle').textContent = '✏️ Edit Category';
+            document.getElementById('categoryName').value = categoryName;
+            openModal('categoryModal');
+        }
+
+        async function saveCategory() {
+            try {
+                const categoryName = document.getElementById('categoryName').value;
+                if (!categoryName) {
+                    showAlert('Please enter a category name', 'error');
+                    return;
+                }
+
+                const categoryData = {
+                    category_name: categoryName,
+                    description: document.getElementById('categoryDescription').value || null
+                };
+
+                if (editingCategoryId) {
+                    // Update
+                    const { error } = await supabase
+                        .from('service_categories')
+                        .update(categoryData)
+                        .eq('id', editingCategoryId);
+
+                    if (error) throw error;
+                    showAlert('✅ Category updated successfully!', 'success');
+                } else {
+                    // Insert
+                    const { error } = await supabase
+                        .from('service_categories')
+                        .insert([{ ...categoryData, is_active: true, display_order: 0 }]);
+
+                    if (error) throw error;
+                    showAlert('✅ Category added successfully!', 'success');
+                }
+
+                closeModal('categoryModal');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error saving category:', error);
+                showAlert('Error saving category: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteCategory(categoryId) {
+            if (!confirm('Are you sure you want to delete this category?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('service_categories')
+                    .update({ is_active: false })
+                    .eq('id', categoryId);
+
+                if (error) throw error;
+                showAlert('✅ Category deleted successfully!', 'success');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showAlert('Error deleting category: ' + error.message, 'error');
+            }
+        }
+
+        function openAddServiceModal(categoryId) {
+            editingServiceId = null;
+            editingCategoryForService = categoryId;
+            document.getElementById('serviceModalTitle').textContent = '➕ Add Service';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceSAC').value = '';
+            document.getElementById('serviceRate').value = '';
+            document.getElementById('serviceGST').value = '18';
+            openModal('serviceModal');
+        }
+
+        function editService(serviceId, categoryId) {
+            editingServiceId = serviceId;
+            editingCategoryForService = categoryId;
+            const service = servicesData.find(s => s.id === serviceId);
+            if (!service) return;
+
+            document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
+            document.getElementById('serviceName').value = service.service_name || '';
+            document.getElementById('serviceSAC').value = service.sac_code || '';
+            document.getElementById('serviceRate').value = service.default_rate || '';
+            document.getElementById('serviceGST').value = service.default_gst_percentage || '18';
+            openModal('serviceModal');
+        }
+
+        async function saveService() {
+            try {
+                const serviceName = document.getElementById('serviceName').value;
+                if (!serviceName) {
+                    showAlert('Please enter a service name', 'error');
+                    return;
+                }
+
+                const serviceData = {
+                    service_name: serviceName,
+                    sac_code: document.getElementById('serviceSAC').value || null,
+                    default_rate: parseFloat(document.getElementById('serviceRate').value) || 0,
+                    default_gst_percentage: parseFloat(document.getElementById('serviceGST').value) || 0,
+                    category_id: editingCategoryForService
+                };
+
+                if (editingServiceId) {
+                    // Update
+                    const { error } = await supabase
+                        .from('service_items')
+                        .update(serviceData)
+                        .eq('id', editingServiceId);
+
+                    if (error) throw error;
+                    showAlert('✅ Service updated successfully!', 'success');
+                } else {
+                    // Insert
+                    const { error } = await supabase
+                        .from('service_items')
+                        .insert([{ ...serviceData, is_active: true, is_primary_service: true, has_sub_services: false, display_order: 0, is_visible_in_search: true }]);
+
+                    if (error) throw error;
+                    showAlert('✅ Service added successfully!', 'success');
+                }
+
+                closeModal('serviceModal');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error saving service:', error);
+                showAlert('Error saving service: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteService(serviceId) {
+            if (!confirm('Are you sure you want to delete this service?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('service_items')
+                    .update({ is_active: false })
+                    .eq('id', serviceId);
+
+                if (error) throw error;
+                showAlert('✅ Service deleted successfully!', 'success');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error deleting service:', error);
+                showAlert('Error deleting service: ' + error.message, 'error');
+            }
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -807,6 +1107,16 @@
             localStorage.removeItem('dreamHarbourUser');
             localStorage.removeItem('dreamHarbourLoginTime');
             window.location.href = 'index.html';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
         }
 
         // Initialize on page load
