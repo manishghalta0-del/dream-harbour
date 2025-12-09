@@ -595,7 +595,7 @@
                 <a href="#" class="nav-link active" onclick="showTab('overview', event)">
                     <span>📊</span> Overview
                 </a>
-                <a href="#" class="nav-link" onclick="showTab('invoices', event)">
+                <a href="invoices.html" class="nav-link">
                     <span>📄</span> Invoices
                 </a>
             </div>
@@ -678,7 +678,7 @@
                             <div class="stat-change">From pending invoices</div>
                         </div>
                         <div class="stat-card accent-5">
-                            <div class="stat-icon">📊</div>
+                            <div class="stat-icon">👥</div>
                             <div class="stat-label">Total Customers</div>
                             <div class="stat-value" id="totalCustomers">0</div>
                             <div class="stat-change">All registered</div>
@@ -702,21 +702,6 @@
                         <div class="chart-title">📊 Invoice Status Distribution</div>
                         <div class="chart-wrapper">
                             <canvas id="statusChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="invoices" class="tab-content">
-                    <div class="content-box">
-                        <div class="content-header">
-                            <div class="content-title">📋 Recent Invoices</div>
-                            <a href="invoices.html" class="btn btn-primary btn-sm">➕ Create Invoice</a>
-                        </div>
-                        <div class="table-wrapper">
-                            <div id="invoicesList" class="loading">
-                                <div class="loading-spinner"></div>
-                                <div>Loading invoices...</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -914,7 +899,6 @@
                 log(`📊 Invoice data: ${JSON.stringify(invoices?.slice(0, 1))}`, 'info');
 
                 updateDashboardStats(invoices, customers);
-                displayInvoices(invoices);
                 initializeCharts(invoices);
                 hideErrorAlert();
             } catch (error) {
@@ -935,7 +919,7 @@
                 invoices.forEach(inv => {
                     const amount = parseFloat(inv.total_amount) || 0;
                     const gst = parseFloat(inv.total_gst) || 0;
-                    const status = String(inv.status).toLowerCase().trim();
+                    const status = String(inv.payment_status).toLowerCase().trim();
 
                     log(`📌 Processing invoice: status='${status}', amount=${amount}, gst=${gst}`, 'info');
 
@@ -966,28 +950,7 @@
         function loadFallbackData() {
             log('📌 Using fallback data (empty state)', 'warning');
             updateDashboardStats([], []);
-            displayInvoices(null);
             initializeCharts(null);
-        }
-
-        function displayInvoices(invoices) {
-            const container = document.getElementById('invoicesList');
-            if (!container) return;
-
-            if (!invoices || invoices.length === 0) {
-                log('📭 No invoices to display', 'info');
-                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-text">No invoices found yet</div><a href="invoices.html" class="btn btn-primary btn-sm">Create First Invoice</a></div>`;
-                return;
-            }
-
-            let html = `<table><thead><tr><th>Invoice #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>`;
-            invoices.forEach(inv => {
-                const statusClass = inv.status === 'paid' ? 'status-paid' : inv.status === 'pending' ? 'status-pending' : 'status-overdue';
-                html += `<tr><td><strong>${inv.invoice_number}</strong></td><td>${inv.customer_name}</td><td>₹${(inv.total_amount || 0).toFixed(2)}</td><td><span class="status-badge ${statusClass}">${inv.status}</span></td><td>${new Date(inv.created_at).toLocaleDateString()}</td></tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-            log(`✅ Displayed ${invoices.length} invoices`, 'success');
         }
 
         function initializeCharts(invoices) {
@@ -1066,7 +1029,7 @@
             let paidCount = 0, pendingCount = 0, overdueCount = 0;
             if (invoices && invoices.length > 0) {
                 invoices.forEach(inv => {
-                    const status = String(inv.status).toLowerCase().trim();
+                    const status = String(inv.payment_status).toLowerCase().trim();
                     if (status === 'paid') paidCount++;
                     else if (status === 'pending') pendingCount++;
                     else if (status === 'overdue') overdueCount++;
@@ -1098,22 +1061,6 @@
         function showTab(tabName, event) {
             if (event) event.preventDefault();
             log(`📑 Switching to ${tabName} tab`, 'info');
-
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-
-            const tabElement = document.getElementById(tabName);
-            if (tabElement) tabElement.classList.add('active');
-
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.onclick?.toString().includes(tabName)) {
-                    link.classList.add('active');
-                }
-            });
 
             if (window.innerWidth <= 1024) {
                 document.getElementById('sidebar').classList.remove('open');
