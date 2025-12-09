@@ -1038,7 +1038,7 @@
         function selectCustomer(index) {
             const phone = document.getElementById('genCustomerPhone').value.trim();
             const matchingCustomers = allCustomers.filter(c => 
-                c.phone && c.phone.includes(phone)
+                !c.phone ? false : c.phone.replace(/\D/g, '').includes(phone.replace(/\D/g, ''))
             );
 
             if (matchingCustomers[index]) {
