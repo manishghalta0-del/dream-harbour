@@ -1012,9 +1012,12 @@
                 return;
             }
 
-            const matchingCustomers = allCustomers.filter(c => 
-                c.phone && c.phone.includes(phone)
-            );
+            const normalizedInput = phone.replace(/\D/g, '');
+    const matchingCustomers = allCustomers.filter(c => {
+      if (!c.phone) return false;
+      const normalizedPhone = c.phone.replace(/\D/g, '');
+      return normalizedPhone.includes(normalizedInput);
+    });
 
             if (matchingCustomers.length === 0) {
                 autocompleteList.classList.remove('show');
