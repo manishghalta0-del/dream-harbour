@@ -102,16 +102,6 @@
             margin-bottom: 25px;
         }
 
-        .nav-section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            opacity: 0.6;
-            margin-bottom: 10px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            padding: 0 10px;
-        }
-
         .nav-link {
             display: flex;
             align-items: center;
@@ -573,28 +563,19 @@
             <div class="sidebar-header">
                 <div class="sidebar-logo">🏛️</div>
                 <div class="sidebar-title">Dream Harbour</div>
-                <div class="sidebar-subtitle">Customer Manager</div>
+                <div class="sidebar-subtitle">Invoice Manager</div>
             </div>
 
             <div class="nav-section">
-                <div class="nav-section-title">Menu</div>
                 <a href="dashboard.html" class="nav-link">
-                    <span>📊</span> Dashboard
+                    <span>📊</span> Overview
                 </a>
                 <a href="invoices.html" class="nav-link">
                     <span>📄</span> Invoices
                 </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Data</div>
                 <a href="customers.html" class="nav-link active">
                     <span>👥</span> Customers
                 </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Settings</div>
                 <a href="settings.html" class="nav-link">
                     <span>⚙️</span> Settings
                 </a>
@@ -795,7 +776,7 @@
                 row.innerHTML = `
                     <td><strong>${customer.full_name || '-'}</strong></td>
                     <td>${customer.email || '-'}</td>
-                    <td>${customer.mobile_no || '-'}</td>
+                    <td>${customer.phone || '-'}</td>
                     <td>${customer.company_name || '-'}</td>
                     <td>${customer.gstin || '-'}</td>
                     <td>${customer.address || '-'}</td>
@@ -815,7 +796,7 @@
             filteredCustomers = allCustomers.filter(customer => 
                 (customer.full_name?.toLowerCase().includes(searchTerm)) ||
                 (customer.email?.toLowerCase().includes(searchTerm)) ||
-                (customer.mobile_no?.includes(searchTerm)) ||
+                (customer.phone?.includes(searchTerm)) ||
                 (customer.company_name?.toLowerCase().includes(searchTerm))
             );
             renderCustomers();
@@ -841,7 +822,7 @@
             document.getElementById('modalTitle').textContent = '✏️ Edit Customer';
             document.getElementById('customerName').value = customer.full_name || '';
             document.getElementById('customerEmail').value = customer.email || '';
-            document.getElementById('customerPhone').value = customer.mobile_no || '';
+            document.getElementById('customerPhone').value = customer.phone || '';
             document.getElementById('customerCompany').value = customer.company_name || '';
             document.getElementById('customerGstin').value = customer.gstin || '';
             document.getElementById('customerAddress').value = customer.address || '';
@@ -862,7 +843,7 @@
                 const customerData = {
                     full_name: name,
                     email: email,
-                    mobile_no: phone,
+                    phone: phone,
                     company_name: document.getElementById('customerCompany').value || null,
                     gstin: document.getElementById('customerGstin').value || null,
                     address: document.getElementById('customerAddress').value || null
@@ -920,7 +901,7 @@
             const data = filteredCustomers.map(c => ({
                 'Full Name': c.full_name,
                 'Email': c.email,
-                'Phone': c.mobile_no,
+                'Phone': c.phone,
                 'Company': c.company_name,
                 'GSTIN': c.gstin,
                 'Address': c.address,
