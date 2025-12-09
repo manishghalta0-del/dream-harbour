@@ -881,16 +881,29 @@
 
         async function loadBusinessInfo() {
             try {
-                const { data, error } = await supabase
+                // Get ALL business settings
+                const { data: allRecords, error: fetchError } = await supabase
                     .from('business_settings')
                     .select('*')
-                    .limit(1)
-                    .maybeSingle();
+                    .order('created_at', { ascending: true });
 
-                if (error) throw error;
+                if (fetchError) throw fetchError;
 
-                if (data) {
-                    currentBusinessId = data.id;
+                if (allRecords && allRecords.length > 0) {
+                    // Keep the first record, delete all others
+                    currentBusinessId = allRecords[0].id;
+                    
+                    // Delete duplicate records if any
+                    if (allRecords.length > 1) {
+                        const idsToDelete = allRecords.slice(1).map(r => r.id);
+                        for (const id of idsToDelete) {
+                            await supabase.from('business_settings').delete().eq('id', id);
+                        }
+                        console.log('Cleaned up duplicate records');
+                    }
+
+                    // Load the first (and now only) record
+                    const data = allRecords[0];
                     document.getElementById('businessName').value = data.business_name || '';
                     document.getElementById('gstNumber').value = data.gst_number || '';
                     document.getElementById('email').value = data.email || '';
@@ -901,7 +914,8 @@
                     document.getElementById('pincode').value = data.pincode || '';
                     document.getElementById('defaultGST').value = data.default_gst_percentage || '18';
                 } else {
-                    showAlert('No business info found. Please fill in your details.', 'info');
+                    showAlert('No business info found. Fill in your details and save.', 'info');
+                    currentBusinessId = null;
                 }
             } catch (error) {
                 console.error('Error loading business info:', error);
@@ -924,13 +938,16 @@
                 };
 
                 if (currentBusinessId) {
+                    // UPDATE existing record
                     const { error } = await supabase
                         .from('business_settings')
                         .update(businessData)
                         .eq('id', currentBusinessId);
 
                     if (error) throw error;
+                    showAlert('✅ Business information updated successfully!', 'success');
                 } else {
+                    // CREATE new record ONLY if none exists
                     const { data, error } = await supabase
                         .from('business_settings')
                         .insert([businessData])
@@ -939,9 +956,8 @@
 
                     if (error) throw error;
                     currentBusinessId = data.id;
+                    showAlert('✅ Business information saved successfully!', 'success');
                 }
-
-                showAlert('✅ Business information saved successfully!', 'success');
             } catch (error) {
                 console.error('Error saving business info:', error);
                 showAlert('Error saving business info: ' + error.message, 'error');
