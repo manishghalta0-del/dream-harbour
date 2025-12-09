@@ -406,21 +406,23 @@
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
-            padding: 20px;
+            margin: 2% auto;
+            padding: 30px;
             border-radius: 8px;
-            width: 90%;
-            max-width: 600px;
+            width: 95%;
+            max-width: 900px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .close-btn {
@@ -461,6 +463,12 @@
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
         }
 
@@ -524,6 +532,70 @@
             margin-bottom: 20px;
         }
 
+        .invoice-items {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 6px;
+        }
+
+        .invoice-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 100px;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            align-items: end;
+        }
+
+        .item-remove {
+            background: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .item-remove:hover {
+            background: #d32f2f;
+        }
+
+        .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 16px;
+            border-top: 2px solid var(--border-color);
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
         @media (max-width: 1024px) {
             .invoices-container {
                 display: block;
@@ -576,12 +648,23 @@
                 min-width: auto;
             }
 
-            .form-row {
+            .form-row,
+            .form-row-3 {
                 grid-template-columns: 1fr;
             }
 
             .actions {
                 flex-direction: column;
+            }
+
+            .invoice-item {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 10% auto;
+                padding: 15px;
             }
         }
     </style>
@@ -648,7 +731,7 @@
                     <div class="header-top">
                         <div class="header-title">Invoice Management</div>
                         <div class="header-actions">
-                            <button class="btn btn-primary" onclick="openAddInvoiceModal()">➕ Create Invoice</button>
+                            <button class="btn btn-primary" onclick="openInvoiceGenerator()">✨ Create New Invoice</button>
                         </div>
                     </div>
                     <div class="filter-section">
@@ -689,59 +772,123 @@
                 <div id="emptyState" class="empty-state" style="display: none;">
                     <div class="empty-state-icon">📄</div>
                     <div class="empty-state-text">No invoices found</div>
-                    <button class="btn btn-primary" onclick="openAddInvoiceModal()">Create First Invoice</button>
+                    <button class="btn btn-primary" onclick="openInvoiceGenerator()">Create First Invoice</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add/Edit Invoice Modal -->
-    <div id="invoiceModal" class="modal">
+    <!-- Invoice Generator Modal -->
+    <div id="generatorModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="modalTitle">➕ Create Invoice</span>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
+                <span>✨ Invoice Generator</span>
+                <button class="close-btn" onclick="closeGenerator()">&times;</button>
             </div>
+
+            <div class="section-title">📋 Invoice Details</div>
             <div class="form-row">
                 <div class="form-group">
                     <label>Invoice Number *</label>
-                    <input type="text" id="invoiceNumber" placeholder="e.g., INV-20251209-0001" required>
+                    <input type="text" id="genInvoiceNumber" placeholder="e.g., INV-20251209-0001" required>
                 </div>
                 <div class="form-group">
                     <label>Invoice Date *</label>
-                    <input type="date" id="invoiceDate" required>
+                    <input type="date" id="genInvoiceDate" required>
                 </div>
             </div>
+
+            <div class="section-title">👥 Customer Details</div>
             <div class="form-group">
-                <label>Customer *</label>
-                <select id="customerId" required>
+                <label>Select or Enter Customer Name *</label>
+                <select id="genCustomerId" onchange="populateCustomerName()" required>
                     <option value="">Select Customer</option>
                 </select>
             </div>
-            <div class="form-row">
+            <div class="form-row-3">
                 <div class="form-group">
-                    <label>Subtotal *</label>
-                    <input type="number" id="subtotal" placeholder="0.00" step="0.01" min="0" required>
+                    <label>Customer Phone</label>
+                    <input type="tel" id="genCustomerPhone" placeholder="Mobile number" readonly>
                 </div>
                 <div class="form-group">
-                    <label>GST *</label>
-                    <input type="number" id="totalGst" placeholder="0.00" step="0.01" min="0" required>
+                    <label>Customer Email</label>
+                    <input type="email" id="genCustomerEmail" placeholder="Email" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Customer City</label>
+                    <input type="text" id="genCustomerCity" placeholder="City" readonly>
                 </div>
             </div>
-            <div class="form-group">
-                <label>Total Amount *</label>
-                <input type="number" id="totalAmount" placeholder="0.00" step="0.01" min="0" required readonly>
+
+            <div class="section-title">📦 Add Services/Items</div>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Service Name *</label>
+                    <input type="text" id="itemName" placeholder="e.g., Web Development">
+                </div>
+                <div class="form-group">
+                    <label>Quantity *</label>
+                    <input type="number" id="itemQty" placeholder="1" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Rate (₹) *</label>
+                    <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0">
+                </div>
             </div>
-            <div class="form-group">
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>GST % *</label>
+                    <select id="itemGST">
+                        <option value="0">0% (No GST)</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18" selected>18%</option>
+                        <option value="28">28%</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>SAC Code</label>
+                    <input type="text" id="itemSAC" placeholder="Optional">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="addInvoiceItem()" style="width: 100%;">➕ Add Item</button>
+                </div>
+            </div>
+
+            <div id="invoiceItemsList" class="invoice-items" style="display: none;">
+                <h4 style="margin-bottom: 10px;">📋 Invoice Items</h4>
+                <div id="itemsContainer"></div>
+            </div>
+
+            <div class="summary-section">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="genSubtotal">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total GST:</span>
+                    <span id="genTotalGST">₹0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Grand Total:</span>
+                    <span id="genGrandTotal">₹0.00</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
                 <label>Payment Status *</label>
-                <select id="paymentStatus" required>
+                <select id="genPaymentStatus" required>
                     <option value="pending">Pending</option>
                     <option value="paid">Paid</option>
                     <option value="overdue">Overdue</option>
                 </select>
             </div>
-            <button class="btn btn-primary" onclick="saveInvoice()">💾 Save</button>
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveGeneratedInvoice()" style="flex: 1;">💾 Save Invoice</button>
+                <button class="btn btn-secondary" onclick="closeGenerator()" style="flex: 1;">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -752,7 +899,7 @@
         let allInvoices = [];
         let allCustomers = [];
         let filteredInvoices = [];
-        let editingInvoiceId = null;
+        let generatorItems = [];
 
         function initializeApp() {
             if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
@@ -779,6 +926,7 @@
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             loadCustomers();
             loadInvoices();
+            document.getElementById('genInvoiceDate').valueAsDate = new Date();
         }
 
         function showAlert(message, type = 'info') {
@@ -800,7 +948,7 @@
             try {
                 const { data, error } = await supabase
                     .from('customers')
-                    .select('id, full_name');
+                    .select('*');
 
                 if (error) throw error;
                 allCustomers = data || [];
@@ -811,14 +959,142 @@
         }
 
         function updateCustomerDropdown() {
-            const select = document.getElementById('customerId');
+            const select = document.getElementById('genCustomerId');
             select.innerHTML = '<option value="">Select Customer</option>';
             allCustomers.forEach(customer => {
                 const option = document.createElement('option');
                 option.value = customer.id;
                 option.textContent = customer.full_name;
+                option.dataset.phone = customer.phone;
+                option.dataset.email = customer.email;
+                option.dataset.city = customer.city;
                 select.appendChild(option);
             });
+        }
+
+        function populateCustomerName() {
+            const select = document.getElementById('genCustomerId');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            document.getElementById('genCustomerPhone').value = selectedOption.dataset.phone || '';
+            document.getElementById('genCustomerEmail').value = selectedOption.dataset.email || '';
+            document.getElementById('genCustomerCity').value = selectedOption.dataset.city || '';
+        }
+
+        function addInvoiceItem() {
+            const name = document.getElementById('itemName').value;
+            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
+            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
+            const gst = parseFloat(document.getElementById('itemGST').value) || 0;
+            const sac = document.getElementById('itemSAC').value;
+
+            if (!name || !rate) {
+                showAlert('Please enter service name and rate', 'error');
+                return;
+            }
+
+            const amount = qty * rate;
+            const gstAmount = amount * (gst / 100);
+            const total = amount + gstAmount;
+
+            generatorItems.push({
+                id: Date.now(),
+                name,
+                qty,
+                rate,
+                amount,
+                gst,
+                gstAmount,
+                total,
+                sac
+            });
+
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemQty').value = '1';
+            document.getElementById('itemRate').value = '';
+            document.getElementById('itemGST').value = '18';
+            document.getElementById('itemSAC').value = '';
+
+            renderInvoiceItems();
+            updateGeneratorTotals();
+        }
+
+        function renderInvoiceItems() {
+            const container = document.getElementById('itemsContainer');
+            const listDiv = document.getElementById('invoiceItemsList');
+
+            if (generatorItems.length === 0) {
+                listDiv.style.display = 'none';
+                return;
+            }
+
+            listDiv.style.display = 'block';
+            container.innerHTML = generatorItems.map(item => `
+                <div class="invoice-item">
+                    <div>
+                        <strong>${item.name}</strong>
+                        ${item.sac ? `<div style="font-size: 12px; color: #999;">SAC: ${item.sac}</div>` : ''}
+                    </div>
+                    <div>Qty: ${item.qty} × ₹${item.rate.toFixed(2)}</div>
+                    <div>₹${item.amount.toFixed(2)}</div>
+                    <div>${item.gst}% GST: ₹${item.gstAmount.toFixed(2)}</div>
+                    <button class="item-remove" onclick="removeItem(${item.id})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeItem(id) {
+            generatorItems = generatorItems.filter(item => item.id !== id);
+            renderInvoiceItems();
+            updateGeneratorTotals();
+        }
+
+        function updateGeneratorTotals() {
+            const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
+            const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
+            const grandTotal = subtotal + totalGST;
+
+            document.getElementById('genSubtotal').textContent = '₹' + subtotal.toFixed(2);
+            document.getElementById('genTotalGST').textContent = '₹' + totalGST.toFixed(2);
+            document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
+        }
+
+        async function saveGeneratedInvoice() {
+            try {
+                const invoiceNumber = document.getElementById('genInvoiceNumber').value;
+                const customerId = document.getElementById('genCustomerId').value;
+                const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
+                const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
+                const totalAmount = subtotal + totalGST;
+
+                if (!invoiceNumber || !customerId || generatorItems.length === 0) {
+                    showAlert('Please fill all fields and add at least one item', 'error');
+                    return;
+                }
+
+                const invoiceData = {
+                    invoice_number: invoiceNumber,
+                    customer_id: customerId,
+                    invoice_date: document.getElementById('genInvoiceDate').value,
+                    subtotal: subtotal,
+                    total_gst: totalGST,
+                    total_amount: totalAmount,
+                    payment_status: document.getElementById('genPaymentStatus').value
+                };
+
+                const { error } = await supabase
+                    .from('invoices')
+                    .insert([invoiceData]);
+
+                if (error) throw error;
+
+                showAlert('✅ Invoice generated and saved successfully!', 'success');
+                closeGenerator();
+                loadInvoices();
+            } catch (error) {
+                console.error('Error saving invoice:', error);
+                showAlert('Error saving invoice: ' + error.message, 'error');
+            }
         }
 
         async function loadInvoices() {
@@ -871,7 +1147,6 @@
                     <td>
                         <div class="actions">
                             <button class="btn btn-sm btn-success" onclick="generatePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
-                            <button class="btn btn-sm btn-primary" onclick="editInvoice('${invoice.id}')" title="Edit">✏️ Edit</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
                         </div>
                     </td>
@@ -894,83 +1169,6 @@
             });
             
             renderInvoices();
-        }
-
-        function openAddInvoiceModal() {
-            editingInvoiceId = null;
-            document.getElementById('modalTitle').textContent = '➕ Create Invoice';
-            document.getElementById('invoiceNumber').value = '';
-            document.getElementById('invoiceDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('customerId').value = '';
-            document.getElementById('subtotal').value = '';
-            document.getElementById('totalGst').value = '';
-            document.getElementById('totalAmount').value = '';
-            document.getElementById('paymentStatus').value = 'pending';
-            document.getElementById('invoiceModal').style.display = 'block';
-        }
-
-        function editInvoice(invoiceId) {
-            const invoice = allInvoices.find(i => i.id === invoiceId);
-            if (!invoice) return;
-
-            editingInvoiceId = invoiceId;
-            document.getElementById('modalTitle').textContent = '✏️ Edit Invoice';
-            document.getElementById('invoiceNumber').value = invoice.invoice_number || '';
-            document.getElementById('invoiceDate').value = invoice.invoice_date?.split(' ')[0] || '';
-            document.getElementById('customerId').value = invoice.customer_id || '';
-            document.getElementById('subtotal').value = invoice.subtotal || '';
-            document.getElementById('totalGst').value = invoice.total_gst || '';
-            document.getElementById('totalAmount').value = invoice.total_amount || '';
-            document.getElementById('paymentStatus').value = invoice.payment_status || 'pending';
-            document.getElementById('invoiceModal').style.display = 'block';
-        }
-
-        async function saveInvoice() {
-            try {
-                const invoiceNumber = document.getElementById('invoiceNumber').value;
-                const customerId = document.getElementById('customerId').value;
-                const subtotal = parseFloat(document.getElementById('subtotal').value);
-                const totalGst = parseFloat(document.getElementById('totalGst').value);
-                const totalAmount = subtotal + totalGst;
-
-                if (!invoiceNumber || !customerId || !subtotal) {
-                    showAlert('Please fill in required fields', 'error');
-                    return;
-                }
-
-                const invoiceData = {
-                    invoice_number: invoiceNumber,
-                    customer_id: customerId,
-                    invoice_date: document.getElementById('invoiceDate').value,
-                    subtotal: subtotal,
-                    total_gst: totalGst,
-                    total_amount: totalAmount,
-                    payment_status: document.getElementById('paymentStatus').value
-                };
-
-                if (editingInvoiceId) {
-                    const { error } = await supabase
-                        .from('invoices')
-                        .update(invoiceData)
-                        .eq('id', editingInvoiceId);
-
-                    if (error) throw error;
-                    showAlert('✅ Invoice updated successfully!', 'success');
-                } else {
-                    const { error } = await supabase
-                        .from('invoices')
-                        .insert([invoiceData]);
-
-                    if (error) throw error;
-                    showAlert('✅ Invoice created successfully!', 'success');
-                }
-
-                closeModal();
-                loadInvoices();
-            } catch (error) {
-                console.error('Error saving invoice:', error);
-                showAlert('Error saving invoice: ' + error.message, 'error');
-            }
         }
 
         async function deleteInvoice(invoiceId) {
@@ -1021,10 +1219,13 @@
                     <div>
                         <h3 style="margin: 0 0 10px 0; color: #333;">Customer Details</h3>
                         <p style="margin: 5px 0;"><strong>Name:</strong> ${customer?.full_name || 'N/A'}</p>
+                        <p style="margin: 5px 0;"><strong>Phone:</strong> ${customer?.phone || '-'}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> ${customer?.email || '-'}</p>
                     </div>
                     <div>
                         <h3 style="margin: 0 0 10px 0; color: #333;">Company Details</h3>
                         <p style="margin: 5px 0;"><strong>Dream Harbour</strong></p>
+                        <p style="margin: 5px 0;">Professional Invoice Management</p>
                     </div>
                 </div>
 
@@ -1064,8 +1265,24 @@
             showAlert('✅ PDF downloaded successfully!', 'success');
         }
 
-        function closeModal() {
-            document.getElementById('invoiceModal').style.display = 'none';
+        function openInvoiceGenerator() {
+            generatorItems = [];
+            document.getElementById('genInvoiceNumber').value = '';
+            document.getElementById('genInvoiceDate').valueAsDate = new Date();
+            document.getElementById('genCustomerId').value = '';
+            document.getElementById('genPaymentStatus').value = 'pending';
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemQty').value = '1';
+            document.getElementById('itemRate').value = '';
+            document.getElementById('itemGST').value = '18';
+            document.getElementById('itemSAC').value = '';
+            document.getElementById('invoiceItemsList').style.display = 'none';
+            updateGeneratorTotals();
+            document.getElementById('generatorModal').style.display = 'block';
+        }
+
+        function closeGenerator() {
+            document.getElementById('generatorModal').style.display = 'none';
         }
 
         function logout() {
@@ -1075,27 +1292,13 @@
         }
 
         window.onclick = function(event) {
-            const modal = document.getElementById('invoiceModal');
+            const modal = document.getElementById('generatorModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
         }
 
-        // Auto-calculate total amount
         document.addEventListener('DOMContentLoaded', () => {
-            const subtotalInput = document.getElementById('subtotal');
-            const gstInput = document.getElementById('totalGst');
-            const totalInput = document.getElementById('totalAmount');
-
-            const updateTotal = () => {
-                const subtotal = parseFloat(subtotalInput.value) || 0;
-                const gst = parseFloat(gstInput.value) || 0;
-                totalInput.value = (subtotal + gst).toFixed(2);
-            };
-
-            subtotalInput.addEventListener('input', updateTotal);
-            gstInput.addEventListener('input', updateTotal);
-
             initializeApp();
         });
     </script>
