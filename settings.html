@@ -17,12 +17,13 @@
         :root {
             --primary-color: #667eea;
             --primary-dark: #5568d3;
-            --light-bg: #f5f5f5;
+            --light-bg: #f8f9fa;
             --white: #ffffff;
-            --text-primary: #333;
-            --text-secondary: #666;
-            --border-color: #ddd;
-            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
 
         html {
@@ -31,7 +32,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             background: var(--light-bg);
             color: var(--text-primary);
             overflow: hidden;
@@ -45,17 +46,17 @@
         }
 
         .sidebar {
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: var(--white);
+            padding: 25px 20px;
             position: fixed;
             height: 100vh;
-            width: 250px;
+            width: 260px;
             overflow-y: auto;
             z-index: 100;
             top: 0;
             left: 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
         }
 
         .sidebar::-webkit-scrollbar {
@@ -71,28 +72,102 @@
             border-radius: 3px;
         }
 
-        .sidebar h2 {
+        .sidebar-header {
+            text-align: center;
             margin-bottom: 30px;
-            font-size: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .sidebar a {
-            display: block;
-            color: white;
+        .sidebar-logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 0 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             padding: 12px 15px;
-            margin-bottom: 8px;
-            border-radius: 5px;
-            transition: background 0.3s;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .sidebar a:hover,
-        .sidebar a.active {
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
             background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link span {
+            font-size: 18px;
+        }
+
+        .sidebar-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .user-info-label {
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .user-info-value {
+            font-weight: 600;
+            word-break: break-word;
         }
 
         .main-content {
-            margin-left: 250px;
+            margin-left: 260px;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -103,21 +178,91 @@
 
         .topbar {
             background: var(--white);
-            padding: 15px 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 16px 25px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
             flex-shrink: 0;
-            border-bottom: 1px solid var(--border-color);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         .page-title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
         .content-area {
             flex: 1;
-            padding: 20px;
+            padding: 25px;
             overflow-y: auto;
             overflow-x: hidden;
             max-width: 1400px;
@@ -146,7 +291,7 @@
             background: var(--white);
             padding: 10px;
             border-radius: 5px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
             flex-wrap: wrap;
         }
 
@@ -170,7 +315,7 @@
             background: var(--white);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
         }
 
         .tab-content {
@@ -217,46 +362,6 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-        }
-
-        .btn {
-            padding: 12px 20px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 10px;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .btn:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: #999;
-        }
-
-        .btn-secondary:hover {
-            background: #777;
-        }
-
-        .btn-danger {
-            background: #f44336;
-        }
-
-        .btn-danger:hover {
-            background: #da190b;
-        }
-
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-            margin-right: 5px;
-            margin-top: 0;
         }
 
         .form-row {
@@ -502,6 +607,10 @@
         }
 
         @media (max-width: 768px) {
+            .topbar {
+                padding: 12px 15px;
+            }
+
             .content-area {
                 padding: 15px;
             }
@@ -525,16 +634,49 @@
 <body>
     <div class="settings-container">
         <div class="sidebar">
-            <h2>📊 Dream Harbour</h2>
-            <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
-            <a href="invoices.html" class="nav-link">📄 Invoices</a>
-            <a href="settings.html" class="nav-link active">⚙️ Settings</a>
-            <a href="#" id="logoutBtn" class="nav-link" style="margin-top: 30px; background: #d32f2f;">🚪 Logout</a>
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🏛️</div>
+                <div class="sidebar-title">Dream Harbour</div>
+                <div class="sidebar-subtitle">Settings Manager</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Menu</div>
+                <a href="dashboard.html" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <span>📄</span> Invoices
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Settings</div>
+                <a href="settings.html" class="nav-link active">
+                    <span>⚙️</span> Manage Settings
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-info-label">Logged in as</div>
+                    <div class="user-info-value" id="userNameDisplay">User</div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
         </div>
 
         <div class="main-content">
             <div class="topbar">
-                <div class="page-title">⚙️ Settings</div>
+                <div class="topbar-left">
+                    <div class="page-title">⚙️ Settings</div>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+                </div>
             </div>
 
             <div class="content-area">
@@ -608,7 +750,7 @@
                                 </select>
                             </div>
 
-                            <button type="submit" class="btn">💾 Save Business Info</button>
+                            <button type="submit" class="btn btn-primary">💾 Save Business Info</button>
                             <button type="reset" class="btn btn-secondary">🔄 Reset</button>
                         </form>
                     </div>
@@ -619,7 +761,7 @@
                         <p style="color: var(--text-secondary); margin-bottom: 20px;">View and manage all service categories and items</p>
 
                         <div class="add-btn-section">
-                            <button class="btn" onclick="openAddCategoryModal()">➕ Add Category</button>
+                            <button class="btn btn-primary" onclick="openAddCategoryModal()">➕ Add Category</button>
                         </div>
 
                         <div id="categoriesLoading" class="loading">
@@ -653,7 +795,7 @@
                 <label for="categoryDescription">Description</label>
                 <textarea id="categoryDescription" rows="2" placeholder="Enter category description"></textarea>
             </div>
-            <button class="btn" onclick="saveCategory()">💾 Save</button>
+            <button class="btn btn-primary" onclick="saveCategory()">💾 Save</button>
             <button class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
         </div>
     </div>
@@ -687,7 +829,7 @@
                     <option value="28">28%</option>
                 </select>
             </div>
-            <button class="btn" onclick="saveService()">💾 Save</button>
+            <button class="btn btn-primary" onclick="saveService()">💾 Save</button>
             <button class="btn btn-secondary" onclick="closeModal('serviceModal')">Cancel</button>
         </div>
     </div>
@@ -716,15 +858,18 @@
                 return;
             }
 
+            try {
+                const userData = JSON.parse(user);
+                const userEl = document.getElementById('userNameDisplay');
+                if (userEl) userEl.textContent = userData.fullName || 'User';
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+
             const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
             
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                logout();
-            });
 
             document.getElementById('businessForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -817,7 +962,6 @@
 
         async function loadCategoriesAndServices() {
             try {
-                // Load categories
                 const { data: categories, error: catError } = await supabase
                     .from('service_categories')
                     .select('*')
@@ -827,7 +971,6 @@
                 if (catError) throw catError;
                 categoriesData = categories || [];
 
-                // Load services
                 const { data: services, error: svcError } = await supabase
                     .from('service_items')
                     .select('*')
@@ -837,7 +980,6 @@
                 if (svcError) throw svcError;
                 servicesData = services || [];
 
-                // Load sub-services
                 const { data: subServices, error: subError } = await supabase
                     .from('service_sub_items')
                     .select('*')
@@ -875,9 +1017,9 @@
                             <div class="category-name">📁 ${category.category_name}</div>
                             <div class="category-actions">
                                 <span class="category-count">${categoryServices.length} service(s)</span>
-                                <button class="btn btn-sm" onclick="editCategory('${category.id}', '${category.category_name}')">✏️ Edit</button>
-                                <button class="btn btn-sm btn-danger" onclick="deleteCategory('${category.id}')">🗑️ Delete</button>
-                                <button class="btn btn-sm" onclick="openAddServiceModal('${category.id}')">➕ Add Service</button>
+                                <button class="btn btn-sm btn-primary" onclick="editCategory('${category.id}', '${category.category_name}')" style="margin-right: 5px;">✏️ Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCategory('${category.id}')" style="margin-right: 5px;">🗑️ Delete</button>
+                                <button class="btn btn-sm btn-primary" onclick="openAddServiceModal('${category.id}')">➕ Service</button>
                             </div>
                         </div>
 
@@ -898,7 +1040,7 @@
                                 ${service.default_rate > 0 ? `<div>Rate: <strong>₹${service.default_rate.toFixed(2)}</strong></div>` : '<div style="color: #999;">Custom Rate</div>'}
                             </div>
                             <div class="service-actions">
-                                <button class="btn btn-sm" onclick="editService('${service.id}', '${service.category_id}')">✏️ Edit</button>
+                                <button class="btn btn-sm btn-primary" onclick="editService('${service.id}', '${service.category_id}')" style="margin-right: 5px;">✏️ Edit</button>
                                 <button class="btn btn-sm btn-danger" onclick="deleteService('${service.id}')">🗑️ Delete</button>
                             </div>
 
@@ -958,7 +1100,6 @@
                 };
 
                 if (editingCategoryId) {
-                    // Update
                     const { error } = await supabase
                         .from('service_categories')
                         .update(categoryData)
@@ -967,7 +1108,6 @@
                     if (error) throw error;
                     showAlert('✅ Category updated successfully!', 'success');
                 } else {
-                    // Insert
                     const { error } = await supabase
                         .from('service_categories')
                         .insert([{ ...categoryData, is_active: true, display_order: 0 }]);
@@ -1044,7 +1184,6 @@
                 };
 
                 if (editingServiceId) {
-                    // Update
                     const { error } = await supabase
                         .from('service_items')
                         .update(serviceData)
@@ -1053,7 +1192,6 @@
                     if (error) throw error;
                     showAlert('✅ Service updated successfully!', 'success');
                 } else {
-                    // Insert
                     const { error } = await supabase
                         .from('service_items')
                         .insert([{ ...serviceData, is_active: true, is_primary_service: true, has_sub_services: false, display_order: 0, is_visible_in_search: true }]);
@@ -1109,7 +1247,6 @@
             window.location.href = 'index.html';
         }
 
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
@@ -1119,7 +1256,6 @@
             });
         }
 
-        // Initialize on page load
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initializeApp);
         } else {
