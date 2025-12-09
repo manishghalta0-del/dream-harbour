@@ -425,6 +425,7 @@
 
         .form-group {
             margin-bottom: 15px;
+            position: relative;
         }
 
         label {
@@ -448,6 +449,51 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+        }
+
+        .autocomplete-list.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background: var(--light-bg);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item-phone {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .autocomplete-item-name {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
         .form-row {
@@ -751,6 +797,7 @@
                             <tr>
                                 <th>Invoice #</th>
                                 <th>Customer</th>
+                                <th>Phone</th>
                                 <th>Date</th>
                                 <th>Subtotal</th>
                                 <th>GST</th>
@@ -799,23 +846,22 @@
 
             <div class="section-title">👥 Customer Details</div>
             <div class="form-group">
-                <label>Select or Enter Customer Name *</label>
-                <select id="genCustomerId" onchange="populateCustomerName()" required>
-                    <option value="">Select Customer</option>
-                </select>
+                <label>Customer Phone Number *</label>
+                <input type="tel" id="genCustomerPhone" placeholder="Enter or search customer phone" required onkeyup="searchCustomerByPhone()">
+                <div id="phoneAutoComplete" class="autocomplete-list"></div>
             </div>
             <div class="form-row-3">
                 <div class="form-group">
-                    <label>Customer Phone</label>
-                    <input type="tel" id="genCustomerPhone" placeholder="Mobile number" readonly>
+                    <label>Customer Name</label>
+                    <input type="text" id="genCustomerName" placeholder="Customer name">
                 </div>
                 <div class="form-group">
                     <label>Customer Email</label>
-                    <input type="email" id="genCustomerEmail" placeholder="Email" readonly>
+                    <input type="email" id="genCustomerEmail" placeholder="Email">
                 </div>
                 <div class="form-group">
                     <label>Customer City</label>
-                    <input type="text" id="genCustomerCity" placeholder="City" readonly>
+                    <input type="text" id="genCustomerCity" placeholder="City">
                 </div>
             </div>
 
@@ -899,6 +945,7 @@
         let allCustomers = [];
         let filteredInvoices = [];
         let generatorItems = [];
+        let selectedCustomer = null;
 
         // Get current date in IST (Indian Standard Time)
         function getISTDate() {
@@ -922,7 +969,6 @@
                 const dateString = formatDateAsYYYYMMDD(istDate);
                 const datePrefix = `DH-${dateString}`;
 
-                // Get all invoices for today (IST)
                 const { data: todayInvoices, error } = await supabase
                     .from('invoices')
                     .select('invoice_number')
@@ -932,7 +978,6 @@
 
                 let nextNumber = 1;
                 if (todayInvoices && todayInvoices.length > 0) {
-                    // Find the highest number for today
                     const numbers = todayInvoices.map(inv => {
                         const parts = inv.invoice_number.split('-');
                         return parseInt(parts[2]) || 0;
@@ -955,6 +1000,61 @@
             const month = String(istDate.getMonth() + 1).padStart(2, '0');
             const day = String(istDate.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        }
+
+        // Search customers by phone
+        function searchCustomerByPhone() {
+            const phone = document.getElementById('genCustomerPhone').value.trim();
+            const autocompleteList = document.getElementById('phoneAutoComplete');
+
+            if (!phone || phone.length < 2) {
+                autocompleteList.classList.remove('show');
+                return;
+            }
+
+            const matchingCustomers = allCustomers.filter(c => 
+                c.phone && c.phone.includes(phone)
+            );
+
+            if (matchingCustomers.length === 0) {
+                autocompleteList.classList.remove('show');
+                return;
+            }
+
+            autocompleteList.innerHTML = matchingCustomers.map((customer, index) => `
+                <div class="autocomplete-item" onclick="selectCustomer(${index})">
+                    <div class="autocomplete-item-phone">📱 ${customer.phone}</div>
+                    <div class="autocomplete-item-name">${customer.full_name} ${customer.city ? '• ' + customer.city : ''}</div>
+                </div>
+            `).join('');
+
+            autocompleteList.classList.add('show');
+        }
+
+        // Select customer from autocomplete
+        function selectCustomer(index) {
+            const phone = document.getElementById('genCustomerPhone').value.trim();
+            const matchingCustomers = allCustomers.filter(c => 
+                c.phone && c.phone.includes(phone)
+            );
+
+            if (matchingCustomers[index]) {
+                const customer = matchingCustomers[index];
+                selectedCustomer = customer;
+                
+                document.getElementById('genCustomerPhone').value = customer.phone || '';
+                document.getElementById('genCustomerName').value = customer.full_name || '';
+                document.getElementById('genCustomerEmail').value = customer.email || '';
+                document.getElementById('genCustomerCity').value = customer.city || '';
+                
+                document.getElementById('phoneAutoComplete').classList.remove('show');
+            }
+        }
+
+        // Allow users to edit customer details
+        function onCustomerFieldChange() {
+            // Customer can edit any field - changes are NOT saved to master table
+            // They will be stored as-is with the invoice
         }
 
         function initializeApp() {
@@ -1007,33 +1107,9 @@
 
                 if (error) throw error;
                 allCustomers = data || [];
-                updateCustomerDropdown();
             } catch (error) {
                 console.error('Error loading customers:', error);
             }
-        }
-
-        function updateCustomerDropdown() {
-            const select = document.getElementById('genCustomerId');
-            select.innerHTML = '<option value="">Select Customer</option>';
-            allCustomers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer.id;
-                option.textContent = customer.full_name;
-                option.dataset.phone = customer.phone;
-                option.dataset.email = customer.email;
-                option.dataset.city = customer.city;
-                select.appendChild(option);
-            });
-        }
-
-        function populateCustomerName() {
-            const select = document.getElementById('genCustomerId');
-            const selectedOption = select.options[select.selectedIndex];
-            
-            document.getElementById('genCustomerPhone').value = selectedOption.dataset.phone || '';
-            document.getElementById('genCustomerEmail').value = selectedOption.dataset.email || '';
-            document.getElementById('genCustomerCity').value = selectedOption.dataset.city || '';
         }
 
         function addInvoiceItem() {
@@ -1117,19 +1193,25 @@
         async function saveGeneratedInvoice() {
             try {
                 const invoiceNumber = document.getElementById('genInvoiceNumber').value;
-                const customerId = document.getElementById('genCustomerId').value;
+                const phone = document.getElementById('genCustomerPhone').value;
+                const customerName = document.getElementById('genCustomerName').value;
+                const customerEmail = document.getElementById('genCustomerEmail').value;
+                const customerCity = document.getElementById('genCustomerCity').value;
                 const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
                 const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
                 const totalAmount = subtotal + totalGST;
 
-                if (!invoiceNumber || !customerId || generatorItems.length === 0) {
-                    showAlert('Please fill all fields and add at least one item', 'error');
+                if (!invoiceNumber || !phone || !customerName || generatorItems.length === 0) {
+                    showAlert('Please fill all required fields and add at least one item', 'error');
                     return;
                 }
 
                 const invoiceData = {
                     invoice_number: invoiceNumber,
-                    customer_id: customerId,
+                    customer_phone: phone,
+                    customer_name: customerName,
+                    customer_email: customerEmail || null,
+                    customer_city: customerCity || null,
                     invoice_date: document.getElementById('genInvoiceDate').value,
                     subtotal: subtotal,
                     total_gst: totalGST,
@@ -1188,12 +1270,12 @@
             tableBody.innerHTML = '';
 
             filteredInvoices.forEach(invoice => {
-                const customer = allCustomers.find(c => c.id === invoice.customer_id);
                 const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${invoice.invoice_number || '-'}</strong></td>
-                    <td>${customer?.full_name || '-'}</td>
+                    <td>${invoice.customer_name || '-'}</td>
+                    <td>${invoice.customer_phone || '-'}</td>
                     <td>${new Date(invoice.invoice_date).toLocaleDateString()}</td>
                     <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
                     <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
@@ -1217,7 +1299,8 @@
             filteredInvoices = allInvoices.filter(invoice => {
                 const matchesSearch = 
                     (invoice.invoice_number?.toLowerCase().includes(searchTerm)) ||
-                    (allCustomers.find(c => c.id === invoice.customer_id)?.full_name?.toLowerCase().includes(searchTerm));
+                    (invoice.customer_name?.toLowerCase().includes(searchTerm)) ||
+                    (invoice.customer_phone?.includes(searchTerm));
                 
                 const matchesStatus = !statusFilter || (invoice.payment_status?.toLowerCase() === statusFilter);
                 return matchesSearch && matchesStatus;
@@ -1246,7 +1329,6 @@
 
         function generatePDF(invoiceId) {
             const invoice = allInvoices.find(i => i.id === invoiceId);
-            const customer = allCustomers.find(c => c.id === invoice.customer_id);
 
             if (!invoice) {
                 showAlert('Invoice not found', 'error');
@@ -1273,9 +1355,9 @@
                 <div style="margin-bottom: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div>
                         <h3 style="margin: 0 0 10px 0; color: #333;">Customer Details</h3>
-                        <p style="margin: 5px 0;"><strong>Name:</strong> ${customer?.full_name || 'N/A'}</p>
-                        <p style="margin: 5px 0;"><strong>Phone:</strong> ${customer?.phone || '-'}</p>
-                        <p style="margin: 5px 0;"><strong>Email:</strong> ${customer?.email || '-'}</p>
+                        <p style="margin: 5px 0;"><strong>Name:</strong> ${invoice.customer_name || 'N/A'}</p>
+                        <p style="margin: 5px 0;"><strong>Phone:</strong> ${invoice.customer_phone || '-'}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> ${invoice.customer_email || '-'}</p>
                     </div>
                     <div>
                         <h3 style="margin: 0 0 10px 0; color: #333;">Company Details</h3>
@@ -1321,14 +1403,17 @@
         }
 
         async function openInvoiceGenerator() {
-            // Generate new invoice number
             const newInvoiceNumber = await generateNextInvoiceNumber();
             
             generatorItems = [];
+            selectedCustomer = null;
             document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
             document.getElementById('autoInvoiceNumber').textContent = newInvoiceNumber;
             document.getElementById('genInvoiceDate').value = formatISTDateForInput();
-            document.getElementById('genCustomerId').value = '';
+            document.getElementById('genCustomerPhone').value = '';
+            document.getElementById('genCustomerName').value = '';
+            document.getElementById('genCustomerEmail').value = '';
+            document.getElementById('genCustomerCity').value = '';
             document.getElementById('genPaymentStatus').value = 'pending';
             document.getElementById('itemName').value = '';
             document.getElementById('itemQty').value = '1';
@@ -1336,12 +1421,14 @@
             document.getElementById('itemGST').value = '18';
             document.getElementById('itemSAC').value = '';
             document.getElementById('invoiceItemsList').style.display = 'none';
+            document.getElementById('phoneAutoComplete').classList.remove('show');
             updateGeneratorTotals();
             document.getElementById('generatorModal').style.display = 'block';
         }
 
         function closeGenerator() {
             document.getElementById('generatorModal').style.display = 'none';
+            document.getElementById('phoneAutoComplete').classList.remove('show');
         }
 
         function logout() {
@@ -1352,8 +1439,12 @@
 
         window.onclick = function(event) {
             const modal = document.getElementById('generatorModal');
+            const autocomplete = document.getElementById('phoneAutoComplete');
             if (event.target === modal) {
                 modal.style.display = 'none';
+            }
+            if (!event.target.closest('.form-group')) {
+                autocomplete.classList.remove('show');
             }
         }
 
