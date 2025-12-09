@@ -598,7 +598,11 @@
                 <a href="#" class="nav-link" onclick="showTab('invoices', event)">
                     <span>📄</span> Invoices
                 </a>
-                <a href="#" class="nav-link" onclick="showTab('customers', event)">
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Data</div>
+                <a href="customers.html" class="nav-link">
                     <span>👥</span> Customers
                 </a>
             </div>
@@ -674,7 +678,7 @@
                             <div class="stat-change">From pending invoices</div>
                         </div>
                         <div class="stat-card accent-5">
-                            <div class="stat-icon">👥</div>
+                            <div class="stat-icon">📊</div>
                             <div class="stat-label">Total Customers</div>
                             <div class="stat-value" id="totalCustomers">0</div>
                             <div class="stat-change">All registered</div>
@@ -712,21 +716,6 @@
                             <div id="invoicesList" class="loading">
                                 <div class="loading-spinner"></div>
                                 <div>Loading invoices...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="customers" class="tab-content">
-                    <div class="content-box">
-                        <div class="content-header">
-                            <div class="content-title">👥 All Customers</div>
-                            <button class="btn btn-primary btn-sm">➕ Add Customer</button>
-                        </div>
-                        <div class="table-wrapper">
-                            <div id="customersList" class="loading">
-                                <div class="loading-spinner"></div>
-                                <div>Loading customers...</div>
                             </div>
                         </div>
                     </div>
@@ -926,7 +915,6 @@
 
                 updateDashboardStats(invoices, customers);
                 displayInvoices(invoices);
-                displayCustomers(customers);
                 initializeCharts(invoices);
                 hideErrorAlert();
             } catch (error) {
@@ -979,7 +967,6 @@
             log('📌 Using fallback data (empty state)', 'warning');
             updateDashboardStats([], []);
             displayInvoices(null);
-            displayCustomers(null);
             initializeCharts(null);
         }
 
@@ -1001,25 +988,6 @@
             html += '</tbody></table>';
             container.innerHTML = html;
             log(`✅ Displayed ${invoices.length} invoices`, 'success');
-        }
-
-        function displayCustomers(customers) {
-            const container = document.getElementById('customersList');
-            if (!container) return;
-
-            if (!customers || customers.length === 0) {
-                log('👥 No customers to display', 'info');
-                container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No customers found yet</div></div>`;
-                return;
-            }
-
-            let html = `<table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>City</th></tr></thead><tbody>`;
-            customers.forEach(cust => {
-                html += `<tr><td><strong>${cust.name}</strong></td><td>${cust.phone}</td><td>${cust.email}</td><td>${cust.city}</td></tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-            log(`✅ Displayed ${customers.length} customers`, 'success');
         }
 
         function initializeCharts(invoices) {
