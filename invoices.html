@@ -1219,43 +1219,20 @@
             document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
         }
 
-        // Upsert customer (insert if new, update if exists)
-        async function upsertCustomer(mobile_no, customerData) {
+        // Always insert a new customer record (no update, even if mobile exists)
+        async function addNewCustomer(mobile_no, customerData) {
             try {
-                // Check if customer with this mobile exists
-                const { data: existingCustomer, error: fetchError } = await supabase
+                const { error: insertError } = await supabase
                     .from('customers')
-                    .select('id')
-                    .eq('mobile_no', mobile_no)
-                    .single();
+                    .insert([{ mobile_no, ...customerData }]);
 
-                if (fetchError && fetchError.code !== 'PGRST116') {
-                    throw fetchError;
-                }
+                if (insertError) throw insertError;
+                console.log('New customer record created:', mobile_no);
 
-                if (existingCustomer) {
-                    // Update existing customer
-                    const { error: updateError } = await supabase
-                        .from('customers')
-                        .update(customerData)
-                        .eq('id', existingCustomer.id);
-
-                    if (updateError) throw updateError;
-                    console.log('Customer updated:', mobile_no);
-                } else {
-                    // Insert new customer
-                    const { error: insertError } = await supabase
-                        .from('customers')
-                        .insert([{ mobile_no, ...customerData }]);
-
-                    if (insertError) throw insertError;
-                    console.log('Customer created:', mobile_no);
-                }
-
-                // Reload customers after upsert
+                // Reload customers after insert
                 await loadCustomers();
             } catch (error) {
-                console.error('Error upserting customer:', error);
+                console.error('Error adding customer:', error);
                 throw error;
             }
         }
@@ -1286,8 +1263,8 @@
                     return;
                 }
 
-                // Upsert customer to customers table
-                await upsertCustomer(mobile, {
+                // Always add new customer record (even if mobile number exists)
+                await addNewCustomer(mobile, {
                     full_name: customerName,
                     email: customerEmail || null,
                     company_name: customerCompany || null,
@@ -1314,7 +1291,7 @@
 
                 if (error) throw error;
 
-                showAlert('✅ Invoice generated and customer saved successfully!', 'success');
+                showAlert('✅ Invoice generated and new customer record added!', 'success');
                 closeGenerator();
                 loadInvoices();
             } catch (error) {
