@@ -321,11 +321,13 @@
             border-radius: 8px;
             box-shadow: var(--shadow-sm);
             overflow: hidden;
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 900px;
         }
 
         th {
@@ -338,6 +340,7 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 2px solid var(--border-color);
+            white-space: nowrap;
         }
 
         td {
@@ -373,21 +376,34 @@
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
-            padding: 20px;
+            margin: 3% auto;
+            padding: 25px;
             border-radius: 8px;
             width: 90%;
-            max-width: 500px;
+            max-width: 700px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
         }
 
         .modal-header {
             font-size: 18px;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .close-btn {
@@ -423,6 +439,18 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
         }
 
         .loading {
@@ -485,10 +513,25 @@
             margin-bottom: 20px;
         }
 
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: #999;
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions button {
+            flex: 1;
         }
 
         @media (max-width: 1024px) {
@@ -553,6 +596,15 @@
 
             .actions {
                 flex-direction: column;
+            }
+
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
             }
         }
     </style>
@@ -632,8 +684,10 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Company</th>
+                                <th>City</th>
+                                <th>State</th>
                                 <th>GSTIN</th>
-                                <th>Address</th>
+                                <th>PAN</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -658,32 +712,69 @@
                 <span id="modalTitle">➕ Add Customer</span>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="form-group">
-                <label>Full Name *</label>
-                <input type="text" id="customerName" placeholder="Enter full name" required>
+
+            <div class="section-label">📋 Basic Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="customerName" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="customerEmail" placeholder="Enter email" required>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Email *</label>
-                <input type="email" id="customerEmail" placeholder="Enter email" required>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone *</label>
+                    <input type="tel" id="customerPhone" placeholder="Enter phone number" required>
+                </div>
+                <div class="form-group">
+                    <label>Company Name</label>
+                    <input type="text" id="customerCompany" placeholder="Enter company name">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Phone *</label>
-                <input type="tel" id="customerPhone" placeholder="Enter phone number" required>
-            </div>
-            <div class="form-group">
-                <label>Company Name</label>
-                <input type="text" id="customerCompany" placeholder="Enter company name">
-            </div>
-            <div class="form-group">
-                <label>GSTIN</label>
-                <input type="text" id="customerGstin" placeholder="Enter GSTIN (optional)">
-            </div>
+
+            <div class="section-label">🏘️ Address Information</div>
             <div class="form-group">
                 <label>Address</label>
-                <textarea id="customerAddress" rows="2" placeholder="Enter address"></textarea>
+                <textarea id="customerAddress" rows="2" placeholder="Enter complete address"></textarea>
             </div>
-            <button class="btn btn-primary" onclick="saveCustomer()">💾 Save</button>
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>City</label>
+                    <input type="text" id="customerCity" placeholder="Enter city">
+                </div>
+                <div class="form-group">
+                    <label>State</label>
+                    <input type="text" id="customerState" placeholder="Enter state">
+                </div>
+                <div class="form-group">
+                    <label>Zip Code</label>
+                    <input type="text" id="customerZipCode" placeholder="Enter zip code">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Country</label>
+                <input type="text" id="customerCountry" placeholder="Enter country">
+            </div>
+
+            <div class="section-label">🏛️ Tax Information</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>GSTIN</label>
+                    <input type="text" id="customerGstin" placeholder="Enter GSTIN (optional)">
+                </div>
+                <div class="form-group">
+                    <label>PAN</label>
+                    <input type="text" id="customerPan" placeholder="Enter PAN (optional)">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="saveCustomer()">💾 Save Customer</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -778,12 +869,14 @@
                     <td>${customer.email || '-'}</td>
                     <td>${customer.phone || '-'}</td>
                     <td>${customer.company_name || '-'}</td>
+                    <td>${customer.city || '-'}</td>
+                    <td>${customer.state || '-'}</td>
                     <td>${customer.gstin || '-'}</td>
-                    <td>${customer.address || '-'}</td>
+                    <td>${customer.pan || '-'}</td>
                     <td>
                         <div class="actions">
-                            <button class="btn btn-sm btn-primary" onclick="editCustomer('${customer.id}')">✏️ Edit</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCustomer('${customer.id}')">🗑️ Delete</button>
+                            <button class="btn btn-sm btn-primary" onclick="editCustomer('${customer.id}')" title="Edit customer">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCustomer('${customer.id}')" title="Delete customer">🗑️ Delete</button>
                         </div>
                     </td>
                 `;
@@ -797,7 +890,9 @@
                 (customer.full_name?.toLowerCase().includes(searchTerm)) ||
                 (customer.email?.toLowerCase().includes(searchTerm)) ||
                 (customer.phone?.includes(searchTerm)) ||
-                (customer.company_name?.toLowerCase().includes(searchTerm))
+                (customer.company_name?.toLowerCase().includes(searchTerm)) ||
+                (customer.city?.toLowerCase().includes(searchTerm)) ||
+                (customer.state?.toLowerCase().includes(searchTerm))
             );
             renderCustomers();
         }
@@ -809,8 +904,13 @@
             document.getElementById('customerEmail').value = '';
             document.getElementById('customerPhone').value = '';
             document.getElementById('customerCompany').value = '';
-            document.getElementById('customerGstin').value = '';
             document.getElementById('customerAddress').value = '';
+            document.getElementById('customerCity').value = '';
+            document.getElementById('customerState').value = '';
+            document.getElementById('customerZipCode').value = '';
+            document.getElementById('customerCountry').value = '';
+            document.getElementById('customerGstin').value = '';
+            document.getElementById('customerPan').value = '';
             document.getElementById('customerModal').style.display = 'block';
         }
 
@@ -824,8 +924,13 @@
             document.getElementById('customerEmail').value = customer.email || '';
             document.getElementById('customerPhone').value = customer.phone || '';
             document.getElementById('customerCompany').value = customer.company_name || '';
-            document.getElementById('customerGstin').value = customer.gstin || '';
             document.getElementById('customerAddress').value = customer.address || '';
+            document.getElementById('customerCity').value = customer.city || '';
+            document.getElementById('customerState').value = customer.state || '';
+            document.getElementById('customerZipCode').value = customer.zip_code || '';
+            document.getElementById('customerCountry').value = customer.country || '';
+            document.getElementById('customerGstin').value = customer.gstin || '';
+            document.getElementById('customerPan').value = customer.pan || '';
             document.getElementById('customerModal').style.display = 'block';
         }
 
@@ -836,7 +941,7 @@
                 const phone = document.getElementById('customerPhone').value;
 
                 if (!name || !email || !phone) {
-                    showAlert('Please fill in required fields', 'error');
+                    showAlert('Please fill in required fields (Name, Email, Phone)', 'error');
                     return;
                 }
 
@@ -845,8 +950,13 @@
                     email: email,
                     phone: phone,
                     company_name: document.getElementById('customerCompany').value || null,
+                    address: document.getElementById('customerAddress').value || null,
+                    city: document.getElementById('customerCity').value || null,
+                    state: document.getElementById('customerState').value || null,
+                    zip_code: document.getElementById('customerZipCode').value || null,
+                    country: document.getElementById('customerCountry').value || null,
                     gstin: document.getElementById('customerGstin').value || null,
-                    address: document.getElementById('customerAddress').value || null
+                    pan: document.getElementById('customerPan').value || null
                 };
 
                 if (editingCustomerId) {
@@ -899,12 +1009,17 @@
             }
 
             const data = filteredCustomers.map(c => ({
-                'Full Name': c.full_name,
-                'Email': c.email,
-                'Phone': c.phone,
-                'Company': c.company_name,
-                'GSTIN': c.gstin,
-                'Address': c.address,
+                'Full Name': c.full_name || '',
+                'Email': c.email || '',
+                'Phone': c.phone || '',
+                'Company': c.company_name || '',
+                'Address': c.address || '',
+                'City': c.city || '',
+                'State': c.state || '',
+                'Zip Code': c.zip_code || '',
+                'Country': c.country || '',
+                'GSTIN': c.gstin || '',
+                'PAN': c.pan || '',
                 'Created Date': new Date(c.created_at).toLocaleDateString()
             }));
 
