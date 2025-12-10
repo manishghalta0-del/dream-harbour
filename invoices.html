@@ -1063,6 +1063,7 @@
         let allInvoices = [];
         let allCustomers = [];
         let allServices = [];
+        let allSubServices = [];
         let filteredInvoices = [];
         let generatorItems = [];
         let selectedCustomer = null;
@@ -1172,15 +1173,14 @@
 
             // Check if service has sub-services
             if (selectedService.has_sub_services) {
-                // Get child services from same category
-                const childServices = allServices.filter(s => 
-                    s.category_id === selectedService.category_id && 
-                    s.id !== selectedService.id &&
+                // Get ACTUAL sub-services from service_sub_items table
+                const childSubServices = allSubServices.filter(s => 
+                    s.primary_service_id === selectedService.id &&
                     s.is_active
                 );
                 
-                if (childServices.length > 0) {
-                    displaySubItems(childServices);
+                if (childSubServices.length > 0) {
+                    displaySubItems(childSubServices);
                     document.getElementById('mainServiceForm').classList.remove('show');
                 } else {
                     document.getElementById('subItemsSection').classList.remove('show');
@@ -1202,20 +1202,20 @@
             document.getElementById('itemQty').value = '1';
         }
 
-        // Display sub-items from same category
-        function displaySubItems(childServices) {
+        // Display sub-items from service_sub_items table
+        function displaySubItems(childSubServices) {
             const section = document.getElementById('subItemsSection');
             const container = document.getElementById('subItemsContainer');
 
-            if (childServices.length === 0) {
+            if (childSubServices.length === 0) {
                 section.classList.remove('show');
                 return;
             }
 
             section.classList.add('show');
-            container.innerHTML = childServices.map((service, index) => `
+            container.innerHTML = childSubServices.map((service, index) => `
                 <div class="sub-item-row">
-                    <div class="service-name">${service.service_name}</div>
+                    <div class="service-name">${service.sub_service_name}</div>
                     <input type="number" placeholder="Qty" value="1" min="1" class="qty-input-${service.id}" onchange="updateSubItemQty('${service.id}', this.value)">
                     <input type="number" placeholder="Rate" value="${service.default_rate || ''}" step="0.01" min="0" class="rate-input-${service.id}" onchange="updateSubItemRate('${service.id}', this.value)">
                     <select class="gst-input-${service.id}" onchange="updateSubItemGST('${service.id}', this.value)">
@@ -1226,7 +1226,7 @@
                         <option value="28" ${service.default_gst_percentage === 28 ? 'selected' : ''}>28%</option>
                     </select>
                     <input type="text" placeholder="SAC" value="${service.sac_code || ''}" readonly>
-                    <button class="btn btn-primary btn-sm" onclick="addSubItem('${service.id}', '${service.service_name}')" style="padding: 6px; margin: 0;">➕</button>
+                    <button class="btn btn-primary btn-sm" onclick="addSubItem('${service.id}', '${service.sub_service_name}')" style="padding: 6px; margin: 0;">➕</button>
                 </div>
             `).join('');
         }
@@ -1256,7 +1256,7 @@
 
         // Add sub-item to invoice
         function addSubItem(serviceId, serviceName) {
-            const service = allServices.find(s => s.id === serviceId);
+            const service = allSubServices.find(s => s.id === serviceId);
             if (!service) return;
 
             const qty = parseFloat(document.querySelector(`.qty-input-${serviceId}`).value) || 1;
@@ -1360,7 +1360,8 @@
 
             try {
                 const userData = JSON.parse(user);
-                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+                const userEl = document.getElementById('userNameDisplay');
+                if (userEl) userEl.textContent = userData.fullName || 'User';
             } catch (e) {
                 console.error('Error parsing user data:', e);
             }
@@ -1371,6 +1372,7 @@
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             loadCustomers();
             loadServices();
+            loadSubServices();
             loadInvoices();
         }
 
@@ -1417,6 +1419,22 @@
             } catch (error) {
                 console.error('Error loading services:', error);
                 showAlert('Error loading services', 'error');
+            }
+        }
+
+        async function loadSubServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_sub_items')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+                allSubServices = data || [];
+                console.log('Sub-services loaded:', allSubServices.length);
+            } catch (error) {
+                console.error('Error loading sub-services:', error);
+                showAlert('Error loading sub-services', 'error');
             }
         }
 
