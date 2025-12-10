@@ -1246,6 +1246,7 @@
         }
 
         // Display sub-services for selected service
+        // KEY FIX: Only show sub-services container if service has linked sub-services
         function displaySubServices() {
             if (!selectedService) return;
 
@@ -1253,11 +1254,14 @@
             const container = document.getElementById('subServicesContainer');
             const list = document.getElementById('subServicesList');
 
+            // Hide sub-services section if NO sub-services are linked
             if (serviceSubServices.length === 0) {
                 container.style.display = 'none';
+                list.innerHTML = '';
                 return;
             }
 
+            // Show sub-services section ONLY if service has linked sub-services
             container.style.display = 'block';
             list.innerHTML = serviceSubServices.map((subService) => `
                 <div class="sub-service-item">
