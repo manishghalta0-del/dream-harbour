@@ -1474,10 +1474,21 @@
         }
 
         function removeItem(index) {
-            generatorItems.splice(index, 1);
-            renderInvoiceItems();
-            updateGeneratorTotals();
-        }
+const itemToRemove = generatorItems[index];
+    
+    // If it's a service with sub-services, remove all items with same parentServiceId
+    if (itemToRemove.hasSubServices && itemToRemove.parentServiceId) {
+        generatorItems = generatorItems.filter(item => 
+            item.parentServiceId !== itemToRemove.parentServiceId
+        );
+    } else {
+        // Single service - just remove this one
+        generatorItems.splice(index, 1);
+    }
+    
+    renderInvoiceItems();
+    updateGeneratorTotals();
+}
 
         function updateGeneratorTotals() {
             let subtotal = 0;
