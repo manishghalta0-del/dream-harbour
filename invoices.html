@@ -745,6 +745,33 @@
             margin: 0;
         }
 
+        .gst-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .sub-items-list {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .sub-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .sub-item:last-child {
+            border-bottom: none;
+        }
+
         @media (max-width: 1024px) {
             .invoices-container {
                 display: block;
@@ -986,12 +1013,15 @@
             <div class="gst-toggle">
                 <label>
                     <input type="radio" name="gstType" value="with" checked onchange="updateGSTDisplay()">
-                    <span>With GST</span>
+                    <span>With GST (Rate includes GST)</span>
                 </label>
                 <label>
                     <input type="radio" name="gstType" value="without" onchange="updateGSTDisplay()">
-                    <span>Without GST</span>
+                    <span>Without GST (GST calculated on top)</span>
                 </label>
+            </div>
+            <div class="gst-info" id="gstInfo">
+                <strong>With GST:</strong> The rate you enter already includes GST. GST amount will be calculated from the rate.
             </div>
 
             <div class="section-title">📦 Add Services to Invoice</div>
@@ -1026,6 +1056,12 @@
                         </div>
                     </div>
                     <button class="add-service-btn" onclick="addServiceItem()">➕ Add Service to Invoice</button>
+                </div>
+
+                <!-- Sub-services for selected service -->
+                <div id="subServicesContainer" style="display: none; margin-top: 15px;">
+                    <h5>📋 Add Subscription Services (Optional):</h5>
+                    <div id="subServicesList"></div>
                 </div>
             </div>
 
@@ -1105,10 +1141,14 @@
         function updateGSTDisplay() {
             applyGST = document.querySelector('input[name="gstType"]:checked').value === 'with';
             const gstRow = document.getElementById('gstRow');
+            const gstInfo = document.getElementById('gstInfo');
+            
             if (applyGST) {
                 gstRow.style.display = 'flex';
+                gstInfo.innerHTML = '<strong>With GST:</strong> The rate you enter already includes GST. GST amount will be calculated backwards from the rate.';
             } else {
-                gstRow.style.display = 'none';
+                gstRow.style.display = 'flex';
+                gstInfo.innerHTML = '<strong>Without GST:</strong> The rate you enter is exclusive. GST will be calculated and added on top.';
             }
             updateGeneratorTotals();
         }
@@ -1202,6 +1242,45 @@
             document.getElementById('itemRate').value = selectedService.default_rate || '';
             document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
             document.getElementById('itemQty').value = '1';
+
+            // Load and display sub-services
+            loadSubServices();
+            displaySubServices();
+        }
+
+        // Display sub-services for selected service
+        function displaySubServices() {
+            if (!selectedService) return;
+
+            const serviceSubServices = allSubServices.filter(s => s.parent_service_id === selectedService.id);
+            const container = document.getElementById('subServicesContainer');
+            const list = document.getElementById('subServicesList');
+
+            if (serviceSubServices.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            list.innerHTML = serviceSubServices.map((subService, index) => `
+                <div style="margin-bottom: 10px; padding: 10px; background: white; border: 1px solid var(--border-color); border-radius: 4px;">
+                    <label style="margin-bottom: 10px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" class="sub-service-checkbox" data-id="${subService.id}" data-name="${subService.sub_item_name}" 
+                               data-rate="${subService.default_rate}" data-gst="${subService.default_gst_percentage}"
+                               onchange="updateSubServiceSelection()">
+                        <span><strong>${subService.sub_item_name}</strong></span>
+                    </label>
+                    <div style="font-size: 12px; color: #666; margin-left: 25px;">
+                        Rate: ₹${subService.default_rate || '0'} | GST: ${subService.default_gst_percentage || '0'}%
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update sub-service selection
+        function updateSubServiceSelection() {
+            // This will be called when checkboxes change
+            // Sub-services are added with the parent service
         }
 
         // Auto-add service item when values change
@@ -1217,9 +1296,20 @@
             // Remove any existing item with same service (auto-update)
             generatorItems = generatorItems.filter(item => item.serviceId !== selectedService.id);
 
-            const amount = qty * rate;
-            const gstAmount = applyGST ? (amount * (gst / 100)) : 0;
-            const total = amount + gstAmount;
+            let amount, gstAmount, total;
+            
+            if (applyGST) {
+                // Rate includes GST: Reverse calculate GST
+                amount = qty * rate;
+                const gstPortion = (rate * (gst / (100 + gst)));
+                gstAmount = qty * gstPortion;
+                total = amount;
+            } else {
+                // Rate is exclusive: Add GST on top
+                amount = qty * rate;
+                gstAmount = amount * (gst / 100);
+                total = amount + gstAmount;
+            }
 
             generatorItems.push({
                 id: Date.now() + Math.random(),
@@ -1231,7 +1321,8 @@
                 gst,
                 gstAmount,
                 total,
-                sac: selectedService.sac_code || ''
+                sac: selectedService.sac_code || '',
+                gstMode: applyGST ? 'with' : 'without'
             });
 
             renderInvoiceItems();
@@ -1248,11 +1339,52 @@
                 return;
             }
 
+            // Add selected sub-services
+            const subServiceCheckboxes = document.querySelectorAll('.sub-service-checkbox:checked');
+            subServiceCheckboxes.forEach(checkbox => {
+                const subServiceId = checkbox.getAttribute('data-id');
+                const subServiceName = checkbox.getAttribute('data-name');
+                const subServiceRate = parseFloat(checkbox.getAttribute('data-rate')) || 0;
+                const subServiceGst = parseFloat(checkbox.getAttribute('data-gst')) || 0;
+
+                if (!subServiceRate) return;
+
+                let amount, gstAmount, total;
+                
+                if (applyGST) {
+                    amount = qty * subServiceRate;
+                    const gstPortion = (subServiceRate * (subServiceGst / (100 + subServiceGst)));
+                    gstAmount = qty * gstPortion;
+                    total = amount;
+                } else {
+                    amount = qty * subServiceRate;
+                    gstAmount = amount * (subServiceGst / 100);
+                    total = amount + gstAmount;
+                }
+
+                generatorItems.push({
+                    id: Date.now() + Math.random() + subServiceId,
+                    serviceId: subServiceId,
+                    parentServiceId: selectedService.id,
+                    name: `${selectedService.service_name} - ${subServiceName}`,
+                    qty,
+                    rate: subServiceRate,
+                    amount,
+                    gst: subServiceGst,
+                    gstAmount,
+                    total,
+                    sac: selectedService.sac_code || '',
+                    gstMode: applyGST ? 'with' : 'without',
+                    isSubService: true
+                });
+            });
+
             autoAddServiceItem();
             
             // Reset form
             document.getElementById('itemName').value = '';
             document.getElementById('serviceDetailsContainer').style.display = 'none';
+            document.getElementById('subServicesContainer').style.display = 'none';
             selectedService = null;
             
             showAlert('✅ Service added to invoice', 'success');
@@ -1425,28 +1557,40 @@
                     </div>
                     <div>Qty: ${item.qty} × ₹${item.rate.toFixed(2)}</div>
                     <div>₹${item.amount.toFixed(2)}</div>
-                    <div>${applyGST ? item.gst + '% GST: ₹' + item.gstAmount.toFixed(2) : 'No GST'}</div>
-                    <button class="item-remove" onclick="removeItem('${item.serviceId}')">Remove</button>
+                    <div>${item.gst}% GST: ₹${item.gstAmount.toFixed(2)}</div>
+                    <button class="item-remove" onclick="removeItem(${item.id})">Remove</button>
                 </div>
             `).join('');
         }
 
-        function removeItem(serviceId) {
-            generatorItems = generatorItems.filter(item => item.serviceId !== serviceId);
+        function removeItem(itemId) {
+            generatorItems = generatorItems.filter(item => item.id !== itemId);
             renderInvoiceItems();
             updateGeneratorTotals();
         }
 
         function updateGeneratorTotals() {
-            const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
-            const totalGST = applyGST ? generatorItems.reduce((sum, item) => sum + item.gstAmount, 0) : 0;
-            const grandTotal = subtotal + totalGST;
+            const subtotal = generatorItems.reduce((sum, item) => {
+                if (applyGST) {
+                    // With GST: rate is inclusive, so subtract GST to get base
+                    const gstPortion = (item.rate * (item.gst / (100 + item.gst)));
+                    return sum + (item.qty * (item.rate - gstPortion));
+                } else {
+                    // Without GST: amount is base
+                    return sum + item.amount;
+                }
+            }, 0);
+            
+            const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
+            const grandTotal = applyGST ? 
+                generatorItems.reduce((sum, item) => sum + (item.qty * item.rate), 0) :
+                (subtotal + totalGST);
 
             document.getElementById('genSubtotal').textContent = '₹' + subtotal.toFixed(2);
             document.getElementById('genTotalGST').textContent = '₹' + totalGST.toFixed(2);
             document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
 
-            console.log('Totals Updated:', { subtotal, totalGST, grandTotal });
+            console.log('Totals Updated:', { subtotal, totalGST, grandTotal, applyGST });
         }
 
         async function saveGeneratedInvoice() {
@@ -1457,9 +1601,19 @@
                 const invoiceDate = document.getElementById('genInvoiceDate').value;
                 const paymentStatus = document.getElementById('genPaymentStatus').value;
                 
-                const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
-                const totalGST = applyGST ? generatorItems.reduce((sum, item) => sum + item.gstAmount, 0) : 0;
-                const totalAmount = subtotal + totalGST;
+                const subtotal = generatorItems.reduce((sum, item) => {
+                    if (applyGST) {
+                        const gstPortion = (item.rate * (item.gst / (100 + item.gst)));
+                        return sum + (item.qty * (item.rate - gstPortion));
+                    } else {
+                        return sum + item.amount;
+                    }
+                }, 0);
+                
+                const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
+                const totalAmount = applyGST ? 
+                    generatorItems.reduce((sum, item) => sum + (item.qty * item.rate), 0) :
+                    (subtotal + totalGST);
 
                 if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
                     showAlert('Please fill all required fields and add at least one service', 'error');
