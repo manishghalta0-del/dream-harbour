@@ -659,6 +659,48 @@
             font-size: 14px;
         }
 
+        .service-variants {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .service-variants h5 {
+            margin: 0 0 10px 0;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .variant-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .variant-item:hover {
+            background: #efefef;
+        }
+
+        .variant-item input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .variant-item label {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
         @media (max-width: 1024px) {
             .invoices-container {
                 display: block;
@@ -888,11 +930,19 @@
             </div>
 
             <div class="section-title">📦 Add Services/Items</div>
+            <div class="form-group">
+                <label>Service Name *</label>
+                <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
+                <div id="serviceAutoComplete" class="autocomplete-list"></div>
+            </div>
+
+            <!-- Service Variants Section (Conditionally shown) -->
+            <div id="serviceVariantsSection" class="service-variants" style="display: none;">
+                <h5>Select Service Option:</h5>
+                <div id="serviceVariantsContainer"></div>
+            </div>
+
             <div class="form-row-3">
-                <div class="form-group">
-                    <label>Service Name *</label>
-                    <input type="text" id="itemName" placeholder="e.g., Web Development">
-                </div>
                 <div class="form-group">
                     <label>Quantity *</label>
                     <input type="number" id="itemQty" placeholder="1" value="1" min="1">
@@ -901,8 +951,6 @@
                     <label>Rate (₹) *</label>
                     <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0">
                 </div>
-            </div>
-            <div class="form-row-3">
                 <div class="form-group">
                     <label>GST % *</label>
                     <select id="itemGST">
@@ -913,6 +961,8 @@
                         <option value="28">28%</option>
                     </select>
                 </div>
+            </div>
+            <div class="form-row-3">
                 <div class="form-group">
                     <label>SAC Code</label>
                     <input type="text" id="itemSAC" placeholder="Optional">
@@ -965,10 +1015,14 @@
         let supabase;
         let allInvoices = [];
         let allCustomers = [];
+        let allServices = [];
+        let allServiceSubItems = [];
         let filteredInvoices = [];
         let generatorItems = [];
         let selectedCustomer = null;
         let searchResults = [];
+        let serviceSearchResults = [];
+        let selectedService = null;
 
         // Get current date in IST (Indian Standard Time)
         function getISTDate() {
@@ -1023,6 +1077,119 @@
             const month = String(istDate.getMonth() + 1).padStart(2, '0');
             const day = String(istDate.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
+        }
+
+        // Search services by name
+        function searchServices() {
+            const serviceName = document.getElementById('itemName').value.trim();
+            const autocompleteList = document.getElementById('serviceAutoComplete');
+
+            if (!serviceName || serviceName.length < 1) {
+                autocompleteList.classList.remove('show');
+                document.getElementById('serviceVariantsSection').style.display = 'none';
+                return;
+            }
+
+            // Filter services by matching service name
+            serviceSearchResults = allServices.filter(s => {
+                if (!s.service_name) return false;
+                return s.service_name.toLowerCase().includes(serviceName.toLowerCase());
+            });
+
+            if (serviceSearchResults.length === 0) {
+                autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No services found</div>';
+                autocompleteList.classList.add('show');
+                document.getElementById('serviceVariantsSection').style.display = 'none';
+                return;
+            }
+
+            // Create autocomplete HTML
+            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => `
+                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectService(${index}); return false;">
+                    <div class="autocomplete-item-phone">💼 ${service.service_name}</div>
+                    <div class="autocomplete-item-name">SAC: ${service.sac_code || 'N/A'} | Rate: ₹${service.default_rate || '0'}</div>
+                </button>
+            `).join('');
+
+            autocompleteList.classList.add('show');
+        }
+
+        // Select service from autocomplete and show variants
+        async function selectService(index) {
+            if (index < 0 || index >= serviceSearchResults.length) return;
+
+            selectedService = serviceSearchResults[index];
+            document.getElementById('itemName').value = selectedService.service_name;
+            document.getElementById('itemRate').value = selectedService.default_rate || '';
+            document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
+            document.getElementById('itemSAC').value = selectedService.sac_code || '';
+            
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+
+            // Check if service has sub-items
+            if (selectedService.has_sub_services) {
+                // Load service sub-items from service_sub_items table
+                await loadServiceSubItems(selectedService.id);
+            } else {
+                // Show service_items as variants
+                await loadServiceVariants(selectedService.id);
+            }
+        }
+
+        // Load service sub-items from service_sub_items table
+        async function loadServiceSubItems(serviceId) {
+            try {
+                const { data, error } = await supabase
+                    .from('service_sub_items')
+                    .select('*')
+                    .eq('service_items_id', serviceId);
+
+                if (error) throw error;
+
+                if (data && data.length > 0) {
+                    displayServiceVariants(data, 'sub-items');
+                } else {
+                    document.getElementById('serviceVariantsSection').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading service sub-items:', error);
+                document.getElementById('serviceVariantsSection').style.display = 'none';
+            }
+        }
+
+        // Load service variants from service_items table (for items without sub-services)
+        async function loadServiceVariants(serviceId) {
+            // If service has no sub-services, show only the main service
+            document.getElementById('serviceVariantsSection').style.display = 'none';
+        }
+
+        // Display service variants/sub-items
+        function displayServiceVariants(variants, type) {
+            const section = document.getElementById('serviceVariantsSection');
+            const container = document.getElementById('serviceVariantsContainer');
+
+            if (variants.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            container.innerHTML = variants.map((variant, index) => `
+                <div class="variant-item" onclick="selectVariant(this, ${index})">
+                    <input type="radio" name="serviceVariant" value="${index}">
+                    <label>${type === 'sub-items' ? variant.sub_item_name : variant.service_name} - ₹${variant.default_rate || '0'}</label>
+                </div>
+            `).join('');
+        }
+
+        // Select variant and update rate
+        function selectVariant(element, index) {
+            const variant = selectedService.has_sub_services 
+                ? allServiceSubItems[index] 
+                : selectedService;
+            
+            document.getElementById('itemRate').value = variant.default_rate || '';
+            document.getElementById('itemGST').value = variant.default_gst_percentage || document.getElementById('itemGST').value;
         }
 
         // Search customers by mobile number
@@ -1108,6 +1275,8 @@
             
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             loadCustomers();
+            loadServices();
+            loadServiceSubItems();
             loadInvoices();
         }
 
@@ -1138,6 +1307,37 @@
             } catch (error) {
                 console.error('Error loading customers:', error);
                 showAlert('Error loading customers', 'error');
+            }
+        }
+
+        async function loadServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_items')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+                allServices = data || [];
+                console.log('Services loaded:', allServices.length);
+            } catch (error) {
+                console.error('Error loading services:', error);
+                showAlert('Error loading services', 'error');
+            }
+        }
+
+        async function loadServiceSubItems() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_sub_items')
+                    .select('*');
+
+                if (error) throw error;
+                allServiceSubItems = data || [];
+                console.log('Service sub-items loaded:', allServiceSubItems.length);
+            } catch (error) {
+                console.error('Error loading service sub-items:', error);
+                showAlert('Error loading service sub-items', 'error');
             }
         }
 
@@ -1174,6 +1374,8 @@
             document.getElementById('itemRate').value = '';
             document.getElementById('itemGST').value = '18';
             document.getElementById('itemSAC').value = '';
+            document.getElementById('serviceVariantsSection').style.display = 'none';
+            selectedService = null;
 
             renderInvoiceItems();
             updateGeneratorTotals();
@@ -1473,7 +1675,10 @@
             
             generatorItems = [];
             selectedCustomer = null;
+            selectedService = null;
             searchResults = [];
+            serviceSearchResults = [];
+            
             document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
             document.getElementById('autoInvoiceNumber').textContent = newInvoiceNumber;
             document.getElementById('genInvoiceDate').value = formatISTDateForInput();
@@ -1491,6 +1696,8 @@
             document.getElementById('itemSAC').value = '';
             document.getElementById('invoiceItemsList').style.display = 'none';
             document.getElementById('mobileAutoComplete').classList.remove('show');
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+            document.getElementById('serviceVariantsSection').style.display = 'none';
             updateGeneratorTotals();
             document.getElementById('generatorModal').style.display = 'block';
         }
@@ -1498,6 +1705,8 @@
         function closeGenerator() {
             document.getElementById('generatorModal').style.display = 'none';
             document.getElementById('mobileAutoComplete').classList.remove('show');
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+            document.getElementById('serviceVariantsSection').style.display = 'none';
         }
 
         function logout() {
@@ -1508,12 +1717,17 @@
 
         window.onclick = function(event) {
             const modal = document.getElementById('generatorModal');
-            const autocomplete = document.getElementById('mobileAutoComplete');
+            const mobileAutocomplete = document.getElementById('mobileAutoComplete');
+            const serviceAutocomplete = document.getElementById('serviceAutoComplete');
+            
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
             if (!event.target.closest('.form-group') && !event.target.matches('#genCustomerMobile')) {
-                autocomplete.classList.remove('show');
+                mobileAutocomplete.classList.remove('show');
+            }
+            if (!event.target.closest('.form-group') && !event.target.matches('#itemName')) {
+                serviceAutocomplete.classList.remove('show');
             }
         }
 
