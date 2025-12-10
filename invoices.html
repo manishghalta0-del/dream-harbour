@@ -677,32 +677,13 @@
             gap: 8px;
         }
 
-        /* New Service/Sub-Service Section Styles */
+        /* Service/Sub-Service Section Styles */
         .service-add-section {
             background: linear-gradient(135deg, #e8f4f8 0%, #f0f8fb 100%);
             border: 1px solid var(--primary-color);
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-        }
-
-        .add-service-btn {
-            background: var(--primary-color);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .add-service-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
         }
 
         .service-form-section {
@@ -794,6 +775,25 @@
             color: var(--primary-color);
             border-top: 1px solid var(--border-color);
             padding-top: 4px;
+        }
+
+        .add-service-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .add-service-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 1024px) {
@@ -1048,53 +1048,48 @@
             
             <!-- Service Selection -->
             <div class="service-add-section">
-                <button class="add-service-btn" onclick="toggleServiceForm()">➕ Add Service</button>
-                
-                <!-- Service Form (Hidden by default) -->
-                <div id="serviceFormSection" style="display: none;">
-                    <div class="service-form-section">
-                        <div class="form-group">
-                            <label>Service Name *</label>
-                            <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
-                            <div id="serviceAutoComplete" class="autocomplete-list"></div>
+                <div class="service-form-section">
+                    <div class="form-group">
+                        <label>Service Name *</label>
+                        <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
+                        <div id="serviceAutoComplete" class="autocomplete-list"></div>
+                    </div>
+
+                    <div id="serviceDetailsContainer" style="display: none;">
+                        <div class="service-inputs-row">
+                            <div class="form-group">
+                                <label>Service Name</label>
+                                <input type="text" id="serviceName" readonly style="background: #f9f9f9;">
+                            </div>
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="number" id="itemQty" placeholder="1" value="1" min="1" onchange="updateInvoiceItemFromService()" onkeyup="updateInvoiceItemFromService()">
+                            </div>
+                            <div class="form-group">
+                                <label>Rate (₹)</label>
+                                <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0" onchange="updateInvoiceItemFromService()" onkeyup="updateInvoiceItemFromService()">
+                            </div>
+                            <div class="form-group">
+                                <label>GST %</label>
+                                <select id="itemGST" onchange="updateInvoiceItemFromService()">
+                                    <option value="0">0% (No GST)</option>
+                                    <option value="5">5%</option>
+                                    <option value="12">12%</option>
+                                    <option value="18" selected>18%</option>
+                                    <option value="28">28%</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div id="serviceDetailsContainer" style="display: none;">
-                            <div class="service-inputs-row">
-                                <div class="form-group">
-                                    <label>Service Name</label>
-                                    <input type="text" id="serviceName" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label>Quantity</label>
-                                    <input type="number" id="itemQty" placeholder="1" value="1" min="1" onchange="updateInvoiceItemFromService()" onkeyup="updateInvoiceItemFromService()">
-                                </div>
-                                <div class="form-group">
-                                    <label>Rate (₹)</label>
-                                    <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0" onchange="updateInvoiceItemFromService()" onkeyup="updateInvoiceItemFromService()">
-                                </div>
-                                <div class="form-group">
-                                    <label>GST %</label>
-                                    <select id="itemGST" onchange="updateInvoiceItemFromService()">
-                                        <option value="0">0% (No GST)</option>
-                                        <option value="5">5%</option>
-                                        <option value="12">12%</option>
-                                        <option value="18" selected>18%</option>
-                                        <option value="28">28%</option>
-                                    </select>
-                                </div>
+                        <!-- Sub-services for selected service -->
+                        <div id="subServicesContainer" style="display: none;">
+                            <div class="sub-services-list">
+                                <div class="sub-services-title">📋 Sub-services (Optional) - Add one or more:</div>
+                                <div id="subServicesList"></div>
                             </div>
-
-                            <!-- Sub-services for selected service -->
-                            <div id="subServicesContainer" style="display: none;">
-                                <div class="sub-services-list">
-                                    <div class="sub-services-title">📋 Sub-services (Optional) - Select one or more:</div>
-                                    <div id="subServicesList"></div>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-primary" onclick="addServiceToInvoice()" style="width: 100%; margin-top: 10px;">✅ Add Service</button>
                         </div>
+
+                        <button class="add-service-btn" onclick="addServiceToInvoice()">✅ Add Service</button>
                     </div>
                 </div>
             </div>
@@ -1219,16 +1214,6 @@
             return `${year}-${month}-${day}`;
         }
 
-        function toggleServiceForm() {
-            const form = document.getElementById('serviceFormSection');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            if (form.style.display === 'block') {
-                document.getElementById('itemName').focus();
-            } else {
-                resetServiceForm();
-            }
-        }
-
         function searchServices() {
             const serviceName = document.getElementById('itemName').value.trim();
             const autocompleteList = document.getElementById('serviceAutoComplete');
@@ -1281,14 +1266,9 @@
         function displaySubServices() {
             if (!selectedService) return;
 
-            // FIX: Use primary_service_id instead of parent_service_id
             const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             const container = document.getElementById('subServicesContainer');
             const list = document.getElementById('subServicesList');
-
-            console.log('Service ID:', selectedService.id);
-            console.log('Sub-services found:', serviceSubServices.length);
-            console.log('All sub-services:', allSubServices);
 
             if (serviceSubServices.length === 0) {
                 container.style.display = 'none';
@@ -1310,13 +1290,6 @@
 
         function updateInvoiceItemFromService() {
             if (!selectedService) return;
-
-            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
-            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
-            const gst = parseFloat(document.getElementById('itemGST').value) || 0;
-
-            if (!rate) return;
-
             updateGeneratorTotals();
         }
 
@@ -1662,7 +1635,6 @@
                 if (error) throw error;
                 allSubServices = data || [];
                 console.log('Sub-services loaded:', allSubServices.length);
-                console.log('All sub-services data:', allSubServices);
             } catch (error) {
                 console.error('Error loading sub-services:', error);
                 showAlert('Error loading sub-services', 'error');
@@ -1948,7 +1920,6 @@
             document.getElementById('genCustomerGSTIN').value = '';
             document.getElementById('genCustomerAddress').value = '';
             document.getElementById('genPaymentStatus').value = 'pending';
-            document.getElementById('serviceFormSection').style.display = 'none';
             document.getElementById('addedServicesContainer').style.display = 'none';
             document.querySelector('input[name="gstType"][value="with"]').checked = true;
             updateGSTDisplay();
