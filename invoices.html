@@ -936,7 +936,7 @@
                 <div id="serviceAutoComplete" class="autocomplete-list"></div>
             </div>
 
-            <!-- Service Variants Section (Conditionally shown) -->
+            <!-- Service Sub-Items Section (Conditionally shown) -->
             <div id="serviceVariantsSection" class="service-variants" style="display: none;">
                 <h5>Select Service Option:</h5>
                 <div id="serviceVariantsContainer"></div>
@@ -1090,7 +1090,7 @@
                 return;
             }
 
-            // Filter services by matching service name
+            // Filter services by matching service name (from service_items table)
             serviceSearchResults = allServices.filter(s => {
                 if (!s.service_name) return false;
                 return s.service_name.toLowerCase().includes(serviceName.toLowerCase());
@@ -1114,7 +1114,7 @@
             autocompleteList.classList.add('show');
         }
 
-        // Select service from autocomplete and show variants
+        // Select service from autocomplete and show variants if has sub-items
         async function selectService(index) {
             if (index < 0 || index >= serviceSearchResults.length) return;
 
@@ -1126,70 +1126,49 @@
             
             document.getElementById('serviceAutoComplete').classList.remove('show');
 
-            // Check if service has sub-items
+            // Check if service has sub-items (has_sub_services = TRUE)
             if (selectedService.has_sub_services) {
-                // Load service sub-items from service_sub_items table
-                await loadServiceSubItems(selectedService.id);
-            } else {
-                // Show service_items as variants
-                await loadServiceVariants(selectedService.id);
-            }
-        }
-
-        // Load service sub-items from service_sub_items table
-        async function loadServiceSubItems(serviceId) {
-            try {
-                const { data, error } = await supabase
-                    .from('service_sub_items')
-                    .select('*')
-                    .eq('service_items_id', serviceId);
-
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    displayServiceVariants(data, 'sub-items');
+                // Load service_sub_items linked to this service (via primary_service_id)
+                const subItems = allServiceSubItems.filter(s => s.primary_service_id === selectedService.id && s.is_active);
+                
+                if (subItems.length > 0) {
+                    displayServiceVariants(subItems);
                 } else {
                     document.getElementById('serviceVariantsSection').style.display = 'none';
                 }
-            } catch (error) {
-                console.error('Error loading service sub-items:', error);
+            } else {
+                // No sub-items, hide variants section
                 document.getElementById('serviceVariantsSection').style.display = 'none';
             }
         }
 
-        // Load service variants from service_items table (for items without sub-services)
-        async function loadServiceVariants(serviceId) {
-            // If service has no sub-services, show only the main service
-            document.getElementById('serviceVariantsSection').style.display = 'none';
-        }
-
-        // Display service variants/sub-items
-        function displayServiceVariants(variants, type) {
+        // Display service sub-items as variants
+        function displayServiceVariants(subItems) {
             const section = document.getElementById('serviceVariantsSection');
             const container = document.getElementById('serviceVariantsContainer');
 
-            if (variants.length === 0) {
+            if (subItems.length === 0) {
                 section.style.display = 'none';
                 return;
             }
 
             section.style.display = 'block';
-            container.innerHTML = variants.map((variant, index) => `
+            container.innerHTML = subItems.map((subItem, index) => `
                 <div class="variant-item" onclick="selectVariant(this, ${index})">
                     <input type="radio" name="serviceVariant" value="${index}">
-                    <label>${type === 'sub-items' ? variant.sub_item_name : variant.service_name} - ₹${variant.default_rate || '0'}</label>
+                    <label>${subItem.sub_item_name} - ₹${subItem.default_rate || '0'}</label>
                 </div>
             `).join('');
         }
 
-        // Select variant and update rate
+        // Select variant and update rate/gst
         function selectVariant(element, index) {
-            const variant = selectedService.has_sub_services 
-                ? allServiceSubItems[index] 
-                : selectedService;
-            
-            document.getElementById('itemRate').value = variant.default_rate || '';
-            document.getElementById('itemGST').value = variant.default_gst_percentage || document.getElementById('itemGST').value;
+            const subItems = allServiceSubItems.filter(s => s.primary_service_id === selectedService.id && s.is_active);
+            if (index >= 0 && index < subItems.length) {
+                const subItem = subItems[index];
+                document.getElementById('itemRate').value = subItem.default_rate || '';
+                document.getElementById('itemGST').value = subItem.default_gst_percentage || document.getElementById('itemGST').value;
+            }
         }
 
         // Search customers by mobile number
@@ -1330,7 +1309,8 @@
             try {
                 const { data, error } = await supabase
                     .from('service_sub_items')
-                    .select('*');
+                    .select('*')
+                    .eq('is_active', true);
 
                 if (error) throw error;
                 allServiceSubItems = data || [];
