@@ -464,6 +464,7 @@
             overflow-y: auto;
             z-index: 1001;
             display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .autocomplete-list.show {
@@ -471,10 +472,15 @@
         }
 
         .autocomplete-item {
-            padding: 10px;
+            padding: 12px 10px;
             cursor: pointer;
             border-bottom: 1px solid var(--border-color);
             transition: background 0.2s;
+            display: block;
+            text-align: left;
+            width: 100%;
+            background: white;
+            border: none;
         }
 
         .autocomplete-item:hover,
@@ -489,6 +495,7 @@
         .autocomplete-item-phone {
             font-weight: 600;
             color: var(--primary-color);
+            margin-bottom: 4px;
         }
 
         .autocomplete-item-name {
@@ -946,6 +953,7 @@
         let filteredInvoices = [];
         let generatorItems = [];
         let selectedCustomer = null;
+        let searchResults = [];
 
         // Get current date in IST (Indian Standard Time)
         function getISTDate() {
@@ -1002,62 +1010,61 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Search customers by phone
+        // Search customers by phone - FIXED VERSION
         function searchCustomerByPhone() {
             const phone = document.getElementById('genCustomerPhone').value.trim();
             const autocompleteList = document.getElementById('phoneAutoComplete');
 
-            if (!phone || phone.length < 2) {
+            if (!phone || phone.length < 1) {
                 autocompleteList.classList.remove('show');
                 return;
             }
 
+            // Normalize input by removing non-digit characters
             const normalizedInput = phone.replace(/\D/g, '');
-    const matchingCustomers = allCustomers.filter(c => {
-      if (!c.phone) return false;
-      const normalizedPhone = c.phone.replace(/\D/g, '');
-      return normalizedPhone.includes(normalizedInput);
-    });
 
-            if (matchingCustomers.length === 0) {
+            if (normalizedInput.length === 0) {
                 autocompleteList.classList.remove('show');
                 return;
             }
 
-            autocompleteList.innerHTML = matchingCustomers.map((customer, index) => `
-                <div class="autocomplete-item" onclick="selectCustomer(${index})">
+            // Filter customers by matching phone numbers
+            searchResults = allCustomers.filter(c => {
+                if (!c.phone) return false;
+                const normalizedPhone = c.phone.replace(/\D/g, '');
+                return normalizedPhone.includes(normalizedInput);
+            });
+
+            if (searchResults.length === 0) {
+                autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No customers found</div>';
+                autocompleteList.classList.add('show');
+                return;
+            }
+
+            // Create autocomplete HTML
+            autocompleteList.innerHTML = searchResults.map((customer, index) => `
+                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectCustomer(${index}); return false;">
                     <div class="autocomplete-item-phone">📱 ${customer.phone}</div>
-                    <div class="autocomplete-item-name">${customer.full_name} ${customer.city ? '• ' + customer.city : ''}</div>
-                </div>
+                    <div class="autocomplete-item-name">${customer.full_name || 'N/A'}${customer.city ? ' • ' + customer.city : ''}</div>
+                </button>
             `).join('');
 
             autocompleteList.classList.add('show');
         }
 
-        // Select customer from autocomplete
+        // Select customer from autocomplete - FIXED VERSION
         function selectCustomer(index) {
-            const phone = document.getElementById('genCustomerPhone').value.trim();
-            const matchingCustomers = allCustomers.filter(c => 
-                !c.phone ? false : c.phone.replace(/\D/g, '').includes(phone.replace(/\D/g, ''))
-            );
+            if (index < 0 || index >= searchResults.length) return;
 
-            if (matchingCustomers[index]) {
-                const customer = matchingCustomers[index];
-                selectedCustomer = customer;
-                
-                document.getElementById('genCustomerPhone').value = customer.phone || '';
-                document.getElementById('genCustomerName').value = customer.full_name || '';
-                document.getElementById('genCustomerEmail').value = customer.email || '';
-                document.getElementById('genCustomerCity').value = customer.city || '';
-                
-                document.getElementById('phoneAutoComplete').classList.remove('show');
-            }
-        }
-
-        // Allow users to edit customer details
-        function onCustomerFieldChange() {
-            // Customer can edit any field - changes are NOT saved to master table
-            // They will be stored as-is with the invoice
+            const customer = searchResults[index];
+            selectedCustomer = customer;
+            
+            document.getElementById('genCustomerPhone').value = customer.phone || '';
+            document.getElementById('genCustomerName').value = customer.full_name || '';
+            document.getElementById('genCustomerEmail').value = customer.email || '';
+            document.getElementById('genCustomerCity').value = customer.city || '';
+            
+            document.getElementById('phoneAutoComplete').classList.remove('show');
         }
 
         function initializeApp() {
@@ -1110,8 +1117,10 @@
 
                 if (error) throw error;
                 allCustomers = data || [];
+                console.log('Customers loaded:', allCustomers.length);
             } catch (error) {
                 console.error('Error loading customers:', error);
+                showAlert('Error loading customers', 'error');
             }
         }
 
@@ -1410,6 +1419,7 @@
             
             generatorItems = [];
             selectedCustomer = null;
+            searchResults = [];
             document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
             document.getElementById('autoInvoiceNumber').textContent = newInvoiceNumber;
             document.getElementById('genInvoiceDate').value = formatISTDateForInput();
@@ -1446,7 +1456,7 @@
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
-            if (!event.target.closest('.form-group')) {
+            if (!event.target.closest('.form-group') && !event.target.matches('#genCustomerPhone')) {
                 autocomplete.classList.remove('show');
             }
         }
