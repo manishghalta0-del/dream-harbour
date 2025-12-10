@@ -515,6 +515,12 @@
             gap: 15px;
         }
 
+        .form-row-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -706,7 +712,8 @@
             }
 
             .form-row,
-            .form-row-3 {
+            .form-row-3,
+            .form-row-4 {
                 grid-template-columns: 1fr;
             }
 
@@ -857,10 +864,10 @@
                 <input type="tel" id="genCustomerMobile" placeholder="Enter or search customer mobile" required onkeyup="searchCustomerByMobile()">
                 <div id="mobileAutoComplete" class="autocomplete-list"></div>
             </div>
-            <div class="form-row-3">
+            <div class="form-row-4">
                 <div class="form-group">
-                    <label>Customer Name</label>
-                    <input type="text" id="genCustomerName" placeholder="Customer name">
+                    <label>Customer Name *</label>
+                    <input type="text" id="genCustomerName" placeholder="Customer name" required>
                 </div>
                 <div class="form-group">
                     <label>Customer Email</label>
@@ -870,6 +877,14 @@
                     <label>Company</label>
                     <input type="text" id="genCustomerCompany" placeholder="Company name">
                 </div>
+                <div class="form-group">
+                    <label>GSTIN</label>
+                    <input type="text" id="genCustomerGSTIN" placeholder="GSTIN">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="genCustomerAddress" placeholder="Enter customer address" style="min-height: 60px; resize: vertical;"></textarea>
             </div>
 
             <div class="section-title">📦 Add Services/Items</div>
@@ -1010,7 +1025,7 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Search customers by mobile number - ALIGNED WITH mobile_no FIELD
+        // Search customers by mobile number
         function searchCustomerByMobile() {
             const mobile = document.getElementById('genCustomerMobile').value.trim();
             const autocompleteList = document.getElementById('mobileAutoComplete');
@@ -1028,7 +1043,7 @@
                 return;
             }
 
-            // Filter customers by matching mobile numbers (using mobile_no field)
+            // Filter customers by matching mobile numbers
             searchResults = allCustomers.filter(c => {
                 if (!c.mobile_no) return false;
                 const normalizedMobile = String(c.mobile_no).replace(/\D/g, '');
@@ -1063,6 +1078,8 @@
             document.getElementById('genCustomerName').value = customer.full_name || '';
             document.getElementById('genCustomerEmail').value = customer.email || '';
             document.getElementById('genCustomerCompany').value = customer.company_name || '';
+            document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
+            document.getElementById('genCustomerAddress').value = customer.address || '';
             
             document.getElementById('mobileAutoComplete').classList.remove('show');
         }
@@ -1202,12 +1219,57 @@
             document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
         }
 
+        // Upsert customer (insert if new, update if exists)
+        async function upsertCustomer(mobile_no, customerData) {
+            try {
+                // Check if customer with this mobile exists
+                const { data: existingCustomer, error: fetchError } = await supabase
+                    .from('customers')
+                    .select('id')
+                    .eq('mobile_no', mobile_no)
+                    .single();
+
+                if (fetchError && fetchError.code !== 'PGRST116') {
+                    throw fetchError;
+                }
+
+                if (existingCustomer) {
+                    // Update existing customer
+                    const { error: updateError } = await supabase
+                        .from('customers')
+                        .update(customerData)
+                        .eq('id', existingCustomer.id);
+
+                    if (updateError) throw updateError;
+                    console.log('Customer updated:', mobile_no);
+                } else {
+                    // Insert new customer
+                    const { error: insertError } = await supabase
+                        .from('customers')
+                        .insert([{ mobile_no, ...customerData }]);
+
+                    if (insertError) throw insertError;
+                    console.log('Customer created:', mobile_no);
+                }
+
+                // Reload customers after upsert
+                await loadCustomers();
+            } catch (error) {
+                console.error('Error upserting customer:', error);
+                throw error;
+            }
+        }
+
         async function saveGeneratedInvoice() {
             try {
                 const invoiceNumber = document.getElementById('genInvoiceNumber').value;
-                const mobile = document.getElementById('genCustomerMobile').value;
-                const customerName = document.getElementById('genCustomerName').value;
-                const customerEmail = document.getElementById('genCustomerEmail').value;
+                const mobile = document.getElementById('genCustomerMobile').value.trim();
+                const customerName = document.getElementById('genCustomerName').value.trim();
+                const customerEmail = document.getElementById('genCustomerEmail').value.trim();
+                const customerCompany = document.getElementById('genCustomerCompany').value.trim();
+                const customerGSTIN = document.getElementById('genCustomerGSTIN').value.trim();
+                const customerAddress = document.getElementById('genCustomerAddress').value.trim();
+                
                 const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
                 const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
                 const totalAmount = subtotal + totalGST;
@@ -1217,6 +1279,23 @@
                     return;
                 }
 
+                // Validate mobile number (10 digits)
+                const normalizedMobile = mobile.replace(/\D/g, '');
+                if (normalizedMobile.length !== 10) {
+                    showAlert('Please enter a valid 10-digit mobile number', 'error');
+                    return;
+                }
+
+                // Upsert customer to customers table
+                await upsertCustomer(mobile, {
+                    full_name: customerName,
+                    email: customerEmail || null,
+                    company_name: customerCompany || null,
+                    gstin: customerGSTIN || null,
+                    address: customerAddress || null
+                });
+
+                // Save invoice
                 const invoiceData = {
                     invoice_number: invoiceNumber,
                     customer_phone: mobile,
@@ -1235,7 +1314,7 @@
 
                 if (error) throw error;
 
-                showAlert('✅ Invoice generated and saved successfully!', 'success');
+                showAlert('✅ Invoice generated and customer saved successfully!', 'success');
                 closeGenerator();
                 loadInvoices();
             } catch (error) {
@@ -1425,6 +1504,8 @@
             document.getElementById('genCustomerName').value = '';
             document.getElementById('genCustomerEmail').value = '';
             document.getElementById('genCustomerCompany').value = '';
+            document.getElementById('genCustomerGSTIN').value = '';
+            document.getElementById('genCustomerAddress').value = '';
             document.getElementById('genPaymentStatus').value = 'pending';
             document.getElementById('itemName').value = '';
             document.getElementById('itemQty').value = '1';
