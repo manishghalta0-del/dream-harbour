@@ -1281,9 +1281,14 @@
         function displaySubServices() {
             if (!selectedService) return;
 
-            const serviceSubServices = allSubServices.filter(s => s.parent_service_id === selectedService.id);
+            // FIX: Use primary_service_id instead of parent_service_id
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             const container = document.getElementById('subServicesContainer');
             const list = document.getElementById('subServicesList');
+
+            console.log('Service ID:', selectedService.id);
+            console.log('Sub-services found:', serviceSubServices.length);
+            console.log('All sub-services:', allSubServices);
 
             if (serviceSubServices.length === 0) {
                 container.style.display = 'none';
@@ -1295,10 +1300,10 @@
             list.innerHTML = serviceSubServices.map((subService) => `
                 <div class="sub-service-item">
                     <input type="checkbox" class="sub-service-checkbox" data-id="${subService.id}" 
-                           data-name="${subService.sub_item_name}" data-rate="${subService.default_rate}" 
+                           data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" 
                            data-gst="${subService.default_gst_percentage}" 
                            onchange="updateInvoiceItemFromService()">
-                    <span><strong>${subService.sub_item_name}</strong> - ₹${subService.default_rate} (${subService.default_gst_percentage}% GST)</span>
+                    <span><strong>${subService.sub_service_name}</strong> - ₹${subService.default_rate} (${subService.default_gst_percentage}% GST)</span>
                 </div>
             `).join('');
         }
@@ -1657,6 +1662,7 @@
                 if (error) throw error;
                 allSubServices = data || [];
                 console.log('Sub-services loaded:', allSubServices.length);
+                console.log('All sub-services data:', allSubServices);
             } catch (error) {
                 console.error('Error loading sub-services:', error);
                 showAlert('Error loading sub-services', 'error');
