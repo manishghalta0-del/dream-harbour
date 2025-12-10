@@ -1,1 +1,1753 @@
-<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">\n    <meta http-equiv=\"Pragma\" content=\"no-cache\">\n    <meta http-equiv=\"Expires\" content=\"0\">\n    <title>Dream Harbour - Invoices</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n\n        :root {\n            --primary-color: #667eea;\n            --primary-dark: #5568d3;\n            --light-bg: #f8f9fa;\n            --white: #ffffff;\n            --text-primary: #2c3e50;\n            --text-secondary: #7f8c8d;\n            --border-color: #e0e0e0;\n            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);\n            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);\n        }\n\n        html {\n            overflow: hidden;\n            height: 100%;\n        }\n\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;\n            background: var(--light-bg);\n            color: var(--text-primary);\n            overflow: hidden;\n            height: 100%;\n        }\n\n        .invoices-container {\n            display: flex;\n            height: 100vh;\n            overflow: hidden;\n        }\n\n        .sidebar {\n            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);\n            color: var(--white);\n            padding: 25px 20px;\n            position: fixed;\n            height: 100vh;\n            width: 260px;\n            overflow-y: auto;\n            z-index: 100;\n            top: 0;\n            left: 0;\n            box-shadow: var(--shadow-md);\n        }\n\n        .sidebar::-webkit-scrollbar {\n            width: 6px;\n        }\n\n        .sidebar::-webkit-scrollbar-track {\n            background: rgba(255, 255, 255, 0.1);\n        }\n\n        .sidebar::-webkit-scrollbar-thumb {\n            background: rgba(255, 255, 255, 0.3);\n            border-radius: 3px;\n        }\n\n        .sidebar-header {\n            text-align: center;\n            margin-bottom: 30px;\n            padding-bottom: 20px;\n            border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n        }\n\n        .sidebar-logo {\n            font-size: 40px;\n            margin-bottom: 10px;\n        }\n\n        .sidebar-title {\n            font-size: 18px;\n            font-weight: 700;\n            letter-spacing: 0.5px;\n        }\n\n        .sidebar-subtitle {\n            font-size: 11px;\n            opacity: 0.7;\n            margin-top: 5px;\n            text-transform: uppercase;\n            letter-spacing: 1px;\n        }\n\n        .nav-section {\n            margin-bottom: 25px;\n        }\n\n        .nav-link {\n            display: flex;\n            align-items: center;\n            gap: 12px;\n            color: rgba(255, 255, 255, 0.8);\n            text-decoration: none;\n            padding: 12px 15px;\n            margin-bottom: 6px;\n            border-radius: 8px;\n            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);\n            font-size: 14px;\n            font-weight: 500;\n        }\n\n        .nav-link:hover {\n            background: rgba(255, 255, 255, 0.15);\n            color: var(--white);\n            transform: translateX(4px);\n        }\n\n        .nav-link.active {\n            background: var(--primary-color);\n            color: var(--white);\n            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);\n        }\n\n        .nav-link span {\n            font-size: 18px;\n        }\n\n        .sidebar-footer {\n            margin-top: 30px;\n            padding-top: 20px;\n            border-top: 1px solid rgba(255, 255, 255, 0.2);\n        }\n\n        .user-info {\n            background: rgba(255, 255, 255, 0.1);\n            padding: 12px;\n            border-radius: 8px;\n            margin-bottom: 10px;\n            font-size: 12px;\n        }\n\n        .user-info-label {\n            opacity: 0.7;\n            margin-bottom: 5px;\n        }\n\n        .user-info-value {\n            font-weight: 600;\n            word-break: break-word;\n        }\n\n        .main-content {\n            margin-left: 260px;\n            flex: 1;\n            display: flex;\n            flex-direction: column;\n            height: 100vh;\n            background: var(--light-bg);\n            overflow: hidden;\n        }\n\n        .topbar {\n            background: var(--white);\n            padding: 16px 25px;\n            box-shadow: var(--shadow-sm);\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            gap: 20px;\n            flex-wrap: wrap;\n            flex-shrink: 0;\n        }\n\n        .topbar-left {\n            display: flex;\n            align-items: center;\n            gap: 15px;\n        }\n\n        .page-title {\n            font-size: 22px;\n            font-weight: 700;\n            color: var(--text-primary);\n        }\n\n        .topbar-right {\n            display: flex;\n            align-items: center;\n            gap: 15px;\n        }\n\n        .btn {\n            padding: 10px 18px;\n            border: none;\n            border-radius: 6px;\n            cursor: pointer;\n            font-size: 13px;\n            font-weight: 600;\n            transition: all 0.3s;\n            text-decoration: none;\n            display: inline-flex;\n            align-items: center;\n            gap: 8px;\n            white-space: nowrap;\n        }\n\n        .btn-primary {\n            background: var(--primary-color);\n            color: var(--white);\n            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);\n        }\n\n        .btn-primary:hover {\n            background: var(--primary-dark);\n            transform: translateY(-2px);\n            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);\n        }\n\n        .btn-secondary {\n            background: var(--light-bg);\n            color: var(--text-primary);\n            border: 1px solid var(--border-color);\n        }\n\n        .btn-secondary:hover {\n            background: var(--white);\n            border-color: var(--primary-color);\n            color: var(--primary-color);\n        }\n\n        .btn-danger {\n            background: #f44336;\n            color: var(--white);\n        }\n\n        .btn-danger:hover {\n            background: #d32f2f;\n            transform: translateY(-2px);\n        }\n\n        .btn-sm {\n            padding: 8px 14px;\n            font-size: 12px;\n        }\n\n        .btn-success {\n            background: #4caf50;\n            color: var(--white);\n        }\n\n        .btn-success:hover {\n            background: #388e3c;\n        }\n\n        .content-area {\n            flex: 1;\n            padding: 25px;\n            overflow-y: auto;\n            overflow-x: hidden;\n            max-width: 1400px;\n            margin: 0 auto;\n            width: 100%;\n        }\n\n        .content-area::-webkit-scrollbar {\n            width: 8px;\n        }\n\n        .content-area::-webkit-scrollbar-track {\n            background: transparent;\n        }\n\n        .content-area::-webkit-scrollbar-thumb {\n            background: rgba(0, 0, 0, 0.2);\n            border-radius: 4px;\n        }\n\n        .header-section {\n            background: var(--white);\n            padding: 20px;\n            border-radius: 8px;\n            box-shadow: var(--shadow-sm);\n            margin-bottom: 20px;\n        }\n\n        .header-top {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            gap: 15px;\n            margin-bottom: 15px;\n            flex-wrap: wrap;\n        }\n\n        .header-title {\n            font-size: 20px;\n            font-weight: 700;\n        }\n\n        .header-actions {\n            display: flex;\n            gap: 10px;\n            flex-wrap: wrap;\n        }\n\n        .filter-section {\n            display: flex;\n            gap: 10px;\n            flex-wrap: wrap;\n            align-items: center;\n        }\n\n        .search-box {\n            padding: 8px 12px;\n            border: 1px solid var(--border-color);\n            border-radius: 6px;\n            font-size: 13px;\n            min-width: 200px;\n        }\n\n        .table-wrapper {\n            background: var(--white);\n            border-radius: 8px;\n            box-shadow: var(--shadow-sm);\n            overflow: hidden;\n        }\n\n        table {\n            width: 100%;\n            border-collapse: collapse;\n        }\n\n        th {\n            background: var(--light-bg);\n            padding: 14px 12px;\n            text-align: left;\n            font-weight: 600;\n            color: var(--text-secondary);\n            font-size: 12px;\n            text-transform: uppercase;\n            letter-spacing: 0.5px;\n            border-bottom: 2px solid var(--border-color);\n        }\n\n        td {\n            padding: 14px 12px;\n            border-bottom: 1px solid var(--border-color);\n            font-size: 14px;\n        }\n\n        tr:hover {\n            background: var(--light-bg);\n        }\n\n        tr:last-child td {\n            border-bottom: none;\n        }\n\n        .actions {\n            display: flex;\n            gap: 8px;\n        }\n\n        .status-badge {\n            display: inline-flex;\n            align-items: center;\n            padding: 6px 10px;\n            border-radius: 4px;\n            font-size: 12px;\n            font-weight: 600;\n            text-transform: capitalize;\n        }\n\n        .status-paid { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }\n        .status-pending { background: rgba(255, 152, 0, 0.15); color: #e65100; }\n        .status-overdue { background: rgba(244, 67, 54, 0.15); color: #c62828; }\n\n        .modal {\n            display: none;\n            position: fixed;\n            z-index: 1000;\n            left: 0;\n            top: 0;\n            width: 100%;\n            height: 100%;\n            background-color: rgba(0, 0, 0, 0.4);\n            overflow-y: auto;\n        }\n\n        .modal-content {\n            background-color: white;\n            margin: 2% auto;\n            padding: 30px;\n            border-radius: 8px;\n            width: 95%;\n            max-width: 900px;\n            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);\n        }\n\n        .modal-header {\n            font-size: 24px;\n            font-weight: 600;\n            margin-bottom: 25px;\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            padding-bottom: 15px;\n            border-bottom: 2px solid var(--border-color);\n        }\n\n        .close-btn {\n            background: none;\n            border: none;\n            font-size: 28px;\n            cursor: pointer;\n            color: #666;\n        }\n\n        .form-group {\n            margin-bottom: 15px;\n            position: relative;\n        }\n\n        label {\n            display: block;\n            margin-bottom: 5px;\n            font-weight: 600;\n            font-size: 13px;\n            color: var(--text-primary);\n        }\n\n        input, textarea, select {\n            width: 100%;\n            padding: 10px;\n            border: 1px solid var(--border-color);\n            border-radius: 5px;\n            font-family: inherit;\n            font-size: 14px;\n        }\n\n        input:focus, textarea:focus, select:focus {\n            outline: none;\n            border-color: var(--primary-color);\n            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);\n        }\n\n        .autocomplete-list {\n            position: absolute;\n            top: 100%;\n            left: 0;\n            right: 0;\n            background: white;\n            border: 1px solid var(--border-color);\n            border-top: none;\n            border-radius: 0 0 5px 5px;\n            max-height: 200px;\n            overflow-y: auto;\n            z-index: 1001;\n            display: none;\n            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n        }\n\n        .autocomplete-list.show {\n            display: block;\n        }\n\n        .autocomplete-item {\n            padding: 12px 10px;\n            cursor: pointer;\n            border-bottom: 1px solid var(--border-color);\n            transition: background 0.2s;\n            display: block;\n            text-align: left;\n            width: 100%;\n            background: white;\n            border: none;\n        }\n\n        .autocomplete-item:hover,\n        .autocomplete-item.active {\n            background: var(--light-bg);\n        }\n\n        .autocomplete-item:last-child {\n            border-bottom: none;\n        }\n\n        .autocomplete-item-phone {\n            font-weight: 600;\n            color: var(--primary-color);\n            margin-bottom: 4px;\n        }\n\n        .autocomplete-item-name {\n            font-size: 12px;\n            color: var(--text-secondary);\n        }\n\n        .form-row {\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 15px;\n        }\n\n        .form-row-3 {\n            display: grid;\n            grid-template-columns: 1fr 1fr 1fr;\n            gap: 15px;\n        }\n\n        .form-row-4 {\n            display: grid;\n            grid-template-columns: 1fr 1fr 1fr 1fr;\n            gap: 15px;\n        }\n\n        .loading {\n            text-align: center;\n            padding: 40px;\n            color: #999;\n        }\n\n        .spinner {\n            display: inline-block;\n            width: 30px;\n            height: 30px;\n            border: 3px solid #f3f3f3;\n            border-top: 3px solid var(--primary-color);\n            border-radius: 50%;\n            animation: spin 1s linear infinite;\n            margin-bottom: 10px;\n        }\n\n        @keyframes spin {\n            0% { transform: rotate(0deg); }\n            100% { transform: rotate(360deg); }\n        }\n\n        .alert {\n            padding: 12px 15px;\n            margin-bottom: 15px;\n            border-radius: 5px;\n            display: none;\n        }\n\n        .alert.success {\n            background: #d4edda;\n            color: #155724;\n            border: 1px solid #c3e6cb;\n            display: block;\n        }\n\n        .alert.error {\n            background: #f8d7da;\n            color: #721c24;\n            border: 1px solid #f5c6cb;\n            display: block;\n        }\n\n        .empty-state {\n            text-align: center;\n            padding: 60px 20px;\n            color: var(--text-secondary);\n        }\n\n        .empty-state-icon {\n            font-size: 48px;\n            margin-bottom: 15px;\n            opacity: 0.5;\n        }\n\n        .empty-state-text {\n            font-size: 16px;\n            margin-bottom: 20px;\n        }\n\n        .invoice-items {\n            margin: 20px 0;\n            padding: 15px;\n            background: var(--light-bg);\n            border-radius: 6px;\n        }\n\n        .invoice-item {\n            display: grid;\n            grid-template-columns: 1fr 1fr 1fr 1fr 100px;\n            gap: 10px;\n            margin-bottom: 10px;\n            padding: 10px;\n            background: white;\n            border-radius: 4px;\n            border: 1px solid var(--border-color);\n            align-items: end;\n        }\n\n        .item-remove {\n            background: #f44336;\n            color: white;\n            padding: 6px 12px;\n            border: none;\n            border-radius: 4px;\n            cursor: pointer;\n            font-size: 12px;\n        }\n\n        .item-remove:hover {\n            background: #d32f2f;\n        }\n\n        .summary-section {\n            margin-top: 20px;\n            padding: 15px;\n            background: #f5f5f5;\n            border-radius: 6px;\n            border-left: 4px solid var(--primary-color);\n        }\n\n        .summary-row {\n            display: flex;\n            justify-content: space-between;\n            margin-bottom: 8px;\n            font-size: 14px;\n        }\n\n        .summary-row.total {\n            font-weight: 700;\n            font-size: 16px;\n            border-top: 2px solid var(--border-color);\n            padding-top: 8px;\n            margin-top: 8px;\n        }\n\n        .section-title {\n            font-size: 16px;\n            font-weight: 700;\n            margin-top: 20px;\n            margin-bottom: 10px;\n            color: var(--text-primary);\n        }\n\n        .invoice-number-display {\n            background: #e3f2fd;\n            padding: 10px;\n            border-radius: 6px;\n            border-left: 4px solid var(--primary-color);\n            margin-bottom: 10px;\n            font-size: 13px;\n        }\n\n        .invoice-number-display strong {\n            color: var(--primary-color);\n            font-size: 14px;\n        }\n\n        .service-sub-items-section {\n            margin-top: 15px;\n            padding: 15px;\n            background: #f0f0f0;\n            border-radius: 6px;\n            border-left: 3px solid var(--primary-color);\n            display: none;\n        }\n\n        .service-sub-items-section.show {\n            display: block;\n        }\n\n        .service-sub-items-section h5 {\n            margin: 0 0 15px 0;\n            font-size: 14px;\n            color: var(--text-primary);\n            font-weight: 600;\n        }\n\n        .sub-item-row {\n            display: grid;\n            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 80px;\n            gap: 10px;\n            margin-bottom: 10px;\n            padding: 10px;\n            background: white;\n            border-radius: 4px;\n            border: 1px solid var(--border-color);\n            align-items: center;\n        }\n\n        .sub-item-row label {\n            margin: 0;\n            margin-bottom: 0;\n            font-weight: 600;\n            font-size: 13px;\n        }\n\n        .sub-item-row input, .sub-item-row select {\n            margin: 0;\n            padding: 6px;\n            font-size: 12px;\n        }\n\n        .sub-item-row button {\n            margin: 0;\n            padding: 6px 10px;\n        }\n\n        @media (max-width: 1024px) {\n            .invoices-container {\n                display: block;\n            }\n\n            .sidebar {\n                position: relative;\n                width: 100%;\n                height: auto;\n            }\n\n            .main-content {\n                margin-left: 0;\n                height: auto;\n            }\n\n            .content-area {\n                max-width: 100%;\n            }\n        }\n\n        @media (max-width: 768px) {\n            .topbar {\n                padding: 12px 15px;\n            }\n\n            .content-area {\n                padding: 15px;\n            }\n\n            .header-top {\n                flex-direction: column;\n                align-items: flex-start;\n            }\n\n            .header-actions {\n                width: 100%;\n            }\n\n            .header-actions button {\n                flex: 1;\n            }\n\n            .filter-section {\n                flex-direction: column;\n            }\n\n            .search-box {\n                width: 100%;\n                min-width: auto;\n            }\n\n            .form-row,\n            .form-row-3,\n            .form-row-4 {\n                grid-template-columns: 1fr;\n            }\n\n            .actions {\n                flex-direction: column;\n            }\n\n            .invoice-item {\n                grid-template-columns: 1fr;\n            }\n\n            .sub-item-row {\n                grid-template-columns: 1fr;\n            }\n\n            .modal-content {\n                width: 98%;\n                margin: 10% auto;\n                padding: 15px;\n            }\n        }\n    </style>\n</head>\n<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Dream Harbour - Invoices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5568d3;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .invoices-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: var(--white);
+            padding: 25px 20px;
+            position: fixed;
+            height: 100vh;
+            width: 260px;
+            overflow-y: auto;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link span {
+            font-size: 18px;
+        }
+
+        .sidebar-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .user-info-label {
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .user-info-value {
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--light-bg);
+            overflow: hidden;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 16px 25px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #388e3c;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .header-section {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            min-width: 200px;
+        }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--light-bg);
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--light-bg);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-paid { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }
+        .status-pending { background: rgba(255, 152, 0, 0.15); color: #e65100; }
+        .status-overdue { background: rgba(244, 67, 54, 0.15); color: #c62828; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 95%;
+            max-width: 900px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .autocomplete-list.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+            display: block;
+            text-align: left;
+            width: 100%;
+            background: white;
+            border: none;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background: var(--light-bg);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item-phone {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .autocomplete-item-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-items {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--light-bg);
+            border-radius: 6px;
+        }
+
+        .invoice-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 100px;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            align-items: end;
+        }
+
+        .item-remove {
+            background: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .item-remove:hover {
+            background: #d32f2f;
+        }
+
+        .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 16px;
+            border-top: 2px solid var(--border-color);
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .invoice-number-display {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .invoice-number-display strong {
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .service-sub-items {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+            display: none;
+        }
+
+        .service-sub-items.show {
+            display: block;
+        }
+
+        .service-sub-items h5 {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .sub-item-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr 80px;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            align-items: end;
+        }
+
+        .sub-item-row input, .sub-item-row select {
+            margin: 0;
+            padding: 6px 8px;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .sub-item-row button {
+            margin: 0;
+            width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .invoices-container {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                height: auto;
+            }
+
+            .content-area {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 12px 15px;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions button {
+                flex: 1;
+            }
+
+            .filter-section {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .form-row,
+            .form-row-3,
+            .form-row-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .invoice-item {
+                grid-template-columns: 1fr;
+            }
+
+            .sub-item-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoices-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🏛️</div>
+                <div class="sidebar-title">Dream Harbour</div>
+                <div class="sidebar-subtitle">Invoice Manager</div>
+            </div>
+
+            <div class="nav-section">
+                <a href="dashboard.html" class="nav-link">
+                    <span>📊</span> Overview
+                </a>
+                <a href="invoices.html" class="nav-link active">
+                    <span>📄</span> Invoices
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <span>👥</span> Customers
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <span>⚙️</span> Settings
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-info-label">Logged in as</div>
+                    <div class="user-info-value" id="userNameDisplay">User</div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <div class="page-title">📄 Invoices</div>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div id="alertContainer"></div>
+
+                <div class="header-section">
+                    <div class="header-top">
+                        <div class="header-title">Invoice Management</div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="openInvoiceGenerator()">✨ Create New Invoice</button>
+                        </div>
+                    </div>
+                    <div class="filter-section">
+                        <input type="text" id="searchInput" class="search-box" placeholder="Search by invoice number, customer..." onkeyup="filterInvoices()">
+                        <select id="statusFilter" class="search-box" onchange="filterInvoices()" style="min-width: auto;">
+                            <option value="">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="loadingState" class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading invoices...</div>
+                </div>
+
+                <div id="tableState" class="table-wrapper" style="display: none;">
+                    <table id="invoicesTable">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Mobile</th>
+                                <th>Date</th>
+                                <th>Subtotal</th>
+                                <th>GST</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📄</div>
+                    <div class="empty-state-text">No invoices found</div>
+                    <button class="btn btn-primary" onclick="openInvoiceGenerator()">Create First Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Generator Modal -->
+    <div id="generatorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>✨ Invoice Generator</span>
+                <button class="close-btn" onclick="closeGenerator()">&times;</button>
+            </div>
+
+            <div class="invoice-number-display">
+                <span>Auto-Generated Invoice Number:</span> <strong id="autoInvoiceNumber">DH-YYYYMMDD-0001</strong>
+            </div>
+
+            <div class="section-title">📋 Invoice Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Number *</label>
+                    <input type="text" id="genInvoiceNumber" placeholder="e.g., INV-20251209-0001" required readonly>
+                </div>
+                <div class="form-group">
+                    <label>Invoice Date *</label>
+                    <input type="date" id="genInvoiceDate" required readonly>
+                </div>
+            </div>
+
+            <div class="section-title">👥 Customer Details</div>
+            <div class="form-group">
+                <label>Customer Mobile Number *</label>
+                <input type="tel" id="genCustomerMobile" placeholder="Enter or search customer mobile" required onkeyup="searchCustomerByMobile()">
+                <div id="mobileAutoComplete" class="autocomplete-list"></div>
+            </div>
+            <div class="form-row-4">
+                <div class="form-group">
+                    <label>Customer Name *</label>
+                    <input type="text" id="genCustomerName" placeholder="Customer name" required>
+                </div>
+                <div class="form-group">
+                    <label>Customer Email</label>
+                    <input type="email" id="genCustomerEmail" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" id="genCustomerCompany" placeholder="Company name">
+                </div>
+                <div class="form-group">
+                    <label>GSTIN</label>
+                    <input type="text" id="genCustomerGSTIN" placeholder="GSTIN">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="genCustomerAddress" placeholder="Enter customer address" style="min-height: 60px; resize: vertical;"></textarea>
+            </div>
+
+            <div class="section-title">📦 Add Services/Items</div>
+            <div class="form-group">
+                <label>Service Name *</label>
+                <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
+                <div id="serviceAutoComplete" class="autocomplete-list"></div>
+            </div>
+
+            <!-- Service Sub-Items Section -->
+            <div id="subItemsSection" class="service-sub-items">
+                <h5>Services in Category:</h5>
+                <div id="subItemsContainer"></div>
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Quantity *</label>
+                    <input type="number" id="itemQty" placeholder="1" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Rate (₹) *</label>
+                    <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label>GST % *</label>
+                    <select id="itemGST">
+                        <option value="0">0% (No GST)</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18" selected>18%</option>
+                        <option value="28">28%</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>SAC Code</label>
+                    <input type="text" id="itemSAC" placeholder="Optional">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button class="btn btn-primary" onclick="addInvoiceItem()" style="width: 100%;">➕ Add Item</button>
+                </div>
+            </div>
+
+            <div id="invoiceItemsList" class="invoice-items" style="display: none;">
+                <h4 style="margin-bottom: 10px;">📋 Invoice Items</h4>
+                <div id="itemsContainer"></div>
+            </div>
+
+            <div class="summary-section">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="genSubtotal">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total GST:</span>
+                    <span id="genTotalGST">₹0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Grand Total:</span>
+                    <span id="genGrandTotal">₹0.00</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Payment Status *</label>
+                <select id="genPaymentStatus" required>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveGeneratedInvoice()" style="flex: 1;">💾 Save Invoice</button>
+                <button class="btn btn-secondary" onclick="closeGenerator()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        let supabase;
+        let allInvoices = [];
+        let allCustomers = [];
+        let allServices = [];
+        let filteredInvoices = [];
+        let generatorItems = [];
+        let selectedCustomer = null;
+        let searchResults = [];
+        let serviceSearchResults = [];
+        let selectedService = null;
+
+        // Get current date in IST (Indian Standard Time)
+        function getISTDate() {
+            const now = new Date();
+            const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+            return istTime;
+        }
+
+        // Format date as YYYYMMDD
+        function formatDateAsYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+
+        // Generate next invoice number
+        async function generateNextInvoiceNumber() {
+            try {
+                const istDate = getISTDate();
+                const dateString = formatDateAsYYYYMMDD(istDate);
+                const datePrefix = `DH-${dateString}`;
+
+                const { data: todayInvoices, error } = await supabase
+                    .from('invoices')
+                    .select('invoice_number')
+                    .ilike('invoice_number', `${datePrefix}%`);
+
+                if (error) throw error;
+
+                let nextNumber = 1;
+                if (todayInvoices && todayInvoices.length > 0) {
+                    const numbers = todayInvoices.map(inv => {
+                        const parts = inv.invoice_number.split('-');
+                        return parseInt(parts[2]) || 0;
+                    });
+                    nextNumber = Math.max(...numbers) + 1;
+                }
+
+                const invoiceNumber = `${datePrefix}-${String(nextNumber).padStart(4, '0')}`;
+                return invoiceNumber;
+            } catch (error) {
+                console.error('Error generating invoice number:', error);
+                return `DH-${formatDateAsYYYYMMDD(getISTDate())}-0001`;
+            }
+        }
+
+        // Format IST date for date input
+        function formatISTDateForInput() {
+            const istDate = getISTDate();
+            const year = istDate.getFullYear();
+            const month = String(istDate.getMonth() + 1).padStart(2, '0');
+            const day = String(istDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Search services by name
+        function searchServices() {
+            const serviceName = document.getElementById('itemName').value.trim();
+            const autocompleteList = document.getElementById('serviceAutoComplete');
+
+            if (!serviceName || serviceName.length < 1) {
+                autocompleteList.classList.remove('show');
+                document.getElementById('subItemsSection').classList.remove('show');
+                return;
+            }
+
+            // Filter services by matching service name
+            serviceSearchResults = allServices.filter(s => {
+                if (!s.service_name) return false;
+                return s.service_name.toLowerCase().includes(serviceName.toLowerCase());
+            });
+
+            if (serviceSearchResults.length === 0) {
+                autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No services found</div>';
+                autocompleteList.classList.add('show');
+                document.getElementById('subItemsSection').classList.remove('show');
+                return;
+            }
+
+            // Create autocomplete HTML
+            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => `
+                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectService(${index}); return false;">
+                    <div class="autocomplete-item-phone">📦 ${service.service_name}</div>
+                    <div class="autocomplete-item-name">SAC: ${service.sac_code || 'N/A'} | Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
+                </button>
+            `).join('');
+
+            autocompleteList.classList.add('show');
+        }
+
+        // Select service from autocomplete
+        function selectService(index) {
+            if (index < 0 || index >= serviceSearchResults.length) return;
+
+            selectedService = serviceSearchResults[index];
+            document.getElementById('itemName').value = selectedService.service_name;
+            document.getElementById('itemRate').value = selectedService.default_rate || '';
+            document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
+            document.getElementById('itemSAC').value = selectedService.sac_code || '';
+            
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+
+            // If service has sub-services, show them
+            if (selectedService.has_sub_services) {
+                const childServices = allServices.filter(s => 
+                    s.category_id === selectedService.category_id && 
+                    s.id !== selectedService.id &&
+                    s.is_active
+                );
+                
+                if (childServices.length > 0) {
+                    displaySubItems(childServices);
+                } else {
+                    document.getElementById('subItemsSection').classList.remove('show');
+                }
+            } else {
+                document.getElementById('subItemsSection').classList.remove('show');
+            }
+        }
+
+        // Display sub-items from same category
+        function displaySubItems(childServices) {
+            const section = document.getElementById('subItemsSection');
+            const container = document.getElementById('subItemsContainer');
+
+            if (childServices.length === 0) {
+                section.classList.remove('show');
+                return;
+            }
+
+            section.classList.add('show');
+            container.innerHTML = childServices.map((service, index) => `
+                <div class="sub-item-row">
+                    <div style="font-weight: 600; color: #333;">${service.service_name}</div>
+                    <input type="number" placeholder="Qty" value="1" min="1" onchange="updateSubItemQty('${service.id}', this.value)">
+                    <input type="number" placeholder="Rate" value="${service.default_rate || ''}" step="0.01" min="0" onchange="updateSubItemRate('${service.id}', this.value)">
+                    <select onchange="updateSubItemGST('${service.id}', this.value)">
+                        <option value="0" ${service.default_gst_percentage === 0 ? 'selected' : ''}>0%</option>
+                        <option value="5" ${service.default_gst_percentage === 5 ? 'selected' : ''}>5%</option>
+                        <option value="12" ${service.default_gst_percentage === 12 ? 'selected' : ''}>12%</option>
+                        <option value="18" ${service.default_gst_percentage === 18 ? 'selected' : ''}>18%</option>
+                        <option value="28" ${service.default_gst_percentage === 28 ? 'selected' : ''}>28%</option>
+                    </select>
+                    <input type="text" placeholder="SAC" value="${service.sac_code || ''}" readonly>
+                    <button class="btn btn-primary btn-sm" onclick="addSubItem('${service.id}', '${service.service_name}')">➕</button>
+                </div>
+            `).join('');
+        }
+
+        // Update sub-item quantity
+        function updateSubItemQty(serviceId, qty) {
+            // Store value for later use when adding
+        }
+
+        // Update sub-item rate
+        function updateSubItemRate(serviceId, rate) {
+            // Store value for later use when adding
+        }
+
+        // Update sub-item GST
+        function updateSubItemGST(serviceId, gst) {
+            // Store value for later use when adding
+        }
+
+        // Add sub-item to invoice
+        function addSubItem(serviceId, serviceName) {
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) return;
+
+            const container = document.getElementById('subItemsContainer');
+            const row = container.querySelector(`[data-service="${serviceId}"]`) || {};
+            const qty = parseFloat(row.querySelector('input[type="number"]')?.value) || 1;
+            const rate = parseFloat(row.querySelector('input[type="number"]:nth-of-type(2)')?.value) || service.default_rate || 0;
+            const gst = parseFloat(row.querySelector('select')?.value) || service.default_gst_percentage || 0;
+            const sac = service.sac_code || '';
+
+            if (!rate) {
+                showAlert('Please enter rate for ' + serviceName, 'error');
+                return;
+            }
+
+            const amount = qty * rate;
+            const gstAmount = amount * (gst / 100);
+            const total = amount + gstAmount;
+
+            generatorItems.push({
+                id: Date.now(),
+                name: serviceName,
+                qty,
+                rate,
+                amount,
+                gst,
+                gstAmount,
+                total,
+                sac
+            });
+
+            renderInvoiceItems();
+            updateGeneratorTotals();
+            showAlert('✅ ' + serviceName + ' added to invoice', 'success');
+        }
+
+        // Search customers by mobile number
+        function searchCustomerByMobile() {
+            const mobile = document.getElementById('genCustomerMobile').value.trim();
+            const autocompleteList = document.getElementById('mobileAutoComplete');
+
+            if (!mobile || mobile.length < 1) {
+                autocompleteList.classList.remove('show');
+                return;
+            }
+
+            const normalizedInput = mobile.replace(/\D/g, '');
+
+            if (normalizedInput.length === 0) {
+                autocompleteList.classList.remove('show');
+                return;
+            }
+
+            searchResults = allCustomers.filter(c => {
+                if (!c.mobile_no) return false;
+                const normalizedMobile = String(c.mobile_no).replace(/\D/g, '');
+                return normalizedMobile.includes(normalizedInput);
+            });
+
+            if (searchResults.length === 0) {
+                autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No customers found</div>';
+                autocompleteList.classList.add('show');
+                return;
+            }
+
+            autocompleteList.innerHTML = searchResults.map((customer, index) => `
+                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectCustomer(${index}); return false;">
+                    <div class="autocomplete-item-phone">📱 ${customer.mobile_no}</div>
+                    <div class="autocomplete-item-name">${customer.full_name || 'N/A'}${customer.address ? ' • ' + customer.address : ''}</div>
+                </button>
+            `).join('');
+
+            autocompleteList.classList.add('show');
+        }
+
+        // Select customer from autocomplete
+        function selectCustomer(index) {
+            if (index < 0 || index >= searchResults.length) return;
+
+            const customer = searchResults[index];
+            selectedCustomer = customer;
+            
+            document.getElementById('genCustomerMobile').value = customer.mobile_no || '';
+            document.getElementById('genCustomerName').value = customer.full_name || '';
+            document.getElementById('genCustomerEmail').value = customer.email || '';
+            document.getElementById('genCustomerCompany').value = customer.company_name || '';
+            document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
+            document.getElementById('genCustomerAddress').value = customer.address || '';
+            
+            document.getElementById('mobileAutoComplete').classList.remove('show');
+        }
+
+        function initializeApp() {
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                setTimeout(initializeApp, 100);
+                return;
+            }
+
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(user);
+                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+
+            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+            
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            loadCustomers();
+            loadServices();
+            loadInvoices();
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.textContent = message;
+            alertContainer.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) el.remove();
+            }, 5000);
+        }
+
+        async function loadCustomers() {
+            try {
+                const { data, error } = await supabase
+                    .from('customers')
+                    .select('*');
+
+                if (error) throw error;
+                allCustomers = data || [];
+                console.log('Customers loaded:', allCustomers.length);
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                showAlert('Error loading customers', 'error');
+            }
+        }
+
+        async function loadServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_items')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+                allServices = data || [];
+                console.log('Services loaded:', allServices.length);
+            } catch (error) {
+                console.error('Error loading services:', error);
+                showAlert('Error loading services', 'error');
+            }
+        }
+
+        function addInvoiceItem() {
+            const name = document.getElementById('itemName').value;
+            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
+            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
+            const gst = parseFloat(document.getElementById('itemGST').value) || 0;
+            const sac = document.getElementById('itemSAC').value;
+
+            if (!name || !rate) {
+                showAlert('Please enter service name and rate', 'error');
+                return;
+            }
+
+            const amount = qty * rate;
+            const gstAmount = amount * (gst / 100);
+            const total = amount + gstAmount;
+
+            generatorItems.push({
+                id: Date.now(),
+                name,
+                qty,
+                rate,
+                amount,
+                gst,
+                gstAmount,
+                total,
+                sac
+            });
+
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemQty').value = '1';
+            document.getElementById('itemRate').value = '';
+            document.getElementById('itemGST').value = '18';
+            document.getElementById('itemSAC').value = '';
+            document.getElementById('subItemsSection').classList.remove('show');
+            selectedService = null;
+
+            renderInvoiceItems();
+            updateGeneratorTotals();
+        }
+
+        function renderInvoiceItems() {
+            const container = document.getElementById('itemsContainer');
+            const listDiv = document.getElementById('invoiceItemsList');
+
+            if (generatorItems.length === 0) {
+                listDiv.style.display = 'none';
+                return;
+            }
+
+            listDiv.style.display = 'block';
+            container.innerHTML = generatorItems.map(item => `
+                <div class="invoice-item">
+                    <div>
+                        <strong>${item.name}</strong>
+                        ${item.sac ? `<div style="font-size: 12px; color: #999;">SAC: ${item.sac}</div>` : ''}
+                    </div>
+                    <div>Qty: ${item.qty} × ₹${item.rate.toFixed(2)}</div>
+                    <div>₹${item.amount.toFixed(2)}</div>
+                    <div>${item.gst}% GST: ₹${item.gstAmount.toFixed(2)}</div>
+                    <button class="item-remove" onclick="removeItem(${item.id})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeItem(id) {
+            generatorItems = generatorItems.filter(item => item.id !== id);
+            renderInvoiceItems();
+            updateGeneratorTotals();
+        }
+
+        function updateGeneratorTotals() {
+            const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
+            const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
+            const grandTotal = subtotal + totalGST;
+
+            document.getElementById('genSubtotal').textContent = '₹' + subtotal.toFixed(2);
+            document.getElementById('genTotalGST').textContent = '₹' + totalGST.toFixed(2);
+            document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
+        }
+
+        async function addNewCustomer(mobile_no, customerData) {
+            try {
+                const { error: insertError } = await supabase
+                    .from('customers')
+                    .insert([{ mobile_no, ...customerData }]);
+
+                if (insertError) throw insertError;
+                console.log('New customer record created:', mobile_no);
+                await loadCustomers();
+            } catch (error) {
+                console.error('Error adding customer:', error);
+                throw error;
+            }
+        }
+
+        async function saveGeneratedInvoice() {
+            try {
+                const invoiceNumber = document.getElementById('genInvoiceNumber').value;
+                const mobile = document.getElementById('genCustomerMobile').value.trim();
+                const customerName = document.getElementById('genCustomerName').value.trim();
+                const customerEmail = document.getElementById('genCustomerEmail').value.trim();
+                const customerCompany = document.getElementById('genCustomerCompany').value.trim();
+                const customerGSTIN = document.getElementById('genCustomerGSTIN').value.trim();
+                const customerAddress = document.getElementById('genCustomerAddress').value.trim();
+                
+                const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
+                const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
+                const totalAmount = subtotal + totalGST;
+
+                if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
+                    showAlert('Please fill all required fields and add at least one item', 'error');
+                    return;
+                }
+
+                const normalizedMobile = mobile.replace(/\D/g, '');
+                if (normalizedMobile.length !== 10) {
+                    showAlert('Please enter a valid 10-digit mobile number', 'error');
+                    return;
+                }
+
+                await addNewCustomer(mobile, {
+                    full_name: customerName,
+                    email: customerEmail || null,
+                    company_name: customerCompany || null,
+                    gstin: customerGSTIN || null,
+                    address: customerAddress || null
+                });
+
+                const invoiceData = {
+                    invoice_number: invoiceNumber,
+                    customer_phone: mobile,
+                    customer_name: customerName,
+                    customer_email: customerEmail || null,
+                    invoice_date: document.getElementById('genInvoiceDate').value,
+                    subtotal: subtotal,
+                    total_gst: totalGST,
+                    total_amount: totalAmount,
+                    payment_status: document.getElementById('genPaymentStatus').value
+                };
+
+                const { error } = await supabase
+                    .from('invoices')
+                    .insert([invoiceData]);
+
+                if (error) throw error;
+
+                showAlert('✅ Invoice generated and new customer record added!', 'success');
+                closeGenerator();
+                loadInvoices();
+            } catch (error) {
+                console.error('Error saving invoice:', error);
+                showAlert('Error saving invoice: ' + error.message, 'error');
+            }
+        }
+
+        async function loadInvoices() {
+            try {
+                const { data, error } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allInvoices = data || [];
+                filteredInvoices = [...allInvoices];
+                renderInvoices();
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                showAlert('Error loading invoices: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
+        function renderInvoices() {
+            const tableBody = document.getElementById('tableBody');
+            const tableState = document.getElementById('tableState');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredInvoices.length === 0) {
+                tableState.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            tableState.style.display = 'block';
+            emptyState.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            filteredInvoices.forEach(invoice => {
+                const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${invoice.invoice_number || '-'}</strong></td>
+                    <td>${invoice.customer_name || '-'}</td>
+                    <td>${invoice.customer_phone || '-'}</td>
+                    <td>${new Date(invoice.invoice_date).toLocaleDateString()}</td>
+                    <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
+                    <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
+                    <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
+                    <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-success" onclick="generatePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterInvoices() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+
+            filteredInvoices = allInvoices.filter(invoice => {
+                const matchesSearch = 
+                    (invoice.invoice_number?.toLowerCase().includes(searchTerm)) ||
+                    (invoice.customer_name?.toLowerCase().includes(searchTerm)) ||
+                    (invoice.customer_phone?.includes(searchTerm));
+                
+                const matchesStatus = !statusFilter || (invoice.payment_status?.toLowerCase() === statusFilter);
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderInvoices();
+        }
+
+        async function deleteInvoice(invoiceId) {
+            if (!confirm('Are you sure you want to delete this invoice?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('invoices')
+                    .delete()
+                    .eq('id', invoiceId);
+
+                if (error) throw error;
+                showAlert('✅ Invoice deleted successfully!', 'success');
+                loadInvoices();
+            } catch (error) {
+                console.error('Error deleting invoice:', error);
+                showAlert('Error deleting invoice: ' + error.message, 'error');
+            }
+        }
+
+        function generatePDF(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+
+            if (!invoice) {
+                showAlert('Invoice not found', 'error');
+                return;
+            }
+
+            const element = document.createElement('div');
+            element.style.padding = '20px';
+            element.style.fontFamily = 'Arial, sans-serif';
+            element.style.lineHeight = '1.6';
+            element.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h1 style="margin: 0; color: #667eea; font-size: 28px;">🏛️ Dream Harbour</h1>
+                    <p style="margin: 5px 0; color: #666;">Professional Invoice Management System</p>
+                </div>
+
+                <div style="margin-bottom: 30px; border-bottom: 2px solid #667eea; padding-bottom: 20px;">
+                    <h2 style="margin: 0 0 15px 0; color: #333;">Invoice Details</h2>
+                    <p style="margin: 5px 0;"><strong>Invoice Number:</strong> ${invoice.invoice_number || 'N/A'}</p>
+                    <p style="margin: 5px 0;"><strong>Invoice Date:</strong> ${new Date(invoice.invoice_date).toLocaleDateString()}</p>
+                    <p style="margin: 5px 0;"><strong>Status:</strong> <span style="background: #e3f2fd; padding: 2px 8px; border-radius: 3px;">${invoice.payment_status || 'Pending'}</span></p>
+                </div>
+
+                <div style="margin-bottom: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3 style="margin: 0 0 10px 0; color: #333;">Customer Details</h3>
+                        <p style="margin: 5px 0;"><strong>Name:</strong> ${invoice.customer_name || 'N/A'}</p>
+                        <p style="margin: 5px 0;"><strong>Mobile:</strong> ${invoice.customer_phone || '-'}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> ${invoice.customer_email || '-'}</p>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0 0 10px 0; color: #333;">Company Details</h3>
+                        <p style="margin: 5px 0;"><strong>Dream Harbour</strong></p>
+                        <p style="margin: 5px 0;">Professional Invoice Management</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h3 style="margin: 0 0 15px 0; color: #333;">Invoice Summary</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f5f5f5;">
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Subtotal</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">GST</td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
+                        </tr>
+                        <tr style="background: #667eea; color: white;">
+                            <td style="padding: 10px; border: 1px solid #667eea; font-weight: bold; font-size: 16px;">Total Amount</td>
+                            <td style="padding: 10px; border: 1px solid #667eea; text-align: right; font-weight: bold; font-size: 16px;">₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 12px;">
+                    <p>Generated on ${new Date().toLocaleString()}</p>
+                    <p>© 2025 Dream Harbour. All rights reserved.</p>
+                </div>
+            `;
+
+            const opt = {
+                margin: 10,
+                filename: `${invoice.invoice_number || 'invoice'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+            showAlert('✅ PDF downloaded successfully!', 'success');
+        }
+
+        async function openInvoiceGenerator() {
+            const newInvoiceNumber = await generateNextInvoiceNumber();
+            
+            generatorItems = [];
+            selectedCustomer = null;
+            selectedService = null;
+            searchResults = [];
+            serviceSearchResults = [];
+            
+            document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
+            document.getElementById('autoInvoiceNumber').textContent = newInvoiceNumber;
+            document.getElementById('genInvoiceDate').value = formatISTDateForInput();
+            document.getElementById('genCustomerMobile').value = '';
+            document.getElementById('genCustomerName').value = '';
+            document.getElementById('genCustomerEmail').value = '';
+            document.getElementById('genCustomerCompany').value = '';
+            document.getElementById('genCustomerGSTIN').value = '';
+            document.getElementById('genCustomerAddress').value = '';
+            document.getElementById('genPaymentStatus').value = 'pending';
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemQty').value = '1';
+            document.getElementById('itemRate').value = '';
+            document.getElementById('itemGST').value = '18';
+            document.getElementById('itemSAC').value = '';
+            document.getElementById('invoiceItemsList').style.display = 'none';
+            document.getElementById('mobileAutoComplete').classList.remove('show');
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+            document.getElementById('subItemsSection').classList.remove('show');
+            updateGeneratorTotals();
+            document.getElementById('generatorModal').style.display = 'block';
+        }
+
+        function closeGenerator() {
+            document.getElementById('generatorModal').style.display = 'none';
+            document.getElementById('mobileAutoComplete').classList.remove('show');
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+            document.getElementById('subItemsSection').classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('dreamHarbourUser');
+            localStorage.removeItem('dreamHarbourLoginTime');
+            window.location.href = 'index.html';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('generatorModal');
+            const mobileAutocomplete = document.getElementById('mobileAutoComplete');
+            const serviceAutocomplete = document.getElementById('serviceAutoComplete');
+            
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (!event.target.closest('.form-group') && !event.target.matches('#genCustomerMobile')) {
+                mobileAutocomplete.classList.remove('show');
+            }
+            if (!event.target.closest('.form-group') && !event.target.matches('#itemName')) {
+                serviceAutocomplete.classList.remove('show');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
