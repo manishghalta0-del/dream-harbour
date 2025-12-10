@@ -660,40 +660,22 @@
             font-size: 14px;
         }
 
-        .service-selection-form {
+        .service-section {
             background: #f9f9f9;
             padding: 15px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
             margin-bottom: 20px;
-            display: none;
         }
 
-        .service-selection-form.show {
-            display: block;
-        }
-
-        .service-sub-items {
-            background: #f0f0f0;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 3px solid var(--primary-color);
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .service-sub-items.show {
-            display: block;
-        }
-
-        .service-sub-items h5 {
+        .service-section h5 {
             margin: 0 0 15px 0;
             font-size: 14px;
             font-weight: 600;
             color: var(--text-primary);
         }
 
-        .sub-item-row {
+        .service-item-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr 1fr 1fr 80px;
             gap: 10px;
@@ -705,7 +687,7 @@
             align-items: end;
         }
 
-        .sub-item-row .service-name {
+        .service-item-row .service-label {
             padding: 6px 8px;
             background: #f9f9f9;
             border-radius: 3px;
@@ -714,31 +696,28 @@
             color: var(--text-primary);
         }
 
-        .sub-item-row input, .sub-item-row select {
+        .service-item-row input, .service-item-row select {
             margin: 0;
             padding: 6px 8px;
             font-size: 12px;
             width: 100%;
         }
 
-        .sub-item-row button {
-            margin: 0;
-            width: 100%;
-        }
-
-        .clear-service-btn {
-            background: #f44336;
+        .add-service-btn {
+            background: var(--primary-color);
             color: white;
-            padding: 8px 12px;
+            padding: 10px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            margin-top: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            width: 100%;
         }
 
-        .clear-service-btn:hover {
-            background: #d32f2f;
+        .add-service-btn:hover {
+            background: var(--primary-dark);
         }
 
         .gst-toggle {
@@ -832,7 +811,7 @@
                 grid-template-columns: 1fr;
             }
 
-            .sub-item-row {
+            .service-item-row {
                 grid-template-columns: 1fr;
             }
 
@@ -853,7 +832,7 @@
     <div class="invoices-container">
         <div class="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-logo">🏛️</div>
+                <div class="sidebar-logo">🏢</div>
                 <div class="sidebar-title">Dream Harbour</div>
                 <div class="sidebar-subtitle">Invoice Manager</div>
             </div>
@@ -1015,59 +994,50 @@
                 </label>
             </div>
 
-            <div class="section-title">📦 Select Service</div>
-            <div class="form-group">
-                <label>Service Name *</label>
-                <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
-                <div id="serviceAutoComplete" class="autocomplete-list"></div>
-            </div>
-
-            <!-- Service Sub-Items Section (replaces main form) -->
-            <div id="subItemsSection" class="service-sub-items">
-                <h5>Select quantities and rates for these services:</h5>
-                <div id="subItemsContainer"></div>
-                <button class="clear-service-btn" onclick="clearServiceSelection()">🔙 Change Service</button>
-            </div>
-
-            <!-- Main Service Form (shown when no sub-services) -->
-            <div id="mainServiceForm" class="service-selection-form">
-                <div class="form-row-3">
-                    <div class="form-group">
-                        <label>Quantity *</label>
-                        <input type="number" id="itemQty" placeholder="1" value="1" min="1">
-                    </div>
-                    <div class="form-group">
-                        <label>Rate (₹) *</label>
-                        <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label>GST % *</label>
-                        <select id="itemGST">
-                            <option value="0">0% (No GST)</option>
-                            <option value="5">5%</option>
-                            <option value="12">12%</option>
-                            <option value="18" selected>18%</option>
-                            <option value="28">28%</option>
-                        </select>
-                    </div>
+            <div class="section-title">📦 Add Services to Invoice</div>
+            
+            <!-- Service Selection -->
+            <div class="service-section">
+                <h5>Select a Service:</h5>
+                <div class="form-group">
+                    <label>Service Name *</label>
+                    <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
+                    <div id="serviceAutoComplete" class="autocomplete-list"></div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>SAC Code</label>
-                        <input type="text" id="itemSAC" placeholder="Optional">
+                <div id="serviceDetailsContainer" style="display: none;">
+                    <div class="form-row-3" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>Quantity *</label>
+                            <input type="number" id="itemQty" placeholder="1" value="1" min="1" onchange="autoAddServiceItem()">
+                        </div>
+                        <div class="form-group">
+                            <label>Rate (₹) *</label>
+                            <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0" onchange="autoAddServiceItem()">
+                        </div>
+                        <div class="form-group">
+                            <label>GST % *</label>
+                            <select id="itemGST" onchange="autoAddServiceItem()">
+                                <option value="0">0% (No GST)</option>
+                                <option value="5">5%</option>
+                                <option value="12">12%</option>
+                                <option value="18" selected>18%</option>
+                                <option value="28">28%</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary" onclick="addInvoiceItem()" style="width: 100%;">➕ Add Item</button>
-                    </div>
+                    <button class="add-service-btn" onclick="addServiceItem()">➕ Add Service to Invoice</button>
                 </div>
             </div>
 
-            <div id="invoiceItemsList" class="invoice-items" style="display: none;">
-                <h4 style="margin-bottom: 10px;">📋 Invoice Items</h4>
-                <div id="itemsContainer"></div>
+            <!-- Added Services List -->
+            <div id="addedServicesContainer" style="display: none;">
+                <div class="section-title">✅ Services in Invoice</div>
+                <div id="invoiceItemsList" class="invoice-items">
+                    <div id="itemsContainer"></div>
+                </div>
             </div>
 
+            <!-- Summary -->
             <div class="summary-section">
                 <div class="summary-row">
                     <span>Subtotal:</span>
@@ -1187,11 +1157,11 @@
         function searchServices() {
             const serviceName = document.getElementById('itemName').value.trim();
             const autocompleteList = document.getElementById('serviceAutoComplete');
+            const detailsContainer = document.getElementById('serviceDetailsContainer');
 
             if (!serviceName || serviceName.length < 1) {
                 autocompleteList.classList.remove('show');
-                document.getElementById('subItemsSection').classList.remove('show');
-                document.getElementById('mainServiceForm').classList.remove('show');
+                detailsContainer.style.display = 'none';
                 return;
             }
 
@@ -1204,8 +1174,7 @@
             if (serviceSearchResults.length === 0) {
                 autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No services found</div>';
                 autocompleteList.classList.add('show');
-                document.getElementById('subItemsSection').classList.remove('show');
-                document.getElementById('mainServiceForm').classList.remove('show');
+                detailsContainer.style.display = 'none';
                 return;
             }
 
@@ -1227,100 +1196,26 @@
             selectedService = serviceSearchResults[index];
             document.getElementById('itemName').value = selectedService.service_name;
             document.getElementById('serviceAutoComplete').classList.remove('show');
-
-            // Check if service has sub-services
-            if (selectedService.has_sub_services) {
-                // Get ACTUAL sub-services from service_sub_items table
-                const childSubServices = allSubServices.filter(s => 
-                    s.primary_service_id === selectedService.id &&
-                    s.is_active
-                );
-                
-                if (childSubServices.length > 0) {
-                    displaySubItems(childSubServices);
-                    document.getElementById('mainServiceForm').classList.remove('show');
-                } else {
-                    document.getElementById('subItemsSection').classList.remove('show');
-                    showMainServiceForm();
-                }
-            } else {
-                // No sub-services, show main form
-                document.getElementById('subItemsSection').classList.remove('show');
-                showMainServiceForm();
-            }
-        }
-
-        // Show main service form
-        function showMainServiceForm() {
-            document.getElementById('mainServiceForm').classList.add('show');
+            
+            // Show input fields for quantity, rate, GST
+            document.getElementById('serviceDetailsContainer').style.display = 'block';
             document.getElementById('itemRate').value = selectedService.default_rate || '';
             document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
-            document.getElementById('itemSAC').value = selectedService.sac_code || '';
             document.getElementById('itemQty').value = '1';
         }
 
-        // Display sub-items from service_sub_items table
-        function displaySubItems(childSubServices) {
-            const section = document.getElementById('subItemsSection');
-            const container = document.getElementById('subItemsContainer');
+        // Auto-add service item when values change
+        function autoAddServiceItem() {
+            if (!selectedService) return;
 
-            if (childSubServices.length === 0) {
-                section.classList.remove('show');
-                return;
-            }
+            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
+            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
+            const gst = parseFloat(document.getElementById('itemGST').value) || 0;
 
-            section.classList.add('show');
-            container.innerHTML = childSubServices.map((service, index) => `
-                <div class="sub-item-row">
-                    <div class="service-name">${service.sub_service_name}</div>
-                    <input type="number" placeholder="Qty" value="1" min="1" class="qty-input-${service.id}" onchange="updateSubItemDisplay('${service.id}')">
-                    <input type="number" placeholder="Rate" value="${service.default_rate || ''}" step="0.01" min="0" class="rate-input-${service.id}" onchange="updateSubItemDisplay('${service.id}')">
-                    <select class="gst-input-${service.id}" onchange="updateSubItemDisplay('${service.id}')">
-                        <option value="0" ${service.default_gst_percentage === 0 ? 'selected' : ''}>0%</option>
-                        <option value="5" ${service.default_gst_percentage === 5 ? 'selected' : ''}>5%</option>
-                        <option value="12" ${service.default_gst_percentage === 12 ? 'selected' : ''}>12%</option>
-                        <option value="18" ${service.default_gst_percentage === 18 ? 'selected' : ''}>18%</option>
-                        <option value="28" ${service.default_gst_percentage === 28 ? 'selected' : ''}>28%</option>
-                    </select>
-                    <input type="text" placeholder="SAC" value="${service.sac_code || ''}" readonly>
-                    <button class="btn btn-primary btn-sm" onclick="addSubItem('${service.id}', '${service.sub_service_name}')" style="padding: 6px; margin: 0;">
-                        ➕
-                    </button>
-                </div>
-            `).join('');
-        }
+            if (!rate) return; // Don't calculate if rate is empty
 
-        // Update sub-item display (real-time calculation)
-        function updateSubItemDisplay(serviceId) {
-            const qty = parseFloat(document.querySelector(`.qty-input-${serviceId}`).value) || 1;
-            const rate = parseFloat(document.querySelector(`.rate-input-${serviceId}`).value) || 0;
-            const gst = parseFloat(document.querySelector(`.gst-input-${serviceId}`).value) || 0;
-            
-            console.log(`Sub-item ${serviceId}: Qty=${qty}, Rate=${rate}, GST=${gst}%`);
-        }
-
-        // Clear service selection
-        function clearServiceSelection() {
-            document.getElementById('itemName').value = '';
-            document.getElementById('subItemsSection').classList.remove('show');
-            document.getElementById('mainServiceForm').classList.remove('show');
-            selectedService = null;
-        }
-
-        // Add sub-item to invoice
-        function addSubItem(serviceId, serviceName) {
-            const service = allSubServices.find(s => s.id === serviceId);
-            if (!service) return;
-
-            const qty = parseFloat(document.querySelector(`.qty-input-${serviceId}`).value) || 1;
-            const rate = parseFloat(document.querySelector(`.rate-input-${serviceId}`).value) || 0;
-            const gst = parseFloat(document.querySelector(`.gst-input-${serviceId}`).value) || 0;
-            const sac = service.sac_code || '';
-
-            if (!rate) {
-                showAlert('Please enter rate for ' + serviceName, 'error');
-                return;
-            }
+            // Remove any existing item with same service (auto-update)
+            generatorItems = generatorItems.filter(item => item.serviceId !== selectedService.id);
 
             const amount = qty * rate;
             const gstAmount = applyGST ? (amount * (gst / 100)) : 0;
@@ -1328,21 +1223,39 @@
 
             generatorItems.push({
                 id: Date.now() + Math.random(),
-                name: serviceName,
+                serviceId: selectedService.id,
+                name: selectedService.service_name,
                 qty,
                 rate,
                 amount,
                 gst,
                 gstAmount,
                 total,
-                sac
+                sac: selectedService.sac_code || ''
             });
 
-            console.log('Item added:', { name: serviceName, qty, rate, amount, gst, gstAmount, total });
-            
             renderInvoiceItems();
             updateGeneratorTotals();
-            showAlert('✅ ' + serviceName + ' added to invoice', 'success');
+        }
+
+        // Add service item (manual button click)
+        function addServiceItem() {
+            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
+            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
+
+            if (!selectedService || !rate) {
+                showAlert('Please select a service and enter rate', 'error');
+                return;
+            }
+
+            autoAddServiceItem();
+            
+            // Reset form
+            document.getElementById('itemName').value = '';
+            document.getElementById('serviceDetailsContainer').style.display = 'none';
+            selectedService = null;
+            
+            showAlert('✅ Service added to invoice', 'success');
         }
 
         // Search customers by mobile number
@@ -1494,49 +1407,9 @@
             }
         }
 
-        function addInvoiceItem() {
-            const name = document.getElementById('itemName').value;
-            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
-            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
-            const gst = parseFloat(document.getElementById('itemGST').value) || 0;
-            const sac = document.getElementById('itemSAC').value;
-
-            if (!name || !rate) {
-                showAlert('Please enter service name and rate', 'error');
-                return;
-            }
-
-            const amount = qty * rate;
-            const gstAmount = applyGST ? (amount * (gst / 100)) : 0;
-            const total = amount + gstAmount;
-
-            generatorItems.push({
-                id: Date.now(),
-                name,
-                qty,
-                rate,
-                amount,
-                gst,
-                gstAmount,
-                total,
-                sac
-            });
-
-            document.getElementById('itemName').value = '';
-            document.getElementById('itemQty').value = '1';
-            document.getElementById('itemRate').value = '';
-            document.getElementById('itemGST').value = '18';
-            document.getElementById('itemSAC').value = '';
-            document.getElementById('mainServiceForm').classList.remove('show');
-            selectedService = null;
-
-            renderInvoiceItems();
-            updateGeneratorTotals();
-        }
-
         function renderInvoiceItems() {
             const container = document.getElementById('itemsContainer');
-            const listDiv = document.getElementById('invoiceItemsList');
+            const listDiv = document.getElementById('addedServicesContainer');
 
             if (generatorItems.length === 0) {
                 listDiv.style.display = 'none';
@@ -1553,13 +1426,13 @@
                     <div>Qty: ${item.qty} × ₹${item.rate.toFixed(2)}</div>
                     <div>₹${item.amount.toFixed(2)}</div>
                     <div>${applyGST ? item.gst + '% GST: ₹' + item.gstAmount.toFixed(2) : 'No GST'}</div>
-                    <button class="item-remove" onclick="removeItem(${item.id})">Remove</button>
+                    <button class="item-remove" onclick="removeItem('${item.serviceId}')">Remove</button>
                 </div>
             `).join('');
         }
 
-        function removeItem(id) {
-            generatorItems = generatorItems.filter(item => item.id !== id);
+        function removeItem(serviceId) {
+            generatorItems = generatorItems.filter(item => item.serviceId !== serviceId);
             renderInvoiceItems();
             updateGeneratorTotals();
         }
@@ -1589,7 +1462,7 @@
                 const totalAmount = subtotal + totalGST;
 
                 if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
-                    showAlert('Please fill all required fields and add at least one item', 'error');
+                    showAlert('Please fill all required fields and add at least one service', 'error');
                     return;
                 }
 
@@ -1765,7 +1638,7 @@
             element.style.lineHeight = '1.6';
             element.innerHTML = `
                 <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="margin: 0; color: #667eea; font-size: 28px;">🏛️ Dream Harbour</h1>
+                    <h1 style="margin: 0; color: #667eea; font-size: 28px;">🏢 Dream Harbour</h1>
                     <p style="margin: 5px 0; color: #666;">Professional Invoice Management System</p>
                 </div>
 
@@ -1850,12 +1723,10 @@
             document.getElementById('itemQty').value = '1';
             document.getElementById('itemRate').value = '';
             document.getElementById('itemGST').value = '18';
-            document.getElementById('itemSAC').value = '';
-            document.getElementById('invoiceItemsList').style.display = 'none';
+            document.getElementById('serviceDetailsContainer').style.display = 'none';
             document.getElementById('mobileAutoComplete').classList.remove('show');
             document.getElementById('serviceAutoComplete').classList.remove('show');
-            document.getElementById('subItemsSection').classList.remove('show');
-            document.getElementById('mainServiceForm').classList.remove('show');
+            document.getElementById('addedServicesContainer').style.display = 'none';
             document.querySelector('input[name="gstType"][value="with"]').checked = true;
             updateGSTDisplay();
             updateGeneratorTotals();
@@ -1866,8 +1737,6 @@
             document.getElementById('generatorModal').style.display = 'none';
             document.getElementById('mobileAutoComplete').classList.remove('show');
             document.getElementById('serviceAutoComplete').classList.remove('show');
-            document.getElementById('subItemsSection').classList.remove('show');
-            document.getElementById('mainServiceForm').classList.remove('show');
         }
 
         function logout() {
