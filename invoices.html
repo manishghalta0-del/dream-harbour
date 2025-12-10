@@ -804,7 +804,7 @@
                             <tr>
                                 <th>Invoice #</th>
                                 <th>Customer</th>
-                                <th>Phone</th>
+                                <th>Mobile</th>
                                 <th>Date</th>
                                 <th>Subtotal</th>
                                 <th>GST</th>
@@ -853,9 +853,9 @@
 
             <div class="section-title">👥 Customer Details</div>
             <div class="form-group">
-                <label>Customer Phone Number *</label>
-                <input type="tel" id="genCustomerPhone" placeholder="Enter or search customer phone" required onkeyup="searchCustomerByPhone()">
-                <div id="phoneAutoComplete" class="autocomplete-list"></div>
+                <label>Customer Mobile Number *</label>
+                <input type="tel" id="genCustomerMobile" placeholder="Enter or search customer mobile" required onkeyup="searchCustomerByMobile()">
+                <div id="mobileAutoComplete" class="autocomplete-list"></div>
             </div>
             <div class="form-row-3">
                 <div class="form-group">
@@ -867,8 +867,8 @@
                     <input type="email" id="genCustomerEmail" placeholder="Email">
                 </div>
                 <div class="form-group">
-                    <label>Customer City</label>
-                    <input type="text" id="genCustomerCity" placeholder="City">
+                    <label>Company</label>
+                    <input type="text" id="genCustomerCompany" placeholder="Company name">
                 </div>
             </div>
 
@@ -1010,29 +1010,29 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Search customers by phone - FIXED VERSION
-        function searchCustomerByPhone() {
-            const phone = document.getElementById('genCustomerPhone').value.trim();
-            const autocompleteList = document.getElementById('phoneAutoComplete');
+        // Search customers by mobile number - ALIGNED WITH mobile_no FIELD
+        function searchCustomerByMobile() {
+            const mobile = document.getElementById('genCustomerMobile').value.trim();
+            const autocompleteList = document.getElementById('mobileAutoComplete');
 
-            if (!phone || phone.length < 1) {
+            if (!mobile || mobile.length < 1) {
                 autocompleteList.classList.remove('show');
                 return;
             }
 
             // Normalize input by removing non-digit characters
-            const normalizedInput = phone.replace(/\D/g, '');
+            const normalizedInput = mobile.replace(/\D/g, '');
 
             if (normalizedInput.length === 0) {
                 autocompleteList.classList.remove('show');
                 return;
             }
 
-            // Filter customers by matching phone numbers
+            // Filter customers by matching mobile numbers (using mobile_no field)
             searchResults = allCustomers.filter(c => {
-                if (!c.phone) return false;
-                const normalizedPhone = c.phone.replace(/\D/g, '');
-                return normalizedPhone.includes(normalizedInput);
+                if (!c.mobile_no) return false;
+                const normalizedMobile = String(c.mobile_no).replace(/\D/g, '');
+                return normalizedMobile.includes(normalizedInput);
             });
 
             if (searchResults.length === 0) {
@@ -1044,27 +1044,27 @@
             // Create autocomplete HTML
             autocompleteList.innerHTML = searchResults.map((customer, index) => `
                 <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectCustomer(${index}); return false;">
-                    <div class="autocomplete-item-phone">📱 ${customer.phone}</div>
-                    <div class="autocomplete-item-name">${customer.full_name || 'N/A'}${customer.city ? ' • ' + customer.city : ''}</div>
+                    <div class="autocomplete-item-phone">📱 ${customer.mobile_no}</div>
+                    <div class="autocomplete-item-name">${customer.full_name || 'N/A'}${customer.address ? ' • ' + customer.address : ''}</div>
                 </button>
             `).join('');
 
             autocompleteList.classList.add('show');
         }
 
-        // Select customer from autocomplete - FIXED VERSION
+        // Select customer from autocomplete
         function selectCustomer(index) {
             if (index < 0 || index >= searchResults.length) return;
 
             const customer = searchResults[index];
             selectedCustomer = customer;
             
-            document.getElementById('genCustomerPhone').value = customer.phone || '';
+            document.getElementById('genCustomerMobile').value = customer.mobile_no || '';
             document.getElementById('genCustomerName').value = customer.full_name || '';
             document.getElementById('genCustomerEmail').value = customer.email || '';
-            document.getElementById('genCustomerCity').value = customer.city || '';
+            document.getElementById('genCustomerCompany').value = customer.company_name || '';
             
-            document.getElementById('phoneAutoComplete').classList.remove('show');
+            document.getElementById('mobileAutoComplete').classList.remove('show');
         }
 
         function initializeApp() {
@@ -1205,25 +1205,23 @@
         async function saveGeneratedInvoice() {
             try {
                 const invoiceNumber = document.getElementById('genInvoiceNumber').value;
-                const phone = document.getElementById('genCustomerPhone').value;
+                const mobile = document.getElementById('genCustomerMobile').value;
                 const customerName = document.getElementById('genCustomerName').value;
                 const customerEmail = document.getElementById('genCustomerEmail').value;
-                const customerCity = document.getElementById('genCustomerCity').value;
                 const subtotal = generatorItems.reduce((sum, item) => sum + item.amount, 0);
                 const totalGST = generatorItems.reduce((sum, item) => sum + item.gstAmount, 0);
                 const totalAmount = subtotal + totalGST;
 
-                if (!invoiceNumber || !phone || !customerName || generatorItems.length === 0) {
+                if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
                     showAlert('Please fill all required fields and add at least one item', 'error');
                     return;
                 }
 
                 const invoiceData = {
                     invoice_number: invoiceNumber,
-                    customer_phone: phone,
+                    customer_phone: mobile,
                     customer_name: customerName,
                     customer_email: customerEmail || null,
-                    customer_city: customerCity || null,
                     invoice_date: document.getElementById('genInvoiceDate').value,
                     subtotal: subtotal,
                     total_gst: totalGST,
@@ -1368,7 +1366,7 @@
                     <div>
                         <h3 style="margin: 0 0 10px 0; color: #333;">Customer Details</h3>
                         <p style="margin: 5px 0;"><strong>Name:</strong> ${invoice.customer_name || 'N/A'}</p>
-                        <p style="margin: 5px 0;"><strong>Phone:</strong> ${invoice.customer_phone || '-'}</p>
+                        <p style="margin: 5px 0;"><strong>Mobile:</strong> ${invoice.customer_phone || '-'}</p>
                         <p style="margin: 5px 0;"><strong>Email:</strong> ${invoice.customer_email || '-'}</p>
                     </div>
                     <div>
@@ -1423,10 +1421,10 @@
             document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
             document.getElementById('autoInvoiceNumber').textContent = newInvoiceNumber;
             document.getElementById('genInvoiceDate').value = formatISTDateForInput();
-            document.getElementById('genCustomerPhone').value = '';
+            document.getElementById('genCustomerMobile').value = '';
             document.getElementById('genCustomerName').value = '';
             document.getElementById('genCustomerEmail').value = '';
-            document.getElementById('genCustomerCity').value = '';
+            document.getElementById('genCustomerCompany').value = '';
             document.getElementById('genPaymentStatus').value = 'pending';
             document.getElementById('itemName').value = '';
             document.getElementById('itemQty').value = '1';
@@ -1434,14 +1432,14 @@
             document.getElementById('itemGST').value = '18';
             document.getElementById('itemSAC').value = '';
             document.getElementById('invoiceItemsList').style.display = 'none';
-            document.getElementById('phoneAutoComplete').classList.remove('show');
+            document.getElementById('mobileAutoComplete').classList.remove('show');
             updateGeneratorTotals();
             document.getElementById('generatorModal').style.display = 'block';
         }
 
         function closeGenerator() {
             document.getElementById('generatorModal').style.display = 'none';
-            document.getElementById('phoneAutoComplete').classList.remove('show');
+            document.getElementById('mobileAutoComplete').classList.remove('show');
         }
 
         function logout() {
@@ -1452,11 +1450,11 @@
 
         window.onclick = function(event) {
             const modal = document.getElementById('generatorModal');
-            const autocomplete = document.getElementById('phoneAutoComplete');
+            const autocomplete = document.getElementById('mobileAutoComplete');
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
-            if (!event.target.closest('.form-group') && !event.target.matches('#genCustomerPhone')) {
+            if (!event.target.closest('.form-group') && !event.target.matches('#genCustomerMobile')) {
                 autocomplete.classList.remove('show');
             }
         }
