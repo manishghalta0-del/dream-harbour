@@ -662,10 +662,6 @@
             margin-top: 8px;
         }
 
-        .sub-service-checkbox {
-            margin-right: 8px;
-        }
-
         .sub-service-item {
             padding: 10px;
             background: white;
@@ -673,7 +669,7 @@
             border-radius: 4px;
             margin-bottom: 8px;
             display: grid;
-            grid-template-columns: auto 2fr 1fr 1fr 1fr;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
             gap: 10px;
             align-items: center;
         }
@@ -1092,7 +1088,7 @@
                         <!-- Sub-services for selected service (MAIN items when present) -->
                         <div id="subServicesContainer" style="display: none;">
                             <div class="sub-services-list">
-                                <div class="sub-services-title">📋 Select Sub-services:</div>
+                                <div class="sub-services-title">📋 All Sub-services (Mandatory - All will be added):</div>
                                 <div id="subServicesList"></div>
                             </div>
                         </div>
@@ -1294,10 +1290,7 @@
 
             container.style.display = 'block';
             list.innerHTML = serviceSubServices.map((subService) => `
-                <div class="sub-service-item">
-                    <span style="font-weight: 600;">${subService.sub_service_name}</span>             <input type="number" class="sub-service-qty" value="1" min="1" placeholder="Qty" style="padding: 6px;">             <input type="number" class="sub-service-rate" value="${subService.default_rate}" min="0" step="0.01" placeholder="Rate" style="padding: 6px;">             <select class="sub-service-gst" style="padding: 6px;">                 <option value="0">0%</option>                 <option value="5">5%</option>                 <option value="12">12%</option>                 <option value="18" ${subService.default_gst_percentage == 18 ? 'selected' : ''}>18%</option>                 <option value="28">28%</option>             </select>             <span style="font-size: 12px; color: #999;">${subService.sac_code || 'N/A'} data-id="${subService.id}" 
-                           data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" 
-                           data-gst="${subService.default_gst_percentage}">
+                <div class="sub-service-item" data-id="${subService.id}" data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" data-gst="${subService.default_gst_percentage}">
                     <span><strong>${subService.sub_service_name}</strong></span>
                     <input type="number" class="sub-service-qty" value="1" min="1" placeholder="Qty" style="padding: 6px;">
                     <input type="number" class="sub-service-rate" value="${subService.default_rate}" min="0" step="0.01" placeholder="Rate" style="padding: 6px;">
@@ -1313,7 +1306,7 @@
         }
 
         function addServiceToInvoice() {
-            
+            if (!selectedService) {
                 showAlert('Please select a service', 'error');
                 return;
             }
@@ -1321,22 +1314,19 @@
             const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             
             if (serviceSubServices.length > 0) {
-                // Service WITH sub-services: Add only checked sub-services
-                const checkedSubServices = document.querySelectorAll('.sub-service-checkbox:checked');
+                // Service WITH sub-services: Add ALL sub-services (no checkboxes needed)
+                const parentServiceId = selectedService.id + '-' + Date.now();
                 
-                if (checkedSubServices.length === 0) {
-                    showAlert('Please select at least one sub-service', 'error');
-                    return;
-                }
-
-                checkedSubServices.forEach(checkbox => {
-                    const row = checkbox.closest('.sub-service-item');
+                serviceSubServices.forEach((subService) => {
+                    const row = document.querySelector(`[data-id="${subService.id}"]`);
+                    if (!row) return;
+                    
                     const qty = parseFloat(row.querySelector('.sub-service-qty').value) || 1;
                     const rate = parseFloat(row.querySelector('.sub-service-rate').value) || 0;
                     const gst = parseFloat(row.querySelector('.sub-service-gst').value) || 0;
 
                     if (!rate) {
-                        showAlert('Please enter a rate for all selected sub-services', 'error');
+                        showAlert('Please enter a rate for all sub-services', 'error');
                         return;
                     }
 
@@ -1352,11 +1342,12 @@
                     }
 
                     const item = {
-                        id: checkbox.getAttribute('data-id') + '-' + Date.now(),
+                        id: subService.id + '-' + Date.now(),
+                        parentServiceId: parentServiceId,
                         serviceId: selectedService.id,
-                        subServiceId: checkbox.getAttribute('data-id'),
-                        name: selectedService.service_name + ' - ' + checkbox.getAttribute('data-name'),
-                        subServiceName: checkbox.getAttribute('data-name'),
+                        subServiceId: subService.id,
+                        name: selectedService.service_name + ' - ' + subService.sub_service_name,
+                        subServiceName: subService.sub_service_name,
                         qty,
                         rate,
                         amount,
@@ -1437,35 +1428,49 @@
             }
 
             listDiv.style.display = 'block';
-            container.innerHTML = generatorItems.map((item, idx) => {
-                const total = item.amount + item.gstAmount;
+            const groupedByService = {};
+            
+            generatorItems.forEach((item) => {
+                const serviceKey = item.parentServiceId || item.serviceId;
+                if (!groupedByService[serviceKey]) {
+                    groupedByService[serviceKey] = [];
+                }
+                groupedByService[serviceKey].push(item);
+            });
+
+            container.innerHTML = Object.entries(groupedByService).map(([serviceKey, items]) => {
+                const firstItem = items[0];
+                const serviceTotal = items.reduce((sum, item) => sum + item.amount + item.gstAmount, 0);
+                const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
+                const totalGST = items.reduce((sum, item) => sum + item.gstAmount, 0);
+                const isMultipleItems = items.length > 1;
 
                 return `
                     <div class="service-item-display">
                         <div class="service-item-header">
                             <div>
-                                <div class="service-item-name">${item.name}</div>
-                                ${item.sac ? `<div class="service-item-details">SAC: ${item.sac}</div>` : ''}
+                                <div class="service-item-name">${firstItem.name.split(' - ')[0]}</div>
+                                ${firstItem.sac ? `<div class="service-item-details">SAC: ${firstItem.sac}</div>` : ''}
                             </div>
-                            <button class="service-item-remove" onclick="removeItem(${idx})">Remove</button>
+                            <button class="service-item-remove" onclick="removeServiceGroup('${serviceKey}')">Remove All</button>
                         </div>
                         
                         <div class="service-item-details">
-                            <div>Qty: ${item.qty} × ₹${item.rate.toFixed(2)}</div>
+                            ${items.map(item => `<div>• ${item.subServiceName || item.name}: ${item.qty} × ₹${item.rate.toFixed(2)}</div>`).join('')}
                         </div>
 
                         <div class="service-item-totals">
                             <div class="service-item-total-row">
                                 <span>Amount:</span>
-                                <span>₹${item.amount.toFixed(2)}</span>
+                                <span>₹${totalAmount.toFixed(2)}</span>
                             </div>
                             <div class="service-item-total-row">
-                                <span>GST (${item.gst}%):</span>
-                                <span>₹${item.gstAmount.toFixed(2)}</span>
+                                <span>GST:</span>
+                                <span>₹${totalGST.toFixed(2)}</span>
                             </div>
                             <div class="service-item-total-row">
                                 <span><strong>Total:</strong></span>
-                                <span><strong>₹${total.toFixed(2)}</strong></span>
+                                <span><strong>₹${serviceTotal.toFixed(2)}</strong></span>
                             </div>
                         </div>
                     </div>
@@ -1473,22 +1478,15 @@
             }).join('');
         }
 
-        function removeItem(index) {
-const itemToRemove = generatorItems[index];
-    
-    // If it's a service with sub-services, remove all items with same parentServiceId
-    if (itemToRemove.hasSubServices && itemToRemove.parentServiceId) {
-        generatorItems = generatorItems.filter(item => 
-            item.parentServiceId !== itemToRemove.parentServiceId
-        );
-    } else {
-        // Single service - just remove this one
-        generatorItems.splice(index, 1);
-    }
-    
-    renderInvoiceItems();
-    updateGeneratorTotals();
-}
+        function removeServiceGroup(serviceKey) {
+            generatorItems = generatorItems.filter(item => {
+                const itemKey = item.parentServiceId || item.serviceId;
+                return itemKey !== serviceKey;
+            });
+            
+            renderInvoiceItems();
+            updateGeneratorTotals();
+        }
 
         function updateGeneratorTotals() {
             let subtotal = 0;
