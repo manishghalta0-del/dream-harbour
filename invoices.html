@@ -1273,9 +1273,9 @@
             container.innerHTML = childSubServices.map((service, index) => `
                 <div class="sub-item-row">
                     <div class="service-name">${service.sub_service_name}</div>
-                    <input type="number" placeholder="Qty" value="1" min="1" class="qty-input-${service.id}" onchange="updateSubItemQty('${service.id}', this.value)">
-                    <input type="number" placeholder="Rate" value="${service.default_rate || ''}" step="0.01" min="0" class="rate-input-${service.id}" onchange="updateSubItemRate('${service.id}', this.value)">
-                    <select class="gst-input-${service.id}" onchange="updateSubItemGST('${service.id}', this.value)">
+                    <input type="number" placeholder="Qty" value="1" min="1" class="qty-input-${service.id}" onchange="updateSubItemDisplay('${service.id}')">
+                    <input type="number" placeholder="Rate" value="${service.default_rate || ''}" step="0.01" min="0" class="rate-input-${service.id}" onchange="updateSubItemDisplay('${service.id}')">
+                    <select class="gst-input-${service.id}" onchange="updateSubItemDisplay('${service.id}')">
                         <option value="0" ${service.default_gst_percentage === 0 ? 'selected' : ''}>0%</option>
                         <option value="5" ${service.default_gst_percentage === 5 ? 'selected' : ''}>5%</option>
                         <option value="12" ${service.default_gst_percentage === 12 ? 'selected' : ''}>12%</option>
@@ -1283,9 +1283,20 @@
                         <option value="28" ${service.default_gst_percentage === 28 ? 'selected' : ''}>28%</option>
                     </select>
                     <input type="text" placeholder="SAC" value="${service.sac_code || ''}" readonly>
-                    <button class="btn btn-primary btn-sm" onclick="addSubItem('${service.id}', '${service.sub_service_name}')" style="padding: 6px; margin: 0;">➕</button>
+                    <button class="btn btn-primary btn-sm" onclick="addSubItem('${service.id}', '${service.sub_service_name}')" style="padding: 6px; margin: 0;">
+                        ➕
+                    </button>
                 </div>
             `).join('');
+        }
+
+        // Update sub-item display (real-time calculation)
+        function updateSubItemDisplay(serviceId) {
+            const qty = parseFloat(document.querySelector(`.qty-input-${serviceId}`).value) || 1;
+            const rate = parseFloat(document.querySelector(`.rate-input-${serviceId}`).value) || 0;
+            const gst = parseFloat(document.querySelector(`.gst-input-${serviceId}`).value) || 0;
+            
+            console.log(`Sub-item ${serviceId}: Qty=${qty}, Rate=${rate}, GST=${gst}%`);
         }
 
         // Clear service selection
@@ -1327,6 +1338,8 @@
                 sac
             });
 
+            console.log('Item added:', { name: serviceName, qty, rate, amount, gst, gstAmount, total });
+            
             renderInvoiceItems();
             updateGeneratorTotals();
             showAlert('✅ ' + serviceName + ' added to invoice', 'success');
@@ -1559,6 +1572,8 @@
             document.getElementById('genSubtotal').textContent = '₹' + subtotal.toFixed(2);
             document.getElementById('genTotalGST').textContent = '₹' + totalGST.toFixed(2);
             document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
+
+            console.log('Totals Updated:', { subtotal, totalGST, grandTotal });
         }
 
         async function saveGeneratedInvoice() {
