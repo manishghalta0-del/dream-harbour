@@ -1295,7 +1295,7 @@
             container.style.display = 'block';
             list.innerHTML = serviceSubServices.map((subService) => `
                 <div class="sub-service-item">
-                    <input type="checkbox" class="sub-service-checkbox" data-id="${subService.id}" 
+                    <span style="font-weight: 600;">${subService.sub_service_name}</span>             <input type="number" class="sub-service-qty" value="1" min="1" placeholder="Qty" style="padding: 6px;">             <input type="number" class="sub-service-rate" value="${subService.default_rate}" min="0" step="0.01" placeholder="Rate" style="padding: 6px;">             <select class="sub-service-gst" style="padding: 6px;">                 <option value="0">0%</option>                 <option value="5">5%</option>                 <option value="12">12%</option>                 <option value="18" ${subService.default_gst_percentage == 18 ? 'selected' : ''}>18%</option>                 <option value="28">28%</option>             </select>             <span style="font-size: 12px; color: #999;">${subService.sac_code || 'N/A'} data-id="${subService.id}" 
                            data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" 
                            data-gst="${subService.default_gst_percentage}">
                     <span><strong>${subService.sub_service_name}</strong></span>
