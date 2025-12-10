@@ -672,9 +672,10 @@
             border: 1px solid var(--border-color);
             border-radius: 4px;
             margin-bottom: 8px;
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 2fr 1fr 1fr 1fr;
+            gap: 10px;
             align-items: center;
-            gap: 8px;
         }
 
         /* Service/Sub-Service Section Styles */
@@ -872,6 +873,10 @@
             .service-inputs-row {
                 grid-template-columns: 1fr;
             }
+
+            .sub-service-item {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -1029,7 +1034,7 @@
                 <textarea id="genCustomerAddress" placeholder="Enter customer address" style="min-height: 60px; resize: vertical;"></textarea>
             </div>
 
-            <div class="section-title">🧮 GST Option</div>
+            <div class="section-title">🧾 GST Option</div>
             <div class="gst-toggle">
                 <label>
                     <input type="radio" name="gstType" value="with" checked onchange="updateGSTDisplay()">
@@ -1056,40 +1061,43 @@
                     </div>
 
                     <div id="serviceDetailsContainer" style="display: none;">
-                        <div class="service-inputs-row">
-                            <div class="form-group">
-                                <label>Service Name</label>
-                                <input type="text" id="serviceName" readonly style="background: #f9f9f9;">
-                            </div>
-                            <div class="form-group">
-                                <label>Quantity</label>
-                                <input type="number" id="itemQty" placeholder="1" value="1" min="1" onchange="updateInvoiceItemFromService()" onkeyup="updateInvoiceItemFromService()">
-                            </div>
-                            <div class="form-group">
-                                <label>Rate (₹)</label>
-                                <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0" onchange="updateInvoiceItemFromService()" onkeyup="updateInvoiceItemFromService()">
-                            </div>
-                            <div class="form-group">
-                                <label>GST %</label>
-                                <select id="itemGST" onchange="updateInvoiceItemFromService()">
-                                    <option value="0">0% (No GST)</option>
-                                    <option value="5">5%</option>
-                                    <option value="12">12%</option>
-                                    <option value="18" selected>18%</option>
-                                    <option value="28">28%</option>
-                                </select>
+                        <!-- Service details for services WITHOUT sub-services -->
+                        <div id="serviceOnlyFields" style="display: none;">
+                            <div class="service-inputs-row">
+                                <div class="form-group">
+                                    <label>Service Name</label>
+                                    <input type="text" id="serviceName" readonly style="background: #f9f9f9;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number" id="itemQty" placeholder="1" value="1" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Rate (₹)</label>
+                                    <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>GST %</label>
+                                    <select id="itemGST">
+                                        <option value="0">0% (No GST)</option>
+                                        <option value="5">5%</option>
+                                        <option value="12">12%</option>
+                                        <option value="18" selected>18%</option>
+                                        <option value="28">28%</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Sub-services for selected service -->
+                        <!-- Sub-services for selected service (MAIN items when present) -->
                         <div id="subServicesContainer" style="display: none;">
                             <div class="sub-services-list">
-                                <div class="sub-services-title">📋 Sub-services (Optional) - Add one or more:</div>
+                                <div class="sub-services-title">📋 Select Sub-services:</div>
                                 <div id="subServicesList"></div>
                             </div>
                         </div>
 
-                        <button class="add-service-btn" onclick="addServiceToInvoice()">✅ Add Service</button>
+                        <button class="add-service-btn" onclick="addServiceToInvoice()">✅ Add to Invoice</button>
                     </div>
                 </div>
             </div>
@@ -1256,17 +1264,25 @@
             document.getElementById('serviceAutoComplete').classList.remove('show');
             
             document.getElementById('serviceDetailsContainer').style.display = 'block';
-            document.getElementById('itemRate').value = selectedService.default_rate || '';
-            document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
-            document.getElementById('itemQty').value = '1';
 
-            displaySubServices();
+            // Check if this service has sub-services
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
+            
+            if (serviceSubServices.length > 0) {
+                // Has sub-services: HIDE service fields, SHOW sub-services
+                document.getElementById('serviceOnlyFields').style.display = 'none';
+                displaySubServices(serviceSubServices);
+            } else {
+                // No sub-services: SHOW service fields, HIDE sub-services
+                document.getElementById('serviceOnlyFields').style.display = 'block';
+                document.getElementById('subServicesContainer').style.display = 'none';
+                document.getElementById('itemRate').value = selectedService.default_rate || '';
+                document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
+                document.getElementById('itemQty').value = '1';
+            }
         }
 
-        function displaySubServices() {
-            if (!selectedService) return;
-
-            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
+        function displaySubServices(serviceSubServices) {
             const container = document.getElementById('subServicesContainer');
             const list = document.getElementById('subServicesList');
 
@@ -1281,16 +1297,19 @@
                 <div class="sub-service-item">
                     <input type="checkbox" class="sub-service-checkbox" data-id="${subService.id}" 
                            data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" 
-                           data-gst="${subService.default_gst_percentage}" 
-                           onchange="updateInvoiceItemFromService()">
-                    <span><strong>${subService.sub_service_name}</strong> - ₹${subService.default_rate} (${subService.default_gst_percentage}% GST)</span>
+                           data-gst="${subService.default_gst_percentage}">
+                    <span><strong>${subService.sub_service_name}</strong></span>
+                    <input type="number" class="sub-service-qty" value="1" min="1" placeholder="Qty" style="padding: 6px;">
+                    <input type="number" class="sub-service-rate" value="${subService.default_rate}" min="0" step="0.01" placeholder="Rate" style="padding: 6px;">
+                    <select class="sub-service-gst" style="padding: 6px;">
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18" ${subService.default_gst_percentage == 18 ? 'selected' : ''}>18%</option>
+                        <option value="28">28%</option>
+                    </select>
                 </div>
             `).join('');
-        }
-
-        function updateInvoiceItemFromService() {
-            if (!selectedService) return;
-            updateGeneratorTotals();
         }
 
         function addServiceToInvoice() {
@@ -1299,75 +1318,97 @@
                 return;
             }
 
-            const qty = parseFloat(document.getElementById('itemQty').value) || 1;
-            const rate = parseFloat(document.getElementById('itemRate').value) || 0;
-            const gst = parseFloat(document.getElementById('itemGST').value) || 0;
-
-            if (!rate) {
-                showAlert('Please enter a rate', 'error');
-                return;
-            }
-
-            let amount, gstAmount;
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             
-            if (applyGST) {
-                amount = qty * rate;
-                const gstPortion = (rate * (gst / (100 + gst)));
-                gstAmount = qty * gstPortion;
-            } else {
-                amount = qty * rate;
-                gstAmount = amount * (gst / 100);
-            }
-
-            const item = {
-                id: selectedService.id + '-' + Date.now(),
-                serviceId: selectedService.id,
-                name: selectedService.service_name,
-                qty,
-                rate,
-                amount,
-                gst,
-                gstAmount,
-                sac: selectedService.sac_code || '',
-                gstMode: applyGST ? 'with' : 'without',
-                subServices: []
-            };
-
-            const subServiceCheckboxes = document.querySelectorAll('.sub-service-checkbox:checked');
-            subServiceCheckboxes.forEach(checkbox => {
-                const subServiceId = checkbox.getAttribute('data-id');
-                const subServiceName = checkbox.getAttribute('data-name');
-                const subServiceRate = parseFloat(checkbox.getAttribute('data-rate')) || 0;
-                const subServiceGst = parseFloat(checkbox.getAttribute('data-gst')) || 0;
-
-                if (!subServiceRate) return;
-
-                let subAmount, subGstAmount;
+            if (serviceSubServices.length > 0) {
+                // Service WITH sub-services: Add only checked sub-services
+                const checkedSubServices = document.querySelectorAll('.sub-service-checkbox:checked');
                 
-                if (applyGST) {
-                    subAmount = qty * subServiceRate;
-                    const subGstPortion = (subServiceRate * (subServiceGst / (100 + subServiceGst)));
-                    subGstAmount = qty * subGstPortion;
-                } else {
-                    subAmount = qty * subServiceRate;
-                    subGstAmount = subAmount * (subServiceGst / 100);
+                if (checkedSubServices.length === 0) {
+                    showAlert('Please select at least one sub-service', 'error');
+                    return;
                 }
 
-                item.subServices.push({
-                    id: subServiceId,
-                    name: subServiceName,
-                    qty,
-                    rate: subServiceRate,
-                    amount: subAmount,
-                    gst: subServiceGst,
-                    gstAmount: subGstAmount
+                checkedSubServices.forEach(checkbox => {
+                    const row = checkbox.closest('.sub-service-item');
+                    const qty = parseFloat(row.querySelector('.sub-service-qty').value) || 1;
+                    const rate = parseFloat(row.querySelector('.sub-service-rate').value) || 0;
+                    const gst = parseFloat(row.querySelector('.sub-service-gst').value) || 0;
+
+                    if (!rate) {
+                        showAlert('Please enter a rate for all selected sub-services', 'error');
+                        return;
+                    }
+
+                    let amount, gstAmount;
+                    
+                    if (applyGST) {
+                        amount = qty * rate;
+                        const gstPortion = (rate * (gst / (100 + gst)));
+                        gstAmount = qty * gstPortion;
+                    } else {
+                        amount = qty * rate;
+                        gstAmount = amount * (gst / 100);
+                    }
+
+                    const item = {
+                        id: checkbox.getAttribute('data-id') + '-' + Date.now(),
+                        serviceId: selectedService.id,
+                        subServiceId: checkbox.getAttribute('data-id'),
+                        name: selectedService.service_name + ' - ' + checkbox.getAttribute('data-name'),
+                        subServiceName: checkbox.getAttribute('data-name'),
+                        qty,
+                        rate,
+                        amount,
+                        gst,
+                        gstAmount,
+                        sac: selectedService.sac_code || '',
+                        gstMode: applyGST ? 'with' : 'without',
+                        hasSubServices: true
+                    };
+
+                    generatorItems.push(item);
                 });
 
-                item.amount += subAmount;
-                item.gstAmount += subGstAmount;
-            });
+            } else {
+                // Service WITHOUT sub-services: Add service directly
+                const qty = parseFloat(document.getElementById('itemQty').value) || 1;
+                const rate = parseFloat(document.getElementById('itemRate').value) || 0;
+                const gst = parseFloat(document.getElementById('itemGST').value) || 0;
 
-            generatorItems.push(item);
+                if (!rate) {
+                    showAlert('Please enter a rate', 'error');
+                    return;
+                }
+
+                let amount, gstAmount;
+                
+                if (applyGST) {
+                    amount = qty * rate;
+                    const gstPortion = (rate * (gst / (100 + gst)));
+                    gstAmount = qty * gstPortion;
+                } else {
+                    amount = qty * rate;
+                    gstAmount = amount * (gst / 100);
+                }
+
+                const item = {
+                    id: selectedService.id + '-' + Date.now(),
+                    serviceId: selectedService.id,
+                    name: selectedService.service_name,
+                    qty,
+                    rate,
+                    amount,
+                    gst,
+                    gstAmount,
+                    sac: selectedService.sac_code || '',
+                    gstMode: applyGST ? 'with' : 'without',
+                    hasSubServices: false
+                };
+
+                generatorItems.push(item);
+            }
+
             renderInvoiceItems();
             resetServiceForm();
             updateGeneratorTotals();
@@ -1377,6 +1418,7 @@
             document.getElementById('itemName').value = '';
             document.getElementById('serviceName').value = '';
             document.getElementById('serviceDetailsContainer').style.display = 'none';
+            document.getElementById('serviceOnlyFields').style.display = 'none';
             document.getElementById('subServicesContainer').style.display = 'none';
             document.getElementById('itemQty').value = '1';
             document.getElementById('itemRate').value = '';
@@ -1396,10 +1438,7 @@
 
             listDiv.style.display = 'block';
             container.innerHTML = generatorItems.map((item, idx) => {
-                const mainTotal = item.amount + item.gstAmount;
-                const subServicesTotalAmount = item.subServices.reduce((sum, s) => sum + s.amount, 0);
-                const subServicesTotalGst = item.subServices.reduce((sum, s) => sum + s.gstAmount, 0);
-                const fullTotal = mainTotal + subServicesTotalAmount + subServicesTotalGst;
+                const total = item.amount + item.gstAmount;
 
                 return `
                     <div class="service-item-display">
@@ -1413,52 +1452,21 @@
                         
                         <div class="service-item-details">
                             <div>Qty: ${item.qty} × ₹${item.rate.toFixed(2)}</div>
-                            ${item.subServices.length > 0 ? `
-                                <div style="margin-top: 6px;">
-                                    <strong>Sub-services:</strong>
-                                    ${item.subServices.map(s => `<div>• ${s.name}: ${s.qty} × ₹${s.rate.toFixed(2)}</div>`).join('')}
-                                </div>
-                            ` : ''}
                         </div>
 
                         <div class="service-item-totals">
-                            ${item.subServices.length > 0 ? `
-                                <div class="service-item-total-row">
-                                    <span>${item.name} Amount:</span>
-                                    <span>₹${item.amount.toFixed(2)}</span>
-                                </div>
-                                <div class="service-item-total-row">
-                                    <span>${item.name} GST (${item.gst}%):</span>
-                                    <span>₹${item.gstAmount.toFixed(2)}</span>
-                                </div>
-                                ${item.subServices.map((s, i) => `
-                                    <div class="service-item-total-row">
-                                        <span>${s.name} Amount:</span>
-                                        <span>₹${s.amount.toFixed(2)}</span>
-                                    </div>
-                                    <div class="service-item-total-row">
-                                        <span>${s.name} GST (${s.gst}%):</span>
-                                        <span>₹${s.gstAmount.toFixed(2)}</span>
-                                    </div>
-                                `).join('')}
-                                <div class="service-item-total-row">
-                                    <span><strong>Total:</strong></span>
-                                    <span><strong>₹${fullTotal.toFixed(2)}</strong></span>
-                                </div>
-                            ` : `
-                                <div class="service-item-total-row">
-                                    <span>Amount:</span>
-                                    <span>₹${item.amount.toFixed(2)}</span>
-                                </div>
-                                <div class="service-item-total-row">
-                                    <span>GST (${item.gst}%):</span>
-                                    <span>₹${item.gstAmount.toFixed(2)}</span>
-                                </div>
-                                <div class="service-item-total-row">
-                                    <span><strong>Total:</strong></span>
-                                    <span><strong>₹${mainTotal.toFixed(2)}</strong></span>
-                                </div>
-                            `}
+                            <div class="service-item-total-row">
+                                <span>Amount:</span>
+                                <span>₹${item.amount.toFixed(2)}</span>
+                            </div>
+                            <div class="service-item-total-row">
+                                <span>GST (${item.gst}%):</span>
+                                <span>₹${item.gstAmount.toFixed(2)}</span>
+                            </div>
+                            <div class="service-item-total-row">
+                                <span><strong>Total:</strong></span>
+                                <span><strong>₹${total.toFixed(2)}</strong></span>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1478,13 +1486,6 @@
             generatorItems.forEach(item => {
                 subtotal += item.amount;
                 totalGST += item.gstAmount;
-                
-                if (item.subServices) {
-                    item.subServices.forEach(sub => {
-                        subtotal += sub.amount;
-                        totalGST += sub.gstAmount;
-                    });
-                }
             });
 
             const grandTotal = applyGST ? subtotal : (subtotal + totalGST);
@@ -1655,13 +1656,6 @@
                 generatorItems.forEach(item => {
                     subtotal += item.amount;
                     totalGST += item.gstAmount;
-                    
-                    if (item.subServices) {
-                        item.subServices.forEach(sub => {
-                            subtotal += sub.amount;
-                            totalGST += sub.gstAmount;
-                        });
-                    }
                 });
 
                 const totalAmount = applyGST ? subtotal : (subtotal + totalGST);
