@@ -698,18 +698,6 @@
             border-left: 4px solid #ffc107;
         }
 
-        .sub-service-item {
-            padding: 10px;
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            margin-bottom: 8px;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px;
-            align-items: center;
-        }
-
         .service-add-section {
             background: linear-gradient(135deg, #e8f4f8 0%, #f0f8fb 100%);
             border: 1px solid var(--primary-color);
@@ -745,6 +733,18 @@
             font-weight: 600;
             margin-bottom: 8px;
             color: var(--text-primary);
+        }
+
+        .sub-service-item {
+            padding: 10px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
         }
 
         .service-item-display {
@@ -826,6 +826,17 @@
         .add-service-btn:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
+        }
+
+        .category-header {
+            background: #f0f8f4;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 12px;
+            border-left: 3px solid #2e7d32;
         }
 
         @media (max-width: 1024px) {
@@ -1195,6 +1206,7 @@
         let allServices = [];
         let allSubServices = [];
         let allBusinessSettings = [];
+        let allCategories = [];
         let filteredInvoices = [];
         let generatorItems = [];
         let selectedCustomer = null;
@@ -1339,12 +1351,15 @@
                 return;
             }
 
-            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => `
-                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectService(${index}); return false;">
-                    <div class="autocomplete-item-phone">📦 ${service.service_name}</div>
-                    <div class="autocomplete-item-name">SAC: ${service.sac_code || 'N/A'} | Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
-                </button>
-            `).join('');
+            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => {
+                const category = allCategories.find(c => c.id === service.category_id);
+                return `
+                    <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectService(${index}); return false;">
+                        <div class="autocomplete-item-phone">📦 ${service.service_name}</div>
+                        <div class="autocomplete-item-name">Category: ${category?.category_name || 'N/A'} | SAC: ${service.sac_code || 'N/A'} | Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
+                    </button>
+                `;
+            }).join('');
 
             autocompleteList.classList.add('show');
         }
@@ -1412,7 +1427,7 @@
             const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             
             if (serviceSubServices.length > 0) {
-                // Service WITH sub-services: Add ALL sub-services (no checkboxes needed)
+                // Service WITH sub-services: Add ALL sub-services
                 const parentServiceId = selectedService.id + '-' + Date.now();
                 
                 serviceSubServices.forEach((subService) => {
@@ -1444,7 +1459,8 @@
                         parentServiceId: parentServiceId,
                         serviceId: selectedService.id,
                         subServiceId: subService.id,
-                        name: selectedService.service_name + ' - ' + subService.sub_service_name,
+                        categoryName: allCategories.find(c => c.id === selectedService.category_id)?.category_name || '',
+                        serviceName: selectedService.service_name,
                         subServiceName: subService.sub_service_name,
                         qty,
                         rate,
@@ -1484,7 +1500,8 @@
                 const item = {
                     id: selectedService.id + '-' + Date.now(),
                     serviceId: selectedService.id,
-                    name: selectedService.service_name,
+                    categoryName: allCategories.find(c => c.id === selectedService.category_id)?.category_name || '',
+                    serviceName: selectedService.service_name,
                     qty,
                     rate,
                     amount,
@@ -1527,51 +1544,64 @@
             }
 
             listDiv.style.display = 'block';
-            const groupedByService = {};
+            
+            // Group by category first, then by service
+            const groupedByCategory = {};
             
             generatorItems.forEach((item) => {
-                const serviceKey = item.parentServiceId || item.serviceId;
-                if (!groupedByService[serviceKey]) {
-                    groupedByService[serviceKey] = [];
+                const categoryName = item.categoryName || 'Uncategorized';
+                if (!groupedByCategory[categoryName]) {
+                    groupedByCategory[categoryName] = {};
                 }
-                groupedByService[serviceKey].push(item);
+                
+                const serviceKey = item.parentServiceId || item.serviceId;
+                if (!groupedByCategory[categoryName][serviceKey]) {
+                    groupedByCategory[categoryName][serviceKey] = [];
+                }
+                groupedByCategory[categoryName][serviceKey].push(item);
             });
 
-            container.innerHTML = Object.entries(groupedByService).map(([serviceKey, items]) => {
-                const firstItem = items[0];
-                const serviceTotal = items.reduce((sum, item) => sum + item.amount + item.gstAmount, 0);
-                const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
-                const totalGST = items.reduce((sum, item) => sum + item.gstAmount, 0);
-                const isMultipleItems = items.length > 1;
-
+            container.innerHTML = Object.entries(groupedByCategory).map(([categoryName, services]) => {
                 return `
-                    <div class="service-item-display">
-                        <div class="service-item-header">
-                            <div>
-                                <div class="service-item-name">${firstItem.name.split(' - ')[0]}</div>
-                                ${firstItem.sac ? `<div class="service-item-details">SAC: ${firstItem.sac}</div>` : ''}
-                            </div>
-                            <button class="service-item-remove" onclick="removeServiceGroup('${serviceKey}')">Remove All</button>
-                        </div>
-                        
-                        <div class="service-item-details">
-                            ${items.map(item => `<div>• ${item.subServiceName || item.name}: ${item.qty} × ₹${item.rate.toFixed(2)}</div>`).join('')}
-                        </div>
+                    <div style="margin-bottom: 15px;">
+                        <div class="category-header">📁 ${categoryName}</div>
+                        ${Object.entries(services).map(([serviceKey, items]) => {
+                            const firstItem = items[0];
+                            const serviceTotal = items.reduce((sum, item) => sum + item.amount + item.gstAmount, 0);
+                            const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
+                            const totalGST = items.reduce((sum, item) => sum + item.gstAmount, 0);
 
-                        <div class="service-item-totals">
-                            <div class="service-item-total-row">
-                                <span>Amount:</span>
-                                <span>₹${totalAmount.toFixed(2)}</span>
-                            </div>
-                            <div class="service-item-total-row">
-                                <span>GST:</span>
-                                <span>₹${totalGST.toFixed(2)}</span>
-                            </div>
-                            <div class="service-item-total-row">
-                                <span><strong>Total:</strong></span>
-                                <span><strong>₹${serviceTotal.toFixed(2)}</strong></span>
-                            </div>
-                        </div>
+                            return `
+                                <div class="service-item-display" style="margin-bottom: 10px;">
+                                    <div class="service-item-header">
+                                        <div>
+                                            <div class="service-item-name">🔧 ${firstItem.serviceName}</div>
+                                            ${firstItem.sac ? `<div class="service-item-details">SAC: ${firstItem.sac}</div>` : ''}
+                                        </div>
+                                        <button class="service-item-remove" onclick="removeServiceGroup('${serviceKey}')">Remove All</button>
+                                    </div>
+                                    
+                                    <div class="service-item-details">
+                                        ${items.map(item => `<div>• ${item.subServiceName || item.serviceName}: ${item.qty} × ₹${item.rate.toFixed(2)}</div>`).join('')}
+                                    </div>
+
+                                    <div class="service-item-totals">
+                                        <div class="service-item-total-row">
+                                            <span>Amount:</span>
+                                            <span>₹${totalAmount.toFixed(2)}</span>
+                                        </div>
+                                        <div class="service-item-total-row">
+                                            <span>GST (${items[0].gst}%):</span>
+                                            <span>₹${totalGST.toFixed(2)}</span>
+                                        </div>
+                                        <div class="service-item-total-row">
+                                            <span><strong>Total:</strong></span>
+                                            <span><strong>₹${serviceTotal.toFixed(2)}</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
             }).join('');
@@ -1685,6 +1715,7 @@
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             loadBusinessSettings();
             loadCustomers();
+            loadCategories();
             loadServices();
             loadSubServices();
             loadInvoices();
@@ -1738,6 +1769,21 @@
             } catch (error) {
                 console.error('Error loading customers:', error);
                 showModalAlert('Error loading customers', 'error');
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const { data, error } = await supabase
+                    .from('service_categories')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+                allCategories = data || [];
+                console.log('Categories loaded:', allCategories.length);
+            } catch (error) {
+                console.error('Error loading categories:', error);
             }
         }
 
@@ -1856,6 +1902,7 @@
                 
                 // Auto-download PDF
                 setTimeout(() => {
+                    const customer = allCustomers.find(c => c.id === customerId);
                     generatePDFForNew(invoiceNumber, customerName, mobile, normalizedMobile, invoiceDate, dueDate, notes, paymentStatus, subtotal, totalGST, totalAmount);
                     closeGenerator();
                     loadInvoices();
@@ -1868,6 +1915,50 @@
                 document.getElementById('saveInvoiceBtn').disabled = false;
                 document.getElementById('saveInvoiceBtn').textContent = '💾 Save Invoice';
             }
+        }
+
+        function generateGSTBreakdownTable(generatorItems) {
+            const gstBreakdown = {};
+            
+            generatorItems.forEach(item => {
+                const gstRate = item.gst;
+                if (!gstBreakdown[gstRate]) {
+                    gstBreakdown[gstRate] = 0;
+                }
+                gstBreakdown[gstRate] += item.gstAmount;
+            });
+
+            let html = `
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px;">
+                    <thead>
+                        <tr style="background: #f0f0f0;">
+                            <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd; font-weight: 600;">GST Rate</th>
+                            <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd; font-weight: 600;">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            Object.keys(gstBreakdown).sort((a, b) => parseFloat(a) - parseFloat(b)).forEach(rate => {
+                html += `
+                    <tr>
+                        <td style="padding: 6px 8px; border-bottom: 1px solid #ddd;">${rate}% GST</td>
+                        <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid #ddd;">${gstBreakdown[rate].toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            const totalGST = Object.values(gstBreakdown).reduce((a, b) => a + b, 0);
+            html += `
+                    <tr style="background: #e8f4f8; font-weight: 600;">
+                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Total GST</td>
+                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">₹${totalGST.toFixed(2)}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            `;
+
+            return html;
         }
 
         function generatePDFForNew(invoiceNumber, customerName, mobile, normalizedMobile, invoiceDate, dueDate, notes, paymentStatus, subtotal, totalGST, totalAmount) {
@@ -1961,7 +2052,7 @@
                     <tbody>
                         ${generatorItems.map((item, idx) => `
                             <tr style="border: 1px solid #ddd;">
-                                <td style="padding: 8px; border: 1px solid #ddd;">${item.subServiceName || item.name}</td>
+                                <td style="padding: 8px; border: 1px solid #ddd;">${item.subServiceName || item.serviceName}</td>
                                 <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${item.qty}</td>
                                 <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">₹${item.rate.toFixed(2)}</td>
                                 <td style="padding: 8px; text-align: right; border: 1px solid #ddd; font-weight: 600;">₹${item.amount.toFixed(2)}</td>
@@ -1970,9 +2061,15 @@
                     </tbody>
                 </table>
 
+                <!-- GST Breakdown -->
+                <div style="margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 12px; font-weight: 700; text-transform: uppercase;">📊 TAX BREAKDOWN:</h3>
+                    ${generateGSTBreakdownTable(generatorItems)}
+                </div>
+
                 <!-- Bank Details Section -->
                 <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #667eea; font-size: 11px;">
-                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">Bank Details:</h3>
+                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">🏦 BANK DETAILS FOR PAYMENT:</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <p style="margin: 2px 0; color: #999; font-size: 10px;">Account Holder</p>
@@ -1991,7 +2088,7 @@
                             <p style="margin: 2px 0; font-weight: 600; color: #2c3e50;">${business.ifsc_code}</p>
                         </div>
                     </div>
-                    <p style="margin: 8px 0 0 0; color: #667eea; font-weight: 600;">UPI: ${business.upi_id}</p>
+                    <p style="margin: 8px 0 0 0; color: #667eea; font-weight: 600;">📱 UPI: ${business.upi_id}</p>
                 </div>
 
                 <!-- Amount Summary -->
@@ -2014,22 +2111,49 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <p style="margin: 8px 0 0 0; font-size: 11px; color: #555; font-style: italic;">Amount in Words: ${amountInWords}</p>
+                        <p style="margin: 8px 0 0 0; font-size: 11px; color: #555; font-style: italic;"><strong>Amount in Words:</strong> ${amountInWords}</p>
                     </div>
                 </div>
 
-                <!-- Terms & Notes -->
+                <!-- Payment Terms -->
+                <div style="background: #f5f7fa; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #667eea; font-size: 11px;">
+                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">📋 PAYMENT TERMS & CONDITIONS:</h3>
+                    <ul style="margin: 0; padding-left: 18px; color: #555; line-height: 1.6;">
+                        <li>Payment is due within 30 days from the date of invoice</li>
+                        <li>All disputes must be raised within 7 days of invoice date</li>
+                        <li>Early payment (within 7 days) attracts 2% discount</li>
+                        <li>This is a computer-generated invoice and requires no signature</li>
+                    </ul>
+                </div>
+
+                <!-- Notes -->
                 ${notes ? `
                 <div style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #ffc107; font-size: 11px;">
-                    <p style="margin: 3px 0; color: #856404;"><strong>Notes:</strong> ${notes}</p>
+                    <p style="margin: 3px 0; color: #856404;"><strong>📝 Additional Notes:</strong> ${notes}</p>
                 </div>
                 ` : ''}
 
+                <!-- Signature Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 20px; margin-top: 40px;">
+                    <div>
+                        <p style="margin-bottom: 40px; color: #999; font-size: 11px; border-bottom: 1px solid #999; padding-bottom: 5px;">_____________________________</p>
+                        <p style="margin: 5px 0; font-size: 11px; font-weight: 600; color: #2c3e50;">Authorized Signature</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px;">${business.business_name}</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px; font-style: italic;">Date: _______________</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="margin-bottom: 40px; color: #999; font-size: 11px; border-bottom: 1px solid #999; padding-bottom: 5px; display: inline-block; width: 100%;">_____________________________</p>
+                        <p style="margin: 5px 0; font-size: 11px; font-weight: 600; color: #2c3e50;">Customer Acknowledgement</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px;">${customerName}</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px; font-style: italic;">Date: _______________</p>
+                    </div>
+                </div>
+
                 <!-- Footer -->
-                <div style="border-top: 2px solid #ddd; padding-top: 15px; text-align: center; color: #666; font-size: 11px;">
-                    <p style="margin: 3px 0;">For queries: ${business.email} | ${business.phone}</p>
-                    <p style="margin: 3px 0;">Generated on: ${new Date().toLocaleString('en-IN')}</p>
-                    <p style="margin: 8px 0 0 0; color: #999;">This is a computer-generated invoice and requires no signature.</p>
+                <div style="border-top: 2px solid #ddd; padding-top: 15px; text-align: center; color: #666; font-size: 10px;">
+                    <p style="margin: 3px 0; color: #999;">For queries: ${business.email} | ${business.phone}</p>
+                    <p style="margin: 3px 0; color: #999;">Generated on: ${new Date().toLocaleString('en-IN')}</p>
+                    <p style="margin: 8px 0 0 0; color: #999;">Page 1 of 1</p>
                     <p style="margin: 3px 0; color: #999;">&copy; ${new Date().getFullYear()} ${business.business_name}. All rights reserved.</p>
                 </div>
             `;
@@ -2247,7 +2371,7 @@
 
                 <!-- Bank Details Section -->
                 <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #667eea; font-size: 11px;">
-                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">Bank Details:</h3>
+                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">🏦 BANK DETAILS FOR PAYMENT:</h3>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div>
                             <p style="margin: 2px 0; color: #999; font-size: 10px;">Account Holder</p>
@@ -2266,7 +2390,7 @@
                             <p style="margin: 2px 0; font-weight: 600; color: #2c3e50;">${business.ifsc_code}</p>
                         </div>
                     </div>
-                    <p style="margin: 8px 0 0 0; color: #667eea; font-weight: 600;">UPI: ${business.upi_id}</p>
+                    <p style="margin: 8px 0 0 0; color: #667eea; font-weight: 600;">📱 UPI: ${business.upi_id}</p>
                 </div>
 
                 <!-- Final Total -->
@@ -2279,22 +2403,49 @@
                                 <span>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</span>
                             </div>
                         </div>
-                        <p style="margin: 8px 0 0 0; font-size: 11px; color: #555; font-style: italic;">Amount in Words: ${amountInWords}</p>
+                        <p style="margin: 8px 0 0 0; font-size: 11px; color: #555; font-style: italic;"><strong>Amount in Words:</strong> ${amountInWords}</p>
                     </div>
+                </div>
+
+                <!-- Payment Terms -->
+                <div style="background: #f5f7fa; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #667eea; font-size: 11px;">
+                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">📋 PAYMENT TERMS & CONDITIONS:</h3>
+                    <ul style="margin: 0; padding-left: 18px; color: #555; line-height: 1.6;">
+                        <li>Payment is due within 30 days from the date of invoice</li>
+                        <li>All disputes must be raised within 7 days of invoice date</li>
+                        <li>Early payment (within 7 days) attracts 2% discount</li>
+                        <li>This is a computer-generated invoice and requires no signature</li>
+                    </ul>
                 </div>
 
                 <!-- Notes Section -->
                 ${invoice.notes ? `
                 <div style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #ffc107; font-size: 11px;">
-                    <p style="margin: 3px 0; color: #856404;"><strong>Notes:</strong> ${invoice.notes}</p>
+                    <p style="margin: 3px 0; color: #856404;"><strong>📝 Additional Notes:</strong> ${invoice.notes}</p>
                 </div>
                 ` : ''}
 
+                <!-- Signature Section -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 20px; margin-top: 40px;">
+                    <div>
+                        <p style="margin-bottom: 40px; color: #999; font-size: 11px; border-bottom: 1px solid #999; padding-bottom: 5px;">_____________________________</p>
+                        <p style="margin: 5px 0; font-size: 11px; font-weight: 600; color: #2c3e50;">Authorized Signature</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px;">${business.business_name}</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px; font-style: italic;">Date: _______________</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="margin-bottom: 40px; color: #999; font-size: 11px; border-bottom: 1px solid #999; padding-bottom: 5px; display: inline-block; width: 100%;">_____________________________</p>
+                        <p style="margin: 5px 0; font-size: 11px; font-weight: 600; color: #2c3e50;">Customer Acknowledgement</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px;">${customer?.full_name || 'N/A'}</p>
+                        <p style="margin: 3px 0; color: #666; font-size: 10px; font-style: italic;">Date: _______________</p>
+                    </div>
+                </div>
+
                 <!-- Footer -->
-                <div style="border-top: 2px solid #ddd; padding-top: 15px; text-align: center; color: #666; font-size: 11px;">
-                    <p style="margin: 3px 0;">For queries: ${business.email} | ${business.phone}</p>
-                    <p style="margin: 3px 0;">Generated on: ${new Date().toLocaleString('en-IN')}</p>
-                    <p style="margin: 8px 0 0 0; color: #999;">This is a computer-generated invoice and requires no signature.</p>
+                <div style="border-top: 2px solid #ddd; padding-top: 15px; text-align: center; color: #666; font-size: 10px;">
+                    <p style="margin: 3px 0; color: #999;">For queries: ${business.email} | ${business.phone}</p>
+                    <p style="margin: 3px 0; color: #999;">Generated on: ${new Date().toLocaleString('en-IN')}</p>
+                    <p style="margin: 8px 0 0 0; color: #999;">Page 1 of 1</p>
                     <p style="margin: 3px 0; color: #999;">&copy; ${new Date().getFullYear()} ${business.business_name}. All rights reserved.</p>
                 </div>
             `;
