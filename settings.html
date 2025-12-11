@@ -574,6 +574,30 @@
             gap: 10px;
         }
 
+        .section-divider {
+            border-top: 2px solid #e0e0e0;
+            margin: 30px 0;
+            padding-top: 20px;
+        }
+
+        .section-divider h2 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            display: inline-block;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #1565c0;
+        }
+
         @media (max-width: 1024px) {
             .settings-container {
                 display: block;
@@ -736,6 +760,48 @@
                                     <option value="18" selected>18%</option>
                                     <option value="28">28%</option>
                                 </select>
+                            </div>
+
+                            <!-- Bank Details Section -->
+                            <div class="section-divider">
+                                <h2>🏦 Bank Details (For Invoices)</h2>
+                            </div>
+
+                            <div class="info-box">
+                                💡 <strong>Bank details added here will automatically appear on all your invoice PDFs.</strong>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bankName">Bank Name</label>
+                                    <input type="text" id="bankName" placeholder="e.g., ICICI Bank Limited">
+                                </div>
+                                <div class="form-group">
+                                    <label for="accountHolderName">Account Holder Name</label>
+                                    <input type="text" id="accountHolderName" placeholder="Name on bank account">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="accountNumber">Account Number</label>
+                                    <input type="text" id="accountNumber" placeholder="e.g., 1234567890123456">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ifscCode">IFSC Code</label>
+                                    <input type="text" id="ifscCode" placeholder="e.g., ICIC0000001" maxlength="11" pattern="[A-Z0-9]{11}">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bankBranch">Bank Branch</label>
+                                    <input type="text" id="bankBranch" placeholder="e.g., Shimla Branch">
+                                </div>
+                                <div class="form-group">
+                                    <label for="upiId">UPI ID</label>
+                                    <input type="text" id="upiId" placeholder="e.g., business@icici">
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary">💾 Save Business Info</button>
@@ -913,6 +979,14 @@
                     document.getElementById('state').value = data.state || '';
                     document.getElementById('pincode').value = data.pincode || '';
                     document.getElementById('defaultGST').value = data.default_gst_percentage || '18';
+                    
+                    // Load bank details
+                    document.getElementById('bankName').value = data.bank_name || '';
+                    document.getElementById('accountHolderName').value = data.account_holder_name || '';
+                    document.getElementById('accountNumber').value = data.account_number || '';
+                    document.getElementById('ifscCode').value = data.ifsc_code || '';
+                    document.getElementById('bankBranch').value = data.bank_branch || '';
+                    document.getElementById('upiId').value = data.upi_id || '';
                 } else {
                     showAlert('No business info found. Fill in your details and save.', 'info');
                     currentBusinessId = null;
@@ -934,7 +1008,13 @@
                     city: document.getElementById('city').value,
                     state: document.getElementById('state').value,
                     pincode: document.getElementById('pincode').value,
-                    default_gst_percentage: parseFloat(document.getElementById('defaultGST').value)
+                    default_gst_percentage: parseFloat(document.getElementById('defaultGST').value),
+                    bank_name: document.getElementById('bankName').value || null,
+                    account_holder_name: document.getElementById('accountHolderName').value || null,
+                    account_number: document.getElementById('accountNumber').value || null,
+                    ifsc_code: document.getElementById('ifscCode').value || null,
+                    bank_branch: document.getElementById('bankBranch').value || null,
+                    upi_id: document.getElementById('upiId').value || null
                 };
 
                 if (currentBusinessId) {
