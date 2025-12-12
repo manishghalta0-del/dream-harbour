@@ -877,7 +877,7 @@
                 };
 
                 if (editingCustomerId) {
-                    // Editing existing customer
+                    // Editing existing customer - update only
                     const { error } = await supabase
                         .from('customers')
                         .update(customerData)
@@ -886,27 +886,15 @@
                     if (error) throw error;
                     showAlert('✅ Customer updated successfully!', 'success');
                 } else {
-                    // Adding new customer - check if mobile already exists
-                    const existingCustomer = allCustomers.find(c => String(c.mobile_no) === normalizedMobile);
-                    
-                    if (existingCustomer) {
-                        // Mobile already exists - update with new details
-                        const { error } = await supabase
-                            .from('customers')
-                            .update(customerData)
-                            .eq('id', existingCustomer.id);
+                    // Adding new customer - ALWAYS CREATE NEW RECORD
+                    const { data: newCustomer, error: customerError } = await supabase
+                        .from('customers')
+                        .insert([customerData])
+                        .select('id')
+                        .single();
 
-                        if (error) throw error;
-                        showAlert('✅ Customer updated successfully!', 'success');
-                    } else {
-                        // New mobile number - insert new customer
-                        const { error } = await supabase
-                            .from('customers')
-                            .insert([customerData]);
-
-                        if (error) throw error;
-                        showAlert('✅ Customer added successfully!', 'success');
-                    }
+                    if (customerError) throw customerError;
+                    showAlert('✅ Customer added successfully!', 'success');
                 }
 
                 closeModal();
