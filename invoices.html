@@ -1860,7 +1860,36 @@
                     
                     if (existingCustomer) {
                         customerId = existingCustomer.id;
+                        // Update existing customer with new details (if different)
+                        const customerEmail = document.getElementById('genCustomerEmail').value.trim();
+                        const customerCompany = document.getElementById('genCustomerCompany').value.trim();
+                        const customerGSTIN = document.getElementById('genCustomerGSTIN').value.trim();
+                        const customerAddress = document.getElementById('genCustomerAddress').value.trim();
+
+                        // Check if any details are different
+                        const emailChanged = customerEmail && customerEmail !== existingCustomer.email;
+                        const companyChanged = customerCompany && customerCompany !== existingCustomer.company_name;
+                        const gstinChanged = customerGSTIN && customerGSTIN !== existingCustomer.gstin;
+                        const addressChanged = customerAddress && customerAddress !== existingCustomer.address;
+
+                        if (emailChanged || companyChanged || gstinChanged || addressChanged) {
+                            // Update customer with new details
+                            const { error: updateError } = await supabase
+                                .from('customers')
+                                .update({
+                                    full_name: customerName,
+                                    email: customerEmail || existingCustomer.email,
+                                    company_name: customerCompany || existingCustomer.company_name,
+                                    gstin: customerGSTIN || existingCustomer.gstin,
+                                    address: customerAddress || existingCustomer.address
+                                })
+                                .eq('id', customerId);
+
+                            if (updateError) throw updateError;
+                            console.log('Customer updated with new details');
+                        }
                     } else {
+                        // New customer
                         const { data: newCustomer, error: customerError } = await supabase
                             .from('customers')
                             .insert([{
