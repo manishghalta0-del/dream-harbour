@@ -1864,27 +1864,17 @@
 
                 let customerId;
 
-                if (selectedCustomer?.id) {
-                    // ✅ FIXED: Update existing customer with new details
-                    const { error: updateError } = await supabase
-                        .from('customers')
-                        .update(customerData)
-                        .eq('id', selectedCustomer.id);
+                // ✅ FIXED: Always create NEW customer (don't update existing)
+                // If customer details are different, create a new record
+                const { data: newCustomer, error: customerError } = await supabase
+                    .from('customers')
+                    .insert([customerData])
+                    .select('id')
+                    .single();
 
-                    if (updateError) throw updateError;
-                    customerId = selectedCustomer.id;
-                    showModalAlert('✅ Customer details updated!', 'info');
-                } else {
-                    // Create NEW customer if not found
-                    const { data: newCustomer, error: customerError } = await supabase
-                        .from('customers')
-                        .insert([customerData])
-                        .select('id')
-                        .single();
-
-                    if (customerError) throw customerError;
-                    customerId = newCustomer.id;
-                }
+                if (customerError) throw customerError;
+                customerId = newCustomer.id;
+                showModalAlert('✅ New customer record created!', 'info');
 
                 const invoiceData = {
                     invoice_number: invoiceNumber,
