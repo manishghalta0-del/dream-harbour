@@ -248,11 +248,6 @@
             transform: translateY(-2px);
         }
 
-        .btn-sm {
-            padding: 8px 14px;
-            font-size: 12px;
-        }
-
         .btn-success {
             background: var(--success-color);
             color: var(--white);
@@ -260,6 +255,16 @@
 
         .btn-success:hover {
             background: #388e3c;
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .content-area {
@@ -484,6 +489,7 @@
             width: 100%;
             background: white;
             border: none;
+            font-family: inherit;
         }
 
         .autocomplete-item:hover,
@@ -839,6 +845,46 @@
             border-left: 3px solid #2e7d32;
         }
 
+        .auto-load-section {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .auto-load-section.hidden {
+            display: none;
+        }
+
+        .auto-load-btn {
+            background: var(--success-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .auto-load-btn:hover {
+            background: #388e3c;
+        }
+
+        .saved-service-badge {
+            display: inline-block;
+            background: #c8e6c9;
+            color: #1b5e20;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
         @media (max-width: 1024px) {
             .invoices-container {
                 display: block;
@@ -1066,6 +1112,13 @@
                 <input type="tel" id="genCustomerMobile" placeholder="Enter or search customer mobile" required onkeyup="searchCustomerByMobile()">
                 <div id="mobileAutoComplete" class="autocomplete-list"></div>
             </div>
+
+            <!-- Auto-load Services Alert (Hidden by default) -->
+            <div id="autoLoadSection" class="auto-load-section hidden">
+                <span id="autoLoadMessage">⚡ Found saved services for this customer!</span>
+                <button class="auto-load-btn" onclick="loadCustomerSavedServices()">🚀 Auto-Add Services</button>
+            </div>
+
             <div class="form-row-4">
                 <div class="form-group">
                     <label>Customer Name *</label>
@@ -1205,6 +1258,7 @@
         let allCustomers = [];
         let allServices = [];
         let allSubServices = [];
+        let allCustomerServices = []; // NEW: Customer saved services
         let allBusinessSettings = [];
         let allCategories = [];
         let filteredInvoices = [];
@@ -1215,6 +1269,7 @@
         let selectedService = null;
         let currentUser = null;
         let applyGST = true;
+        let customerSavedServicesForAutoLoad = []; // NEW: For auto-load feature
 
         // Helper function to convert numbers to words
         function numberToWords(num) {
@@ -1469,7 +1524,8 @@
                         gstAmount,
                         sac: selectedService.sac_code || '',
                         gstMode: applyGST ? 'with' : 'without',
-                        hasSubServices: true
+                        hasSubServices: true,
+                        isFromCustomer: false // NEW: Track if from customer services
                     };
 
                     generatorItems.push(item);
@@ -1509,7 +1565,8 @@
                     gstAmount,
                     sac: selectedService.sac_code || '',
                     gstMode: applyGST ? 'with' : 'without',
-                    hasSubServices: false
+                    hasSubServices: false,
+                    isFromCustomer: false // NEW: Track if from customer services
                 };
 
                 generatorItems.push(item);
@@ -1576,6 +1633,7 @@
                                     <div class="service-item-header">
                                         <div>
                                             <div class="service-item-name">🔧 ${firstItem.serviceName}</div>
+                                            ${firstItem.isFromCustomer ? '<span class="saved-service-badge">⭐ From Saved</span>' : ''}
                                             ${firstItem.sac ? `<div class="service-item-details">SAC: ${firstItem.sac}</div>` : ''}
                                         </div>
                                         <button class="service-item-remove" onclick="removeServiceGroup('${serviceKey}')">Remove All</button>
@@ -1686,6 +1744,79 @@
             document.getElementById('genCustomerAddress').value = customer.address || '';
             
             document.getElementById('mobileAutoComplete').classList.remove('show');
+
+            // NEW: Load and show customer saved services
+            loadAndShowCustomerSavedServices(customer.id);
+        }
+
+        async function loadAndShowCustomerSavedServices(customerId) {
+            try {
+                const { data, error } = await supabase
+                    .from('customer_services')
+                    .select('*')
+                    .eq('customer_id', customerId)
+                    .eq('is_active', true)
+                    .neq('payment_status', 'paid'); // Don't show paid services
+
+                if (error) throw error;
+
+                customerSavedServicesForAutoLoad = data || [];
+
+                const autoLoadSection = document.getElementById('autoLoadSection');
+                if (customerSavedServicesForAutoLoad.length > 0) {
+                    document.getElementById('autoLoadMessage').textContent = `⚡ Found ${customerSavedServicesForAutoLoad.length} unpaid/recurring service(s) for this customer!`;
+                    autoLoadSection.classList.remove('hidden');
+                } else {
+                    autoLoadSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading customer services:', error);
+            }
+        }
+
+        async function loadCustomerSavedServices() {
+            if (customerSavedServicesForAutoLoad.length === 0) {
+                showModalAlert('No saved services found', 'error');
+                return;
+            }
+
+            customerSavedServicesForAutoLoad.forEach(custService => {
+                // Find the actual service from allServices
+                const service = allServices.find(s => s.id === custService.service_id);
+                if (!service) return;
+
+                const item = {
+                    id: custService.id + '-' + Date.now(),
+                    customerServiceId: custService.id, // NEW: Track customer service ID
+                    serviceId: custService.service_id,
+                    categoryName: allCategories.find(c => c.id === service.category_id)?.category_name || '',
+                    serviceName: custService.service_name,
+                    qty: custService.default_quantity || 1,
+                    rate: custService.custom_rate,
+                    gst: custService.custom_gst_rate,
+                    sac: service.sac_code || '',
+                    gstMode: applyGST ? 'with' : 'without',
+                    hasSubServices: false,
+                    isFromCustomer: true // NEW: Mark as from customer
+                };
+
+                // Calculate amounts
+                if (applyGST) {
+                    item.amount = item.qty * item.rate;
+                    const gstPortion = (item.rate * (item.gst / (100 + item.gst)));
+                    item.gstAmount = item.qty * gstPortion;
+                } else {
+                    item.amount = item.qty * item.rate;
+                    item.gstAmount = item.amount * (item.gst / 100);
+                }
+
+                generatorItems.push(item);
+            });
+
+            renderInvoiceItems();
+            updateGeneratorTotals();
+            document.getElementById('autoLoadSection').classList.add('hidden');
+            showModalAlert(`✅ ${customerSavedServicesForAutoLoad.length} service(s) added to invoice!`, 'success');
         }
 
         function initializeApp() {
@@ -1718,6 +1849,7 @@
             loadCategories();
             loadServices();
             loadSubServices();
+            loadCustomerServices(); // NEW: Load customer services
             loadInvoices();
         }
 
@@ -1751,7 +1883,6 @@
 
                 if (error) throw error;
                 allBusinessSettings = data || [];
-                console.log('Business Settings loaded:', allBusinessSettings.length);
             } catch (error) {
                 console.error('Error loading business settings:', error);
             }
@@ -1765,10 +1896,8 @@
 
                 if (error) throw error;
                 allCustomers = data || [];
-                console.log('Customers loaded:', allCustomers.length);
             } catch (error) {
                 console.error('Error loading customers:', error);
-                showModalAlert('Error loading customers', 'error');
             }
         }
 
@@ -1781,7 +1910,6 @@
 
                 if (error) throw error;
                 allCategories = data || [];
-                console.log('Categories loaded:', allCategories.length);
             } catch (error) {
                 console.error('Error loading categories:', error);
             }
@@ -1796,10 +1924,8 @@
 
                 if (error) throw error;
                 allServices = data || [];
-                console.log('Services loaded:', allServices.length);
             } catch (error) {
                 console.error('Error loading services:', error);
-                showModalAlert('Error loading services', 'error');
             }
         }
 
@@ -1812,10 +1938,23 @@
 
                 if (error) throw error;
                 allSubServices = data || [];
-                console.log('Sub-services loaded:', allSubServices.length);
             } catch (error) {
                 console.error('Error loading sub-services:', error);
-                showModalAlert('Error loading sub-services', 'error');
+            }
+        }
+
+        // NEW: Load customer services
+        async function loadCustomerServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('customer_services')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+                allCustomerServices = data || [];
+            } catch (error) {
+                console.error('Error loading customer services:', error);
             }
         }
 
@@ -1864,8 +2003,6 @@
 
                 let customerId;
 
-                // ✅ FIXED: Always create NEW customer (don't update existing)
-                // If customer details are different, create a new record
                 const { data: newCustomer, error: customerError } = await supabase
                     .from('customers')
                     .insert([customerData])
@@ -1895,9 +2032,23 @@
 
                 if (error) throw error;
 
+                // NEW: Update customer service status if payment is marked as paid
+                if (paymentStatus === 'paid') {
+                    for (const item of generatorItems) {
+                        if (item.customerServiceId) {
+                            await supabase
+                                .from('customer_services')
+                                .update({
+                                    payment_status: 'paid',
+                                    last_invoiced_date: invoiceDate
+                                })
+                                .eq('id', item.customerServiceId);
+                        }
+                    }
+                }
+
                 showModalAlert('✅ Invoice saved successfully! Generating PDF...', 'success');
                 
-                // Auto-download PDF
                 setTimeout(() => {
                     generatePDFForNew(invoiceNumber, customerName, mobile, normalizedMobile, invoiceDate, dueDate, notes, paymentStatus, subtotal, totalGST, totalAmount);
                     closeGenerator();
@@ -1958,7 +2109,6 @@
         }
 
         function generatePDFForNew(invoiceNumber, customerName, mobile, normalizedMobile, invoiceDate, dueDate, notes, paymentStatus, subtotal, totalGST, totalAmount) {
-            // Rest of PDF generation code remains the same...
             const business = allBusinessSettings[0] || {
                 business_name: 'Dream Harbour',
                 address: 'Sen Building, Opposite Tehsil Office, Main Bazaar Kotkhai',
@@ -2285,7 +2435,6 @@
                 return;
             }
 
-            // Same PDF generation code as generatePDFForNew but for existing invoices...
             showModalAlert('✅ PDF downloaded successfully!', 'success');
         }
 
@@ -2297,6 +2446,7 @@
             selectedService = null;
             searchResults = [];
             serviceSearchResults = [];
+            customerSavedServicesForAutoLoad = [];
             applyGST = true;
             
             document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
@@ -2312,6 +2462,7 @@
             document.getElementById('genCustomerAddress').value = '';
             document.getElementById('genPaymentStatus').value = 'pending';
             document.getElementById('addedServicesContainer').style.display = 'none';
+            document.getElementById('autoLoadSection').classList.add('hidden');
             document.querySelector('input[name="gstType"][value="with"]').checked = true;
             document.getElementById('modalAlertContainer').innerHTML = '';
             updateGSTDisplay();
