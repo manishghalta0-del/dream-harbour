@@ -24,6 +24,9 @@
             --border-color: #e0e0e0;
             --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
         }
 
         html {
@@ -236,12 +239,22 @@
         }
 
         .btn-danger {
-            background: #f44336;
+            background: var(--danger-color);
             color: var(--white);
         }
 
         .btn-danger:hover {
-            background: #d32f2f;
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #229954;
             transform: translateY(-2px);
         }
 
@@ -308,12 +321,17 @@
             align-items: center;
         }
 
-        .search-box {
+        .search-box, .filter-dropdown {
             padding: 8px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 13px;
-            min-width: 200px;
+            min-width: 150px;
+        }
+
+        .filter-dropdown {
+            background: var(--white);
+            cursor: pointer;
         }
 
         .table-wrapper {
@@ -327,7 +345,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 800px;
+            min-width: 1000px;
         }
 
         th {
@@ -360,6 +378,36 @@
         .actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .interaction-count {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .modal {
@@ -377,22 +425,39 @@
         .modal-content {
             background-color: white;
             margin: 5% auto;
-            padding: 25px;
+            padding: 0;
             border-radius: 8px;
             width: 90%;
-            max-width: 500px;
+            max-width: 700px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
         }
 
         .modal-header {
             font-size: 18px;
             font-weight: 600;
-            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 15px;
+            padding: 20px 25px;
             border-bottom: 2px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 2px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
         }
 
         .close-btn {
@@ -428,6 +493,92 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .notes-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
+        .note-item {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary-color);
+            font-size: 13px;
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .note-type {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .activity-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            background: #f9f9f9;
+            border-left: 3px solid var(--primary-color);
+            font-size: 12px;
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-type {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: capitalize;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 11px;
+            margin-top: 3px;
         }
 
         .loading {
@@ -473,6 +624,13 @@
             display: block;
         }
 
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -493,7 +651,6 @@
         .modal-actions {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
         }
 
         .modal-actions button {
@@ -509,6 +666,38 @@
             font-size: 11px;
             font-weight: 600;
             letter-spacing: 0.5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 10px 15px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         @media (max-width: 1024px) {
@@ -556,9 +745,10 @@
 
             .filter-section {
                 flex-direction: column;
+                width: 100%;
             }
 
-            .search-box {
+            .search-box, .filter-dropdown {
                 width: 100%;
                 min-width: auto;
             }
@@ -577,6 +767,10 @@
 
             .modal-content {
                 width: 95%;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -639,7 +833,12 @@
                         </div>
                     </div>
                     <div class="filter-section">
-                        <input type="text" id="searchInput" class="search-box" placeholder="Search by code, name, email, phone, or company..." onkeyup="filterCustomers()">
+                        <input type="text" id="searchInput" class="search-box" placeholder="Search by code, name, email, phone, company..." onkeyup="filterCustomers()">
+                        <select id="statusFilter" class="filter-dropdown" onchange="filterCustomers()">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
                     </div>
                 </div>
 
@@ -657,8 +856,9 @@
                                 <th>Email</th>
                                 <th>Mobile</th>
                                 <th>Company</th>
-                                <th>Address</th>
-                                <th>GSTIN</th>
+                                <th>Status</th>
+                                <th>Last Activity</th>
+                                <th>Interactions</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -683,31 +883,84 @@
                 <span id="modalTitle">➕ Add Customer</span>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div class="form-group">
-                <label>Full Name *</label>
-                <input type="text" id="customerName" placeholder="Enter full name" required>
+            <div class="modal-body">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('details')">📋 Details</button>
+                    <button class="tab-btn" onclick="switchTab('notes')">📝 Notes</button>
+                    <button class="tab-btn" onclick="switchTab('activity')">📊 Activity</button>
+                </div>
+
+                <!-- Details Tab -->
+                <div id="details" class="tab-content active">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="customerName" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="customerEmail" placeholder="Enter email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number *</label>
+                        <input type="tel" id="customerMobileNo" placeholder="Enter mobile number" required pattern="[0-9]{10}">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="customerStatus">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" id="customerCompany" placeholder="Enter company name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="customerAddress" rows="2" placeholder="Enter complete address"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>GSTIN</label>
+                        <input type="text" id="customerGstin" placeholder="Enter GSTIN (optional)">
+                    </div>
+                </div>
+
+                <!-- Notes Tab -->
+                <div id="notes" class="tab-content">
+                    <div class="form-group">
+                        <label>Add Note</label>
+                        <div class="form-row">
+                            <select id="noteType" style="grid-column: span 1;">
+                                <option value="general">General</option>
+                                <option value="follow-up">Follow-up</option>
+                                <option value="complaint">Complaint</option>
+                                <option value="feedback">Feedback</option>
+                            </select>
+                        </div>
+                        <textarea id="noteText" rows="3" placeholder="Write a note..." style="margin-top: 10px;"></textarea>
+                        <button class="btn btn-primary btn-sm" onclick="addNote()" style="margin-top: 10px; width: auto;">💾 Add Note</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Recent Notes</label>
+                        <div id="notesList" class="notes-list">
+                            <p style="color: var(--text-secondary);">No notes yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div id="activity" class="tab-content">
+                    <div class="form-group">
+                        <label>Activity History</label>
+                        <div id="activityList" class="activity-timeline">
+                            <p style="color: var(--text-secondary);">No activities yet</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Email *</label>
-                <input type="email" id="customerEmail" placeholder="Enter email" required>
-            </div>
-            <div class="form-group">
-                <label>Mobile Number *</label>
-                <input type="tel" id="customerMobileNo" placeholder="Enter mobile number" required pattern="[0-9]{10}">
-            </div>
-            <div class="form-group">
-                <label>Company Name</label>
-                <input type="text" id="customerCompany" placeholder="Enter company name">
-            </div>
-            <div class="form-group">
-                <label>Address</label>
-                <textarea id="customerAddress" rows="2" placeholder="Enter complete address"></textarea>
-            </div>
-            <div class="form-group">
-                <label>GSTIN</label>
-                <input type="text" id="customerGstin" placeholder="Enter GSTIN (optional)">
-            </div>
-            <div class="modal-actions">
+            <div class="modal-footer">
                 <button class="btn btn-primary" onclick="saveCustomer()">💾 Save Customer</button>
                 <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
             </div>
@@ -721,6 +974,8 @@
         let allCustomers = [];
         let filteredCustomers = [];
         let editingCustomerId = null;
+        let currentCustomerNotes = [];
+        let currentCustomerActivities = [];
 
         function initializeApp() {
             if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
@@ -766,14 +1021,12 @@
         // Generate customer code: FIRSTNAME-XXX format
         async function generateCustomerCode(fullName) {
             try {
-                // Get first name (uppercase, remove spaces and special chars)
                 const firstName = fullName.trim().split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '');
                 
                 if (!firstName) {
                     throw new Error('Invalid name');
                 }
                 
-                // Find all existing customers with same first name
                 const { data: existingCustomers, error } = await supabase
                     .from('customers')
                     .select('customer_code')
@@ -781,7 +1034,6 @@
                 
                 if (error) throw error;
                 
-                // Calculate next number
                 let maxNumber = 0;
                 if (existingCustomers && existingCustomers.length > 0) {
                     existingCustomers.forEach(c => {
@@ -799,7 +1051,6 @@
                 return customerCode;
             } catch (error) {
                 console.error('Error generating customer code:', error);
-                // Fallback to timestamp-based code
                 return `CUST-${Date.now()}`;
             }
         }
@@ -842,14 +1093,19 @@
             filteredCustomers.forEach(customer => {
                 const row = document.createElement('tr');
                 const customerCode = customer.customer_code || '-';
+                const status = customer.status || 'active';
+                const lastActivity = customer.last_activity_date ? new Date(customer.last_activity_date).toLocaleDateString('en-IN') : '-';
+                const interactions = customer.total_interactions || 0;
+                
                 row.innerHTML = `
                     <td><span class="customer-code-badge">${customerCode}</span></td>
                     <td><strong>${customer.full_name || '-'}</strong></td>
                     <td>${customer.email || '-'}</td>
                     <td>${customer.mobile_no || '-'}</td>
                     <td>${customer.company_name || '-'}</td>
-                    <td>${customer.address || '-'}</td>
-                    <td>${customer.gstin || '-'}</td>
+                    <td><span class="status-badge status-${status}">${status}</span></td>
+                    <td>${lastActivity}</td>
+                    <td><span class="interaction-count">${interactions}</span></td>
                     <td>
                         <div class="actions">
                             <button class="btn btn-sm btn-primary" onclick="editCustomer('${customer.id}')" title="Edit customer">✏️ Edit</button>
@@ -863,30 +1119,205 @@
 
         function filterCustomers() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            filteredCustomers = allCustomers.filter(customer => 
-                (customer.customer_code?.toLowerCase().includes(searchTerm)) ||
-                (customer.full_name?.toLowerCase().includes(searchTerm)) ||
-                (customer.email?.toLowerCase().includes(searchTerm)) ||
-                (customer.mobile_no?.includes(searchTerm)) ||
-                (customer.company_name?.toLowerCase().includes(searchTerm)) ||
-                (customer.address?.toLowerCase().includes(searchTerm))
-            );
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredCustomers = allCustomers.filter(customer => {
+                const matchesSearch = !searchTerm || 
+                    (customer.customer_code?.toLowerCase().includes(searchTerm)) ||
+                    (customer.full_name?.toLowerCase().includes(searchTerm)) ||
+                    (customer.email?.toLowerCase().includes(searchTerm)) ||
+                    (customer.mobile_no?.includes(searchTerm)) ||
+                    (customer.company_name?.toLowerCase().includes(searchTerm));
+                
+                const matchesStatus = !statusFilter || (customer.status === statusFilter);
+                
+                return matchesSearch && matchesStatus;
+            });
             renderCustomers();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'notes' && editingCustomerId) {
+                loadCustomerNotes();
+            } else if (tabName === 'activity' && editingCustomerId) {
+                loadCustomerActivities();
+            }
+        }
+
+        async function loadCustomerNotes() {
+            if (!editingCustomerId) return;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('customer_notes')
+                    .select('*')
+                    .eq('customer_id', editingCustomerId)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                currentCustomerNotes = data || [];
+                renderNotes();
+            } catch (error) {
+                console.error('Error loading notes:', error);
+            }
+        }
+
+        function renderNotes() {
+            const notesList = document.getElementById('notesList');
+            
+            if (currentCustomerNotes.length === 0) {
+                notesList.innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
+                return;
+            }
+
+            notesList.innerHTML = currentCustomerNotes.map(note => `
+                <div class="note-item">
+                    <div class="note-header">
+                        <div>${note.note_text.substring(0, 50)}...</div>
+                        <span class="note-type">${note.note_type}</span>
+                    </div>
+                    <div class="note-header" style="font-weight: normal; color: var(--text-secondary);">
+                        <small>${note.created_by || 'System'}</small>
+                        <small>${new Date(note.created_at).toLocaleDateString('en-IN')}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addNote() {
+            if (!editingCustomerId) return;
+
+            const noteText = document.getElementById('noteText').value.trim();
+            const noteType = document.getElementById('noteType').value;
+
+            if (!noteText) {
+                showAlert('Please enter a note', 'error');
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(localStorage.getItem('dreamHarbourUser'));
+                
+                const { data, error } = await supabase
+                    .from('customer_notes')
+                    .insert([{
+                        customer_id: editingCustomerId,
+                        note_text: noteText,
+                        note_type: noteType,
+                        created_by: userData.fullName || 'User'
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                showAlert('✅ Note added successfully!', 'success');
+                document.getElementById('noteText').value = '';
+                await logActivity('note_added', `Added ${noteType} note`);
+                loadCustomerNotes();
+            } catch (error) {
+                console.error('Error adding note:', error);
+                showAlert('Error adding note: ' + error.message, 'error');
+            }
+        }
+
+        async function loadCustomerActivities() {
+            if (!editingCustomerId) return;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('customer_activities')
+                    .select('*')
+                    .eq('customer_id', editingCustomerId)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if (error) throw error;
+
+                currentCustomerActivities = data || [];
+                renderActivities();
+            } catch (error) {
+                console.error('Error loading activities:', error);
+            }
+        }
+
+        function renderActivities() {
+            const activityList = document.getElementById('activityList');
+            
+            if (currentCustomerActivities.length === 0) {
+                activityList.innerHTML = '<p style="color: var(--text-secondary);">No activities yet</p>';
+                return;
+            }
+
+            activityList.innerHTML = currentCustomerActivities.map(activity => `
+                <div class="activity-item">
+                    <div class="activity-dot"></div>
+                    <div class="activity-content">
+                        <div class="activity-type">${activity.activity_type.replace(/_/g, ' ')}</div>
+                        <div>${activity.activity_description || ''}</div>
+                        <div class="activity-time">${new Date(activity.created_at).toLocaleString('en-IN')}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function logActivity(activityType, description = '') {
+            if (!editingCustomerId) return;
+
+            try {
+                const userData = JSON.parse(localStorage.getItem('dreamHarbourUser'));
+                
+                await supabase
+                    .from('customer_activities')
+                    .insert([{
+                        customer_id: editingCustomerId,
+                        activity_type: activityType,
+                        activity_description: description,
+                        created_by: userData.fullName || 'User'
+                    }]);
+            } catch (error) {
+                console.error('Error logging activity:', error);
+            }
         }
 
         function openAddCustomerModal() {
             editingCustomerId = null;
+            currentCustomerNotes = [];
+            currentCustomerActivities = [];
             document.getElementById('modalTitle').textContent = '➕ Add Customer';
+            clearCustomerForm();
+            switchTabToDetails();
+            document.getElementById('customerModal').style.display = 'block';
+        }
+
+        function switchTabToDetails() {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('details').classList.add('active');
+            document.querySelector('[onclick="switchTab(\'details\')"').classList.add('active');
+        }
+
+        function clearCustomerForm() {
             document.getElementById('customerName').value = '';
             document.getElementById('customerEmail').value = '';
             document.getElementById('customerMobileNo').value = '';
             document.getElementById('customerCompany').value = '';
             document.getElementById('customerAddress').value = '';
             document.getElementById('customerGstin').value = '';
-            document.getElementById('customerModal').style.display = 'block';
+            document.getElementById('customerStatus').value = 'active';
+            document.getElementById('noteText').value = '';
+            document.getElementById('notesList').innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
+            document.getElementById('activityList').innerHTML = '<p style="color: var(--text-secondary);">No activities yet</p>';
         }
 
-        function editCustomer(customerId) {
+        async function editCustomer(customerId) {
             const customer = allCustomers.find(c => c.id === customerId);
             if (!customer) return;
 
@@ -898,7 +1329,14 @@
             document.getElementById('customerCompany').value = customer.company_name || '';
             document.getElementById('customerAddress').value = customer.address || '';
             document.getElementById('customerGstin').value = customer.gstin || '';
+            document.getElementById('customerStatus').value = customer.status || 'active';
+            
+            switchTabToDetails();
             document.getElementById('customerModal').style.display = 'block';
+            
+            // Load notes and activities
+            await loadCustomerNotes();
+            await loadCustomerActivities();
         }
 
         async function saveCustomer() {
@@ -906,13 +1344,13 @@
                 const name = document.getElementById('customerName').value;
                 const email = document.getElementById('customerEmail').value;
                 const mobileNo = document.getElementById('customerMobileNo').value;
+                const status = document.getElementById('customerStatus').value;
 
                 if (!name || !email || !mobileNo) {
                     showAlert('Please fill in required fields (Name, Email, Mobile)', 'error');
                     return;
                 }
 
-                // Validate mobile number (10 digits)
                 if (!/^[0-9]{10}$/.test(mobileNo)) {
                     showAlert('Mobile number must be 10 digits', 'error');
                     return;
@@ -929,11 +1367,11 @@
                     mobile_no: normalizedMobile,
                     company_name: company,
                     address: address,
-                    gstin: gstin
+                    gstin: gstin,
+                    status: status
                 };
 
                 if (editingCustomerId) {
-                    // Editing existing customer - update only (don't change customer_code)
                     const { error } = await supabase
                         .from('customers')
                         .update(customerData)
@@ -941,16 +1379,14 @@
 
                     if (error) throw error;
                     showAlert('✅ Customer updated successfully!', 'success');
+                    await logActivity('customer_updated', 'Customer information updated');
                 } else {
-                    // Adding new customer - generate customer_code
                     const customerCode = await generateCustomerCode(name);
                     customerData.customer_code = customerCode;
                     
-                    const { data: newCustomer, error: customerError } = await supabase
+                    const { error: customerError } = await supabase
                         .from('customers')
-                        .insert([customerData])
-                        .select('id')
-                        .single();
+                        .insert([customerData]);
 
                     if (customerError) throw customerError;
                     showAlert(`✅ Customer added successfully! Code: ${customerCode}`, 'success');
@@ -996,7 +1432,10 @@
                 'Company': c.company_name || '',
                 'Address': c.address || '',
                 'GSTIN': c.gstin || '',
-                'Created Date': new Date(c.created_at).toLocaleDateString()
+                'Status': c.status || 'active',
+                'Last Activity': c.last_activity_date ? new Date(c.last_activity_date).toLocaleDateString('en-IN') : '-',
+                'Interactions': c.total_interactions || 0,
+                'Created Date': new Date(c.created_at).toLocaleDateString('en-IN')
             }));
 
             const worksheet = XLSX.utils.json_to_sheet(data);
