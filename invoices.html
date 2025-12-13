@@ -248,16 +248,6 @@
             transform: translateY(-2px);
         }
 
-        .btn-warning {
-            background: var(--warning-color);
-            color: var(--white);
-        }
-
-        .btn-warning:hover {
-            background: #f57c00;
-            transform: translateY(-2px);
-        }
-
         .btn-sm {
             padding: 8px 14px;
             font-size: 12px;
@@ -297,39 +287,6 @@
             border-radius: 8px;
             box-shadow: var(--shadow-sm);
             margin-bottom: 20px;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--border-color);
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 10px 15px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-secondary);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
         }
 
         .header-top {
@@ -433,9 +390,6 @@
         .status-paid { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }
         .status-pending { background: rgba(255, 152, 0, 0.15); color: #e65100; }
         .status-overdue { background: rgba(244, 67, 54, 0.15); color: #c62828; }
-        .status-open { background: rgba(102, 126, 234, 0.15); color: #3949ab; }
-        .status-resolved { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }
-        .status-pending_resolution { background: rgba(255, 152, 0, 0.15); color: #e65100; }
 
         .modal {
             display: none;
@@ -449,9 +403,14 @@
             overflow-y: auto;
         }
 
+        .modal.show {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
         .modal-content {
             background-color: white;
-            margin: 5% auto;
             padding: 0;
             border-radius: 8px;
             width: 90%;
@@ -828,10 +787,6 @@
             .form-row {
                 grid-template-columns: 1fr;
             }
-
-            .tabs {
-                overflow-x: auto;
-            }
         }
     </style>
 </head>
@@ -873,7 +828,7 @@
         <div class="main-content">
             <div class="topbar">
                 <div class="topbar-left">
-                    <div class="page-title">📄 Invoices & Complaints</div>
+                    <div class="page-title">📄 Invoices</div>
                 </div>
 
                 <div class="topbar-right">
@@ -885,111 +840,51 @@
                 <div id="alertContainer"></div>
 
                 <div class="header-section">
-                    <div class="tabs">
-                        <button class="tab-btn active" onclick="switchTab(this, 'invoices-tab')">📋 Invoices</button>
-                        <button class="tab-btn" onclick="switchTab(this, 'complaints-tab')">⚠️ Complaints</button>
+                    <div class="header-top">
+                        <div class="header-title">Invoice Management</div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="openInvoiceGenerator()">➕ Create Invoice</button>
+                        </div>
+                    </div>
+                    <div class="filter-section">
+                        <input type="text" id="searchInput" class="search-box" placeholder="Search invoices..." onkeyup="filterInvoices()">
+                        <select id="statusFilter" class="filter-dropdown" onchange="filterInvoices()">
+                            <option value="">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Invoices Tab -->
-                <div id="invoices-tab" class="tab-content active">
-                    <div class="header-section">
-                        <div class="header-top">
-                            <div class="header-title">Invoice Management</div>
-                            <div class="header-actions">
-                                <button class="btn btn-primary" onclick="openInvoiceGenerator()">➕ Create Invoice</button>
-                            </div>
-                        </div>
-                        <div class="filter-section">
-                            <input type="text" id="searchInput" class="search-box" placeholder="Search invoices..." onkeyup="filterInvoices()">
-                            <select id="statusFilter" class="filter-dropdown" onchange="filterInvoices()">
-                                <option value="">All Status</option>
-                                <option value="paid">Paid</option>
-                                <option value="pending">Pending</option>
-                                <option value="overdue">Overdue</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div id="loadingState" class="loading">
-                        <div class="spinner"></div>
-                        <div>Loading invoices...</div>
-                    </div>
-
-                    <div id="tableState" class="table-wrapper" style="display: none;">
-                        <table id="invoicesTable">
-                            <thead>
-                                <tr>
-                                    <th>Invoice #</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
-                                    <th>GST</th>
-                                    <th>Total</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody">
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="emptyState" class="empty-state" style="display: none;">
-                        <div class="empty-state-icon">📄</div>
-                        <div class="empty-state-text">No invoices found</div>
-                        <button class="btn btn-primary" onclick="openInvoiceGenerator()">Create First Invoice</button>
-                    </div>
+                <div id="loadingState" class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading invoices...</div>
                 </div>
 
-                <!-- Complaints Tab -->
-                <div id="complaints-tab" class="tab-content">
-                    <div class="header-section">
-                        <div class="header-top">
-                            <div class="header-title">Complaint Management</div>
-                            <div class="header-actions">
-                                <button class="btn btn-primary" onclick="openComplaintModal()">➕ New Complaint</button>
-                            </div>
-                        </div>
-                        <div class="filter-section">
-                            <input type="text" id="complaintSearchInput" class="search-box" placeholder="Search complaints..." onkeyup="filterComplaints()">
-                            <select id="complaintStatusFilter" class="filter-dropdown" onchange="filterComplaints()">
-                                <option value="">All Status</option>
-                                <option value="open">Open</option>
-                                <option value="pending_resolution">Pending Resolution</option>
-                                <option value="resolved">Resolved</option>
-                            </select>
-                        </div>
-                    </div>
+                <div id="tableState" class="table-wrapper" style="display: none;">
+                    <table id="invoicesTable">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>GST</th>
+                                <th>Total</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
 
-                    <div id="complaintLoadingState" class="loading" style="display: none;">
-                        <div class="spinner"></div>
-                        <div>Loading complaints...</div>
-                    </div>
-
-                    <div id="complaintTableState" class="table-wrapper" style="display: none;">
-                        <table id="complaintsTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Severity</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="complaintTableBody">
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="complaintEmptyState" class="empty-state" style="display: none;">
-                        <div class="empty-state-icon">⚠️</div>
-                        <div class="empty-state-text">No complaints found</div>
-                        <button class="btn btn-primary" onclick="openComplaintModal()">Create First Complaint</button>
-                    </div>
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📄</div>
+                    <div class="empty-state-text">No invoices found</div>
+                    <button class="btn btn-primary" onclick="openInvoiceGenerator()">Create First Invoice</button>
                 </div>
             </div>
         </div>
@@ -1096,94 +991,20 @@
         </div>
     </div>
 
-    <!-- Complaint Modal -->
-    <div id="complaintModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>⚠️ Register Complaint</span>
-                <button class="close-btn" onclick="closeComplaintModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Complaint Type *</label>
-                    <select id="complaintType" required>
-                        <option value="">Select type...</option>
-                        <option value="quality_issue">Quality Issue</option>
-                        <option value="service_issue">Service Issue</option>
-                        <option value="billing_issue">Billing Issue</option>
-                        <option value="delivery_issue">Delivery Issue</option>
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Description *</label>
-                    <textarea id="complaintDescription" rows="3" placeholder="Describe the issue in detail..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Severity Level</label>
-                    <select id="complaintSeverity">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                        <option value="critical">Critical</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="saveComplaint()">💾 Register</button>
-                <button class="btn btn-secondary" onclick="closeComplaintModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Complaint Update Modal -->
-    <div id="complaintUpdateModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>📝 Update Complaint</span>
-                <button class="close-btn" onclick="closeComplaintUpdateModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label>Resolution Status *</label>
-                    <select id="resolutionStatus">
-                        <option value="pending_resolution">Pending Resolution</option>
-                        <option value="resolved">Resolved</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Resolution Notes *</label>
-                    <textarea id="resolutionNotes" rows="3" placeholder="Describe resolution taken..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Resolution Date</label>
-                    <input type="date" id="resolutionDate">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" onclick="saveComplaintResolution()">✅ Save</button>
-                <button class="btn btn-secondary" onclick="closeComplaintUpdateModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         let supabase;
         let allInvoices = [];
-        let allComplaints = [];
         let allCustomers = [];
         let allServices = [];
         let allCategories = [];
         let allSubServices = [];
         let allCustomerServices = [];
         let filteredInvoices = [];
-        let filteredComplaints = [];
         let invoiceItems = [];
         let serviceSearchResults = [];
         let selectedService = null;
-        let editingComplaintId = null;
         let selectedCustomerId = null;
 
         function initializeApp() {
@@ -1210,7 +1031,6 @@
             
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             loadInvoices();
-            loadComplaints();
             loadCustomers();
             loadCategories();
             loadServices();
@@ -1258,24 +1078,6 @@
                 showAlert('Error loading invoices', 'error');
             } finally {
                 document.getElementById('loadingState').style.display = 'none';
-            }
-        }
-
-        async function loadComplaints() {
-            try {
-                const { data, error } = await supabase
-                    .from('complaints')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-                allComplaints = data || [];
-                filteredComplaints = [...allComplaints];
-                renderComplaints();
-            } catch (error) {
-                console.error('Error loading complaints:', error);
-            } finally {
-                document.getElementById('complaintLoadingState').style.display = 'none';
             }
         }
 
@@ -1424,10 +1226,8 @@
                 return;
             }
 
-            // Search across categories → services → sub-services
             const results = {};
 
-            // Group results by category
             allCategories.forEach(category => {
                 const categoryServices = allServices.filter(s => s.category_id === category.id && s.is_active);
                 
@@ -1440,7 +1240,6 @@
                     }
                 });
 
-                // Also search sub-services
                 const categorySubServices = allSubServices.filter(ss => ss.service_id && ss.is_active);
                 categorySubServices.forEach(subService => {
                     const parentService = allServices.find(s => s.id === subService.service_id);
@@ -1636,7 +1435,6 @@
                     if (item.service_id && item.sync_status === 'synced') {
                         const originalService = allCustomerServices.find(s => s.id === item.service_id);
                         if (originalService && originalService.custom_rate !== item.rate) {
-                            // Update customer service with new rate from invoice
                             await supabase
                                 .from('customer_services')
                                 .update({ custom_rate: item.rate })
@@ -1694,42 +1492,6 @@
             });
         }
 
-        function renderComplaints() {
-            const tableBody = document.getElementById('complaintTableBody');
-            const tableState = document.getElementById('complaintTableState');
-            const emptyState = document.getElementById('complaintEmptyState');
-
-            if (filteredComplaints.length === 0) {
-                tableState.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
-
-            tableState.style.display = 'block';
-            emptyState.style.display = 'none';
-            tableBody.innerHTML = '';
-
-            filteredComplaints.forEach(complaint => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td><span class="invoice-badge">${complaint.id.substring(0, 8).toUpperCase()}</span></td>
-                    <td>${complaint.complaint_type.replace(/_/g, ' ')}</td>
-                    <td>${complaint.complaint_description.substring(0, 30)}...</td>
-                    <td><strong>${complaint.severity_level}</strong></td>
-                    <td>${new Date(complaint.created_at).toLocaleDateString('en-IN')}</td>
-                    <td><span class="status-badge status-${complaint.resolution_status}">${complaint.resolution_status.replace(/_/g, ' ')}</span></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn btn-sm btn-warning" onclick="openComplaintUpdateModal('${complaint.id}')">Update</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteComplaint('${complaint.id}')">Delete</button>
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
         function filterInvoices() {
             const search = document.getElementById('searchInput').value.toLowerCase();
             const status = document.getElementById('statusFilter').value;
@@ -1740,25 +1502,6 @@
                 return matchSearch && matchStatus;
             });
             renderInvoices();
-        }
-
-        function filterComplaints() {
-            const search = document.getElementById('complaintSearchInput').value.toLowerCase();
-            const status = document.getElementById('complaintStatusFilter').value;
-            
-            filteredComplaints = allComplaints.filter(c => {
-                const matchSearch = !search || c.complaint_description.toLowerCase().includes(search);
-                const matchStatus = !status || c.resolution_status === status;
-                return matchSearch && matchStatus;
-            });
-            renderComplaints();
-        }
-
-        function switchTab(btn, tabId) {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
         }
 
         function openInvoiceGenerator() {
@@ -1772,97 +1515,11 @@
             renderInvoiceItems();
             calculateTotals();
             setDefaultInvoiceDate();
-            document.getElementById('invoiceGeneratorModal').style.display = 'block';
+            document.getElementById('invoiceGeneratorModal').classList.add('show');
         }
 
         function closeInvoiceGenerator() {
-            document.getElementById('invoiceGeneratorModal').style.display = 'none';
-        }
-
-        function openComplaintModal() {
-            document.getElementById('complaintModal').style.display = 'block';
-        }
-
-        function closeComplaintModal() {
-            document.getElementById('complaintModal').style.display = 'none';
-            document.getElementById('complaintType').value = '';
-            document.getElementById('complaintDescription').value = '';
-            document.getElementById('complaintSeverity').value = 'medium';
-        }
-
-        async function saveComplaint() {
-            const type = document.getElementById('complaintType').value;
-            const description = document.getElementById('complaintDescription').value;
-            const severity = document.getElementById('complaintSeverity').value;
-
-            if (!type || !description) {
-                showAlert('Please fill all required fields', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabase
-                    .from('complaints')
-                    .insert([{
-                        complaint_type: type,
-                        complaint_description: description,
-                        severity_level: severity,
-                        resolution_status: 'open'
-                    }]);
-
-                if (error) throw error;
-                showAlert('✅ Complaint registered successfully!', 'success');
-                closeComplaintModal();
-                loadComplaints();
-            } catch (error) {
-                console.error('Error saving complaint:', error);
-                showAlert('Error: ' + error.message, 'error');
-            }
-        }
-
-        async function openComplaintUpdateModal(complaintId) {
-            editingComplaintId = complaintId;
-            document.getElementById('resolutionStatus').value = 'pending_resolution';
-            document.getElementById('resolutionNotes').value = '';
-            document.getElementById('resolutionDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('complaintUpdateModal').style.display = 'block';
-        }
-
-        async function saveComplaintResolution() {
-            if (!editingComplaintId) return;
-
-            const status = document.getElementById('resolutionStatus').value;
-            const notes = document.getElementById('resolutionNotes').value;
-            const date = document.getElementById('resolutionDate').value;
-
-            if (!notes) {
-                showAlert('Please enter resolution notes', 'error');
-                return;
-            }
-
-            try {
-                const { error } = await supabase
-                    .from('complaints')
-                    .update({
-                        resolution_status: status,
-                        resolution_date: status === 'resolved' ? date : null
-                    })
-                    .eq('id', editingComplaintId);
-
-                if (error) throw error;
-
-                showAlert('✅ Complaint updated successfully!', 'success');
-                closeComplaintUpdateModal();
-                loadComplaints();
-            } catch (error) {
-                console.error('Error updating complaint:', error);
-                showAlert('Error: ' + error.message, 'error');
-            }
-        }
-
-        function closeComplaintUpdateModal() {
-            document.getElementById('complaintUpdateModal').style.display = 'none';
-            editingComplaintId = null;
+            document.getElementById('invoiceGeneratorModal').classList.remove('show');
         }
 
         async function deleteInvoice(invoiceId) {
@@ -1883,24 +1540,6 @@
             }
         }
 
-        async function deleteComplaint(complaintId) {
-            if (!confirm('Delete this complaint?')) return;
-
-            try {
-                const { error } = await supabase
-                    .from('complaints')
-                    .delete()
-                    .eq('id', complaintId);
-
-                if (error) throw error;
-                showAlert('✅ Complaint deleted!', 'success');
-                loadComplaints();
-            } catch (error) {
-                console.error('Error deleting complaint:', error);
-                showAlert('Error: ' + error.message, 'error');
-            }
-        }
-
         function generatePDF(invoiceId) {
             showAlert('📄 PDF download feature coming soon!', 'info');
         }
@@ -1912,10 +1551,10 @@
         }
 
         window.onclick = function(event) {
-            const modals = [document.getElementById('invoiceGeneratorModal'), document.getElementById('complaintModal'), document.getElementById('complaintUpdateModal')];
-            modals.forEach(modal => {
-                if (event.target === modal) modal.style.display = 'none';
-            });
+            const modal = document.getElementById('invoiceGeneratorModal');
+            if (event.target === modal) {
+                modal.classList.remove('show');
+            }
         }
 
         if (document.readyState === 'loading') {
