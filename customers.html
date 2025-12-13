@@ -725,7 +725,7 @@
         .service-card-header {
             display: flex;
             justify-content: space-between;
-            align-items: start;
+            align-items: center;
             margin-bottom: 8px;
             font-weight: 600;
         }
@@ -757,34 +757,12 @@
             background: #ffcdd2;
         }
 
-        .service-card-details {
-            color: var(--text-secondary);
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-        .service-type-badge {
-            display: inline-block;
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: capitalize;
-            margin-right: 5px;
-        }
-
         .add-service-form {
             background: #e8f4f8;
             padding: 15px;
             border-radius: 6px;
             border: 1px solid var(--primary-color);
             margin-bottom: 15px;
-        }
-
-        .add-service-form .form-row {
-            grid-template-columns: 1fr 1fr 1fr;
         }
 
         .autocomplete-list {
@@ -830,59 +808,6 @@
 
         .form-group.relative {
             position: relative;
-        }
-
-        /* NEW: Sub-service styles (mirroring invoices.html logic) */
-        .sub-services-wrapper {
-            margin-top: 12px;
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-        }
-
-        .sub-services-title {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-        }
-
-        .sub-services-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 260px;
-            overflow-y: auto;
-        }
-
-        .sub-service-row {
-            display: grid;
-            grid-template-columns: 2.2fr 0.8fr 0.8fr 0.8fr;
-            gap: 8px;
-            align-items: center;
-            background: #fff;
-            padding: 8px;
-            border-radius: 4px;
-            border-left: 3px solid #667eea;
-        }
-
-        .sub-service-row label {
-            margin: 0;
-            font-weight: 500;
-            font-size: 12px;
-        }
-
-        .sub-service-row input,
-        .sub-service-row select {
-            padding: 6px 8px;
-            font-size: 12px;
-        }
-
-        .service-basic-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 10px;
         }
 
         @media (max-width: 1024px) {
@@ -954,15 +879,6 @@
             }
 
             .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .add-service-form .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .service-basic-grid,
-            .sub-service-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -1121,7 +1037,7 @@
                     </div>
                 </div>
 
-                <!-- Services Tab (UPDATED WITH SUB-SERVICE LOGIC) -->
+                <!-- Services Tab (SIMPLIFIED - SERVICE NAME ONLY) -->
                 <div id="services" class="tab-content">
                     <div class="form-group">
                         <label>Add Service</label>
@@ -1131,65 +1047,7 @@
                                 <input type="text" id="serviceSearchInput" placeholder="Search service..." onkeyup="searchServicesForCustomer()">
                                 <div id="serviceAutoComplete" class="autocomplete-list"></div>
                             </div>
-
-                            <!-- Container that switches between basic service fields and sub-services -->
-                            <div id="serviceConfigContainer" style="display:none; margin-top:10px;">
-                                <!-- Service WITHOUT sub-services -->
-                                <div id="serviceBasicFields" style="display:none;">
-                                    <div class="service-basic-grid">
-                                        <div class="form-group">
-                                            <label>Service Name</label>
-                                            <input type="text" id="basicServiceName" readonly style="background:#f9f9f9;">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Quantity</label>
-                                            <input type="number" id="basicQty" placeholder="1" value="1" min="1">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Rate (₹)</label>
-                                            <input type="number" id="basicRate" placeholder="0.00" step="0.01" min="0">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>GST %</label>
-                                            <select id="basicGST">
-                                                <option value="0">0%</option>
-                                                <option value="5">5%</option>
-                                                <option value="12">12%</option>
-                                                <option value="18" selected>18%</option>
-                                                <option value="28">28%</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Service WITH sub-services: mandatory, each with its own qty/rate/gst -->
-                                <div id="subServicesWrapper" class="sub-services-wrapper" style="display:none;">
-                                    <div class="sub-services-title">All sub-services (mandatory) – each with its own Qty, Rate & GST</div>
-                                    <div id="subServicesList" class="sub-services-list"></div>
-                                </div>
-
-                                <!-- Shared meta (service type etc.) -->
-                                <div class="form-row" style="margin-top:10px;">
-                                    <div class="form-group">
-                                        <label>Service Type</label>
-                                        <select id="customServiceType">
-                                            <option value="one-time">One-time</option>
-                                            <option value="recurring">Recurring</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group" id="recurringFreqGroup" style="display:none;">
-                                        <label>Recurring Frequency</label>
-                                        <select id="customRecurringFreq">
-                                            <option value="monthly">Monthly</option>
-                                            <option value="quarterly">Quarterly</option>
-                                            <option value="half-yearly">Half-yearly</option>
-                                            <option value="yearly">Yearly</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="addServiceToCustomer()">✅ Save Service For Customer</button>
+                            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="addServiceToCustomer()">✅ Add Service For Customer</button>
                         </div>
                     </div>
 
@@ -1249,7 +1107,6 @@
         let allServices = [];
         let allCategories = [];
         let allCustomerServices = [];
-        let allSubServices = [];
         let filteredCustomers = [];
         let editingCustomerId = null;
         let currentCustomerNotes = [];
@@ -1283,7 +1140,6 @@
 
             loadServices();
             loadCategories();
-            loadSubServices();
             loadCustomers();
             loadCustomerServices();
         }
@@ -1376,20 +1232,6 @@
                 allCategories = data || [];
             } catch (error) {
                 console.error('Error loading categories:', error);
-            }
-        }
-
-        async function loadSubServices() {
-            try {
-                const { data, error } = await supabase
-                    .from('service_sub_items')
-                    .select('*')
-                    .eq('is_active', true);
-
-                if (error) throw error;
-                allSubServices = data || [];
-            } catch (error) {
-                console.error('Error loading sub-services:', error);
             }
         }
 
@@ -1600,14 +1442,13 @@
             }
         }
 
-        // --- SERVICES TAB: SAME LOGIC AS INVOICES (SERVICE VS SUB-SERVICES) ---
+        // SIMPLIFIED: Service name only
         function searchServicesForCustomer() {
             const searchTerm = document.getElementById('serviceSearchInput').value.trim();
             const autocompleteList = document.getElementById('serviceAutoComplete');
 
             if (!searchTerm || searchTerm.length < 1) {
                 autocompleteList.classList.remove('show');
-                document.getElementById('serviceConfigContainer').style.display = 'none';
                 return;
             }
 
@@ -1619,19 +1460,14 @@
             if (serviceSearchResults.length === 0) {
                 autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No services found</div>';
                 autocompleteList.classList.add('show');
-                document.getElementById('serviceConfigContainer').style.display = 'none';
                 return;
             }
 
-            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => {
-                const category = allCategories.find(c => c.id === service.category_id);
-                return `
-                    <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectServiceForCustomer(${index}); return false;">
-                        <div><strong>📦 ${service.service_name}</strong></div>
-                        <div style="font-size: 12px; color: #999;">Category: ${category?.category_name || 'N/A'} | Default Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
-                    </button>
-                `;
-            }).join('');
+            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => `
+                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectServiceForCustomer(${index}); return false;">
+                    <strong>📦 ${service.service_name}</strong>
+                </button>
+            `).join('');
 
             autocompleteList.classList.add('show');
         }
@@ -1639,57 +1475,8 @@
         function selectServiceForCustomer(index) {
             if (index < 0 || index >= serviceSearchResults.length) return;
             selectedService = serviceSearchResults[index];
-
             document.getElementById('serviceSearchInput').value = selectedService.service_name;
             document.getElementById('serviceAutoComplete').classList.remove('show');
-
-            const config = document.getElementById('serviceConfigContainer');
-            const basic = document.getElementById('serviceBasicFields');
-            const subsWrapper = document.getElementById('subServicesWrapper');
-
-            config.style.display = 'block';
-            document.getElementById('customServiceType').value = 'one-time';
-            document.getElementById('recurringFreqGroup').style.display = 'none';
-
-            // Get sub-services linked to this service (same as invoices: primary_service_id)
-            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
-
-            if (serviceSubServices.length === 0) {
-                // Service WITHOUT sub-services → show qty + rate + GST
-                basic.style.display = 'block';
-                subsWrapper.style.display = 'none';
-                document.getElementById('basicServiceName').value = selectedService.service_name;
-                document.getElementById('basicQty').value = '1';
-                document.getElementById('basicRate').value = selectedService.default_rate || '';
-                document.getElementById('basicGST').value = selectedService.default_gst_percentage || '18';
-            } else {
-                // Service WITH sub-services → mandatory list, each with its own qty/rate/gst
-                basic.style.display = 'none';
-                subsWrapper.style.display = 'block';
-                const list = document.getElementById('subServicesList');
-                list.innerHTML = serviceSubServices.map(sub => `
-                    <div class="sub-service-row" data-sub-id="${sub.id}">
-                        <div>
-                            <label>${sub.sub_service_name}</label>
-                        </div>
-                        <div>
-                            <input type="number" class="sub-qty" value="1" min="1" placeholder="Qty">
-                        </div>
-                        <div>
-                            <input type="number" class="sub-rate" value="${sub.default_rate || 0}" min="0" step="0.01" placeholder="Rate">
-                        </div>
-                        <div>
-                            <select class="sub-gst">
-                                <option value="0" ${sub.default_gst_percentage == 0 ? 'selected' : ''}>0%</option>
-                                <option value="5" ${sub.default_gst_percentage == 5 ? 'selected' : ''}>5%</option>
-                                <option value="12" ${sub.default_gst_percentage == 12 ? 'selected' : ''}>12%</option>
-                                <option value="18" ${sub.default_gst_percentage == 18 ? 'selected' : ''}>18%</option>
-                                <option value="28" ${sub.default_gst_percentage == 28 ? 'selected' : ''}>28%</option>
-                            </select>
-                        </div>
-                    </div>
-                `).join('');
-            }
         }
 
         async function addServiceToCustomer() {
@@ -1702,89 +1489,24 @@
                 return;
             }
 
-            const config = document.getElementById('serviceConfigContainer');
-            if (config.style.display === 'none') {
-                showAlert('Please select a service first', 'error');
-                return;
-            }
-
-            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
-            const serviceType = document.getElementById('customServiceType').value;
-            const recurringFreq = serviceType === 'recurring' ? document.getElementById('customRecurringFreq').value : null;
-
             try {
-                if (serviceSubServices.length === 0) {
-                    // Service WITHOUT sub-services → single record in customer_services
-                    const qty = parseInt(document.getElementById('basicQty').value) || 1;
-                    const rate = parseFloat(document.getElementById('basicRate').value) || 0;
-                    const gst = parseFloat(document.getElementById('basicGST').value) || 0;
-                    if (!rate) {
-                        showAlert('Please enter a rate', 'error');
-                        return;
-                    }
+                // Insert service with name only
+                const { error } = await supabase
+                    .from('customer_services')
+                    .insert([{
+                        customer_id: editingCustomerId,
+                        service_id: selectedService.id,
+                        service_name: selectedService.service_name,
+                        is_active: true
+                    }]);
 
-                    const { error } = await supabase
-                        .from('customer_services')
-                        .insert([{
-                            customer_id: editingCustomerId,
-                            service_id: selectedService.id,
-                            service_name: selectedService.service_name,
-                            custom_rate: rate,
-                            custom_gst_rate: gst,
-                            default_quantity: qty,
-                            service_type: serviceType,
-                            recurring_frequency: recurringFreq,
-                            sac_code: selectedService.sac_code || null,
-                            is_active: true
-                        }]);
-                    if (error) throw error;
-                } else {
-                    // Service WITH sub-services → store one row per sub-service (all mandatory)
-                    const rows = Array.from(document.querySelectorAll('#subServicesList .sub-service-row'));
-                    const inserts = [];
+                if (error) throw error;
 
-                    rows.forEach(row => {
-                        const subId = row.getAttribute('data-sub-id');
-                        const sub = allSubServices.find(s => s.id === subId);
-                        if (!sub) return;
-
-                        const qty = parseInt(row.querySelector('.sub-qty').value) || 1;
-                        const rate = parseFloat(row.querySelector('.sub-rate').value) || 0;
-                        const gst = parseFloat(row.querySelector('.sub-gst').value) || 0;
-                        if (!rate) return;
-
-                        inserts.push({
-                            customer_id: editingCustomerId,
-                            service_id: selectedService.id,
-                            sub_service_id: sub.id,
-                            service_name: `${selectedService.service_name} → ${sub.sub_service_name}`,
-                            custom_rate: rate,
-                            custom_gst_rate: gst,
-                            default_quantity: qty,
-                            service_type: serviceType,
-                            recurring_frequency: recurringFreq,
-                            sac_code: selectedService.sac_code || null,
-                            is_active: true
-                        });
-                    });
-
-                    if (inserts.length === 0) {
-                        showAlert('Please enter rate for all sub-services', 'error');
-                        return;
-                    }
-
-                    const { error } = await supabase
-                        .from('customer_services')
-                        .insert(inserts);
-                    if (error) throw error;
-                }
-
-                showAlert('✅ Service saved for customer!', 'success');
+                showAlert('✅ Service added for customer!', 'success');
                 await logActivity('service_added', `Added service: ${selectedService.service_name}`);
 
-                // reset UI
+                // Reset UI
                 document.getElementById('serviceSearchInput').value = '';
-                document.getElementById('serviceConfigContainer').style.display = 'none';
                 selectedService = null;
 
                 loadCustomerServicesForEdit();
@@ -1826,10 +1548,6 @@
                             <button class="btn-remove-service" onclick="removeCustomerService('${service.id}')">Remove</button>
                         </div>
                     </div>
-                    <div class="service-card-details">
-                        <div><strong>Rate:</strong> ₹${(service.custom_rate || 0).toFixed(2)} | <strong>GST:</strong> ${service.custom_gst_rate || 0}% | <strong>Qty:</strong> ${service.default_quantity || 1}</div>
-                        <div><span class="service-type-badge">${service.service_type || 'one-time'}</span>${service.recurring_frequency ? `<span class="service-type-badge" style="background:#e1f5fe;color:#01579b;">${service.recurring_frequency}</span>` : ''}</div>
-                    </div>
                 </div>
             `).join('');
         }
@@ -1852,13 +1570,6 @@
             }
         }
 
-        document.addEventListener('change', function(e) {
-            if (e.target.id === 'customServiceType') {
-                const recurringGroup = document.getElementById('recurringFreqGroup');
-                recurringGroup.style.display = e.target.value === 'recurring' ? 'block' : 'none';
-            }
-        });
-
         function openAddCustomerModal() {
             editingCustomerId = null;
             currentCustomerNotes = [];
@@ -1879,7 +1590,6 @@
             document.getElementById('customerGstin').value = '';
             document.getElementById('customerStatus').value = 'active';
             document.getElementById('serviceSearchInput').value = '';
-            document.getElementById('serviceConfigContainer').style.display = 'none';
             document.getElementById('noteText').value = '';
             document.getElementById('customerServicesList').innerHTML = '<p style="color: var(--text-secondary);">No services added yet</p>';
             document.getElementById('notesList').innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
