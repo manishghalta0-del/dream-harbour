@@ -1351,24 +1351,24 @@
         }
 
         function renderNotes() {
-            const notesList = document.getElementById('notesList');
-            if (currentCustomerNotes.length === 0) {
-                notesList.innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
-                return;
-            }
-            notesList.innerHTML = currentCustomerNotes.map(note => `
-                <div class="note-item">
-                    <div class="note-header">
-                        <div>${note.note_text.substring(0, 50)}...</div>
-                        <span class="note-type">${note.note_type}</span>
-                    </div>
-                    <div class="note-header" style="font-weight: normal; color: var(--text-secondary);">
-                        <small>${note.created_by || 'System'}</small>
-                        <small>${new Date(note.created_at).toLocaleDateString('en-IN')}</small>
-                    </div>
-                </div>
-            `).join('');
-        }
+    const notesList = document.getElementById('notesList');
+    if (currentCustomerNotes.length === 0) {
+        notesList.innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
+        return;
+    }
+    notesList.innerHTML = currentCustomerNotes.map(note => `
+        <div class="note-item">
+            <div class="note-header">
+                <div>${note.note_text}</div>
+                <span class="note-type">${note.note_type}</span>
+            </div>
+            <div class="note-header" style="font-weight: normal; color: var(--text-secondary);">
+                <small>${note.created_by || 'System'}</small>
+                <small>${new Date(note.created_at).toLocaleDateString('en-IN')}</small>
+            </div>
+        </div>
+    `).join('');
+}
 
         async function addNote() {
             if (!editingCustomerId) return;
@@ -1391,8 +1391,7 @@
                 if (error) throw error;
                 showAlert('✅ Note added successfully!', 'success', true);
                 document.getElementById('noteText').value = '';
-                await logActivity('note_added', `Added ${noteType} note`);
-                loadCustomerNotes();
+                                loadCustomerNotes();
             } catch (error) {
                 console.error('Error adding note:', error);
                 showAlert('Error adding note: ' + error.message, 'error', true);
