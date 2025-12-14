@@ -810,6 +810,12 @@
             position: relative;
         }
 
+        .modal-alert-container {
+            max-height: 100px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 1024px) {
             .customers-container {
                 display: block;
@@ -993,6 +999,9 @@
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body">
+                <!-- ALERT CONTAINER INSIDE MODAL -->
+                <div id="modalAlertContainer" class="modal-alert-container"></div>
+
                 <div class="tabs">
                     <button class="tab-btn active" onclick="switchTab('details', event)">📋 Details</button>
                     <button class="tab-btn" onclick="switchTab('services', event)">📦 Services</button>
@@ -1144,14 +1153,14 @@
             loadCustomerServices();
         }
 
-        function showAlert(message, type = 'info') {
-            const alertContainer = document.getElementById('alertContainer');
+        function showAlert(message, type = 'info', isModal = false) {
+            const container = isModal ? document.getElementById('modalAlertContainer') : document.getElementById('alertContainer');
             const alertId = 'alert-' + Date.now();
             const alertDiv = document.createElement('div');
             alertDiv.id = alertId;
             alertDiv.className = `alert ${type}`;
             alertDiv.textContent = message;
-            alertContainer.appendChild(alertDiv);
+            container.appendChild(alertDiv);
 
             setTimeout(() => {
                 const el = document.getElementById(alertId);
@@ -1201,7 +1210,7 @@
                 renderCustomers();
             } catch (error) {
                 console.error('Error loading customers:', error);
-                showAlert('Error loading customers: ' + error.message, 'error');
+                showAlert('Error loading customers: ' + error.message, 'error', false);
             } finally {
                 document.getElementById('loadingState').style.display = 'none';
             }
@@ -1366,7 +1375,7 @@
             const noteText = document.getElementById('noteText').value.trim();
             const noteType = document.getElementById('noteType').value;
             if (!noteText) {
-                showAlert('Please enter a note', 'error');
+                showAlert('Please enter a note', 'error', true);
                 return;
             }
             try {
@@ -1380,13 +1389,13 @@
                         created_by: userData.fullName || 'User'
                     }]);
                 if (error) throw error;
-                showAlert('✅ Note added successfully!', 'success');
+                showAlert('✅ Note added successfully!', 'success', true);
                 document.getElementById('noteText').value = '';
                 await logActivity('note_added', `Added ${noteType} note`);
                 loadCustomerNotes();
             } catch (error) {
                 console.error('Error adding note:', error);
-                showAlert('Error adding note: ' + error.message, 'error');
+                showAlert('Error adding note: ' + error.message, 'error', true);
             }
         }
 
@@ -1481,11 +1490,11 @@
 
         async function addServiceToCustomer() {
             if (!selectedService) {
-                showAlert('Please select a service', 'error');
+                showAlert('Please select a service', 'error', true);
                 return;
             }
             if (!editingCustomerId) {
-                showAlert('Please save customer first', 'error');
+                showAlert('Please save customer first', 'error', true);
                 return;
             }
 
@@ -1502,7 +1511,7 @@
 
                 if (error) throw error;
 
-                showAlert('✅ Service added for customer!', 'success');
+                showAlert('✅ Service added for customer!', 'success', true);
                 await logActivity('service_added', `Added service: ${selectedService.service_name}`);
 
                 // Reset UI
@@ -1513,7 +1522,7 @@
                 loadCustomerServices();
             } catch (error) {
                 console.error('Error adding service:', error);
-                showAlert('Error adding service: ' + error.message, 'error');
+                showAlert('Error adding service: ' + error.message, 'error', true);
             }
         }
 
@@ -1560,13 +1569,13 @@
                     .update({ is_active: false })
                     .eq('id', serviceId);
                 if (error) throw error;
-                showAlert('✅ Service removed successfully!', 'success');
+                showAlert('✅ Service removed successfully!', 'success', true);
                 await logActivity('service_removed', 'Service removed');
                 loadCustomerServicesForEdit();
                 loadCustomerServices();
             } catch (error) {
                 console.error('Error removing service:', error);
-                showAlert('Error removing service: ' + error.message, 'error');
+                showAlert('Error removing service: ' + error.message, 'error', true);
             }
         }
 
@@ -1594,6 +1603,7 @@
             document.getElementById('customerServicesList').innerHTML = '<p style="color: var(--text-secondary);">No services added yet</p>';
             document.getElementById('notesList').innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
             document.getElementById('activityList').innerHTML = '<p style="color: var(--text-secondary);">No activities yet</p>';
+            document.getElementById('modalAlertContainer').innerHTML = '';
         }
 
         async function editCustomer(customerId) {
@@ -1622,11 +1632,11 @@
                 const mobileNo = document.getElementById('customerMobileNo').value.trim();
                 const status = document.getElementById('customerStatus').value;
                 if (!name || !email || !mobileNo) {
-                    showAlert('Please fill in required fields (Name, Email, Mobile)', 'error');
+                    showAlert('Please fill in required fields (Name, Email, Mobile)', 'error', true);
                     return;
                 }
                 if (!/^[0-9]{10}$/.test(mobileNo)) {
-                    showAlert('Mobile number must be 10 digits', 'error');
+                    showAlert('Mobile number must be 10 digits', 'error', true);
                     return;
                 }
 
@@ -1647,7 +1657,7 @@
                         .update(customerData)
                         .eq('id', editingCustomerId);
                     if (error) throw error;
-                    showAlert('✅ Customer updated successfully!', 'success');
+                    showAlert('✅ Customer updated successfully!', 'success', true);
                     await logActivity('customer_updated', 'Customer information updated');
                 } else {
                     customerData.customer_code = await generateCustomerCode(name);
@@ -1655,14 +1665,14 @@
                         .from('customers')
                         .insert([customerData]);
                     if (error) throw error;
-                    showAlert(`✅ Customer added successfully! Code: ${customerData.customer_code}`, 'success');
+                    showAlert(`✅ Customer added successfully! Code: ${customerData.customer_code}`, 'success', true);
                 }
 
                 closeModal();
                 loadCustomers();
             } catch (error) {
                 console.error('Error saving customer:', error);
-                showAlert('Error saving customer: ' + error.message, 'error');
+                showAlert('Error saving customer: ' + error.message, 'error', true);
             }
         }
 
@@ -1674,17 +1684,17 @@
                     .delete()
                     .eq('id', customerId);
                 if (error) throw error;
-                showAlert('✅ Customer deleted successfully!', 'success');
+                showAlert('✅ Customer deleted successfully!', 'success', false);
                 loadCustomers();
             } catch (error) {
                 console.error('Error deleting customer:', error);
-                showAlert('Error deleting customer: ' + error.message, 'error');
+                showAlert('Error deleting customer: ' + error.message, 'error', false);
             }
         }
 
         function downloadExcel() {
             if (filteredCustomers.length === 0) {
-                showAlert('No customers to download', 'error');
+                showAlert('No customers to download', 'error', false);
                 return;
             }
 
@@ -1706,7 +1716,7 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'Customers');
             XLSX.writeFile(workbook, `dream-harbour-customers-${new Date().getTime()}.xlsx`);
-            showAlert('✅ Excel file downloaded successfully!', 'success');
+            showAlert('✅ Excel file downloaded successfully!', 'success', false);
         }
 
         function closeModal() {
