@@ -1416,24 +1416,33 @@
             }
         }
 
-        function renderActivities() {
-            const activityList = document.getElementById('activityList');
-            if (currentCustomerActivities.length === 0) {
-                activityList.innerHTML = '<p style="color: var(--text-secondary);">No activities yet</p>';
-                return;
-            }
-            activityList.innerHTML = currentCustomerActivities.map(activity => `
-                <div class="activity-item">
-                    <div class="activity-dot"></div>
-                    <div class="activity-content">
-                        <div class="activity-type">${activity.activity_type.replace(/_/g, ' ')}</div>
-                        <div>${activity.activity_description || ''}</div>
-                        <div class="activity-time">${new Date(activity.created_at).toLocaleString('en-IN')}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
+function renderActivities() {
+    const activityList = document.getElementById('activityList');
+    if (currentCustomerActivities.length === 0) {
+        activityList.innerHTML = '<p style="color: var(--text-secondary);">No activities yet</p>';
+        return;
+    }
 
+    activityList.innerHTML = currentCustomerActivities.map(activity => {
+        const typeLabel = activity.activity_type
+            ? activity.activity_type.replace(/_/g, ' ')
+            : 'activity';
+        const userLabel = activity.created_by || 'System';
+        const timeLabel = new Date(activity.created_at).toLocaleString('en-IN');
+        const desc = activity.activity_description || '';
+
+        return `
+            <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div class="activity-content">
+                    <div class="activity-type">${typeLabel}</div>
+                    <div>${desc}</div>
+                    <div class="activity-time">${userLabel} • ${timeLabel}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
         async function logActivity(activityType, description = '') {
             if (!editingCustomerId) return;
             try {
@@ -1626,56 +1635,65 @@
         }
 
         async function saveCustomer() {
-            try {
-                const name = document.getElementById('customerName').value.trim();
-                const email = document.getElementById('customerEmail').value.trim();
-                const mobileNo = document.getElementById('customerMobileNo').value.trim();
-                const status = document.getElementById('customerStatus').value;
-                if (!name || !email || !mobileNo) {
-                    showAlert('Please fill in required fields (Name, Email, Mobile)', 'error', true);
-                    return;
-                }
-                if (!/^[0-9]{10}$/.test(mobileNo)) {
-                    showAlert('Mobile number must be 10 digits', 'error', true);
-                    return;
-                }
-
-                const normalizedMobile = mobileNo.replace(/\D/g, '');
-                const customerData = {
-                    full_name: name,
-                    email,
-                    mobile_no: normalizedMobile,
-                    company_name: document.getElementById('customerCompany').value || null,
-                    address: document.getElementById('customerAddress').value || null,
-                    gstin: document.getElementById('customerGstin').value || null,
-                    status
-                };
-
-                if (editingCustomerId) {
-                    const { error } = await supabase
-                        .from('customers')
-                        .update(customerData)
-                        .eq('id', editingCustomerId);
-                    if (error) throw error;
-                    showAlert('✅ Customer updated successfully!', 'success', true);
-                    await logActivity('customer_updated', 'Customer information updated');
-                } else {
-                    customerData.customer_code = await generateCustomerCode(name);
-                    const { error } = await supabase
-                        .from('customers')
-                        .insert([customerData]);
-                    if (error) throw error;
-                    showAlert(`✅ Customer added successfully! Code: ${customerData.customer_code}`, 'success', true);
-                }
-
-                closeModal();
-                loadCustomers();
-            } catch (error) {
-                console.error('Error saving customer:', error);
-                showAlert('Error saving customer: ' + error.message, 'error', true);
-            }
+    try {
+        const name = document.getElementById('customerName').value.trim();
+        const email = document.getElementById('customerEmail').value.trim();
+        const mobileNo = document.getElementById('customerMobileNo').value.trim();
+        const status = document.getElementById('customerStatus').value;
+        if (!name || !email || !mobileNo) {
+            showAlert('Please fill in required fields (Name, Email, Mobile)', 'error', true);
+            return;
+        }
+        if (!/^[0-9]{10}$/.test(mobileNo)) {
+            showAlert('Mobile number must be 10 digits', 'error', true);
+            return;
         }
 
+        const normalizedMobile = mobileNo.replace(/\D/g, '');
+        const customerData = {
+            full_name: name,
+            email,
+            mobile_no: normalizedMobile,
+            company_name: document.getElementById('customerCompany').value || null,
+            address: document.getElementById('customerAddress').value || null,
+            gstin: document.getElementById('customerGstin').value || null,
+            status
+        };
+
+        if (editingCustomerId) {
+            const { error } = await supabase
+                .from('customers')
+                .update(customerData)
+                .eq('id', editingCustomerId);
+            if (error) throw error;
+            showAlert('✅ Customer updated successfully!', 'success', true);
+            await logActivity('customer_updated', 'Customer information updated');
+        } else {
+            customerData.customer_code = await generateCustomerCode(name);
+
+            const { data, error } = await supabase
+                .from('customers')
+                .insert([customerData])
+                .select()
+                .single();
+
+            if (error) throw error;
+
+            // attach activities to this new customer
+            editingCustomerId = data.id;
+
+            await logActivity('customer_created', 'Customer added');
+
+            showAlert(`✅ Customer added successfully! Code: ${customerData.customer_code}`, 'success', true);
+        }
+
+        closeModal();
+        loadCustomers();
+    } catch (error) {
+        console.error('Error saving customer:', error);
+        showAlert('Error saving customer: ' + error.message, 'error', true);
+    }
+}
         async function deleteCustomer(customerId) {
             if (!confirm('Are you sure you want to delete this customer?')) return;
             try {
