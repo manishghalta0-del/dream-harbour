@@ -839,6 +839,45 @@
             border-left: 3px solid #2e7d32;
         }
 
+        .quick-services-section {
+            background: #e8f5e9;
+            border: 1px solid #81c784;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .quick-services-title {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .quick-service-item {
+            display: inline-block;
+            background: white;
+            padding: 8px 12px;
+            border: 1px solid #81c784;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .quick-service-item:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .quick-service-item.added {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
         @media (max-width: 1024px) {
             .invoices-container {
                 display: block;
@@ -1089,6 +1128,14 @@
                 <textarea id="genCustomerAddress" placeholder="Enter customer address" style="min-height: 60px; resize: vertical;"></textarea>
             </div>
 
+            <!-- QUICK SERVICES from Customer (SYNC FEATURE) -->
+            <div id="quickServicesContainer" style="display: none;">
+                <div class="quick-services-section">
+                    <div class="quick-services-title">⚡ Customer's Services (Quick Add)</div>
+                    <div id="quickServicesList"></div>
+                </div>
+            </div>
+
             <div class="section-title">🧾 GST Option</div>
             <div class="gst-toggle">
                 <label>
@@ -1207,6 +1254,7 @@
         let allSubServices = [];
         let allBusinessSettings = [];
         let allCategories = [];
+        let allCustomerServices = [];
         let filteredInvoices = [];
         let generatorItems = [];
         let selectedCustomer = null;
@@ -1216,7 +1264,6 @@
         let currentUser = null;
         let applyGST = true;
 
-        // Helper function to convert numbers to words
         function numberToWords(num) {
             const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
             const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
@@ -1374,15 +1421,12 @@
             
             document.getElementById('serviceDetailsContainer').style.display = 'block';
 
-            // Check if this service has sub-services
             const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             
             if (serviceSubServices.length > 0) {
-                // Has sub-services: HIDE service fields, SHOW sub-services
                 document.getElementById('serviceOnlyFields').style.display = 'none';
                 displaySubServices(serviceSubServices);
             } else {
-                // No sub-services: SHOW service fields, HIDE sub-services
                 document.getElementById('serviceOnlyFields').style.display = 'block';
                 document.getElementById('subServicesContainer').style.display = 'none';
                 document.getElementById('itemRate').value = selectedService.default_rate || '';
@@ -1427,7 +1471,6 @@
             const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
             
             if (serviceSubServices.length > 0) {
-                // Service WITH sub-services: Add ALL sub-services
                 const parentServiceId = selectedService.id + '-' + Date.now();
                 
                 serviceSubServices.forEach((subService) => {
@@ -1476,7 +1519,6 @@
                 });
 
             } else {
-                // Service WITHOUT sub-services: Add service directly
                 const qty = parseFloat(document.getElementById('itemQty').value) || 1;
                 const rate = parseFloat(document.getElementById('itemRate').value) || 0;
                 const gst = parseFloat(document.getElementById('itemGST').value) || 0;
@@ -1545,7 +1587,6 @@
 
             listDiv.style.display = 'block';
             
-            // Group by category first, then by service
             const groupedByCategory = {};
             
             generatorItems.forEach((item) => {
@@ -1640,6 +1681,7 @@
 
             if (!mobile || mobile.length < 1) {
                 autocompleteList.classList.remove('show');
+                document.getElementById('quickServicesContainer').style.display = 'none';
                 return;
             }
 
@@ -1647,6 +1689,7 @@
 
             if (normalizedInput.length === 0) {
                 autocompleteList.classList.remove('show');
+                document.getElementById('quickServicesContainer').style.display = 'none';
                 return;
             }
 
@@ -1659,6 +1702,7 @@
             if (searchResults.length === 0) {
                 autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No customers found</div>';
                 autocompleteList.classList.add('show');
+                document.getElementById('quickServicesContainer').style.display = 'none';
                 return;
             }
 
@@ -1685,6 +1729,75 @@
             document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
             document.getElementById('genCustomerAddress').value = customer.address || '';
             document.getElementById('mobileAutoComplete').classList.remove('show');
+
+            // SYNC: Load customer's services and show quick add
+            await loadCustomerQuickServices(customer.id);
+        }
+
+        async function loadCustomerQuickServices(customerId) {
+            try {
+                const { data: customerServices, error } = await supabase
+                    .from('customer_services')
+                    .select('*')
+                    .eq('customer_id', customerId)
+                    .eq('is_active', true);
+
+                if (error) throw error;
+
+                if (customerServices && customerServices.length > 0) {
+                    displayQuickServices(customerServices);
+                } else {
+                    document.getElementById('quickServicesContainer').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading customer services:', error);
+                document.getElementById('quickServicesContainer').style.display = 'none';
+            }
+        }
+
+        function displayQuickServices(customerServices) {
+            const container = document.getElementById('quickServicesContainer');
+            const list = document.getElementById('quickServicesList');
+
+            if (customerServices.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            list.innerHTML = customerServices.map(cs => `
+                <button type="button" class="quick-service-item" onclick="quickAddServiceToInvoice('${cs.service_id}', '${cs.service_name}'); return false;">
+                    📦 ${cs.service_name}
+                </button>
+            `).join('');
+        }
+
+        async function quickAddServiceToInvoice(serviceId, serviceName) {
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) {
+                showModalAlert('Service not found', 'error');
+                return;
+            }
+
+            selectedService = service;
+            document.getElementById('itemName').value = service.service_name;
+            document.getElementById('serviceName').value = service.service_name;
+            document.getElementById('serviceDetailsContainer').style.display = 'block';
+
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === service.id);
+            
+            if (serviceSubServices.length > 0) {
+                document.getElementById('serviceOnlyFields').style.display = 'none';
+                displaySubServices(serviceSubServices);
+            } else {
+                document.getElementById('serviceOnlyFields').style.display = 'block';
+                document.getElementById('subServicesContainer').style.display = 'none';
+                document.getElementById('itemRate').value = service.default_rate || '';
+                document.getElementById('itemGST').value = service.default_gst_percentage || '18';
+                document.getElementById('itemQty').value = '1';
+            }
+
+            showModalAlert(`✅ ${serviceName} ready to add. Click 'Add to Invoice'`, 'success');
         }
 
         function initializeApp() {
@@ -1717,6 +1830,7 @@
             loadCategories();
             loadServices();
             loadSubServices();
+            loadCustomerServices();
             loadInvoices();
         }
 
@@ -1750,7 +1864,6 @@
 
                 if (error) throw error;
                 allBusinessSettings = data || [];
-                console.log('Business Settings loaded:', allBusinessSettings.length);
             } catch (error) {
                 console.error('Error loading business settings:', error);
             }
@@ -1764,7 +1877,6 @@
 
                 if (error) throw error;
                 allCustomers = data || [];
-                console.log('Customers loaded:', allCustomers.length);
             } catch (error) {
                 console.error('Error loading customers:', error);
                 showModalAlert('Error loading customers', 'error');
@@ -1780,7 +1892,6 @@
 
                 if (error) throw error;
                 allCategories = data || [];
-                console.log('Categories loaded:', allCategories.length);
             } catch (error) {
                 console.error('Error loading categories:', error);
             }
@@ -1795,7 +1906,6 @@
 
                 if (error) throw error;
                 allServices = data || [];
-                console.log('Services loaded:', allServices.length);
             } catch (error) {
                 console.error('Error loading services:', error);
                 showModalAlert('Error loading services', 'error');
@@ -1811,10 +1921,23 @@
 
                 if (error) throw error;
                 allSubServices = data || [];
-                console.log('Sub-services loaded:', allSubServices.length);
             } catch (error) {
                 console.error('Error loading sub-services:', error);
                 showModalAlert('Error loading sub-services', 'error');
+            }
+        }
+
+        async function loadCustomerServices() {
+            try {
+                const { data, error } = await supabase
+                    .from('customer_services')
+                    .select('*')
+                    .eq('is_active', true);
+
+                if (error) throw error;
+                allCustomerServices = data || [];
+            } catch (error) {
+                console.error('Error loading customer services:', error);
             }
         }
 
@@ -1863,15 +1986,19 @@
 
                 let customerId;
 
-                const { data: newCustomer, error: customerError } = await supabase
-                    .from('customers')
-                    .insert([customerData])
-                    .select('id')
-                    .single();
+                if (selectedCustomer && selectedCustomer.id) {
+                    customerId = selectedCustomer.id;
+                } else {
+                    const { data: newCustomer, error: customerError } = await supabase
+                        .from('customers')
+                        .insert([customerData])
+                        .select('id')
+                        .single();
 
-                if (customerError) throw customerError;
-                customerId = newCustomer.id;
-                showModalAlert('✅ New customer record created!', 'info');
+                    if (customerError) throw customerError;
+                    customerId = newCustomer.id;
+                    showModalAlert('✅ New customer record created!', 'info');
+                }
 
                 const invoiceData = {
                     invoice_number: invoiceNumber,
@@ -2029,6 +2156,7 @@
             document.getElementById('genCustomerAddress').value = '';
             document.getElementById('genPaymentStatus').value = 'pending';
             document.getElementById('addedServicesContainer').style.display = 'none';
+            document.getElementById('quickServicesContainer').style.display = 'none';
             document.querySelector('input[name="gstType"][value="with"]').checked = true;
             document.getElementById('modalAlertContainer').innerHTML = '';
             updateGSTDisplay();
@@ -2062,7 +2190,7 @@
             if (!event.target.closest('.form-group') && !event.target.matches('#itemName')) {
                 serviceAutocomplete.classList.remove('show');
             }
-        }
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
