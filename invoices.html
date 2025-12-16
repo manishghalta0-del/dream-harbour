@@ -1731,7 +1731,7 @@
             document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
             document.getElementById('genCustomerAddress').value = customer.address || '';
             // Load active services for this customer into invoice
-            loadCustomerServicesForInvoice(customer.id);
+            await loadCustomerServicesForInvoice(customer.id);
             document.getElementById('mobileAutoComplete').classList.remove('show');
         }
 
