@@ -1239,7 +1239,53 @@
 
             return words.trim();
         }
+        async function loadCustomerServicesForInvoice(customerId) {
+        try {
+            const { data, error } = await supabase
+                .from('customer_services')
+                .select('*')
+                .eq('customer_id', customerId)
+                .eq('is_active', true);
 
+            if (error) {
+                console.error('Error loading customer services:', error);
+                showAlert('Error loading customer services: ' + error.message, 'error');
+                return;
+            }
+
+            generatorItems = [];
+
+            data.forEach(cs => {
+                const master = allServices.find(s => s.id === cs.service_id);
+
+                const qty = cs.default_quantity || 1;
+                const rate = cs.custom_rate != null
+                    ? cs.custom_rate
+                    : (master?.default_rate || 0);
+                const gst = cs.custom_gst_rate != null
+                    ? cs.custom_gst_rate
+                    : (master?.default_gst_percentage || 0);
+
+                generatorItems.push({
+                    service_id: cs.service_id,
+                    service_name: cs.service_name,
+                    quantity: qty,
+                    rate: rate,
+                    gst_percentage: gst,
+                    sac_code: cs.sac_code || master?.sac_code || null,
+                    is_from_customer_profile: true
+                });
+            });
+
+            updateGeneratorTotals();
+            if (data.length > 0) {
+                showAlert(`Loaded ${data.length} services from customer profile`, 'info');
+            }
+        } catch (err) {
+            console.error('Unexpected error loading customer services:', err);
+            showAlert('Unexpected error loading customer services', 'error');
+        }
+    }
         function convertBelowThousand(num, ones, teens, tens) {
             let words = '';
             
@@ -1672,7 +1718,7 @@
             autocompleteList.classList.add('show');
         }
 
-        function selectCustomer(index) {
+        async function selectCustomer(index) {
             if (index < 0 || index >= searchResults.length) return;
 
             const customer = searchResults[index];
@@ -1684,7 +1730,8 @@
             document.getElementById('genCustomerCompany').value = customer.company_name || '';
             document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
             document.getElementById('genCustomerAddress').value = customer.address || '';
-            
+            // Load active services for this customer into invoice
+            loadCustomerServicesForInvoice(customer.id);
             document.getElementById('mobileAutoComplete').classList.remove('show');
         }
 
