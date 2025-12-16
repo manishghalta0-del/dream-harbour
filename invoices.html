@@ -1253,22 +1253,28 @@
             return;
         }
 
+        // Start fresh for this customer
         generatorItems = [];
 
         data.forEach(cs => {
             const master = allServices.find(s => s.id === cs.service_id);
+            if (!master) return;
+
             const serviceSubServices = allSubServices.filter(s => s.primary_service_id === cs.service_id);
 
             if (serviceSubServices.length > 0) {
-                // Has sub-services: Add each sub-service
+                // Service WITH sub-services: add ALL sub-services (same pattern as addServiceToInvoice)
                 const parentServiceId = cs.service_id + '-' + Date.now();
-                
-                serviceSubServices.forEach(subService => {
-                    const qty = cs.default_quantity || 1;
-                    const rate = cs.custom_rate || subService.default_rate || 0;
-                    const gst = cs.custom_gst_rate || subService.default_gst_percentage || 0;
+
+                serviceSubServices.forEach((subService) => {
+                    const qty = 1; // same default as your UI
+                    const rate = subService.default_rate || 0;
+                    const gst = subService.default_gst_percentage || 0;
+
+                    if (!rate) return;
 
                     let amount, gstAmount;
+
                     if (applyGST) {
                         amount = qty * rate;
                         const gstPortion = (rate * (gst / (100 + gst)));
@@ -1278,32 +1284,37 @@
                         gstAmount = amount * (gst / 100);
                     }
 
-                    generatorItems.push({
+                    const item = {
                         id: subService.id + '-' + Date.now(),
                         parentServiceId: parentServiceId,
                         serviceId: cs.service_id,
                         subServiceId: subService.id,
-                        categoryName: allCategories.find(c => c.id === master?.category_id)?.category_name || '',
-                        serviceName: master?.service_name || cs.service_name,
+                        categoryName: allCategories.find(c => c.id === master.category_id)?.category_name || '',
+                        serviceName: master.service_name,
                         subServiceName: subService.sub_service_name,
                         qty,
                         rate,
                         amount,
                         gst,
                         gstAmount,
-                        sac: master?.sac_code || '',
+                        sac: master.sac_code || '',
                         gstMode: applyGST ? 'with' : 'without',
                         hasSubServices: true,
                         is_from_customer_profile: true
-                    });
+                    };
+
+                    generatorItems.push(item);
                 });
             } else {
-                // No sub-services: Add service directly
-                const qty = cs.default_quantity || 1;
-                const rate = cs.custom_rate || master?.default_rate || 0;
-                const gst = cs.custom_gst_rate || master?.default_gst_percentage || 0;
+                // Service WITHOUT sub-services: add service directly
+                const qty = 1;
+                const rate = master.default_rate || 0;
+                const gst = master.default_gst_percentage || 0;
+
+                if (!rate) return;
 
                 let amount, gstAmount;
+
                 if (applyGST) {
                     amount = qty * rate;
                     const gstPortion = (rate * (gst / (100 + gst)));
@@ -1313,26 +1324,29 @@
                     gstAmount = amount * (gst / 100);
                 }
 
-                generatorItems.push({
-                    id: cs.service_id + '-' + Date.now(),
-                    serviceId: cs.service_id,
-                    categoryName: allCategories.find(c => c.id === master?.category_id)?.category_name || '',
-                    serviceName: cs.service_name,
+                const item = {
+                    id: master.id + '-' + Date.now(),
+                    serviceId: master.id,
+                    categoryName: allCategories.find(c => c.id === master.category_id)?.category_name || '',
+                    serviceName: master.service_name,
                     qty,
                     rate,
                     amount,
                     gst,
                     gstAmount,
-                    sac: master?.sac_code || '',
+                    sac: master.sac_code || '',
                     gstMode: applyGST ? 'with' : 'without',
                     hasSubServices: false,
                     is_from_customer_profile: true
-                });
+                };
+
+                generatorItems.push(item);
             }
         });
 
         renderInvoiceItems();
         updateGeneratorTotals();
+
         if (data.length > 0) {
             showModalAlert(`✅ Loaded ${data.length} services from customer profile`, 'info');
         }
