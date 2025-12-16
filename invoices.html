@@ -1933,7 +1933,10 @@
                     subtotal: subtotal,
                     total_gst: totalGST,
                     total_amount: totalAmount,
-                    payment_status: paymentStatus
+                    payment_status: paymentStatus,
+                    status: 'pending',
+                    amount_paid: 0,
+                    balance_amount: totalAmount
                 };
 
                 const { error } = await supabase
