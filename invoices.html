@@ -1239,131 +1239,7 @@
 
             return words.trim();
         }
-        async function loadCustomerServicesForInvoice(customerId) {
-    try {
-        const { data, error } = await supabase
-            .from('customer_services')
-            .select('*')
-            .eq('customer_id', customerId)
-            .eq('is_active', true);
 
-        if (error) {
-            console.error('Error loading customer services:', error);
-            showModalAlert('Error loading customer services: ' + error.message, 'error');
-            return;
-        }
-
-        // Start fresh for this customer
-        generatorItems = [];
-
-        data.forEach(cs => {
-            const master = allServices.find(s => s.id === cs.service_id);
-            if (!master) return;
-
-            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === cs.service_id);
-
-            if (serviceSubServices.length > 0) {
-                // Service WITH sub-services: add ALL sub-services (same pattern as addServiceToInvoice)
-                const parentServiceId = cs.service_id + '-' + Date.now();
-
-                serviceSubServices.forEach((subService) => {
-                    const qty = 1; // same default as your UI
-                    const rate = subService.default_rate || 0;
-                    const gst = subService.default_gst_percentage || 0;
-
-                    if (!rate) return;
-
-                    let amount, gstAmount;
-
-                    if (applyGST) {
-                        amount = qty * rate;
-                        const gstPortion = (rate * (gst / (100 + gst)));
-                        gstAmount = qty * gstPortion;
-                    } else {
-                        amount = qty * rate;
-                        gstAmount = amount * (gst / 100);
-                    }
-
-                    const item = {
-                        id: subService.id + '-' + Date.now(),
-                        parentServiceId: parentServiceId,
-                        serviceId: cs.service_id,
-                        subServiceId: subService.id,
-                        categoryName: allCategories.find(c => c.id === master.category_id)?.category_name || '',
-                        serviceName: master.service_name,
-                        subServiceName: subService.sub_service_name,
-                        qty,
-                        rate,
-                        amount,
-                        gst,
-                        gstAmount,
-                        sac: master.sac_code || '',
-                        gstMode: applyGST ? 'with' : 'without',
-                        hasSubServices: true,
-                        is_from_customer_profile: true
-                    };
-
-                    generatorItems.push(item);
-                });
-            } else {
-                // Service WITHOUT sub-services: add service directly
-                const qty = 1;
-                const rate = master.default_rate || 0;
-                const gst = master.default_gst_percentage || 0;
-
-                if (!rate) return;
-
-                let amount, gstAmount;
-
-                if (applyGST) {
-                    amount = qty * rate;
-                    const gstPortion = (rate * (gst / (100 + gst)));
-                    gstAmount = qty * gstPortion;
-                } else {
-                    amount = qty * rate;
-                    gstAmount = amount * (gst / 100);
-                }
-
-                const item = {
-                    id: master.id + '-' + Date.now(),
-                    serviceId: master.id,
-                    categoryName: allCategories.find(c => c.id === master.category_id)?.category_name || '',
-                    serviceName: master.service_name,
-                    qty,
-                    rate,
-                    amount,
-                    gst,
-                    gstAmount,
-                    sac: master.sac_code || '',
-                    gstMode: applyGST ? 'with' : 'without',
-                    hasSubServices: false,
-                    is_from_customer_profile: true
-                };
-
-                generatorItems.push(item);
-            }
-        });
-
-        renderInvoiceItems();
-        updateGeneratorTotals();
-
-        if (data.length > 0) {
-            showModalAlert(`✅ Loaded ${data.length} services from customer profile`, 'info');
-        }
-    } catch (err) {
-        console.error('Unexpected error loading customer services:', err);
-        showModalAlert('Unexpected error loading customer services', 'error');
-    }
-}
-            updateGeneratorTotals();
-            if (data.length > 0) {
-                showAlert(`Loaded ${data.length} services from customer profile`, 'info');
-            }
-        } catch (err) {
-            console.error('Unexpected error loading customer services:', err);
-            showAlert('Unexpected error loading customer services', 'error');
-        }
-    }
         function convertBelowThousand(num, ones, teens, tens) {
             let words = '';
             
@@ -1808,8 +1684,6 @@
             document.getElementById('genCustomerCompany').value = customer.company_name || '';
             document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
             document.getElementById('genCustomerAddress').value = customer.address || '';
-            // Load active services for this customer into invoice
-            await loadCustomerServicesForInvoice(customer.id);
             document.getElementById('mobileAutoComplete').classList.remove('show');
         }
 
@@ -1989,8 +1863,6 @@
 
                 let customerId;
 
-                // ✅ FIXED: Always create NEW customer (don't update existing)
-                // If customer details are different, create a new record
                 const { data: newCustomer, error: customerError } = await supabase
                     .from('customers')
                     .insert([customerData])
@@ -2023,11 +1895,9 @@
 
                 if (error) throw error;
 
-                showModalAlert('✅ Invoice saved successfully! Generating PDF...', 'success');
+                showModalAlert('✅ Invoice saved successfully!', 'success');
                 
-                // Auto-download PDF
                 setTimeout(() => {
-                    generatePDFForNew(invoiceNumber, customerName, mobile, normalizedMobile, invoiceDate, dueDate, notes, paymentStatus, subtotal, totalGST, totalAmount);
                     closeGenerator();
                     loadInvoices();
                 }, 1000);
@@ -2039,259 +1909,6 @@
                 document.getElementById('saveInvoiceBtn').disabled = false;
                 document.getElementById('saveInvoiceBtn').textContent = '💾 Save Invoice';
             }
-        }
-
-        function generateGSTBreakdownTable(generatorItems) {
-            const gstBreakdown = {};
-            
-            generatorItems.forEach(item => {
-                const gstRate = item.gst;
-                if (!gstBreakdown[gstRate]) {
-                    gstBreakdown[gstRate] = 0;
-                }
-                gstBreakdown[gstRate] += item.gstAmount;
-            });
-
-            let html = `
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px;">
-                    <thead>
-                        <tr style="background: #f0f0f0;">
-                            <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd; font-weight: 600;">GST Rate</th>
-                            <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd; font-weight: 600;">Amount (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            Object.keys(gstBreakdown).sort((a, b) => parseFloat(a) - parseFloat(b)).forEach(rate => {
-                html += `
-                    <tr>
-                        <td style="padding: 6px 8px; border-bottom: 1px solid #ddd;">${rate}% GST</td>
-                        <td style="padding: 6px 8px; text-align: right; border-bottom: 1px solid #ddd;">${gstBreakdown[rate].toFixed(2)}</td>
-                    </tr>
-                `;
-            });
-
-            const totalGST = Object.values(gstBreakdown).reduce((a, b) => a + b, 0);
-            html += `
-                    <tr style="background: #e8f4f8; font-weight: 600;">
-                        <td style="padding: 8px; border-bottom: 1px solid #ddd;">Total GST</td>
-                        <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">₹${totalGST.toFixed(2)}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            `;
-
-            return html;
-        }
-
-        function generatePDFForNew(invoiceNumber, customerName, mobile, normalizedMobile, invoiceDate, dueDate, notes, paymentStatus, subtotal, totalGST, totalAmount) {
-            // Rest of PDF generation code remains the same...
-            const business = allBusinessSettings[0] || {
-                business_name: 'Dream Harbour',
-                address: 'Sen Building, Opposite Tehsil Office, Main Bazaar Kotkhai',
-                city: 'Kotkhai, Shimla',
-                state: 'Himachal Pradesh',
-                pincode: '171202',
-                phone: '9873329494',
-                email: 'manishghalta0@gmail.com',
-                gst_number: '02AVPPG6971N1Z0',
-                bank_name: 'Bank Name',
-                account_holder_name: 'Account Holder',
-                account_number: '****',
-                ifsc_code: 'IFSCCODE',
-                upi_id: 'upi@upi'
-            };
-
-            const paidDate = new Date(invoiceDate);
-            const dueDateObj = dueDate ? new Date(dueDate) : new Date(paidDate.getTime() + 30 * 24 * 60 * 60 * 1000);
-            const dueDateFormatted = dueDateObj.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
-            
-            const amountInWords = numberToWords(Math.floor(totalAmount)) + ' Only';
-
-            const element = document.createElement('div');
-            element.style.padding = '30px';
-            element.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
-            element.style.lineHeight = '1.8';
-            element.innerHTML = `
-                <!-- Header Section -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr 200px; gap: 30px; margin-bottom: 30px; align-items: start; border-bottom: 3px solid #667eea; padding-bottom: 20px;">
-                    <div>
-                        <h1 style="margin: 0; color: #667eea; font-size: 28px; font-weight: 700;">📄 INVOICE</h1>
-                    </div>
-                    <div style="text-align: left;">
-                        <h2 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 20px; font-weight: 700;">${business.business_name}</h2>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">📍 ${business.address}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">${business.city}, ${business.state} ${business.pincode}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p style="margin: 3px 0; color: #667eea; font-weight: 700; font-size: 14px;">${invoiceNumber}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 11px;">${new Date(invoiceDate).toLocaleDateString('en-IN')}</p>
-                    </div>
-                </div>
-
-                <!-- From & To Section -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
-                    <div>
-                        <h3 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 12px; font-weight: 700; text-transform: uppercase;">FROM:</h3>
-                        <p style="margin: 5px 0; font-weight: 600; color: #2c3e50; font-size: 14px;">${business.business_name}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">${business.address}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">${business.city}, ${business.state} ${business.pincode}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">📱 ${business.phone}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">✉️ ${business.email}</p>
-                        <p style="margin: 8px 0; color: #667eea; font-weight: 600; font-size: 12px;">GSTIN: ${business.gst_number}</p>
-                    </div>
-                    <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 4px solid #667eea;">
-                        <h3 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 12px; font-weight: 700; text-transform: uppercase;">BILL TO:</h3>
-                        <p style="margin: 5px 0; font-weight: 600; color: #2c3e50; font-size: 14px;">${customerName}</p>
-                        <p style="margin: 3px 0; color: #555; font-size: 12px;">📱 ${mobile}</p>
-                    </div>
-                </div>
-
-                <!-- Invoice Details -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div style="background: #f0f0f0; padding: 10px; border-radius: 4px;">
-                        <span style="color: #999; font-size: 11px; font-weight: 600; text-transform: uppercase;">Invoice Date</span>
-                        <p style="margin: 3px 0; font-weight: 600; color: #2c3e50;">${new Date(invoiceDate).toLocaleDateString('en-IN')}</p>
-                    </div>
-                    <div style="background: #f0f0f0; padding: 10px; border-radius: 4px;">
-                        <span style="color: #999; font-size: 11px; font-weight: 600; text-transform: uppercase;">Due Date</span>
-                        <p style="margin: 3px 0; font-weight: 600; color: #2c3e50;">${dueDateFormatted}</p>
-                    </div>
-                    <div style="background: #f0f0f0; padding: 10px; border-radius: 4px;">
-                        <span style="color: #999; font-size: 11px; font-weight: 600; text-transform: uppercase;">Status</span>
-                        <p style="margin: 3px 0; display: inline-block; background: #e8f5e9; color: #2e7d32; padding: 2px 6px; border-radius: 3px; font-weight: 600; font-size: 11px; text-transform: capitalize;">${paymentStatus}</p>
-                    </div>
-                </div>
-
-                <!-- Items Table -->
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
-                    <thead>
-                        <tr style="background: #667eea; color: white;">
-                            <th style="padding: 10px; text-align: left; font-weight: 600; border: 1px solid #667eea;">Description</th>
-                            <th style="padding: 10px; text-align: center; font-weight: 600; border: 1px solid #667eea; width: 60px;">Qty</th>
-                            <th style="padding: 10px; text-align: right; font-weight: 600; border: 1px solid #667eea; width: 80px;">Rate</th>
-                            <th style="padding: 10px; text-align: right; font-weight: 600; border: 1px solid #667eea; width: 80px;">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${generatorItems.map((item, idx) => `
-                            <tr style="border: 1px solid #ddd;">
-                                <td style="padding: 8px; border: 1px solid #ddd;">${item.subServiceName || item.serviceName}</td>
-                                <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${item.qty}</td>
-                                <td style="padding: 8px; text-align: right; border: 1px solid #ddd;">₹${item.rate.toFixed(2)}</td>
-                                <td style="padding: 8px; text-align: right; border: 1px solid #ddd; font-weight: 600;">₹${item.amount.toFixed(2)}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-
-                <!-- GST Breakdown -->
-                <div style="margin-bottom: 20px;">
-                    <h3 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 12px; font-weight: 700; text-transform: uppercase;">📊 TAX BREAKDOWN:</h3>
-                    ${generateGSTBreakdownTable(generatorItems)}
-                </div>
-
-                <!-- Bank Details Section -->
-                <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #667eea; font-size: 11px;">
-                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">🏦 BANK DETAILS FOR PAYMENT:</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <p style="margin: 2px 0; color: #999; font-size: 10px;">Account Holder</p>
-                            <p style="margin: 2px 0; font-weight: 600; color: #2c3e50;">${business.account_holder_name}</p>
-                        </div>
-                        <div>
-                            <p style="margin: 2px 0; color: #999; font-size: 10px;">Bank Name</p>
-                            <p style="margin: 2px 0; font-weight: 600; color: #2c3e50;">${business.bank_name}</p>
-                        </div>
-                        <div>
-                            <p style="margin: 2px 0; color: #999; font-size: 10px;">Account Number</p>
-                            <p style="margin: 2px 0; font-weight: 600; color: #2c3e50;">${business.account_number}</p>
-                        </div>
-                        <div>
-                            <p style="margin: 2px 0; color: #999; font-size: 10px;">IFSC Code</p>
-                            <p style="margin: 2px 0; font-weight: 600; color: #2c3e50;">${business.ifsc_code}</p>
-                        </div>
-                    </div>
-                    <p style="margin: 8px 0 0 0; color: #667eea; font-weight: 600;">📱 UPI: ${business.upi_id}</p>
-                </div>
-
-                <!-- Amount Summary -->
-                <div style="display: grid; grid-template-columns: 1fr 300px; gap: 20px; margin-bottom: 20px;">
-                    <div></div>
-                    <div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                            <tbody>
-                                <tr>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Subtotal:</td>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd; font-weight: 600;">₹${subtotal.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Total GST:</td>
-                                    <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd; font-weight: 600;">₹${totalGST.toFixed(2)}</td>
-                                </tr>
-                                <tr style="background: #667eea; color: white; font-weight: 700; font-size: 14px;">
-                                    <td style="padding: 10px; text-align: right; border: 1px solid #667eea;">TOTAL (₹):</td>
-                                    <td style="padding: 10px; text-align: right; border: 1px solid #667eea;">₹${totalAmount.toFixed(2)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <p style="margin: 8px 0 0 0; font-size: 11px; color: #555; font-style: italic;"><strong>Amount in Words:</strong> ${amountInWords}</p>
-                    </div>
-                </div>
-
-                <!-- Payment Terms -->
-                <div style="background: #f5f7fa; padding: 12px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #667eea; font-size: 11px;">
-                    <h3 style="margin: 0 0 8px 0; color: #2c3e50; font-size: 11px; font-weight: 700; text-transform: uppercase;">📋 PAYMENT TERMS & CONDITIONS:</h3>
-                    <ul style="margin: 0; padding-left: 18px; color: #555; line-height: 1.6;">
-                        <li>Payment is due within 30 days from the date of invoice</li>
-                        <li>All disputes must be raised within 7 days of invoice date</li>
-                        <li>Early payment (within 7 days) attracts 2% discount</li>
-                        <li>This is a computer-generated invoice and requires no signature</li>
-                    </ul>
-                </div>
-
-                <!-- Notes -->
-                ${notes ? `
-                <div style="background: #fff3cd; padding: 10px; border-radius: 6px; margin-bottom: 20px; border-left: 4px solid #ffc107; font-size: 11px;">
-                    <p style="margin: 3px 0; color: #856404;"><strong>📝 Additional Notes:</strong> ${notes}</p>
-                </div>
-                ` : ''}
-
-                <!-- Signature Section -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 20px; margin-top: 40px;">
-                    <div>
-                        <p style="margin-bottom: 40px; color: #999; font-size: 11px; border-bottom: 1px solid #999; padding-bottom: 5px;">_____________________________</p>
-                        <p style="margin: 5px 0; font-size: 11px; font-weight: 600; color: #2c3e50;">Authorized Signature</p>
-                        <p style="margin: 3px 0; color: #666; font-size: 10px;">${business.business_name}</p>
-                        <p style="margin: 3px 0; color: #666; font-size: 10px; font-style: italic;">Date: _______________</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <p style="margin-bottom: 40px; color: #999; font-size: 11px; border-bottom: 1px solid #999; padding-bottom: 5px; display: inline-block; width: 100%;">_____________________________</p>
-                        <p style="margin: 5px 0; font-size: 11px; font-weight: 600; color: #2c3e50;">Customer Acknowledgement</p>
-                        <p style="margin: 3px 0; color: #666; font-size: 10px;">${customerName}</p>
-                        <p style="margin: 3px 0; color: #666; font-size: 10px; font-style: italic;">Date: _______________</p>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div style="border-top: 2px solid #ddd; padding-top: 15px; text-align: center; color: #666; font-size: 10px;">
-                    <p style="margin: 3px 0; color: #999;">For queries: ${business.email} | ${business.phone}</p>
-                    <p style="margin: 3px 0; color: #999;">Generated on: ${new Date().toLocaleString('en-IN')}</p>
-                    <p style="margin: 8px 0 0 0; color: #999;">Page 1 of 1</p>
-                    <p style="margin: 3px 0; color: #999;">&copy; ${new Date().getFullYear()} ${business.business_name}. All rights reserved.</p>
-                </div>
-            `;
-
-            const opt = {
-                margin: 10,
-                filename: `${invoiceNumber}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-
-            html2pdf().set(opt).from(element).save();
         }
 
         async function loadInvoices() {
@@ -2330,28 +1947,28 @@
             tableBody.innerHTML = '';
 
             filteredInvoices.forEach(invoice => {
-    const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
-    const customer = allCustomers.find(c => c.id === invoice.customer_id);
-    const row = document.createElement('tr');
-    row.innerHTML = `
-        <td><strong>${invoice.invoice_number || '-'}</strong></td>
-        <td>${customer?.full_name || 'N/A'}</td>
-        <td>${customer?.mobile_no || '-'}</td>
-        <td>${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
-        <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
-        <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
-        <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
-        <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
-        <td>
-            <div class="actions">
-                <button class="btn btn-sm btn-primary" onclick="openPaymentModal('${invoice.id}', ${invoice.total_amount}, ${invoice.amount_paid || 0})" title="Record payment">💳 Payment</button>
-                <button class="btn btn-sm btn-success" onclick="generatePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
-            </div>
-        </td>
-    `;
-    tableBody.appendChild(row);
-});
+                const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
+                const customer = allCustomers.find(c => c.id === invoice.customer_id);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${invoice.invoice_number || '-'}</strong></td>
+                    <td>${customer?.full_name || 'N/A'}</td>
+                    <td>${customer?.mobile_no || '-'}</td>
+                    <td>${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
+                    <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
+                    <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
+                    <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
+                    <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-success" onclick="alert('PDF generation feature coming soon!')" title="Download PDF">📄 PDF</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
 
         function filterInvoices() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -2387,34 +2004,6 @@
                 console.error('Error deleting invoice:', error);
                 showModalAlert('Error deleting invoice: ' + error.message, 'error');
             }
-        }
-
-        function generatePDF(invoiceId) {
-            const invoice = allInvoices.find(i => i.id === invoiceId);
-            const customer = allCustomers.find(c => c.id === invoice.customer_id);
-            const business = allBusinessSettings[0] || {
-                business_name: 'Dream Harbour',
-                address: 'Sen Building, Opposite Tehsil Office, Main Bazaar Kotkhai',
-                city: 'Kotkhai, Shimla',
-                state: 'Himachal Pradesh',
-                pincode: '171202',
-                phone: '9873329494',
-                email: 'manishghalta0@gmail.com',
-                gst_number: '02AVPPG6971N1Z0',
-                bank_name: 'Bank Name',
-                account_holder_name: 'Account Holder',
-                account_number: '****',
-                ifsc_code: 'IFSCCODE',
-                upi_id: 'upi@upi'
-            };
-
-            if (!invoice) {
-                showModalAlert('Invoice not found', 'error');
-                return;
-            }
-
-            // Same PDF generation code as generatePDFForNew but for existing invoices...
-            showModalAlert('✅ PDF downloaded successfully!', 'success');
         }
 
         async function openInvoiceGenerator() {
