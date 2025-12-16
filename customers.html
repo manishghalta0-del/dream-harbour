@@ -1511,10 +1511,13 @@ function renderActivities() {
                 const { error } = await supabase
                     .from('customer_services')
                     .insert([{
-                        customer_id: editingCustomerId,
-                        service_id: selectedService.id,
-                        service_name: selectedService.service_name,
-                        is_active: true
+                      customer_id: editingCustomerId,
+                      service_id: selectedService.id,
+                      service_name: selectedService.service_name,
+                      is_active: true,
+                      service_status: 'pending',
+                      amount_total: 0,
+                      amount_paid: 0
                     }]);
 
                 if (error) throw error;
