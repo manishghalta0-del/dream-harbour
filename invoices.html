@@ -1240,43 +1240,107 @@
             return words.trim();
         }
         async function loadCustomerServicesForInvoice(customerId) {
-        try {
-            const { data, error } = await supabase
-                .from('customer_services')
-                .select('*')
-                .eq('customer_id', customerId)
-                .eq('is_active', true);
+    try {
+        const { data, error } = await supabase
+            .from('customer_services')
+            .select('*')
+            .eq('customer_id', customerId)
+            .eq('is_active', true);
 
-            if (error) {
-                console.error('Error loading customer services:', error);
-                showAlert('Error loading customer services: ' + error.message, 'error');
-                return;
-            }
+        if (error) {
+            console.error('Error loading customer services:', error);
+            showModalAlert('Error loading customer services: ' + error.message, 'error');
+            return;
+        }
 
-            generatorItems = [];
+        generatorItems = [];
 
-            data.forEach(cs => {
-                const master = allServices.find(s => s.id === cs.service_id);
+        data.forEach(cs => {
+            const master = allServices.find(s => s.id === cs.service_id);
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === cs.service_id);
 
+            if (serviceSubServices.length > 0) {
+                // Has sub-services: Add each sub-service
+                const parentServiceId = cs.service_id + '-' + Date.now();
+                
+                serviceSubServices.forEach(subService => {
+                    const qty = cs.default_quantity || 1;
+                    const rate = cs.custom_rate || subService.default_rate || 0;
+                    const gst = cs.custom_gst_rate || subService.default_gst_percentage || 0;
+
+                    let amount, gstAmount;
+                    if (applyGST) {
+                        amount = qty * rate;
+                        const gstPortion = (rate * (gst / (100 + gst)));
+                        gstAmount = qty * gstPortion;
+                    } else {
+                        amount = qty * rate;
+                        gstAmount = amount * (gst / 100);
+                    }
+
+                    generatorItems.push({
+                        id: subService.id + '-' + Date.now(),
+                        parentServiceId: parentServiceId,
+                        serviceId: cs.service_id,
+                        subServiceId: subService.id,
+                        categoryName: allCategories.find(c => c.id === master?.category_id)?.category_name || '',
+                        serviceName: master?.service_name || cs.service_name,
+                        subServiceName: subService.sub_service_name,
+                        qty,
+                        rate,
+                        amount,
+                        gst,
+                        gstAmount,
+                        sac: master?.sac_code || '',
+                        gstMode: applyGST ? 'with' : 'without',
+                        hasSubServices: true,
+                        is_from_customer_profile: true
+                    });
+                });
+            } else {
+                // No sub-services: Add service directly
                 const qty = cs.default_quantity || 1;
-                const rate = cs.custom_rate != null
-                    ? cs.custom_rate
-                    : (master?.default_rate || 0);
-                const gst = cs.custom_gst_rate != null
-                    ? cs.custom_gst_rate
-                    : (master?.default_gst_percentage || 0);
+                const rate = cs.custom_rate || master?.default_rate || 0;
+                const gst = cs.custom_gst_rate || master?.default_gst_percentage || 0;
+
+                let amount, gstAmount;
+                if (applyGST) {
+                    amount = qty * rate;
+                    const gstPortion = (rate * (gst / (100 + gst)));
+                    gstAmount = qty * gstPortion;
+                } else {
+                    amount = qty * rate;
+                    gstAmount = amount * (gst / 100);
+                }
 
                 generatorItems.push({
-                    service_id: cs.service_id,
-                    service_name: cs.service_name,
-                    quantity: qty,
-                    rate: rate,
-                    gst_percentage: gst,
-                    sac_code: cs.sac_code || master?.sac_code || null,
+                    id: cs.service_id + '-' + Date.now(),
+                    serviceId: cs.service_id,
+                    categoryName: allCategories.find(c => c.id === master?.category_id)?.category_name || '',
+                    serviceName: cs.service_name,
+                    qty,
+                    rate,
+                    amount,
+                    gst,
+                    gstAmount,
+                    sac: master?.sac_code || '',
+                    gstMode: applyGST ? 'with' : 'without',
+                    hasSubServices: false,
                     is_from_customer_profile: true
                 });
-            });
+            }
+        });
 
+        renderInvoiceItems();
+        updateGeneratorTotals();
+        if (data.length > 0) {
+            showModalAlert(`✅ Loaded ${data.length} services from customer profile`, 'info');
+        }
+    } catch (err) {
+        console.error('Unexpected error loading customer services:', err);
+        showModalAlert('Unexpected error loading customer services', 'error');
+    }
+}
             updateGeneratorTotals();
             if (data.length > 0) {
                 showAlert(`Loaded ${data.length} services from customer profile`, 'info');
