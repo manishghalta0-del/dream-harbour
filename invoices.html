@@ -2252,28 +2252,28 @@
             tableBody.innerHTML = '';
 
             filteredInvoices.forEach(invoice => {
-                const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
-                const customer = allCustomers.find(c => c.id === invoice.customer_id);
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${invoice.invoice_number || '-'}</strong></td>
-                    <td>${customer?.full_name || 'N/A'}</td>
-                    <td>${customer?.mobile_no || '-'}</td>
-                    <td>${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
-                    <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
-                    <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
-                    <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
-                    <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn btn-sm btn-success" onclick="generatePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
+    const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
+    const customer = allCustomers.find(c => c.id === invoice.customer_id);
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><strong>${invoice.invoice_number || '-'}</strong></td>
+        <td>${customer?.full_name || 'N/A'}</td>
+        <td>${customer?.mobile_no || '-'}</td>
+        <td>${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
+        <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
+        <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
+        <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
+        <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
+        <td>
+            <div class="actions">
+                <button class="btn btn-sm btn-primary" onclick="openPaymentModal('${invoice.id}', ${invoice.total_amount}, ${invoice.amount_paid || 0})" title="Record payment">💳 Payment</button>
+                <button class="btn btn-sm btn-success" onclick="generatePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
+                <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
+            </div>
+        </td>
+    `;
+    tableBody.appendChild(row);
+});
 
         function filterInvoices() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
