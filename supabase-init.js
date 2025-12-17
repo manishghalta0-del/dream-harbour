@@ -19,14 +19,36 @@ const SUPABASE_CONFIG = {
  */
 function loadSupabaseLibrary() {
     return new Promise((resolve) => {
-        // If already loaded
+        // If already loaded in window
         if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
             console.log('✅ Supabase library already in window');
             resolve(true);
             return;
         }
 
-        // Load from CDN
+        // Check if script is already loading or loaded
+        const existingScript = document.querySelector('script[src*="@supabase/supabase-js"]');
+        if (existingScript) {
+            console.log('⏳ Supabase script already exists, waiting for library...');
+            // Wait for library to appear in window
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                    clearInterval(checkInterval);
+                    console.log('✅ Supabase library now available in window');
+                    resolve(true);
+                } else if (attempts > 50) { // ~5 seconds timeout
+                    clearInterval(checkInterval);
+                    console.error('❌ Timeout waiting for Supabase library');
+                    resolve(false);
+                }
+            }, 100);
+            return;
+        }
+
+        // Load from CDN only if not already loading
+        console.log('📥 Fetching Supabase library from CDN...');
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
         script.async = true;
@@ -72,17 +94,20 @@ async function initSupabase() {
             const libraryLoaded = await loadSupabaseLibrary();
             if (!libraryLoaded) {
                 console.error('❌ Failed to load Supabase library');
+                supabaseInitPromise = null; // Reset so next attempt can retry
                 return null;
             }
 
             // Verify library is available
             if (typeof window.supabase === 'undefined') {
                 console.error('❌ window.supabase is undefined after loading');
+                supabaseInitPromise = null; // Reset so next attempt can retry
                 return null;
             }
 
             if (typeof window.supabase.createClient !== 'function') {
                 console.error('❌ window.supabase.createClient is not a function');
+                supabaseInitPromise = null; // Reset so next attempt can retry
                 return null;
             }
 
