@@ -2,13 +2,246 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dream Harbour - Invoice Generator">
+    <meta name="theme-color" content="#667eea">
     <title>Dream Harbour - Invoices</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🏛️</text></svg>">
     
     <!-- Centralized Supabase Initialization Module -->
     <script src="supabase-init.js"></script>
     
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5568d3;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        html { overflow: hidden; height: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--light-bg); color: var(--text-primary); overflow: hidden; height: 100%; }
+        .container { display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: var(--white); padding: 25px 20px; position: fixed; height: 100vh; width: 260px; overflow-y: auto; z-index: 100; top: 0; left: 0; box-shadow: var(--shadow-md); }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+        .sidebar-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
+        .sidebar-logo { font-size: 40px; margin-bottom: 10px; }
+        .sidebar-title { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
+        .sidebar-subtitle { font-size: 11px; opacity: 0.7; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-section { margin-bottom: 25px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.8); text-decoration: none; padding: 12px 15px; margin-bottom: 6px; border-radius: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: 500; }
+        .nav-link:hover { background: rgba(255, 255, 255, 0.15); color: var(--white); transform: translateX(4px); }
+        .nav-link.active { background: var(--primary-color); color: var(--white); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+        .nav-link span { font-size: 18px; }
+        .sidebar-footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+        .user-info { background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
+        .user-info-label { opacity: 0.7; margin-bottom: 5px; }
+        .user-info-value { font-weight: 600; word-break: break-word; }
+        .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; height: 100vh; background: var(--light-bg); overflow: hidden; }
+        .top-bar { background: var(--white); padding: 16px 25px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; flex-shrink: 0; }
+        .top-bar-left { display: flex; align-items: center; gap: 15px; }
+        .page-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+        .top-bar-right { display: flex; align-items: center; gap: 15px; }
+        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .btn-primary { background: var(--primary-color); color: var(--white); box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .btn-secondary:hover { background: var(--white); border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-danger { background: var(--danger-color); color: var(--white); }
+        .btn-danger:hover { background: #c0392b; transform: translateY(-2px); }
+        .btn-sm { padding: 8px 14px; font-size: 12px; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .content { flex: 1; padding: 25px; overflow-y: auto; overflow-x: hidden; }
+        .content::-webkit-scrollbar { width: 8px; }
+        .content::-webkit-scrollbar-track { background: transparent; }
+        .content::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: var(--text-primary); }
+        .table-wrapper { background: var(--white); border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--light-bg); padding: 14px 12px; text-align: left; font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-color); }
+        td { padding: 14px 12px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        tr:hover { background: var(--light-bg); }
+        tr:last-child td { border-bottom: none; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-paid { background: #d4edda; color: #155724; }
+        .status-unpaid { background: #f8d7da; color: #721c24; }
+        .loading { text-align: center; padding: 40px; color: #999; }
+        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 1024px) {
+            .container { display: block; }
+            .sidebar { position: relative; width: 100%; height: auto; }
+            .main { margin-left: 0; height: auto; }
+        }
+        @media (max-width: 768px) {
+            .top-bar { padding: 12px 15px; }
+            .content { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🏛️</div>
+                <div class="sidebar-title">Dream Harbour</div>
+                <div class="sidebar-subtitle">Invoice Manager</div>
+            </div>
+            <div class="nav-section">
+                <a href="dashboard.html" class="nav-link"><span>📊</span> Dashboard</a>
+                <a href="invoices.html" class="nav-link active"><span>📄</span> Invoices</a>
+                <a href="customers.html" class="nav-link"><span>👥</span> Customers</a>
+                <a href="settings.html" class="nav-link"><span>⚙️</span> Settings</a>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-info-label">Logged in as</div>
+                    <div class="user-info-value" id="userNameDisplay">User</div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()"><span>🚪</span> Logout</button>
+            </div>
+        </div>
+        <div class="main">
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <div class="page-title">📄 Invoices</div>
+                </div>
+                <div class="top-bar-right">
+                    <button class="btn btn-primary" onclick="openInvoiceGenerator()"><span>➕</span> New Invoice</button>
+                    <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+            <div class="content">
+                <div id="loadingState" class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading invoices...</div>
+                </div>
+                <div id="contentArea" style="display: none;">
+                    <div class="section">
+                        <div class="section-title">All Invoices</div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Invoice #</th>
+                                        <th>Customer</th>
+                                        <th>Date</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Payment</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoicesTableBody">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 40px;">No invoices found</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let supabase;
+
+        async function initializeInvoices() {
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            try {
+                const userData = JSON.parse(user);
+                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+            try {
+                supabase = await getSupabaseClient();
+                await loadInvoices();
+            } catch (error) {
+                console.error('Error initializing invoices:', error);
+                document.getElementById('loadingState').innerHTML = `<div style="color: #e74c3c;">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function loadInvoices() {
+            try {
+                const { data: invoices, error } = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                const { data: customers } = await supabase
+                    .from('customers')
+                    .select('*');
+                const tbody = document.getElementById('invoicesTableBody');
+                if (!invoices || invoices.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px;">No invoices found</td></tr>';
+                } else {
+                    tbody.innerHTML = invoices.map(invoice => {
+                        const customer = customers?.find(c => c.id === invoice.customer_id);
+                        const date = new Date(invoice.created_at).toLocaleDateString('en-IN');
+                        return `
+                            <tr>
+                                <td>${invoice.invoice_number}</td>
+                                <td>${customer?.full_name || '-'}</td>
+                                <td>${date}</td>
+                                <td>₹${(invoice.total_amount || 0).toLocaleString('en-IN')}</td>
+                                <td><span class="status-badge status-${invoice.invoice_status || 'pending'}">${invoice.invoice_status || 'pending'}</span></td>
+                                <td><span class="status-badge status-${invoice.payment_status || 'unpaid'}">${invoice.payment_status || 'unpaid'}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="viewInvoice('${invoice.id}')">View</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('contentArea').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                document.getElementById('loadingState').innerHTML = `<div style="color: #e74c3c;">Error loading invoices: ${error.message}</div>`;
+            }
+        }
+
+        function openInvoiceGenerator() {
+            alert('Invoice generator - Full feature coming soon!');
+        }
+
+        function viewInvoice(invoiceId) {
+            alert('View invoice: ' + invoiceId);
+        }
+
+        function logout() {
+            localStorage.removeItem('dreamHarbourUser');
+            localStorage.removeItem('dreamHarbourLoginTime');
+            window.location.href = 'index.html';
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeInvoices);
+        } else {
+            initializeInvoices();
+        }
+    </script>
+</body>
+</html>
