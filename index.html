@@ -1,4 +1,4 @@
-<!-- Dream Harbour - Modern Login Design (Same Supabase Flow) -->
+<!-- Dream Harbour - Modern Login Design (Centralized Supabase Init) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -253,141 +253,138 @@
         <div id="success" class="message success"></div>
     </div>
 
+    <!-- Load centralized Supabase init module FIRST -->
+    <script src="supabase-init.js"></script>
+    
+    <!-- Then load the Supabase CDN -->
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
         const DEBUG = true;
-        let supabase = null;
 
-        function initializeApp() {
-            console.log('✅ Initializing application...');
+        async function handleLogin(event) {
+            event.preventDefault();
+            console.log('🔐 Login attempt started');
 
-            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
-                console.log('⏳ Supabase not yet loaded, retrying...');
-                setTimeout(initializeApp, 100);
+            const phone = document.getElementById('phone').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+            const errorEl = document.getElementById('error');
+            const successEl = document.getElementById('success');
+            const infoEl = document.getElementById('info');
+            const submitBtn = document.querySelector('button[type="submit"]');
+
+            errorEl.textContent = '';
+            errorEl.classList.remove('show');
+            successEl.textContent = '';
+            successEl.classList.remove('show');
+            infoEl.textContent = '';
+            infoEl.classList.remove('show');
+
+            if (!phone || phone.length !== 10) {
+                const msg = 'Please enter a valid 10-digit phone number';
+                console.error(msg);
+                errorEl.textContent = msg;
+                errorEl.classList.add('show');
                 return;
             }
 
-            console.log('✅ Supabase library loaded successfully');
+            if (!pin || pin.length !== 6) {
+                const msg = 'Please enter a valid 6-digit PIN';
+                console.error(msg);
+                errorEl.textContent = msg;
+                errorEl.classList.add('show');
+                return;
+            }
 
-            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-            
-            console.log(`🔗 Connecting to Supabase: ${SUPABASE_URL}`);
-            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+            console.log(`📱 Attempting login with phone: ${phone}`);
+
             try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase client created successfully');
-                document.getElementById('info').textContent = '✅ Ready to login.';
-                document.getElementById('info').classList.add('show');
-            } catch (error) {
-                console.error(`❌ Failed to create Supabase client: ${error.message}`);
-                document.getElementById('error').textContent = '❌ Failed to initialize. See console for details.';
-                document.getElementById('error').classList.add('show');
-                return;
-            }
-
-            window.handleLogin = async function(event) {
-                event.preventDefault();
-                console.log('🔐 Login attempt started');
-
-                const phone = document.getElementById('phone').value.trim();
-                const pin = document.getElementById('pin').value.trim();
-                const errorEl = document.getElementById('error');
-                const successEl = document.getElementById('success');
-                const infoEl = document.getElementById('info');
-                const submitBtn = document.querySelector('button[type="submit"]');
-
-                errorEl.textContent = '';
-                errorEl.classList.remove('show');
-                successEl.textContent = '';
-                successEl.classList.remove('show');
-                infoEl.textContent = '';
-                infoEl.classList.remove('show');
-
-                if (!phone || phone.length !== 10) {
-                    const msg = 'Please enter a valid 10-digit phone number';
-                    console.error(msg);
-                    errorEl.textContent = msg;
-                    errorEl.classList.add('show');
-                    return;
+                // Get Supabase client using centralized init
+                console.log('⏳ Waiting for Supabase to be ready...');
+                const supabase = await getSupabaseClient();
+                
+                if (!supabase) {
+                    throw new Error('Failed to initialize Supabase');
                 }
 
-                if (!pin || pin.length !== 6) {
-                    const msg = 'Please enter a valid 6-digit PIN';
-                    console.error(msg);
-                    errorEl.textContent = msg;
-                    errorEl.classList.add('show');
-                    return;
-                }
+                console.log('📊 Querying users table...');
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('id, phone_number, full_name, role, is_active')
+                    .eq('phone_number', phone)
+                    .eq('pin', pin)
+                    .eq('is_active', true)
+                    .single();
 
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Logging in...';
-                console.log(`📱 Attempting login with phone: ${phone}`);
-
-                try {
-                    console.log('📊 Querying users table...');
-                    const { data, error } = await supabase
-                        .from('users')
-                        .select('id, phone_number, full_name, role, is_active')
-                        .eq('phone_number', phone)
-                        .eq('pin', pin)
-                        .eq('is_active', true)
-                        .single();
-
-                    if (error) {
-                        console.error(`❌ Supabase query error: ${JSON.stringify(error)}`);
-                        errorEl.textContent = `❌ Database error: ${error.message}\n\nPlease check:\n1. Users table exists\n2. Test user exists with this phone/PIN\n3. Supabase credentials are correct`;
-                        errorEl.classList.add('show');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Login';
-                        return;
-                    }
-
-                    if (!data) {
-                        console.error('❌ No user found with provided credentials');
-                        errorEl.textContent = '❌ Invalid phone number or PIN. Please try again.\n\nIf you just created the user, make sure:\n- Phone number is correct (10 digits)\n- PIN is correct (6 digits)\n- is_active field is TRUE';
-                        errorEl.classList.add('show');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Login';
-                        return;
-                    }
-
-                    console.log(`✅ User found: ${data.full_name}`);
-
-                    const userData = {
-                        id: data.id,
-                        phoneNumber: data.phone_number,
-                        fullName: data.full_name,
-                        role: data.role,
-                        loginTime: Date.now()
-                    };
-
-                    localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
-                    localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
-                    console.log('💾 User data saved to localStorage');
-
-                    successEl.textContent = '✅ Login successful! Redirecting to dashboard...';
-                    successEl.classList.add('show');
-
-                    setTimeout(() => {
-                        console.log('🔄 Redirecting to dashboard');
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-
-                } catch (error) {
-                    console.error(`❌ Unexpected error: ${error.message}\n${error.stack}`);
-                    errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the console for details.`;
+                if (error) {
+                    console.error(`❌ Supabase query error: ${JSON.stringify(error)}`);
+                    errorEl.textContent = `❌ Database error: ${error.message}\n\nPlease check:\n1. Users table exists\n2. Test user exists with this phone/PIN\n3. Supabase credentials are correct`;
                     errorEl.classList.add('show');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Login';
+                    return;
                 }
+
+                if (!data) {
+                    console.error('❌ No user found with provided credentials');
+                    errorEl.textContent = '❌ Invalid phone number or PIN. Please try again.\n\nIf you just created the user, make sure:\n- Phone number is correct (10 digits)\n- PIN is correct (6 digits)\n- is_active field is TRUE';
+                    errorEl.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Login';
+                    return;
+                }
+
+                console.log(`✅ User found: ${data.full_name}`);
+
+                const userData = {
+                    id: data.id,
+                    phoneNumber: data.phone_number,
+                    fullName: data.full_name,
+                    role: data.role,
+                    loginTime: Date.now()
+                };
+
+                localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
+                localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
+                console.log('💾 User data saved to localStorage');
+
+                successEl.textContent = '✅ Login successful! Redirecting to dashboard...';
+                successEl.classList.add('show');
+
+                setTimeout(() => {
+                    console.log('🔄 Redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error(`❌ Unexpected error: ${error.message}\n${error.stack}`);
+                errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the console for details.`;
+                errorEl.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
             }
         }
 
+        // Show info message when ready
+        async function showReadyMessage() {
+            console.log('⏳ Waiting for Supabase to be ready...');
+            const supabase = await getSupabaseClient();
+            if (supabase) {
+                document.getElementById('info').textContent = '✅ Ready to login.';
+                document.getElementById('info').classList.add('show');
+            } else {
+                document.getElementById('error').textContent = '❌ Failed to initialize Supabase';
+                document.getElementById('error').classList.add('show');
+            }
+        }
+
+        // Initialize when page loads
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
+            document.addEventListener('DOMContentLoaded', showReadyMessage);
         } else {
-            initializeApp();
+            showReadyMessage();
         }
     </script>
 </body>
