@@ -9,7 +9,6 @@
     <meta name="description" content="Dream Harbour - Professional Invoice Management System">
     <meta name="theme-color" content="#667eea">
     <title>Dream Harbour - Dashboard</title>
-    <script src="supabase-init.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🏛️</text></svg>">
     <style>
         * {
@@ -692,7 +691,7 @@
     </div>
 
     <script>
-        // DO NOT DECLARE 'let supabase' HERE - It's provided globally by supabase-init.js
+        let supabase = null;
         let sessionTimeRemaining = 1800;
         let revenueChart = null;
         let statusChart = null;
@@ -802,12 +801,12 @@
             }
 
             log('📦 Loading required libraries...', 'info');
-            const supabaseLoaded = await loadSupabaseLibrary();
+            const supabbaseLoaded = await loadSupabaseLibrary();
             await loadChartsLibrary();
 
             updateSessionDisplay();
 
-            if (!supabaseLoaded) {
+            if (!supabbaseLoaded) {
                 log('⚠️ Supabase not loaded, using fallback', 'warning');
                 loadFallbackData();
                 startSessionTimer();
@@ -819,11 +818,15 @@
 
             try {
                 const sb = window.supabase || window.supabaseJs;
-                if (!sb || !sb.createClient) {
-                    throw new Error('Supabase UMD client not found');
-                }
 
-                supabase = sb.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+if (!sb || !sb.createClient) {
+    throw new Error('Supabase UMD client not found');
+}
+
+supabase = sb.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
                 log('✅ Supabase initialized successfully', 'success');
                 startSessionTimer();
                 log('📥 Loading dashboard data...', 'info');
