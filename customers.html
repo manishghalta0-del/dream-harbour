@@ -7,11 +7,763 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Dream Harbour - Customers</title>
-    <!-- ... (rest of your HEAD unchanged for brevity) ... -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --info: #0891b2;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .toolbar {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .search-group {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .form-control {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .table-wrapper {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .customer-code-badge {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .interaction-count {
+            background: var(--info);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-md);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert.success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .alert.warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-label.required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 0.25rem;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 1.5rem;
+            gap: 0;
+        }
+
+        .tab-btn {
+            padding: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .note-item,
+        .activity-item,
+        .service-card {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .note-type {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            border-left: 4px solid var(--info);
+        }
+
+        .activity-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--info);
+            border-radius: 50%;
+            margin-top: 0.375rem;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-type {
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: capitalize;
+        }
+
+        .activity-time {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .service-card {
+            border-left-color: var(--success);
+        }
+
+        .service-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-card-name {
+            font-weight: 600;
+        }
+
+        .btn-remove-service {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-remove-service:hover {
+            background: #b91c1c;
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-list.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .autocomplete-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .loading-state {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .service-search-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-group {
+                flex-direction: column;
+            }
+
+            .search-group input,
+            .search-group select {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-height: 95vh;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- (ALL YOUR EXISTING HTML STRUCTURE ABOVE IS UNCHANGED) -->
+    <!-- HEADER -->
+    <div class="header">
+        <h1>👥 Customers</h1>
+        <div class="header-actions">
+            <div class="user-info">
+                <span>👤</span>
+                <span id="userNameDisplay">User</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+        </div>
+    </div>
 
+    <!-- ALERT CONTAINER -->
+    <div id="alertContainer" class="alert-container"></div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+            <div class="search-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by code, name, email, mobile..." onkeyup="filterCustomers()">
+                <select id="statusFilter" class="form-control" onchange="filterCustomers()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="openAddCustomerModal()">➕ Add Customer</button>
+            <button class="btn btn-secondary" onclick="downloadExcel()">📥 Export Excel</button>
+        </div>
+
+        <!-- LOADING STATE -->
+        <div id="loadingState" class="loading-state">
+            <div class="spinner"></div>
+            <p style="margin-top: 1rem; color: var(--text-secondary);">Loading customers...</p>
+        </div>
+
+        <!-- TABLE STATE -->
+        <div id="tableState" class="table-wrapper" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Mobile</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Last Activity</th>
+                        <th>Interactions</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- EMPTY STATE -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📭</div>
+            <h3>No Customers Found</h3>
+            <p>Start by adding your first customer</p>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openAddCustomerModal()">➕ Add Customer</button>
+        </div>
+    </div>
+
+    <!-- CUSTOMER MODAL -->
+    <div id="customerModal" class="modal">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title">➕ Add Customer</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Modal Alert Container -->
+                <div id="modalAlertContainer" class="alert-container" style="position: static; top: auto; right: auto; margin-bottom: 1rem;"></div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('details', event)">📋 Details</button>
+                    <button class="tab-btn" onclick="switchTab('services', event)">📦 Services</button>
+                    <button class="tab-btn" onclick="switchTab('notes', event)">📝 Notes</button>
+                    <button class="tab-btn" onclick="switchTab('activity', event)">📊 Activity</button>
+                </div>
+
+                <!-- Details Tab -->
+                <div id="details" class="tab-content active">
+                    <div class="form-group">
+                        <label class="form-label required">Full Name</label>
+                        <input type="text" id="customerName" class="form-control" placeholder="Enter customer name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Email</label>
+                        <input type="email" id="customerEmail" class="form-control" placeholder="Enter email address">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Mobile No</label>
+                        <input type="tel" id="customerMobileNo" class="form-control" placeholder="Enter 10-digit mobile number">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" id="customerCompany" class="form-control" placeholder="Enter company name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <input type="text" id="customerAddress" class="form-control" placeholder="Enter address">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">GSTIN</label>
+                        <input type="text" id="customerGstin" class="form-control" placeholder="Enter GSTIN">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select id="customerStatus" class="form-control">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Services Tab -->
+                <div id="services" class="tab-content">
+                    <div class="service-search-group">
+                        <label class="form-label">Search Services</label>
+                        <input type="text" id="serviceSearchInput" class="form-control" placeholder="Search services..." oninput="searchServicesForCustomer()">
+                        <div id="serviceAutoComplete" class="autocomplete-list"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="addServiceToCustomer()" style="margin-bottom: 1.5rem;">Add Service</button>
+                    <div id="customerServicesList">
+                        <p style="color: var(--text-secondary);">No services added yet</p>
+                    </div>
+                </div>
+
+                <!-- Notes Tab -->
+                <div id="notes" class="tab-content">
+                    <div class="form-group">
+                        <label class="form-label">Note Type</label>
+                        <select id="noteType" class="form-control">
+                            <option value="general">General</option>
+                            <option value="follow_up">Follow Up</option>
+                            <option value="issue">Issue</option>
+                            <option value="feedback">Feedback</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Note Text</label>
+                        <textarea id="noteText" class="form-control" rows="4" placeholder="Enter your note here..."></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="addNote()" style="margin-bottom: 1.5rem;">Add Note</button>
+                    <div id="notesList">
+                        <p style="color: var(--text-secondary);">No notes yet</p>
+                    </div>
+                </div>
+
+                <!-- Activity Tab -->
+                <div id="activity" class="tab-content">
+                    <div id="activityList">
+                        <p style="color: var(--text-secondary);">No activities yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCustomer()">Save Customer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -44,7 +796,10 @@
 
             try {
                 const userData = JSON.parse(user);
-                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+                const userDisplay = document.getElementById('userNameDisplay');
+                if (userDisplay) {
+                    userDisplay.textContent = userData.fullName || 'User';
+                }
             } catch (e) {
                 console.error('Error parsing user data:', e);
             }
@@ -61,6 +816,8 @@
 
         function showAlert(message, type = 'info', isModal = false) {
             const container = isModal ? document.getElementById('modalAlertContainer') : document.getElementById('alertContainer');
+            if (!container) return;
+            
             const alertId = 'alert-' + Date.now();
             const alertDiv = document.createElement('div');
             alertDiv.id = alertId;
@@ -118,7 +875,10 @@
                 console.error('Error loading customers:', error);
                 showAlert('Error loading customers: ' + error.message, 'error', false);
             } finally {
-                document.getElementById('loadingState').style.display = 'none';
+                const loadingState = document.getElementById('loadingState');
+                if (loadingState) {
+                    loadingState.style.display = 'none';
+                }
             }
         }
 
@@ -168,6 +928,8 @@
             const tableBody = document.getElementById('tableBody');
             const tableState = document.getElementById('tableState');
             const emptyState = document.getElementById('emptyState');
+
+            if (!tableBody || !tableState || !emptyState) return;
 
             if (filteredCustomers.length === 0) {
                 tableState.style.display = 'none';
@@ -228,7 +990,10 @@
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
 
-            document.getElementById(tabName).classList.add('active');
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
             if (evt && evt.target) evt.target.classList.add('active');
 
             if (tabName === 'services' && editingCustomerId) {
@@ -258,6 +1023,8 @@
 
         function renderNotes() {
             const notesList = document.getElementById('notesList');
+            if (!notesList) return;
+
             if (currentCustomerNotes.length === 0) {
                 notesList.innerHTML = '<p style="color: var(--text-secondary);">No notes yet</p>';
                 return;
@@ -323,6 +1090,8 @@
 
         function renderActivities() {
             const activityList = document.getElementById('activityList');
+            if (!activityList) return;
+
             if (currentCustomerActivities.length === 0) {
                 activityList.innerHTML = '<p style="color: var(--text-secondary);">No activities yet</p>';
                 return;
@@ -370,6 +1139,8 @@
             const searchTerm = document.getElementById('serviceSearchInput').value.trim();
             const autocompleteList = document.getElementById('serviceAutoComplete');
 
+            if (!autocompleteList) return;
+
             if (!searchTerm || searchTerm.length < 1) {
                 autocompleteList.classList.remove('show');
                 return;
@@ -399,7 +1170,10 @@
             if (index < 0 || index >= serviceSearchResults.length) return;
             selectedService = serviceSearchResults[index];
             document.getElementById('serviceSearchInput').value = selectedService.service_name;
-            document.getElementById('serviceAutoComplete').classList.remove('show');
+            const autocompleteList = document.getElementById('serviceAutoComplete');
+            if (autocompleteList) {
+                autocompleteList.classList.remove('show');
+            }
         }
 
         async function addServiceToCustomer() {
@@ -459,6 +1233,8 @@
 
         function renderCustomerServices() {
             const list = document.getElementById('customerServicesList');
+            if (!list) return;
+
             if (currentCustomerServices.length === 0) {
                 list.innerHTML = '<p style="color: var(--text-secondary);">No services added yet</p>';
                 return;
@@ -499,10 +1275,16 @@
             currentCustomerNotes = [];
             currentCustomerActivities = [];
             currentCustomerServices = [];
-            document.getElementById('modalTitle').textContent = '➕ Add Customer';
+            const modalTitle = document.getElementById('modalTitle');
+            if (modalTitle) {
+                modalTitle.textContent = '➕ Add Customer';
+            }
             clearCustomerForm();
             switchTab('details');
-            document.getElementById('customerModal').style.display = 'block';
+            const modal = document.getElementById('customerModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
         }
 
         function clearCustomerForm() {
@@ -525,7 +1307,10 @@
             const customer = allCustomers.find(c => c.id === customerId);
             if (!customer) return;
             editingCustomerId = customerId;
-            document.getElementById('modalTitle').textContent = '✏️ Edit Customer';
+            const modalTitle = document.getElementById('modalTitle');
+            if (modalTitle) {
+                modalTitle.textContent = '✏️ Edit Customer';
+            }
             document.getElementById('customerName').value = customer.full_name || '';
             document.getElementById('customerEmail').value = customer.email || '';
             document.getElementById('customerMobileNo').value = customer.mobile_no || '';
@@ -534,7 +1319,10 @@
             document.getElementById('customerGstin').value = customer.gstin || '';
             document.getElementById('customerStatus').value = customer.status || 'active';
             switchTab('details');
-            document.getElementById('customerModal').style.display = 'block';
+            const modal = document.getElementById('customerModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
             await loadCustomerNotes();
             await loadCustomerActivities();
             await loadCustomerServicesForEdit();
@@ -655,7 +1443,10 @@
         }
 
         function closeModal() {
-            document.getElementById('customerModal').style.display = 'none';
+            const modal = document.getElementById('customerModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
         }
 
         function logout() {
@@ -667,8 +1458,10 @@
         window.onclick = function(event) {
             const modal = document.getElementById('customerModal');
             const serviceAutocomplete = document.getElementById('serviceAutoComplete');
-            if (event.target === modal) modal.style.display = 'none';
-            if (!event.target.closest('.form-group') && !event.target.matches('#serviceSearchInput')) {
+            if (modal && event.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (serviceAutocomplete && !event.target.closest('.form-group') && !event.target.matches('#serviceSearchInput')) {
                 serviceAutocomplete.classList.remove('show');
             }
         };
