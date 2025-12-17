@@ -5,12 +5,33 @@ let supabase = null;
 let currentUser = null;
 let sessionTimer = null;
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes (increased from 5 for better UX)
+let supabaseInitialized = false;
 
 // ==================== SUPABASE INITIALIZATION ====================
 async function initSupabase() {
+    // Prevent multiple initialization attempts
+    if (supabaseInitialized) {
+        return Promise.resolve(supabase);
+    }
+
+    // Check if Supabase library is available
     if (typeof window.supabase === 'undefined') {
-        setTimeout(initSupabase, 100);
-        return;
+        console.log('⏳ Supabase library not yet loaded, retrying in 200ms...');
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(initSupabase());
+            }, 200);
+        });
+    }
+
+    // Check if createClient method exists
+    if (typeof window.supabase.createClient !== 'function') {
+        console.log('⏳ Supabase createClient not yet available, retrying in 200ms...');
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(initSupabase());
+            }, 200);
+        });
     }
     
     try {
@@ -18,6 +39,7 @@ async function initSupabase() {
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk2NzAxODUsImV4cCI6MjA0NTI0NjE4NX0.E9Z-6DH7V-eVaM3_J0Kj8xzH6Py5W_Y_K8L9M0N1O2P';
         
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseInitialized = true;
         console.log('✅ Supabase initialized successfully');
         
         // Check if user already logged in
@@ -25,8 +47,17 @@ async function initSupabase() {
         if (savedUser) {
             startSessionTimer();
         }
+        
+        return supabase;
     } catch (error) {
         console.error(`❌ Supabase init error: ${error.message}`);
+        supabaseInitialized = false;
+        // Retry on error
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(initSupabase());
+            }, 500);
+        });
     }
 }
 
@@ -63,6 +94,9 @@ function startSessionTimer() {
 // ==================== SUPABASE QUERIES ====================
 async function loginUser(phone, pin) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('users')
             .select('*')
@@ -84,6 +118,9 @@ async function loginUser(phone, pin) {
 
 async function fetchCategories() {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('service_categories')
             .select('*')
@@ -100,6 +137,9 @@ async function fetchCategories() {
 
 async function fetchServicesByCategory(categoryId) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('service_items')
             .select('*')
@@ -118,6 +158,9 @@ async function fetchServicesByCategory(categoryId) {
 
 async function fetchSubServices(serviceId) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('service_sub_items')
             .select('*')
@@ -135,6 +178,9 @@ async function fetchSubServices(serviceId) {
 
 async function fetchBusinessSettings() {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('business_settings')
             .select('*')
@@ -151,6 +197,9 @@ async function fetchBusinessSettings() {
 
 async function fetchInvoices(limit = 10) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('invoices')
             .select('*')
@@ -167,6 +216,9 @@ async function fetchInvoices(limit = 10) {
 
 async function fetchCustomers() {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('customers')
             .select('*')
@@ -182,6 +234,9 @@ async function fetchCustomers() {
 
 async function saveInvoice(invoiceData) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('invoices')
             .insert([invoiceData])
@@ -198,6 +253,9 @@ async function saveInvoice(invoiceData) {
 
 async function saveInvoiceItems(items) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('invoice_items')
             .insert(items)
@@ -214,6 +272,9 @@ async function saveInvoiceItems(items) {
 
 async function updateBusinessSettings(settings) {
     try {
+        // Ensure Supabase is initialized
+        await initSupabase();
+        
         const { data, error } = await supabase
             .from('business_settings')
             .upsert([settings]);
@@ -275,7 +336,11 @@ function formatDate(date) {
 
 // Initialize Supabase on DOM load
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSupabase);
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('📄 DOM content loaded, initializing Supabase...');
+        initSupabase();
+    });
 } else {
+    console.log('📄 DOM already loaded, initializing Supabase...');
     initSupabase();
 }
