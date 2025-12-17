@@ -254,36 +254,42 @@
         <div id="success" class="message success"></div>
     </div>
 
-    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- NOTE: Supabase library is loaded by supabase-init.js, NO duplicate script tag needed here -->
     <script>
         // NOTE: 'supabase' is provided globally by supabase-init.js
-        // DO NOT declare 'let supabase = null;' here
-        const DEBUG = true;
-
-        function initializeApp() {
-            console.log('✅ Initializing application...');
-
-            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
-                console.log('⏳ Supabase not yet loaded, retrying...');
-                setTimeout(initializeApp, 100);
-                return;
+        // Wait for it to be initialized
+        
+        async function waitForSupabase() {
+            // Wait for supabase-init.js to initialize
+            let attempts = 0;
+            while (attempts < 50) {
+                if (typeof getSupabaseClient === 'function') {
+                    try {
+                        const client = await getSupabaseClient();
+                        if (client) {
+                            console.log('✅ Supabase client ready from supabase-init.js');
+                            document.getElementById('info').textContent = '✅ Ready to login.';
+                            document.getElementById('info').classList.add('show');
+                            return client;
+                        }
+                    } catch (e) {
+                        console.error('Error getting Supabase client:', e);
+                    }
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
             }
+            throw new Error('Supabase initialization timeout');
+        }
 
-            console.log('✅ Supabase library loaded successfully');
+        async function initializeApp() {
+            console.log('✅ Initializing login page...');
 
-            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-            
-            console.log(`🔗 Connecting to Supabase: ${SUPABASE_URL}`);
-            
             try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase client created successfully');
-                document.getElementById('info').textContent = '✅ Ready to login.';
-                document.getElementById('info').classList.add('show');
+                await waitForSupabase();
             } catch (error) {
-                console.error(`❌ Failed to create Supabase client: ${error.message}`);
-                document.getElementById('error').textContent = '❌ Failed to initialize. See console for details.';
+                console.error('❌ Failed to initialize:', error);
+                document.getElementById('error').textContent = '❌ Failed to initialize. Please refresh the page.';
                 document.getElementById('error').classList.add('show');
                 return;
             }
@@ -327,7 +333,9 @@
                 console.log(`📱 Attempting login with phone: ${phone}`);
 
                 try {
+                    const supabase = await getSupabaseClient();
                     console.log('📊 Querying users table...');
+                    
                     const { data, error } = await supabase
                         .from('users')
                         .select('id, phone_number, full_name, role, is_active')
