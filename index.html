@@ -256,8 +256,9 @@
 
     <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // NOTE: 'supabase' is provided globally by supabase-init.js
+        // DO NOT declare 'let supabase = null;' here
         const DEBUG = true;
-        let supabase = null;
 
         function initializeApp() {
             console.log('✅ Initializing application...');
