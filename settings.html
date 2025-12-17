@@ -2,20 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Dream Harbour - Settings">
-    <meta name="theme-color" content="#667eea">
     <title>Dream Harbour - Settings</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🏛️</text></svg>">
-    
-    <!-- Centralized Supabase Initialization Module -->
-    <script src="supabase-init.js"></script>
-    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --primary-color: #667eea;
             --primary-dark: #5568d3;
@@ -26,218 +24,1305 @@
             --border-color: #e0e0e0;
             --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
             --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
         }
-        html { overflow: hidden; height: 100%; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--light-bg); color: var(--text-primary); overflow: hidden; height: 100%; }
-        .container { display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: var(--white); padding: 25px 20px; position: fixed; height: 100vh; width: 260px; overflow-y: auto; z-index: 100; top: 0; left: 0; box-shadow: var(--shadow-md); }
-        .sidebar::-webkit-scrollbar { width: 6px; }
-        .sidebar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-        .sidebar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
-        .sidebar-header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-        .sidebar-logo { font-size: 40px; margin-bottom: 10px; }
-        .sidebar-title { font-size: 18px; font-weight: 700; letter-spacing: 0.5px; }
-        .sidebar-subtitle { font-size: 11px; opacity: 0.7; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-section { margin-bottom: 25px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.8); text-decoration: none; padding: 12px 15px; margin-bottom: 6px; border-radius: 8px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14px; font-weight: 500; }
-        .nav-link:hover { background: rgba(255, 255, 255, 0.15); color: var(--white); transform: translateX(4px); }
-        .nav-link.active { background: var(--primary-color); color: var(--white); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
-        .nav-link span { font-size: 18px; }
-        .sidebar-footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
-        .user-info { background: rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; }
-        .user-info-label { opacity: 0.7; margin-bottom: 5px; }
-        .user-info-value { font-weight: 600; word-break: break-word; }
-        .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; height: 100vh; background: var(--light-bg); overflow: hidden; }
-        .top-bar { background: var(--white); padding: 16px 25px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; flex-shrink: 0; }
-        .top-bar-left { display: flex; align-items: center; gap: 15px; }
-        .page-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
-        .top-bar-right { display: flex; align-items: center; gap: 15px; }
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .btn-primary { background: var(--primary-color); color: var(--white); box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3); }
-        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
-        .btn-secondary { background: var(--light-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
-        .btn-secondary:hover { background: var(--white); border-color: var(--primary-color); color: var(--primary-color); }
-        .btn-danger { background: var(--danger-color); color: var(--white); }
-        .btn-danger:hover { background: #c0392b; transform: translateY(-2px); }
-        .btn-sm { padding: 8px 14px; font-size: 12px; }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .content { flex: 1; padding: 25px; overflow-y: auto; overflow-x: hidden; }
-        .content::-webkit-scrollbar { width: 8px; }
-        .content::-webkit-scrollbar-track { background: transparent; }
-        .content::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
-        .section { margin-bottom: 30px; background: var(--white); padding: 20px; border-radius: 8px; box-shadow: var(--shadow-sm); }
-        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: var(--text-primary); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: var(--text-primary); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 13px; font-family: inherit; transition: border-color 0.3s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-        .loading { text-align: center; padding: 40px; color: #999; }
-        .spinner { display: inline-block; width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .success-message { background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-bottom: 15px; display: none; }
+
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .settings-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: var(--white);
+            padding: 25px 20px;
+            position: fixed;
+            height: 100vh;
+            width: 260px;
+            overflow-y: auto;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link span {
+            font-size: 18px;
+        }
+
+        .sidebar-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .user-info-label {
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .user-info-value {
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--light-bg);
+            overflow: hidden;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 16px 25px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            background: var(--white);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: var(--shadow-sm);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: -13px;
+        }
+
+        .content {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .content h2 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .category-list {
+            margin-top: 20px;
+        }
+
+        .category-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .category-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .category-count {
+            font-size: 12px;
+            color: #999;
+            margin-right: 10px;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+
+        .service-card {
+            background: white;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .service-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .service-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .service-actions button {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .sub-service {
+            background: #f0f0f0;
+            padding: 8px 12px;
+            margin-top: 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .sub-service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .sub-service-name {
+            font-weight: 500;
+        }
+
+        .sub-service-meta {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .add-btn-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .section-divider {
+            border-top: 2px solid #e0e0e0;
+            margin: 30px 0;
+            padding-top: 20px;
+        }
+
+        .section-divider h2 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            display: inline-block;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #1565c0;
+        }
+
         @media (max-width: 1024px) {
-            .container { display: block; }
-            .sidebar { position: relative; width: 100%; height: auto; }
-            .main { margin-left: 0; height: auto; }
+            .settings-container {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                height: auto;
+            }
+
+            .content-area {
+                max-width: 100%;
+            }
         }
+
         @media (max-width: 768px) {
-            .top-bar { padding: 12px 15px; }
-            .content { padding: 15px; }
-            .form-row { grid-template-columns: 1fr; }
+            .topbar {
+                padding: 12px 15px;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="settings-container">
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">🏛️</div>
                 <div class="sidebar-title">Dream Harbour</div>
                 <div class="sidebar-subtitle">Invoice Manager</div>
             </div>
+
             <div class="nav-section">
-                <a href="dashboard.html" class="nav-link"><span>📊</span> Dashboard</a>
-                <a href="invoices.html" class="nav-link"><span>📄</span> Invoices</a>
-                <a href="customers.html" class="nav-link"><span>👥</span> Customers</a>
-                <a href="settings.html" class="nav-link active"><span>⚙️</span> Settings</a>
+                <a href="dashboard.html" class="nav-link">
+                    <span>📊</span> Overview
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <span>📄</span> Invoices
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <span>👥</span> Customers
+                </a>
+                <a href="settings.html" class="nav-link active">
+                    <span>⚙️</span> Settings
+                </a>
             </div>
+
             <div class="sidebar-footer">
                 <div class="user-info">
                     <div class="user-info-label">Logged in as</div>
                     <div class="user-info-value" id="userNameDisplay">User</div>
                 </div>
-                <button class="btn btn-danger" style="width: 100%;" onclick="logout()"><span>🚪</span> Logout</button>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()">
+                    <span>🚪</span> Logout
+                </button>
             </div>
         </div>
-        <div class="main">
-            <div class="top-bar">
-                <div class="top-bar-left">
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
                     <div class="page-title">⚙️ Settings</div>
                 </div>
-                <div class="top-bar-right">
+
+                <div class="topbar-right">
                     <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
                 </div>
             </div>
-            <div class="content">
-                <div id="loadingState" class="loading">
-                    <div class="spinner"></div>
-                    <div>Loading settings...</div>
+
+            <div class="content-area">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('business')">💼 Business Info</button>
+                    <button class="tab-btn" onclick="switchTab('categories')">📁 Categories & Services</button>
                 </div>
-                <div id="contentArea" style="display: none;">
-                    <div class="success-message" id="successMessage">Settings saved successfully!</div>
-                    <div class="section">
-                        <div class="section-title">Business Settings</div>
-                        <form onsubmit="saveSettings(event)">
+
+                <div id="alertContainer"></div>
+
+                <div class="content">
+                    <!-- Business Info Tab -->
+                    <div id="business" class="tab-content active">
+                        <h1>⚙️ Business Settings</h1>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Manage your business information and tax details</p>
+
+                        <form id="businessForm">
+                            <h2>Business Information</h2>
+                            
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Business Name</label>
-                                    <input type="text" id="businessName" required>
+                                    <label for="businessName">Business Name *</label>
+                                    <input type="text" id="businessName" placeholder="Enter your business name" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>GST Number</label>
-                                    <input type="text" id="gstNumber" placeholder="e.g., 27ABCDE0001F1Z0">
+                                    <label for="gstNumber">GST Number *</label>
+                                    <input type="text" id="gstNumber" placeholder="e.g., 02AVPPG6971N1Z0" required pattern="[0-9A-Z]{15}">
                                 </div>
                             </div>
+
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Email</label>
-                                    <input type="email" id="businessEmail">
+                                    <label for="email">Email Address *</label>
+                                    <input type="email" id="email" placeholder="Enter email address" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Phone</label>
-                                    <input type="tel" id="businessPhone">
+                                    <label for="phone">Phone Number *</label>
+                                    <input type="tel" id="phone" placeholder="Enter phone number" required>
                                 </div>
                             </div>
+
                             <div class="form-group">
-                                <label>Address</label>
-                                <textarea id="businessAddress" rows="3"></textarea>
+                                <label for="address">Address *</label>
+                                <textarea id="address" rows="2" placeholder="Enter full address" required></textarea>
                             </div>
-                            <button type="submit" class="btn btn-primary">Save Settings</button>
+
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label for="city">City *</label>
+                                    <input type="text" id="city" placeholder="Enter city" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="state">State *</label>
+                                    <input type="text" id="state" placeholder="Enter state" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pincode">Pincode *</label>
+                                    <input type="text" id="pincode" placeholder="Enter pincode" required pattern="[0-9]{6}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="defaultGST">Default GST Percentage *</label>
+                                <select id="defaultGST" required>
+                                    <option value="">Select GST %</option>
+                                    <option value="0">0%</option>
+                                    <option value="5">5%</option>
+                                    <option value="12">12%</option>
+                                    <option value="18" selected>18%</option>
+                                    <option value="28">28%</option>
+                                </select>
+                            </div>
+
+                            <!-- Bank Details Section -->
+                            <div class="section-divider">
+                                <h2>🏦 Bank Details (For Invoices)</h2>
+                            </div>
+
+                            <div class="info-box">
+                                💡 <strong>Bank details added here will automatically appear on all your invoice PDFs.</strong>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bankName">Bank Name</label>
+                                    <input type="text" id="bankName" placeholder="e.g., ICICI Bank Limited">
+                                </div>
+                                <div class="form-group">
+                                    <label for="accountHolderName">Account Holder Name</label>
+                                    <input type="text" id="accountHolderName" placeholder="Name on bank account">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="accountNumber">Account Number</label>
+                                    <input type="text" id="accountNumber" placeholder="e.g., 1234567890123456">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ifscCode">IFSC Code</label>
+                                    <input type="text" id="ifscCode" placeholder="e.g., ICIC0000001" maxlength="11" pattern="[A-Z0-9]{11}">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="bankBranch">Bank Branch</label>
+                                    <input type="text" id="bankBranch" placeholder="e.g., Shimla Branch">
+                                </div>
+                                <div class="form-group">
+                                    <label for="upiId">UPI ID</label>
+                                    <input type="text" id="upiId" placeholder="e.g., business@icici">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">💾 Save Business Info</button>
+                            <button type="reset" class="btn btn-secondary">🔄 Reset</button>
                         </form>
+                    </div>
+
+                    <!-- Categories & Services Tab -->
+                    <div id="categories" class="tab-content">
+                        <h1>📁 Service Categories & Items</h1>
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">View and manage all service categories and items</p>
+
+                        <div class="add-btn-section">
+                            <button class="btn btn-primary" onclick="openAddCategoryModal()">➕ Add Category</button>
+                        </div>
+
+                        <div id="categoriesLoading" class="loading">
+                            <div class="spinner"></div>
+                            <div>Loading categories and services...</div>
+                        </div>
+
+                        <div id="categoriesContent" style="display: none;">
+                            <div class="category-list" id="categoryList">
+                                <!-- Categories will be loaded here -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Add Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="categoryModalTitle">➕ Add Category</span>
+                <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="categoryName">Category Name *</label>
+                <input type="text" id="categoryName" placeholder="Enter category name" required>
+            </div>
+            <div class="form-group">
+                <label for="categoryDescription">Description</label>
+                <textarea id="categoryDescription" rows="2" placeholder="Enter category description"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveCategory()">💾 Save</button>
+            <button class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="serviceModalTitle">➕ Add Service</span>
+                <button class="close-btn" onclick="closeModal('serviceModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="serviceName">Service Name *</label>
+                <input type="text" id="serviceName" placeholder="Enter service name" required>
+            </div>
+            <div class="form-group">
+                <label for="serviceSAC">SAC Code</label>
+                <input type="text" id="serviceSAC" placeholder="e.g., 998595" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label for="serviceRate">Default Rate (₹)</label>
+                <input type="number" id="serviceRate" placeholder="Leave blank for custom" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label for="serviceGST">GST %</label>
+                <select id="serviceGST">
+                    <option value="0">0% (No GST)</option>
+                    <option value="5">5%</option>
+                    <option value="12">12%</option>
+                    <option value="18" selected>18%</option>
+                    <option value="28">28%</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="saveService()">💾 Save</button>
+            <button class="btn btn-secondary" onclick="closeModal('serviceModal')">Cancel</button>
+        </div>
+    </div>
+
+    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         let supabase;
+        let currentBusinessId = null;
+        let categoriesData = [];
+        let servicesData = [];
+        let subServicesData = [];
+        let editingCategoryId = null;
+        let editingServiceId = null;
+        let editingCategoryForService = null;
 
-        async function initializeSettings() {
+        // Initialize application
+        function initializeApp() {
+            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
+                setTimeout(initializeApp, 100);
+                return;
+            }
+
             const user = localStorage.getItem('dreamHarbourUser');
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
+
             try {
                 const userData = JSON.parse(user);
-                document.getElementById('userNameDisplay').textContent = userData.fullName || 'User';
+                const userEl = document.getElementById('userNameDisplay');
+                if (userEl) userEl.textContent = userData.fullName || 'User';
             } catch (e) {
                 console.error('Error parsing user data:', e);
             }
-            try {
-                supabase = await getSupabaseClient();
-                await loadSettings();
-            } catch (error) {
-                console.error('Error initializing settings:', error);
-                document.getElementById('loadingState').innerHTML = `<div style="color: #e74c3c;">Error: ${error.message}</div>`;
-            }
+
+            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
+            
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            document.getElementById('businessForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveBusinessInfo();
+            });
+
+            loadBusinessInfo();
+            loadCategoriesAndServices();
         }
 
-        async function loadSettings() {
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertId = 'alert-' + Date.now();
+            alertContainer.innerHTML = `<div id="${alertId}" class="alert ${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                const alertEl = document.getElementById(alertId);
+                if (alertEl) alertEl.remove();
+            }, 5000);
+        }
+
+        async function loadBusinessInfo() {
             try {
-                const { data: user } = await supabase.auth.getUser();
-                const userId = user?.user?.id;
-                if (!userId) throw new Error('User not authenticated');
-                const { data: settings, error } = await supabase
+                // Get ALL business settings
+                const { data: allRecords, error: fetchError } = await supabase
                     .from('business_settings')
                     .select('*')
-                    .eq('user_id', userId)
-                    .single();
-                if (error && error.code !== 'PGRST116') throw error;
-                if (settings) {
-                    document.getElementById('businessName').value = settings.business_name || '';
-                    document.getElementById('gstNumber').value = settings.gst_number || '';
-                    document.getElementById('businessEmail').value = settings.email || '';
-                    document.getElementById('businessPhone').value = settings.phone || '';
-                    document.getElementById('businessAddress').value = settings.address || '';
+                    .order('created_at', { ascending: true });
+
+                if (fetchError) throw fetchError;
+
+                if (allRecords && allRecords.length > 0) {
+                    // Keep the first record, delete all others
+                    currentBusinessId = allRecords[0].id;
+                    
+                    // Delete duplicate records if any
+                    if (allRecords.length > 1) {
+                        const idsToDelete = allRecords.slice(1).map(r => r.id);
+                        for (const id of idsToDelete) {
+                            await supabase.from('business_settings').delete().eq('id', id);
+                        }
+                        console.log('Cleaned up duplicate records');
+                    }
+
+                    // Load the first (and now only) record
+                    const data = allRecords[0];
+                    document.getElementById('businessName').value = data.business_name || '';
+                    document.getElementById('gstNumber').value = data.gst_number || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('phone').value = data.phone || '';
+                    document.getElementById('address').value = data.address || '';
+                    document.getElementById('city').value = data.city || '';
+                    document.getElementById('state').value = data.state || '';
+                    document.getElementById('pincode').value = data.pincode || '';
+                    document.getElementById('defaultGST').value = data.default_gst_percentage || '18';
+                    
+                    // Load bank details
+                    document.getElementById('bankName').value = data.bank_name || '';
+                    document.getElementById('accountHolderName').value = data.account_holder_name || '';
+                    document.getElementById('accountNumber').value = data.account_number || '';
+                    document.getElementById('ifscCode').value = data.ifsc_code || '';
+                    document.getElementById('bankBranch').value = data.bank_branch || '';
+                    document.getElementById('upiId').value = data.upi_id || '';
+                } else {
+                    showAlert('No business info found. Fill in your details and save.', 'info');
+                    currentBusinessId = null;
                 }
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('contentArea').style.display = 'block';
             } catch (error) {
-                console.error('Error loading settings:', error);
-                document.getElementById('loadingState').innerHTML = `<div style="color: #e74c3c;">Error loading settings: ${error.message}</div>`;
+                console.error('Error loading business info:', error);
+                showAlert('Error loading business info: ' + error.message, 'error');
             }
         }
 
-        async function saveSettings(event) {
-            event.preventDefault();
+        async function saveBusinessInfo() {
             try {
-                const { data: user } = await supabase.auth.getUser();
-                const userId = user?.user?.id;
-                if (!userId) throw new Error('User not authenticated');
-                const settingsData = {
-                    user_id: userId,
+                const businessData = {
                     business_name: document.getElementById('businessName').value,
                     gst_number: document.getElementById('gstNumber').value,
-                    email: document.getElementById('businessEmail').value,
-                    phone: document.getElementById('businessPhone').value,
-                    address: document.getElementById('businessAddress').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    pincode: document.getElementById('pincode').value,
+                    default_gst_percentage: parseFloat(document.getElementById('defaultGST').value),
+                    bank_name: document.getElementById('bankName').value || null,
+                    account_holder_name: document.getElementById('accountHolderName').value || null,
+                    account_number: document.getElementById('accountNumber').value || null,
+                    ifsc_code: document.getElementById('ifscCode').value || null,
+                    bank_branch: document.getElementById('bankBranch').value || null,
+                    upi_id: document.getElementById('upiId').value || null
                 };
-                const { error } = await supabase
-                    .from('business_settings')
-                    .upsert([settingsData]);
-                if (error) throw error;
-                document.getElementById('successMessage').style.display = 'block';
-                setTimeout(() => {
-                    document.getElementById('successMessage').style.display = 'none';
-                }, 3000);
+
+                if (currentBusinessId) {
+                    // UPDATE existing record
+                    const { error } = await supabase
+                        .from('business_settings')
+                        .update(businessData)
+                        .eq('id', currentBusinessId);
+
+                    if (error) throw error;
+                    showAlert('✅ Business information updated successfully!', 'success');
+                } else {
+                    // CREATE new record ONLY if none exists
+                    const { data, error } = await supabase
+                        .from('business_settings')
+                        .insert([businessData])
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    currentBusinessId = data.id;
+                    showAlert('✅ Business information saved successfully!', 'success');
+                }
             } catch (error) {
-                alert('Error saving settings: ' + error.message);
+                console.error('Error saving business info:', error);
+                showAlert('Error saving business info: ' + error.message, 'error');
             }
+        }
+
+        async function loadCategoriesAndServices() {
+            try {
+                const { data: categories, error: catError } = await supabase
+                    .from('service_categories')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('display_order', { ascending: true });
+
+                if (catError) throw catError;
+                categoriesData = categories || [];
+
+                const { data: services, error: svcError } = await supabase
+                    .from('service_items')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('display_order', { ascending: true });
+
+                if (svcError) throw svcError;
+                servicesData = services || [];
+
+                const { data: subServices, error: subError } = await supabase
+                    .from('service_sub_items')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('display_order', { ascending: true });
+
+                if (subError) throw subError;
+                subServicesData = subServices || [];
+
+                renderCategoriesAndServices();
+                document.getElementById('categoriesLoading').style.display = 'none';
+                document.getElementById('categoriesContent').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading categories and services:', error);
+                showAlert('Error loading categories and services: ' + error.message, 'error');
+                document.getElementById('categoriesLoading').style.display = 'none';
+            }
+        }
+
+        function renderCategoriesAndServices() {
+            const categoryList = document.getElementById('categoryList');
+            let html = '';
+
+            if (categoriesData.length === 0) {
+                categoryList.innerHTML = '<div class="no-data">No categories found</div>';
+                return;
+            }
+
+            categoriesData.forEach(category => {
+                const categoryServices = servicesData.filter(s => s.category_id === category.id);
+                
+                html += `
+                    <div class="category-card">
+                        <div class="category-header">
+                            <div class="category-name">📁 ${category.category_name}</div>
+                            <div class="category-actions">
+                                <span class="category-count">${categoryServices.length} service(s)</span>
+                                <button class="btn btn-sm btn-primary" onclick="editCategory('${category.id}', '${category.category_name}')" style="margin-right: 5px;">✏️ Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCategory('${category.id}')" style="margin-right: 5px;">🗑️ Delete</button>
+                                <button class="btn btn-sm btn-primary" onclick="openAddServiceModal('${category.id}')">➕ Service</button>
+                            </div>
+                        </div>
+
+                        <div class="service-grid">
+                `;
+
+                categoryServices.forEach(service => {
+                    const subServices = subServicesData.filter(s => s.primary_service_id === service.id);
+                    
+                    html += `
+                        <div class="service-card">
+                            <div class="service-card-header">
+                                <div class="service-name">${service.service_name}</div>
+                            </div>
+                            <div class="service-details">
+                                ${service.sac_code ? `<div>SAC: <strong>${service.sac_code}</strong></div>` : ''}
+                                ${service.default_gst_percentage > 0 ? `<div>GST: <strong>${service.default_gst_percentage}%</strong></div>` : '<div style="color: #999;">No GST</div>'}
+                                ${service.default_rate > 0 ? `<div>Rate: <strong>₹${service.default_rate.toFixed(2)}</strong></div>` : '<div style="color: #999;">Custom Rate</div>'}
+                            </div>
+                            <div class="service-actions">
+                                <button class="btn btn-sm btn-primary" onclick="editService('${service.id}', '${service.category_id}')" style="margin-right: 5px;">✏️ Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteService('${service.id}')">🗑️ Delete</button>
+                            </div>
+
+                            ${subServices.length > 0 ? `
+                                <div class="sub-service">
+                                    <strong style="font-size: 11px;">Sub-services (${subServices.length}):</strong>
+                                    ${subServices.map(sub => `
+                                        <div class="sub-service-item">
+                                            <span class="sub-service-name">${sub.sub_service_name}</span>
+                                            <div class="sub-service-meta">
+                                                ${sub.sac_code ? `<span>SAC: ${sub.sac_code}</span>` : ''}
+                                                ${sub.default_gst_percentage > 0 ? `<span>GST: ${sub.default_gst_percentage}%</span>` : ''}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            categoryList.innerHTML = html;
+        }
+
+        function openAddCategoryModal() {
+            editingCategoryId = null;
+            document.getElementById('categoryModalTitle').textContent = '➕ Add Category';
+            document.getElementById('categoryName').value = '';
+            document.getElementById('categoryDescription').value = '';
+            openModal('categoryModal');
+        }
+
+        function editCategory(categoryId, categoryName) {
+            editingCategoryId = categoryId;
+            document.getElementById('categoryModalTitle').textContent = '✏️ Edit Category';
+            document.getElementById('categoryName').value = categoryName;
+            openModal('categoryModal');
+        }
+
+        async function saveCategory() {
+            try {
+                const categoryName = document.getElementById('categoryName').value;
+                if (!categoryName) {
+                    showAlert('Please enter a category name', 'error');
+                    return;
+                }
+
+                const categoryData = {
+                    category_name: categoryName,
+                    description: document.getElementById('categoryDescription').value || null
+                };
+
+                if (editingCategoryId) {
+                    const { error } = await supabase
+                        .from('service_categories')
+                        .update(categoryData)
+                        .eq('id', editingCategoryId);
+
+                    if (error) throw error;
+                    showAlert('✅ Category updated successfully!', 'success');
+                } else {
+                    const { error } = await supabase
+                        .from('service_categories')
+                        .insert([{ ...categoryData, is_active: true, display_order: 0 }]);
+
+                    if (error) throw error;
+                    showAlert('✅ Category added successfully!', 'success');
+                }
+
+                closeModal('categoryModal');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error saving category:', error);
+                showAlert('Error saving category: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteCategory(categoryId) {
+            if (!confirm('Are you sure you want to delete this category?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('service_categories')
+                    .update({ is_active: false })
+                    .eq('id', categoryId);
+
+                if (error) throw error;
+                showAlert('✅ Category deleted successfully!', 'success');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error deleting category:', error);
+                showAlert('Error deleting category: ' + error.message, 'error');
+            }
+        }
+
+        function openAddServiceModal(categoryId) {
+            editingServiceId = null;
+            editingCategoryForService = categoryId;
+            document.getElementById('serviceModalTitle').textContent = '➕ Add Service';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceSAC').value = '';
+            document.getElementById('serviceRate').value = '';
+            document.getElementById('serviceGST').value = '18';
+            openModal('serviceModal');
+        }
+
+        function editService(serviceId, categoryId) {
+            editingServiceId = serviceId;
+            editingCategoryForService = categoryId;
+            const service = servicesData.find(s => s.id === serviceId);
+            if (!service) return;
+
+            document.getElementById('serviceModalTitle').textContent = '✏️ Edit Service';
+            document.getElementById('serviceName').value = service.service_name || '';
+            document.getElementById('serviceSAC').value = service.sac_code || '';
+            document.getElementById('serviceRate').value = service.default_rate || '';
+            document.getElementById('serviceGST').value = service.default_gst_percentage || '18';
+            openModal('serviceModal');
+        }
+
+        async function saveService() {
+            try {
+                const serviceName = document.getElementById('serviceName').value;
+                if (!serviceName) {
+                    showAlert('Please enter a service name', 'error');
+                    return;
+                }
+
+                const serviceData = {
+                    service_name: serviceName,
+                    sac_code: document.getElementById('serviceSAC').value || null,
+                    default_rate: parseFloat(document.getElementById('serviceRate').value) || 0,
+                    default_gst_percentage: parseFloat(document.getElementById('serviceGST').value) || 0,
+                    category_id: editingCategoryForService
+                };
+
+                if (editingServiceId) {
+                    const { error } = await supabase
+                        .from('service_items')
+                        .update(serviceData)
+                        .eq('id', editingServiceId);
+
+                    if (error) throw error;
+                    showAlert('✅ Service updated successfully!', 'success');
+                } else {
+                    const { error } = await supabase
+                        .from('service_items')
+                        .insert([{ ...serviceData, is_active: true, is_primary_service: true, has_sub_services: false, display_order: 0, is_visible_in_search: true }]);
+
+                    if (error) throw error;
+                    showAlert('✅ Service added successfully!', 'success');
+                }
+
+                closeModal('serviceModal');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error saving service:', error);
+                showAlert('Error saving service: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteService(serviceId) {
+            if (!confirm('Are you sure you want to delete this service?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('service_items')
+                    .update({ is_active: false })
+                    .eq('id', serviceId);
+
+                if (error) throw error;
+                showAlert('✅ Service deleted successfully!', 'success');
+                loadCategoriesAndServices();
+            } catch (error) {
+                console.error('Error deleting service:', error);
+                showAlert('Error deleting service: ' + error.message, 'error');
+            }
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
         }
 
         function logout() {
@@ -246,10 +1331,19 @@
             window.location.href = 'index.html';
         }
 
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeSettings);
+            document.addEventListener('DOMContentLoaded', initializeApp);
         } else {
-            initializeSettings();
+            initializeApp();
         }
     </script>
 </body>
