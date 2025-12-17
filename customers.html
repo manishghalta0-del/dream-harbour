@@ -8,3 +8,486 @@
     <meta http-equiv="Expires" content="0">
     <title>Dream Harbour - Customers</title>
     <script src="supabase-init.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5568d3;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .customers-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: var(--white);
+            padding: 25px 20px;
+            position: fixed;
+            height: 100vh;
+            width: 260px;
+            overflow-y: auto;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link span {
+            font-size: 18px;
+        }
+
+        .sidebar-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .user-info-label {
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .user-info-value {
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--light-bg);
+            overflow: hidden;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 16px 25px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .content {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .content h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 1024px) {
+            .customers-container {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                margin-bottom: 20px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                height: auto;
+            }
+
+            .content-area {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 12px 15px;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="customers-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🏛️</div>
+                <div class="sidebar-title">Dream Harbour</div>
+                <div class="sidebar-subtitle">Invoice Manager</div>
+            </div>
+
+            <div class="nav-section">
+                <a href="dashboard.html" class="nav-link">
+                    <span>📊</span> Overview
+                </a>
+                <a href="invoices.html" class="nav-link">
+                    <span>📄</span> Invoices
+                </a>
+                <a href="customers.html" class="nav-link active">
+                    <span>👥</span> Customers
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <span>⚙️</span> Settings
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-info-label">Logged in as</div>
+                    <div class="user-info-value" id="userNameDisplay">User</div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <div class="page-title">👥 Customers</div>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="content">
+                    <h1>👥 All Customers</h1>
+                    <div id="customersLoading" class="loading">
+                        <div class="spinner"></div>
+                        <div>Loading customers...</div>
+                    </div>
+                    <div id="customersContent" style="display: none;">
+                        <div id="customersList">No customers found</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NOTE: 'supabase' is provided globally by supabase-init.js
+        // DO NOT declare 'let supabase;' here
+
+        function logout() {
+            localStorage.removeItem('dreamHarbourUser');
+            localStorage.removeItem('dreamHarbourLoginTime');
+            window.location.href = 'index.html';
+        }
+
+        async function initializeApp() {
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(user);
+                const userEl = document.getElementById('userNameDisplay');
+                if (userEl) userEl.textContent = userData.fullName || 'User';
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+
+            loadCustomers();
+        }
+
+        async function loadCustomers() {
+            try {
+                if (!supabase) {
+                    throw new Error('Supabase not initialized');
+                }
+
+                const { data: customers, error } = await supabase
+                    .from('customers')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                document.getElementById('customersLoading').style.display = 'none';
+                document.getElementById('customersContent').style.display = 'block';
+
+                if (!customers || customers.length === 0) {
+                    document.getElementById('customersList').innerHTML = '<div class="no-data">No customers found</div>';
+                    return;
+                }
+
+                let html = '<table style="width: 100%; border-collapse: collapse;">';
+                html += '<thead><tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">';
+                html += '<th style="padding: 12px; text-align: left; font-weight: 600;">Name</th>';
+                html += '<th style="padding: 12px; text-align: left; font-weight: 600;">Email</th>';
+                html += '<th style="padding: 12px; text-align: left; font-weight: 600;">Phone</th>';
+                html += '<th style="padding: 12px; text-align: left; font-weight: 600;">Company</th>';
+                html += '</tr></thead><tbody>';
+
+                customers.forEach(customer => {
+                    html += '<tr style="border-bottom: 1px solid #e0e0e0;">';
+                    html += `<td style="padding: 12px;">${customer.name || 'N/A'}</td>`;
+                    html += `<td style="padding: 12px;">${customer.email || 'N/A'}</td>`;
+                    html += `<td style="padding: 12px;">${customer.phone || 'N/A'}</td>`;
+                    html += `<td style="padding: 12px;">${customer.company_name || 'N/A'}</td>`;
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+                document.getElementById('customersList').innerHTML = html;
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                document.getElementById('customersLoading').style.display = 'none';
+                document.getElementById('customersList').innerHTML = `<div class="no-data">Error loading customers: ${error.message}</div>`;
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
