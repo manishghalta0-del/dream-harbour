@@ -1336,6 +1336,37 @@
             updateGeneratorTotals();
         }
 
+        async function generateCustomerCode(fullName) {
+            try {
+                const supabase = await getSupabaseClient();
+                const firstName = fullName.trim().split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '');
+                if (!firstName) throw new Error('Invalid name');
+
+                const data = await supabase
+                    .from('customers')
+                    .select('customer_code')
+                    .ilike('customer_code', `${firstName}-%`)
+                    .execute();
+
+                let existingCustomers = data.body || [];
+                let maxNumber = 0;
+
+                (existingCustomers || []).forEach(c => {
+                    if (c.customer_code) {
+                        const parts = c.customer_code.split('-');
+                        const num = parseInt(parts[1]) || 0;
+                        if (num > maxNumber) maxNumber = num;
+                    }
+                });
+
+                const nextNumber = maxNumber + 1;
+                return `${firstName}-${String(nextNumber).padStart(3, '0')}`;
+            } catch (error) {
+                console.error('Error generating customer code:', error);
+                return `CUST-${Date.now()}`;
+            }
+        }
+
         async function generateNextInvoiceNumber() {
             try {
                 const supabase = await getSupabaseClient();
@@ -2014,20 +2045,49 @@
                 let customerId;
 
                 if (selectedCustomer && selectedCustomer.id) {
+                    // Existing customer - Update
                     customerId = selectedCustomer.id;
-                } else {
-                    const newCustomerResult = await supabase
+                    await supabase
                         .from('customers')
-                        .insert([customerData])
-                        .select('id')
+                        .update(customerData)
+                        .eq('id', customerId)
+                        .execute();
+                    showModalAlert('✅ Existing customer updated!', 'info');
+                } else {
+                    // Check for duplicate using mobile + name
+                    const duplicateCheck = await supabase
+                        .from('customers')
+                        .select('*')
+                        .eq('mobile_no', normalizedMobile)
+                        .ilike('full_name', `%${customerName}%`)
                         .execute();
 
-                    if (!newCustomerResult.body || newCustomerResult.body.length === 0) {
-                        throw new Error('Failed to create customer - no response body');
-                    }
+                    if (duplicateCheck.body && duplicateCheck.body.length > 0) {
+                        // Exact match found - update existing
+                        const existingCustomer = duplicateCheck.body[0];
+                        customerId = existingCustomer.id;
+                        await supabase
+                            .from('customers')
+                            .update(customerData)
+                            .eq('id', customerId)
+                            .execute();
+                        showModalAlert(`⚠️ Customer "${existingCustomer.full_name}" already exists! Details updated.`, 'info');
+                    } else {
+                        // No duplicate - create new customer
+                        customerData.customer_code = await generateCustomerCode(customerName);
+                        const newCustomerResult = await supabase
+                            .from('customers')
+                            .insert([customerData])
+                            .select('id')
+                            .execute();
 
-                    customerId = newCustomerResult.body[0].id;
-                    showModalAlert('✅ New customer record created!', 'info');
+                        if (!newCustomerResult.body || newCustomerResult.body.length === 0) {
+                            throw new Error('Failed to create customer - no response body');
+                        }
+
+                        customerId = newCustomerResult.body[0].id;
+                        showModalAlert(`✅ New customer created! Code: ${customerData.customer_code}`, 'info');
+                    }
                 }
 
                 const invoiceData = {
