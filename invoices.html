@@ -1985,14 +1985,17 @@
                 if (selectedCustomer && selectedCustomer.id) {
                     customerId = selectedCustomer.id;
                 } else {
-                    const newCustomerData = await supabase
+                    const newCustomerResult = await supabase
                         .from('customers')
                         .insert([customerData])
                         .select('id')
-                        .single()
                         .execute();
 
-                    customerId = newCustomerData.body.id;
+                    if (!newCustomerResult.body || newCustomerResult.body.length === 0) {
+                        throw new Error('Failed to create customer - no response');
+                    }
+
+                    customerId = newCustomerResult.body[0].id;
                     showModalAlert('✅ New customer record created!', 'info');
                 }
 
