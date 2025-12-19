@@ -75,12 +75,24 @@ class QueryBuilder {
     }
 
     async execute() {
-        return this.client.executeQuery('GET', this.table, {
+        const result = await this.client.executeQuery('GET', this.table, {
             select: this.selectCols,
             filters: this.filters,
             limit: this.limitVal,
             order: this.orderVal
         });
+        return result;
+    }
+
+    async single() {
+        const result = await this.client.executeQuery('GET', this.table, {
+            select: this.selectCols,
+            filters: this.filters,
+            limit: 1,
+            order: this.orderVal
+        });
+        // Return first item or null
+        return result && result.length > 0 ? result[0] : null;
     }
 }
 
@@ -145,7 +157,7 @@ class SupabaseRESTClient {
             }
 
             const data = await response.json();
-            return Array.isArray(data) ? data : [data];
+            return Array.isArray(data) ? data : (data ? [data] : []);
         } catch (error) {
             logSupabase(`Query error: ${error.message}`, 'error');
             throw error;
