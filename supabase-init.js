@@ -208,6 +208,9 @@ class SupabaseRESTClient {
         try {
             const url = new URL(`${this.apiUrl}/${table}`);
             
+            // CRITICAL: Add API key to URL for Supabase authentication
+            url.searchParams.append('apikey', this.anonKey);
+            
             // Add select parameter
             if (options.select) {
                 url.searchParams.append('select', options.select);
