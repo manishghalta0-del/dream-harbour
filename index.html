@@ -289,7 +289,7 @@
 
         <div class="demo-credentials">
             <strong>Demo Credentials:</strong><br>
-            Phone: <strong>9999999999</strong> PIN: <strong>123456</strong>
+            Phone: <strong>9873329494</strong> PIN: <strong>474200</strong>
         </div>
     </div>
 
@@ -404,47 +404,17 @@
             console.log(`📱 Attempting login with phone: ${phone}`);
 
             try {
-                // Get Supabase client
-                const supabase = await getSupabaseClient();
-                console.log('📊 Querying users table...');
+                // Use the app.js loginUser function which handles our REST API client
+                const user = await loginUser(phone, pin);
 
-                // Query for user
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('id, phone_number, full_name, role, is_active')
-                    .eq('phone_number', phone)
-                    .eq('pin', pin)
-                    .eq('is_active', true)
-                    .single();
-
-                if (error) {
-                    const errorMsg = error.code === 'PGRST116' 
-                        ? '❌ Invalid phone number or PIN. Please try again.'
-                        : `❌ Database error: ${error.message}`;
-                    
-                    console.error('Query error:', error);
-                    showMessage('error', errorMsg);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Login';
-                    return;
-                }
-
-                if (!data) {
-                    showMessage('error', '❌ Invalid phone number or PIN. Please try again.');
-                    console.error('No user found with provided credentials');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Login';
-                    return;
-                }
-
-                console.log(`✅ User found: ${data.full_name}`);
+                console.log(`✅ User found: ${user.full_name}`);
 
                 // Save user session
                 const userData = {
-                    id: data.id,
-                    phoneNumber: data.phone_number,
-                    fullName: data.full_name,
-                    role: data.role,
+                    id: user.id,
+                    phoneNumber: user.phone_number,
+                    fullName: user.full_name,
+                    role: user.role,
                     loginTime: Date.now()
                 };
 
@@ -460,8 +430,8 @@
                 }, 1500);
 
             } catch (error) {
-                console.error('❌ Unexpected error:', error);
-                showMessage('error', `❌ An error occurred: ${error.message}`);
+                console.error('❌ Login failed:', error.message);
+                showMessage('error', '❌ Invalid phone number or PIN. Please try again.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Login';
             }
