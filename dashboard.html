@@ -868,19 +868,23 @@
                 if (!supabase) throw new Error('Supabase client not available');
 
                 log('📊 Fetching invoices...', 'info');
-                const invoices = await supabase
+                const invoicesResult = await supabase
                     .from('invoices')
                     .select('*')
                     .limit(10)
                     .execute();
 
                 log('👥 Fetching customers...', 'info');
-                const customers = await supabase
+                const customersResult = await supabase
                     .from('customers')
                     .select('*')
                     .execute();
 
-                log(`✅ Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
+                // Extract body from response (fixed Supabase client returns { body, error })
+                const invoices = invoicesResult?.body || [];
+                const customers = customersResult?.body || [];
+
+                log(`✅ Loaded ${invoices.length} invoices and ${customers.length} customers`, 'success');
                 updateDashboardStats(invoices, customers);
                 initializeCharts(invoices);
                 hideErrorAlert();
@@ -913,10 +917,10 @@
             }
 
             document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
-            document.getElementById('totalInvoices').textContent = invoices ? invoices.length : 0;
+            document.getElementById('totalInvoices').textContent = invoices.length;
             document.getElementById('paidInvoices').textContent = paidInvoices;
             document.getElementById('pendingAmount').textContent = '₹' + pendingAmount.toFixed(2);
-            document.getElementById('totalCustomers').textContent = customers ? customers.length : 0;
+            document.getElementById('totalCustomers').textContent = customers.length;
             document.getElementById('totalGST').textContent = '₹' + totalGST.toFixed(2);
         }
 
