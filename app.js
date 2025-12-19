@@ -142,19 +142,18 @@ async function loginUser(phone, pin) {
     try {
         const supabase = await getSupabaseClient();
         
-        // Query using REST API client
-        const data = await supabase.from('users')
+        // Query using REST API client - use .single() to get one record
+        const user = await supabase.from('users')
             .select('id, phone_number, full_name, role, is_active')
             .eq('phone_number', phone.trim())
             .eq('pin', pin)
             .eq('is_active', true)
-            .execute();
+            .single();
         
-        if (!data || data.length === 0) {
+        if (!user) {
             throw new Error('Invalid credentials');
         }
         
-        const user = data[0];
         console.log('✅ Login successful:', user.full_name);
         return user;
     } catch (error) {
