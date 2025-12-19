@@ -1803,6 +1803,37 @@
             showModalAlert(`✅ ${serviceName} ready to add. Click 'Add to Invoice'`, 'success');
         }
 
+        async function updateCustomerServicesStatus(customerId, invoiceItems) {
+            try {
+                const supabase = await getSupabaseClient();
+                
+                const serviceIds = [...new Set(invoiceItems.map(item => item.serviceId))];
+                
+                console.log(`📦 Updating ${serviceIds.length} services for customer ${customerId}`);
+                
+                for (const serviceId of serviceIds) {
+                    await supabase
+                        .from('customer_services')
+                        .update({
+                            service_status: 'completed',
+                            is_active: false,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('customer_id', customerId)
+                        .eq('service_id', serviceId)
+                        .eq('service_status', 'pending')
+                        .execute();
+                    
+                    console.log(`✅ Service ${serviceId} marked as completed`);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Error updating customer services:', error);
+                return false;
+            }
+        }
+
         async function initializeApp() {
             const user = localStorage.getItem('dreamHarbourUser');
             if (!user) {
@@ -2021,6 +2052,11 @@
 
                 if (invoiceResult.error) {
                     throw new Error(invoiceResult.error.message);
+                }
+
+                if (paymentStatus === 'paid') {
+                    await updateCustomerServicesStatus(customerId, generatorItems);
+                    showModalAlert('✅ Customer services updated to completed!', 'info');
                 }
 
                 showModalAlert('✅ Invoice saved successfully!', 'success');
