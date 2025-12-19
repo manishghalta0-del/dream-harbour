@@ -10,6 +10,9 @@
     <meta name="theme-color" content="#667eea">
     <title>Dream Harbour - Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🏛️</text></svg>">
+    <!-- Load centralized Supabase initialization - DO NOT add Supabase CDN here -->
+    <script src="config.js"></script>
+    <script src="supabase-init.js"></script>
     <style>
         * {
             margin: 0;
@@ -690,8 +693,11 @@
         </div>
     </div>
 
+    <!-- Load app.js AFTER supabase-init.js -->
+    <script src="app.js"></script>
     <script>
-        let supabase = null;
+        'use strict';
+        
         let sessionTimeRemaining = 1800;
         let revenueChart = null;
         let statusChart = null;
@@ -699,6 +705,7 @@
         let dashboardInitialized = false;
         let chartsInitialized = false;
         let sessionInterval = null;
+        let chartScriptLoaded = false;
 
         function log(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
@@ -731,57 +738,69 @@
             if (timerEl) timerEl.textContent = minutes + ' min';
         }
 
-        async function loadSupabaseLibrary() {
-            return new Promise((resolve) => {
-                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                    resolve(true);
-                    return;
-                }
-                const script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-                script.async = true;
-                script.onload = () => {
-                    log('✅ Supabase library loaded', 'success');
-                    resolve(true);
-                };
-                script.onerror = () => {
-                    log('❌ Failed to load Supabase library', 'error');
-                    resolve(false);
-                };
-                document.head.appendChild(script);
-            });
-        }
-
+        /**
+         * Load Chart.js library from CDN
+         */
         async function loadChartsLibrary() {
             return new Promise((resolve) => {
                 if (typeof Chart !== 'undefined') {
+                    log('✅ Chart.js library already available', 'success');
                     resolve(true);
                     return;
                 }
+                
+                // Check if script already loading
+                const existingScript = document.querySelector('script[src*="chart.js"]');
+                if (existingScript && existingScript.getAttribute('data-loading') === 'true') {
+                    log('⏳ Chart.js already loading, waiting...', 'info');
+                    let attempts = 0;
+                    const checkInterval = setInterval(() => {
+                        attempts++;
+                        if (typeof Chart !== 'undefined') {
+                            clearInterval(checkInterval);
+                            resolve(true);
+                        } else if (attempts >= 100) {
+                            clearInterval(checkInterval);
+                            log('⏰ Timeout waiting for Chart.js', 'warning');
+                            resolve(false);
+                        }
+                    }, 100);
+                    return;
+                }
+                
+                log('📦 Loading Chart.js library from CDN...', 'info');
                 const script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
                 script.async = true;
+                script.type = 'text/javascript';
+                script.setAttribute('data-loading', 'true');
+                
                 script.onload = () => {
-                    log('✅ Chart.js library loaded', 'success');
+                    script.setAttribute('data-loading', 'false');
+                    log('✅ Chart.js loaded successfully', 'success');
                     resolve(true);
                 };
+                
                 script.onerror = () => {
-                    log('❌ Failed to load Chart.js library', 'error');
+                    script.setAttribute('data-loading', 'false');
+                    log('❌ Failed to load Chart.js', 'error');
                     resolve(false);
                 };
+                
                 document.head.appendChild(script);
             });
         }
 
         async function initializeDashboard() {
             if (dashboardInitialized) {
-                log('⚠️ Dashboard already initialized, skipping', 'warning');
+                log('⚠️ Dashboard already initialized', 'warning');
                 return;
             }
             dashboardInitialized = true;
 
             log('🚀 Initializing dashboard...', 'info');
 
+            // Check authentication
             const user = localStorage.getItem('dreamHarbourUser');
             if (!user) {
                 log('❌ No user found. Redirecting to login...', 'warning');
@@ -800,43 +819,20 @@
                 return;
             }
 
+            // Load Chart.js
             log('📦 Loading required libraries...', 'info');
-            const supabbaseLoaded = await loadSupabaseLibrary();
-            await loadChartsLibrary();
+            const chartsLoaded = await loadChartsLibrary();
+            if (!chartsLoaded) {
+                log('⚠️ Chart.js not available, using fallback', 'warning');
+            }
 
+            // Start session timer
             updateSessionDisplay();
+            startSessionTimer();
 
-            if (!supabbaseLoaded) {
-                log('⚠️ Supabase not loaded, using fallback', 'warning');
-                loadFallbackData();
-                startSessionTimer();
-                return;
-            }
-
-            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-
-            try {
-                const sb = window.supabase || window.supabaseJs;
-
-if (!sb || !sb.createClient) {
-    throw new Error('Supabase UMD client not found');
-}
-
-supabase = sb.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
-                log('✅ Supabase initialized successfully', 'success');
-                startSessionTimer();
-                log('📥 Loading dashboard data...', 'info');
-                await loadDashboardData();
-            } catch (error) {
-                log(`❌ Initialization error: ${error.message}`, 'error');
-                showErrorAlert(`Initialization failed: ${error.message}`);
-                loadFallbackData();
-                startSessionTimer();
-            }
+            // Load dashboard data
+            log('📥 Loading dashboard data...', 'info');
+            await loadDashboardData();
         }
 
         function startSessionTimer() {
@@ -864,13 +860,14 @@ supabase = sb.createClient(
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
-            log('Sidebar toggled', 'info');
         }
 
         async function loadDashboardData() {
             try {
-                if (!supabase) throw new Error('Supabase not initialized');
+                const supabase = await getSupabaseClient();
+                if (!supabase) throw new Error('Supabase client not available');
 
+                log('📊 Fetching invoices...', 'info');
                 const { data: invoices, error: invoicesError } = await supabase
                     .from('invoices')
                     .select('*')
@@ -879,6 +876,7 @@ supabase = sb.createClient(
 
                 if (invoicesError) throw new Error(`Invoices query failed: ${invoicesError.message}`);
 
+                log('👥 Fetching customers...', 'info');
                 const { data: customers, error: customersError } = await supabase
                     .from('customers')
                     .select('*');
@@ -886,13 +884,11 @@ supabase = sb.createClient(
                 if (customersError) throw new Error(`Customers query failed: ${customersError.message}`);
 
                 log(`✅ Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
-                log(`📊 Invoice data: ${JSON.stringify(invoices?.slice(0, 1))}`, 'info');
-
                 updateDashboardStats(invoices, customers);
                 initializeCharts(invoices);
                 hideErrorAlert();
             } catch (error) {
-                log(`❌ Error loading dashboard data: ${error.message}`, 'error');
+                log(`❌ Error loading data: ${error.message}`, 'error');
                 showErrorAlert(`Failed to load data: ${error.message}. Using fallback values.`);
                 dataLoadError = true;
                 loadFallbackData();
@@ -911,23 +907,13 @@ supabase = sb.createClient(
                     const gst = parseFloat(inv.total_gst) || 0;
                     const status = String(inv.payment_status).toLowerCase().trim();
 
-                    log(`📌 Processing invoice: status='${status}', amount=${amount}, gst=${gst}`, 'info');
-
                     totalRevenue += amount;
                     totalGST += gst;
 
-                    if (status === 'pending') {
-                        pendingAmount += amount;
-                        log(`  ➕ Added to pending: ${amount}`, 'info');
-                    }
-                    if (status === 'paid') {
-                        paidInvoices++;
-                        log(`  ✅ Counted as paid`, 'info');
-                    }
+                    if (status === 'pending') pendingAmount += amount;
+                    if (status === 'paid') paidInvoices++;
                 });
             }
-
-            log(`💰 Total Revenue: ${totalRevenue}, Pending: ${pendingAmount}, Paid Count: ${paidInvoices}, GST: ${totalGST}`, 'success');
 
             document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toFixed(2);
             document.getElementById('totalInvoices').textContent = invoices ? invoices.length : 0;
@@ -944,34 +930,23 @@ supabase = sb.createClient(
         }
 
         function initializeCharts(invoices) {
-            if (chartsInitialized) {
-                log('⚠️ Charts already initialized, skipping', 'warning');
-                return;
-            }
+            if (chartsInitialized) return;
+            chartsInitialized = true;
 
             if (typeof Chart === 'undefined') {
-                log('⚠️ Chart.js not available yet', 'warning');
+                log('⚠️ Chart.js not available', 'warning');
                 return;
             }
 
             const revenueCanvas = document.getElementById('revenueChart');
             const statusCanvas = document.getElementById('statusChart');
 
-            if (!revenueCanvas || !statusCanvas) {
-                log('⚠️ Chart canvases not found', 'warning');
-                return;
-            }
-
-            chartsInitialized = true;
-            log('📈 Initializing charts with real data', 'info');
+            if (!revenueCanvas || !statusCanvas) return;
 
             const revenueCtx = revenueCanvas.getContext('2d');
             const statusCtx = statusCanvas.getContext('2d');
 
-            if (revenueChart) revenueChart.destroy();
-            if (statusChart) statusChart.destroy();
-
-            // Revenue Trend - Calculate monthly data from invoices
+            // Monthly revenue data
             let monthlyData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             if (invoices && invoices.length > 0) {
                 invoices.forEach(inv => {
@@ -992,16 +967,13 @@ supabase = sb.createClient(
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4,
                         fill: true,
-                        borderWidth: 2,
-                        pointRadius: 4
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    animation: false,
-                    resize: false,
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -1015,7 +987,7 @@ supabase = sb.createClient(
                 }
             });
 
-            // Status Distribution - Count by status
+            // Invoice status distribution
             let paidCount = 0, pendingCount = 0, overdueCount = 0;
             if (invoices && invoices.length > 0) {
                 invoices.forEach(inv => {
@@ -1025,8 +997,6 @@ supabase = sb.createClient(
                     else if (status === 'overdue') overdueCount++;
                 });
             }
-
-            log(`📊 Chart data - Paid: ${paidCount}, Pending: ${pendingCount}, Overdue: ${overdueCount}`, 'info');
 
             statusChart = new Chart(statusCtx, {
                 type: 'doughnut',
@@ -1040,18 +1010,15 @@ supabase = sb.createClient(
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: false,
-                    resize: false
+                    plugins: { legend: { display: true } }
                 }
             });
 
-            log('✅ Charts initialized successfully with data', 'success');
+            log('✅ Charts initialized', 'success');
         }
 
         function showTab(tabName, event) {
             if (event) event.preventDefault();
-            log(`📑 Switching to ${tabName} tab`, 'info');
-
             if (window.innerWidth <= 1024) {
                 document.getElementById('sidebar').classList.remove('open');
             }
