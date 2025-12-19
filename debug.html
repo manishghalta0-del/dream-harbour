@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Harbour - Debug Console</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .section:last-child {
+            border-bottom: none;
+        }
+        h2 {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: #f9f9f9;
+            font-weight: 600;
+            color: #333;
+        }
+        td {
+            color: #666;
+        }
+        tr:hover {
+            background: #fafafa;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        button.danger {
+            background: #F44336;
+        }
+        button.danger:hover {
+            background: #D32F2F;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border: 1px solid #4CAF50;
+        }
+        .status.error {
+            background: #FFEBEE;
+            color: #C62828;
+            border: 1px solid #F44336;
+        }
+        .status.loading {
+            background: #E3F2FD;
+            color: #1565C0;
+            border: 1px solid #2196F3;
+        }
+        .logs {
+            background: #222;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+        .log-line {
+            padding: 2px 0;
+        }
+        .log-success { color: #0f0; }
+        .log-error { color: #f00; }
+        .log-warning { color: #ff0; }
+        .log-info { color: #0ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Dream Harbour - Debug Console</h1>
+        
+        <div class="section">
+            <h2>System Status</h2>
+            <div id="status"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Database Users</h2>
+            <div class="button-group">
+                <button onclick="fetchAllUsers()">📋 Fetch All Users</button>
+                <button onclick="fetchUserByPhone('9873329494')">🔍 Fetch Test User (9873329494)</button>
+            </div>
+            <table id="usersTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Phone</th>
+                        <th>PIN</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+            <div id="usersMessage"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Test Login</h2>
+            <div class="button-group">
+                <button onclick="testLogin('9873329494', '474200')">🔐 Test Login (9873329494 / 474200)</button>
+                <button onclick="testLoginRaw()">📡 Raw Query Test</button>
+            </div>
+            <div id="loginResult"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Debug Logs</h2>
+            <div class="logs" id="logs"></div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="supabase-init.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+        const logContainer = document.getElementById('logs');
+        
+        function log(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `log-line log-${type}`;
+            const timestamp = new Date().toLocaleTimeString('en-IN', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            line.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(line);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function showStatus(message, type = 'loading') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+        
+        async function checkSupabaseStatus() {
+            try {
+                const client = await getSupabaseClient();
+                if (client) {
+                    showStatus('✅ Supabase connected and ready', 'success');
+                    log('Supabase client initialized successfully', 'success');
+                } else {
+                    showStatus('❌ Supabase client is null', 'error');
+                    log('Supabase client failed to initialize', 'error');
+                }
+            } catch (error) {
+                showStatus(`❌ Error: ${error.message}`, 'error');
+                log(`Initialization error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function fetchAllUsers() {
+            log('Fetching all users...', 'info');
+            showStatus('Loading...', 'loading');
+            
+            try {
+                const supabase = await getSupabaseClient();
+                const users = await supabase.from('users')
+                    .select('id, phone_number, pin, full_name, role, is_active')
+                    .execute();
+                
+                log(`Fetched ${users.length} users`, 'success');
+                
+                if (users.length === 0) {
+                    document.getElementById('usersMessage').innerHTML = '<p style="color: #f00;">❌ No users found in database</p>';
+                    showStatus('No users in database', 'error');
+                    return;
+                }
+                
+                const tbody = document.getElementById('usersBody');
+                tbody.innerHTML = '';
+                
+                users.forEach(user => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).textContent = user.id || 'N/A';
+                    row.insertCell(1).textContent = user.phone_number || 'N/A';
+                    row.insertCell(2).textContent = user.pin || 'N/A';
+                    row.insertCell(3).textContent = user.full_name || 'N/A';
+                    row.insertCell(4).textContent = user.role || 'N/A';
+                    row.insertCell(5).textContent = user.is_active ? '✅' : '❌';
+                });
+                
+                document.getElementById('usersTable').style.display = 'table';
+                document.getElementById('usersMessage').innerHTML = '';
+                showStatus(`✅ Found ${users.length} users`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                showStatus(`Error: ${error.message}`, 'error');
+                document.getElementById('usersMessage').innerHTML = `<p style="color: #f00;">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function fetchUserByPhone(phone) {
+            log(`Fetching user with phone: ${phone}`, 'info');
+            showStatus('Loading...', 'loading');
+            
+            try {
+                const supabase = await getSupabaseClient();
+                const user = await supabase.from('users')
+                    .select('id, phone_number, pin, full_name, role, is_active')
+                    .eq('phone_number', phone)
+                    .single();
+                
+                if (!user) {
+                    log(`No user found with phone: ${phone}`, 'warning');
+                    document.getElementById('usersMessage').innerHTML = `<p style="color: #f00;">❌ No user found with phone: ${phone}</p>`;
+                    showStatus('User not found', 'error');
+                    return;
+                }
+                
+                log(`Found user: ${user.full_name}`, 'success');
+                
+                const tbody = document.getElementById('usersBody');
+                tbody.innerHTML = '';
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = user.id || 'N/A';
+                row.insertCell(1).textContent = user.phone_number || 'N/A';
+                row.insertCell(2).textContent = user.pin || 'N/A';
+                row.insertCell(3).textContent = user.full_name || 'N/A';
+                row.insertCell(4).textContent = user.role || 'N/A';
+                row.insertCell(5).textContent = user.is_active ? '✅' : '❌';
+                
+                document.getElementById('usersTable').style.display = 'table';
+                document.getElementById('usersMessage').innerHTML = '';
+                showStatus(`✅ User found: ${user.full_name}`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                showStatus(`Error: ${error.message}`, 'error');
+                document.getElementById('usersMessage').innerHTML = `<p style="color: #f00;">❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testLogin(phone, pin) {
+            log(`Testing login with phone=${phone}, pin=${pin}`, 'info');
+            showStatus('Testing...', 'loading');
+            
+            try {
+                const user = await loginUser(phone, pin);
+                log(`✅ Login successful! User: ${user.full_name}`, 'success');
+                document.getElementById('loginResult').innerHTML = `
+                    <div class="status success">
+                        ✅ Login Successful!
+                        <br>User: ${user.full_name}
+                        <br>Role: ${user.role}
+                    </div>
+                `;
+                showStatus('Login successful!', 'success');
+            } catch (error) {
+                log(`❌ Login failed: ${error.message}`, 'error');
+                document.getElementById('loginResult').innerHTML = `
+                    <div class="status error">
+                        ❌ Login Failed: ${error.message}
+                    </div>
+                `;
+                showStatus('Login failed', 'error');
+            }
+        }
+        
+        async function testLoginRaw() {
+            log('Running raw query test...', 'info');
+            showStatus('Testing...', 'loading');
+            
+            try {
+                const supabase = await getSupabaseClient();
+                
+                // Test 1: Get all users
+                log('Test 1: Fetching all users...', 'info');
+                const allUsers = await supabase.from('users')
+                    .select('*')
+                    .limit(5)
+                    .execute();
+                log(`Test 1 Result: Found ${allUsers.length} users`, 'success');
+                if (allUsers.length > 0) {
+                    log(`Sample user: ${JSON.stringify(allUsers[0])}`, 'info');
+                }
+                
+                // Test 2: Get by phone only
+                log('Test 2: Filtering by phone only...', 'info');
+                const byPhone = await supabase.from('users')
+                    .select('*')
+                    .eq('phone_number', '9873329494')
+                    .execute();
+                log(`Test 2 Result: Found ${byPhone.length} users with phone 9873329494`, 'success');
+                if (byPhone.length > 0) {
+                    log(`User data: ${JSON.stringify(byPhone[0])}`, 'info');
+                }
+                
+                // Test 3: Filter by phone and PIN
+                log('Test 3: Filtering by phone AND pin...', 'info');
+                const byPhoneAndPin = await supabase.from('users')
+                    .select('*')
+                    .eq('phone_number', '9873329494')
+                    .eq('pin', '474200')
+                    .execute();
+                log(`Test 3 Result: Found ${byPhoneAndPin.length} users`, 'success');
+                if (byPhoneAndPin.length > 0) {
+                    log(`User data: ${JSON.stringify(byPhoneAndPin[0])}`, 'info');
+                }
+                
+                showStatus('✅ All tests completed', 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                showStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            log('Debug console loaded', 'info');
+            await checkSupabaseStatus();
+        });
+    </script>
+</body>
+</html>
