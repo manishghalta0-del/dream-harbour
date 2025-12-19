@@ -187,10 +187,16 @@ class SupabaseRESTClient {
         this.url = url;
         this.anonKey = anonKey;
         this.apiUrl = `${url}/rest/v1`;
-        this.headers = {
+    }
+
+    /**
+     * Get headers with API key
+     */
+    getHeaders() {
+        return {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${anonKey}`,
-            'apikey': anonKey,
+            'Authorization': `Bearer ${this.anonKey}`,
+            'apikey': this.anonKey,
             'Prefer': 'return=representation'
         };
     }
@@ -232,7 +238,7 @@ class SupabaseRESTClient {
 
             const config = {
                 method,
-                headers: this.headers
+                headers: this.getHeaders()
             };
 
             // Add body for POST, PATCH, DELETE
@@ -246,6 +252,7 @@ class SupabaseRESTClient {
             
             if (!response.ok) {
                 const error = await response.text();
+                logSupabase(`API Error ${response.status}: ${error}`, 'error');
                 throw new Error(`API Error ${response.status}: ${error}`);
             }
 
