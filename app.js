@@ -1,6 +1,6 @@
 /**
  * Dream Harbour - Core Application Utilities
- * Comprehensive Supabase integration, validation, and utility functions
+ * Works with REST API-based Supabase client (no library conflicts)
  * 
  * Dependencies: config.js, supabase-init.js
  */
@@ -36,8 +36,6 @@ const SESSION_TIMEOUT = CONFIG.SESSION.TIMEOUT;
 
 /**
  * Save user session to localStorage
- * @param {Object} user - User data to save
- * @returns {void}
  */
 function saveUserSession(user) {
     if (!user || typeof user !== 'object') {
@@ -58,7 +56,6 @@ function saveUserSession(user) {
 
 /**
  * Get user session from localStorage
- * @returns {Object|null} User data or null if not logged in
  */
 function getUserSession() {
     try {
@@ -73,7 +70,6 @@ function getUserSession() {
 
 /**
  * Clear user session
- * @returns {void}
  */
 function clearUserSession() {
     currentUser = null;
@@ -90,7 +86,6 @@ function clearUserSession() {
 
 /**
  * Start session timeout timer
- * @returns {void}
  */
 function startSessionTimer() {
     if (sessionTimer) clearTimeout(sessionTimer);
@@ -107,7 +102,6 @@ function startSessionTimer() {
 
 /**
  * Extend the current session
- * @returns {boolean} True if session extended successfully
  */
 function extendSession() {
     if (!getCurrentUser()) return false;
@@ -120,7 +114,6 @@ function extendSession() {
 
 /**
  * Get current logged-in user
- * @returns {Object|null} Current user or null
  */
 function getCurrentUser() {
     if (!currentUser) {
@@ -131,7 +124,6 @@ function getCurrentUser() {
 
 /**
  * Check if user is authenticated
- * @returns {boolean} True if user is logged in
  */
 function isAuthenticated() {
     return getCurrentUser() !== null;
@@ -141,9 +133,6 @@ function isAuthenticated() {
 
 /**
  * Login user with phone and PIN
- * @param {string} phone - User phone number
- * @param {string} pin - User PIN
- * @returns {Promise<Object>} User data if successful
  */
 async function loginUser(phone, pin) {
     if (!phone || !pin) {
@@ -153,25 +142,21 @@ async function loginUser(phone, pin) {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('users')
+        // Query using REST API client
+        const data = await supabase.from('users')
             .select('id, phone_number, full_name, role, is_active')
             .eq('phone_number', phone.trim())
             .eq('pin', pin)
             .eq('is_active', true)
-            .single();
+            .execute();
         
-        if (error) {
-            console.error('Supabase query error:', error);
-            throw new Error(error.message);
-        }
-        
-        if (!data) {
+        if (!data || data.length === 0) {
             throw new Error('Invalid credentials');
         }
         
-        console.log('✅ Login successful:', data.full_name);
-        return data;
+        const user = data[0];
+        console.log('✅ Login successful:', user.full_name);
+        return user;
     } catch (error) {
         console.error('❌ Login error:', error.message);
         throw error;
@@ -180,19 +165,16 @@ async function loginUser(phone, pin) {
 
 /**
  * Fetch service categories from database
- * @returns {Promise<Array>} Array of categories
  */
 async function fetchCategories() {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('service_categories')
+        const data = await supabase.from('service_categories')
             .select('*')
             .eq('is_active', true)
-            .order('display_order', { ascending: true });
+            .execute();
         
-        if (error) throw error;
         console.log(`✅ Fetched ${data?.length || 0} categories`);
         return data || [];
     } catch (error) {
@@ -203,8 +185,6 @@ async function fetchCategories() {
 
 /**
  * Fetch services by category
- * @param {string} categoryId - Category ID
- * @returns {Promise<Array>} Array of services
  */
 async function fetchServicesByCategory(categoryId) {
     if (!categoryId) return [];
@@ -212,15 +192,13 @@ async function fetchServicesByCategory(categoryId) {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('service_items')
+        const data = await supabase.from('service_items')
             .select('*')
             .eq('category_id', categoryId)
             .eq('is_active', true)
             .eq('is_primary_service', true)
-            .order('display_order', { ascending: true });
+            .execute();
         
-        if (error) throw error;
         console.log(`✅ Fetched ${data?.length || 0} services for category ${categoryId}`);
         return data || [];
     } catch (error) {
@@ -231,8 +209,6 @@ async function fetchServicesByCategory(categoryId) {
 
 /**
  * Fetch sub-services
- * @param {string} serviceId - Service ID
- * @returns {Promise<Array>} Array of sub-services
  */
 async function fetchSubServices(serviceId) {
     if (!serviceId) return [];
@@ -240,14 +216,12 @@ async function fetchSubServices(serviceId) {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('service_sub_items')
+        const data = await supabase.from('service_sub_items')
             .select('*')
             .eq('primary_service_id', serviceId)
             .eq('is_active', true)
-            .order('display_order', { ascending: true });
+            .execute();
         
-        if (error) throw error;
         return data || [];
     } catch (error) {
         console.error('Error fetching sub-services:', error);
@@ -257,21 +231,18 @@ async function fetchSubServices(serviceId) {
 
 /**
  * Fetch business settings
- * @returns {Promise<Object>} Business settings object
  */
 async function fetchBusinessSettings() {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('business_settings')
+        const data = await supabase.from('business_settings')
             .select('*')
             .limit(1)
-            .single();
+            .execute();
         
-        if (error && error.code !== 'PGRST116') throw error;
         console.log('✅ Fetched business settings');
-        return data || {};
+        return data?.[0] || {};
     } catch (error) {
         console.error('Error fetching business settings:', error);
         return {};
@@ -280,20 +251,16 @@ async function fetchBusinessSettings() {
 
 /**
  * Fetch invoices
- * @param {number} limit - Number of invoices to fetch
- * @returns {Promise<Array>} Array of invoices
  */
 async function fetchInvoices(limit = 10) {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('invoices')
+        const data = await supabase.from('invoices')
             .select('*')
-            .order('created_at', { ascending: false })
-            .limit(limit);
+            .limit(limit)
+            .execute();
         
-        if (error) throw error;
         console.log(`✅ Fetched ${data?.length || 0} invoices`);
         return data || [];
     } catch (error) {
@@ -304,18 +271,15 @@ async function fetchInvoices(limit = 10) {
 
 /**
  * Fetch customers
- * @returns {Promise<Array>} Array of customers
  */
 async function fetchCustomers() {
     try {
         const supabase = await getSupabaseClient();
         
-        const { data, error } = await supabase
-            .from('customers')
+        const data = await supabase.from('customers')
             .select('*')
-            .order('created_at', { ascending: false });
+            .execute();
         
-        if (error) throw error;
         console.log(`✅ Fetched ${data?.length || 0} customers`);
         return data || [];
     } catch (error) {
@@ -324,93 +288,10 @@ async function fetchCustomers() {
     }
 }
 
-/**
- * Save invoice
- * @param {Object} invoiceData - Invoice data to save
- * @returns {Promise<Object>} Saved invoice
- */
-async function saveInvoice(invoiceData) {
-    if (!invoiceData || typeof invoiceData !== 'object') {
-        throw new Error('Invalid invoice data');
-    }
-    
-    try {
-        const supabase = await getSupabaseClient();
-        
-        const { data, error } = await supabase
-            .from('invoices')
-            .insert([invoiceData])
-            .select();
-        
-        if (error) throw error;
-        console.log('✅ Invoice saved successfully');
-        return data?.[0] || null;
-    } catch (error) {
-        console.error('Error saving invoice:', error);
-        throw error;
-    }
-}
-
-/**
- * Save invoice items
- * @param {Array} items - Invoice items array
- * @returns {Promise<Array>} Saved items
- */
-async function saveInvoiceItems(items) {
-    if (!Array.isArray(items) || items.length === 0) {
-        throw new Error('Invalid items array');
-    }
-    
-    try {
-        const supabase = await getSupabaseClient();
-        
-        const { data, error } = await supabase
-            .from('invoice_items')
-            .insert(items)
-            .select();
-        
-        if (error) throw error;
-        console.log(`✅ ${items.length} invoice items saved`);
-        return data || [];
-    } catch (error) {
-        console.error('Error saving invoice items:', error);
-        throw error;
-    }
-}
-
-/**
- * Update business settings
- * @param {Object} settings - Settings to update
- * @returns {Promise<Object>} Updated settings
- */
-async function updateBusinessSettings(settings) {
-    if (!settings || typeof settings !== 'object') {
-        throw new Error('Invalid settings object');
-    }
-    
-    try {
-        const supabase = await getSupabaseClient();
-        
-        const { data, error } = await supabase
-            .from('business_settings')
-            .upsert([settings])
-            .select();
-        
-        if (error) throw error;
-        console.log('✅ Business settings updated');
-        return data?.[0] || null;
-    } catch (error) {
-        console.error('Error updating settings:', error);
-        throw error;
-    }
-}
-
 // ==================== VALIDATION ====================
 
 /**
  * Validate phone number format
- * @param {string} phone - Phone number to validate
- * @returns {boolean} True if valid
  */
 function validatePhone(phone) {
     const pattern = CONFIG.VALIDATION.PHONE_PATTERN || /^\d{10}$/;
@@ -419,8 +300,6 @@ function validatePhone(phone) {
 
 /**
  * Validate PIN format
- * @param {string} pin - PIN to validate
- * @returns {boolean} True if valid
  */
 function validatePIN(pin) {
     const pattern = CONFIG.VALIDATION.PIN_PATTERN || /^\d{6}$/;
@@ -429,8 +308,6 @@ function validatePIN(pin) {
 
 /**
  * Validate GSTIN format
- * @param {string} gstin - GSTIN to validate
- * @returns {boolean} True if valid
  */
 function validateGSTIN(gstin) {
     const pattern = CONFIG.VALIDATION.GSTIN_PATTERN || /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
@@ -439,8 +316,6 @@ function validateGSTIN(gstin) {
 
 /**
  * Validate email format
- * @param {string} email - Email to validate
- * @returns {boolean} True if valid
  */
 function validateEmail(email) {
     const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -451,8 +326,6 @@ function validateEmail(email) {
 
 /**
  * Format amount as Indian Rupees
- * @param {number} amount - Amount to format
- * @returns {string} Formatted currency string
  */
 function formatCurrency(amount) {
     if (isNaN(amount)) return '₹0.00';
@@ -467,9 +340,6 @@ function formatCurrency(amount) {
 
 /**
  * Calculate GST amount
- * @param {number} amount - Amount to calculate GST for
- * @param {number} gstPercentage - GST percentage
- * @returns {number} GST amount
  */
 function calculateGST(amount, gstPercentage) {
     if (isNaN(amount) || isNaN(gstPercentage)) return 0;
@@ -478,8 +348,6 @@ function calculateGST(amount, gstPercentage) {
 
 /**
  * Format date in Indian format
- * @param {string|Date} date - Date to format
- * @returns {string} Formatted date string (DD/MM/YYYY)
  */
 function formatDate(date) {
     try {
@@ -488,7 +356,7 @@ function formatDate(date) {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
-        }).replace(/\//g, '/');
+        });
     } catch (error) {
         console.error('Error formatting date:', error);
         return '';
@@ -497,8 +365,6 @@ function formatDate(date) {
 
 /**
  * Format date-time in Indian format
- * @param {string|Date} date - Date to format
- * @returns {string} Formatted date-time string
  */
 function formatDateTime(date) {
     try {
@@ -521,9 +387,6 @@ function formatDateTime(date) {
 
 /**
  * Show toast notification
- * @param {string} message - Message to display
- * @param {string} type - Notification type: 'info', 'success', 'error', 'warning'
- * @returns {HTMLElement} Toast element
  */
 function showToast(message, type = 'info') {
     const icons = {
@@ -548,7 +411,6 @@ function showToast(message, type = 'info') {
         font-weight: 500;
     `;
     
-    // Set background color based on type
     const colors = {
         success: '#4CAF50',
         error: '#F44336',
@@ -570,8 +432,6 @@ function showToast(message, type = 'info') {
 
 /**
  * Show or hide global loader
- * @param {boolean} show - True to show, false to hide
- * @returns {void}
  */
 function showLoader(show = true) {
     let loader = document.getElementById('global-loader');
