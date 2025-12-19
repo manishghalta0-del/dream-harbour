@@ -1,10 +1,15 @@
-<!-- Dream Harbour - Modern Login Design (Same Supabase Flow) -->
+<!-- Dream Harbour - Professional Login System -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dream Harbour - Professional Invoice Management System">
+    <meta name="theme-color" content="#667eea">
     <title>Dream Harbour - Login</title>
+    <!-- Load configuration first -->
+    <script src="config.js"></script>
+    <!-- Initialize Supabase -->
     <script src="supabase-init.js"></script>
     <style>
         * {
@@ -210,6 +215,19 @@
             display: block;
         }
 
+        .demo-credentials {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .demo-credentials strong {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
         @media (max-width: 600px) {
             .login-container {
                 padding: 40px 25px;
@@ -238,12 +256,28 @@
         <form id="loginForm" onsubmit="handleLogin(event)" novalidate>
             <div class="form-group">
                 <label for="phone">Phone Number (10 digits)</label>
-                <input type="tel" id="phone" name="phone" placeholder="Enter your 10-digit phone number" maxlength="10" inputmode="numeric" required>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    placeholder="Enter your 10-digit phone number" 
+                    maxlength="10" 
+                    inputmode="numeric" 
+                    autocomplete="off"
+                    required>
             </div>
 
             <div class="form-group">
                 <label for="pin">PIN (6 digits)</label>
-                <input type="password" id="pin" name="pin" placeholder="Enter your 6-digit PIN" maxlength="6" inputmode="numeric" required>
+                <input 
+                    type="password" 
+                    id="pin" 
+                    name="pin" 
+                    placeholder="Enter your 6-digit PIN" 
+                    maxlength="6" 
+                    inputmode="numeric" 
+                    autocomplete="off"
+                    required>
             </div>
 
             <button type="submit" class="btn">Login</button>
@@ -252,152 +286,191 @@
         <div id="info" class="message info"></div>
         <div id="error" class="message error"></div>
         <div id="success" class="message success"></div>
+
+        <div class="demo-credentials">
+            <strong>Demo Credentials:</strong><br>
+            Phone: <strong>9999999999</strong> PIN: <strong>123456</strong>
+        </div>
     </div>
 
-    <!-- NOTE: Supabase library is loaded by supabase-init.js, NO duplicate script tag needed here -->
+    <script src="app.js"></script>
     <script>
-        // NOTE: 'supabase' is provided globally by supabase-init.js
-        // Wait for it to be initialized
-        
-        async function waitForSupabase() {
-            // Wait for supabase-init.js to initialize
-            let attempts = 0;
-            while (attempts < 50) {
-                if (typeof getSupabaseClient === 'function') {
-                    try {
-                        const client = await getSupabaseClient();
-                        if (client) {
-                            console.log('✅ Supabase client ready from supabase-init.js');
-                            document.getElementById('info').textContent = '✅ Ready to login.';
-                            document.getElementById('info').classList.add('show');
-                            return client;
-                        }
-                    } catch (e) {
-                        console.error('Error getting Supabase client:', e);
-                    }
+        'use strict';
+
+        /**
+         * Get configuration with fallbacks
+         */
+        function getConfig() {
+            return typeof APP_CONFIG !== 'undefined' ? APP_CONFIG : {
+                VALIDATION: {
+                    PHONE_PATTERN: /^\d{10}$/,
+                    PIN_PATTERN: /^\d{6}$/
+                },
+                ERRORS: {
+                    INVALID_PHONE: 'Please enter a valid 10-digit phone number',
+                    INVALID_PIN: 'Please enter a valid 6-digit PIN'
+                },
+                SUCCESS: {
+                    LOGIN: 'Login successful! Redirecting...'
                 }
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            throw new Error('Supabase initialization timeout');
+            };
         }
 
-        async function initializeApp() {
-            console.log('✅ Initializing login page...');
+        /**
+         * Initialize login page
+         */
+        async function initializePage() {
+            console.log('🚀 Initializing login page...');
 
             try {
-                await waitForSupabase();
+                // Wait for Supabase to be ready
+                const maxAttempts = 30;
+                let attempts = 0;
+                
+                while (attempts < maxAttempts && !isSupabaseReady()) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+
+                if (!isSupabaseReady()) {
+                    console.warn('⚠️ Supabase not ready, but continuing with login...');
+                }
+
+                console.log('✅ Page initialized successfully');
+                hideMessage('info');
+                showMessage('info', '✅ Ready to login.');
             } catch (error) {
-                console.error('❌ Failed to initialize:', error);
-                document.getElementById('error').textContent = '❌ Failed to initialize. Please refresh the page.';
-                document.getElementById('error').classList.add('show');
+                console.error('❌ Initialization error:', error);
+                showMessage('error', '❌ Failed to initialize. Please refresh the page.');
+            }
+        }
+
+        /**
+         * Show message to user
+         */
+        function showMessage(type, message) {
+            const element = document.getElementById(type);
+            if (element) {
+                element.textContent = message;
+                element.classList.add('show');
+            }
+        }
+
+        /**
+         * Hide message
+         */
+        function hideMessage(type) {
+            const element = document.getElementById(type);
+            if (element) {
+                element.textContent = '';
+                element.classList.remove('show');
+            }
+        }
+
+        /**
+         * Handle login form submission
+         */
+        async function handleLogin(event) {
+            event.preventDefault();
+            console.log('🔐 Login attempt started');
+
+            const config = getConfig();
+            const phone = document.getElementById('phone').value.trim();
+            const pin = document.getElementById('pin').value.trim();
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+
+            // Clear messages
+            hideMessage('error');
+            hideMessage('success');
+            hideMessage('info');
+
+            // Validate inputs
+            if (!phone || !config.VALIDATION.PHONE_PATTERN.test(phone)) {
+                showMessage('error', config.ERRORS.INVALID_PHONE);
+                console.error('Invalid phone format');
                 return;
             }
 
-            window.handleLogin = async function(event) {
-                event.preventDefault();
-                console.log('🔐 Login attempt started');
+            if (!pin || !config.VALIDATION.PIN_PATTERN.test(pin)) {
+                showMessage('error', config.ERRORS.INVALID_PIN);
+                console.error('Invalid PIN format');
+                return;
+            }
 
-                const phone = document.getElementById('phone').value.trim();
-                const pin = document.getElementById('pin').value.trim();
-                const errorEl = document.getElementById('error');
-                const successEl = document.getElementById('success');
-                const infoEl = document.getElementById('info');
-                const submitBtn = document.querySelector('button[type="submit"]');
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Logging in...';
+            console.log(`📱 Attempting login with phone: ${phone}`);
 
-                errorEl.textContent = '';
-                errorEl.classList.remove('show');
-                successEl.textContent = '';
-                successEl.classList.remove('show');
-                infoEl.textContent = '';
-                infoEl.classList.remove('show');
+            try {
+                // Get Supabase client
+                const supabase = await getSupabaseClient();
+                console.log('📊 Querying users table...');
 
-                if (!phone || phone.length !== 10) {
-                    const msg = 'Please enter a valid 10-digit phone number';
-                    console.error(msg);
-                    errorEl.textContent = msg;
-                    errorEl.classList.add('show');
-                    return;
-                }
+                // Query for user
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('id, phone_number, full_name, role, is_active')
+                    .eq('phone_number', phone)
+                    .eq('pin', pin)
+                    .eq('is_active', true)
+                    .single();
 
-                if (!pin || pin.length !== 6) {
-                    const msg = 'Please enter a valid 6-digit PIN';
-                    console.error(msg);
-                    errorEl.textContent = msg;
-                    errorEl.classList.add('show');
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Logging in...';
-                console.log(`📱 Attempting login with phone: ${phone}`);
-
-                try {
-                    const supabase = await getSupabaseClient();
-                    console.log('📊 Querying users table...');
+                if (error) {
+                    const errorMsg = error.code === 'PGRST116' 
+                        ? '❌ Invalid phone number or PIN. Please try again.'
+                        : `❌ Database error: ${error.message}`;
                     
-                    const { data, error } = await supabase
-                        .from('users')
-                        .select('id, phone_number, full_name, role, is_active')
-                        .eq('phone_number', phone)
-                        .eq('pin', pin)
-                        .eq('is_active', true)
-                        .single();
-
-                    if (error) {
-                        console.error(`❌ Supabase query error: ${JSON.stringify(error)}`);
-                        errorEl.textContent = `❌ Database error: ${error.message}\n\nPlease check:\n1. Users table exists\n2. Test user exists with this phone/PIN\n3. Supabase credentials are correct`;
-                        errorEl.classList.add('show');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Login';
-                        return;
-                    }
-
-                    if (!data) {
-                        console.error('❌ No user found with provided credentials');
-                        errorEl.textContent = '❌ Invalid phone number or PIN. Please try again.\n\nIf you just created the user, make sure:\n- Phone number is correct (10 digits)\n- PIN is correct (6 digits)\n- is_active field is TRUE';
-                        errorEl.classList.add('show');
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Login';
-                        return;
-                    }
-
-                    console.log(`✅ User found: ${data.full_name}`);
-
-                    const userData = {
-                        id: data.id,
-                        phoneNumber: data.phone_number,
-                        fullName: data.full_name,
-                        role: data.role,
-                        loginTime: Date.now()
-                    };
-
-                    localStorage.setItem('dreamHarbourUser', JSON.stringify(userData));
-                    localStorage.setItem('dreamHarbourLoginTime', Date.now().toString());
-                    console.log('💾 User data saved to localStorage');
-
-                    successEl.textContent = '✅ Login successful! Redirecting to dashboard...';
-                    successEl.classList.add('show');
-
-                    setTimeout(() => {
-                        console.log('🔄 Redirecting to dashboard');
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-
-                } catch (error) {
-                    console.error(`❌ Unexpected error: ${error.message}\n${error.stack}`);
-                    errorEl.textContent = `❌ An error occurred: ${error.message}\n\nCheck the console for details.`;
-                    errorEl.classList.add('show');
+                    console.error('Query error:', error);
+                    showMessage('error', errorMsg);
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Login';
+                    return;
                 }
+
+                if (!data) {
+                    showMessage('error', '❌ Invalid phone number or PIN. Please try again.');
+                    console.error('No user found with provided credentials');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Login';
+                    return;
+                }
+
+                console.log(`✅ User found: ${data.full_name}`);
+
+                // Save user session
+                const userData = {
+                    id: data.id,
+                    phoneNumber: data.phone_number,
+                    fullName: data.full_name,
+                    role: data.role,
+                    loginTime: Date.now()
+                };
+
+                saveUserSession(userData);
+                console.log('💾 User data saved to session');
+
+                // Show success and redirect
+                showMessage('success', '✅ ' + (config.SUCCESS.LOGIN || 'Login successful! Redirecting...'));
+
+                setTimeout(() => {
+                    console.log('🔄 Redirecting to dashboard');
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Unexpected error:', error);
+                showMessage('error', `❌ An error occurred: ${error.message}`);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Login';
             }
         }
 
+        // Initialize on page load
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
+            document.addEventListener('DOMContentLoaded', initializePage);
         } else {
-            initializeApp();
+            initializePage();
         }
     </script>
 </body>
