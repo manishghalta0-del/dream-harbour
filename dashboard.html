@@ -868,20 +868,17 @@
                 if (!supabase) throw new Error('Supabase client not available');
 
                 log('📊 Fetching invoices...', 'info');
-                const { data: invoices, error: invoicesError } = await supabase
+                const invoices = await supabase
                     .from('invoices')
                     .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(10);
-
-                if (invoicesError) throw new Error(`Invoices query failed: ${invoicesError.message}`);
+                    .limit(10)
+                    .execute();
 
                 log('👥 Fetching customers...', 'info');
-                const { data: customers, error: customersError } = await supabase
+                const customers = await supabase
                     .from('customers')
-                    .select('*');
-
-                if (customersError) throw new Error(`Customers query failed: ${customersError.message}`);
+                    .select('*')
+                    .execute();
 
                 log(`✅ Loaded ${invoices?.length || 0} invoices and ${customers?.length || 0} customers`, 'success');
                 updateDashboardStats(invoices, customers);
