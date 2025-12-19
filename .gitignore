@@ -1,9 +1,9 @@
 # Environment Variables - NEVER commit these files!
-.env.local
 .env
+.env.local
 .env.*.local
 .env.production.local
-file.env.local
+*.env
 
 # IDE / Editor
 .vscode/
@@ -14,10 +14,16 @@ file.env.local
 .DS_Store
 .project
 .classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
 
-# OS
+# OS specific files
 Thumbs.db
 .DS_Store
+.AppleDouble
+.LSOverride
+*.lnk
 
 # Build & Dependencies
 node_modules/
@@ -27,12 +33,46 @@ build/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Testing
 coverage/
 .nyc_output/
+.coverage
+*.lcov
 
-# Misc
+# Temp files
 *.bak
+*.backup
 *.tmp
 *.temp
+*.swp
+*~
+.cache
+.parcel-cache
+
+# MacOS
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+.Xauthority
+.bash_logout
+.bash_profile
+.bash_history
+.bashrc
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Package manager lock files (optional - uncomment if needed)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
