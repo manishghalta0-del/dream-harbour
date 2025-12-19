@@ -9,7 +9,7 @@
     <title>Dream Harbour - Login</title>
     <!-- Load configuration first -->
     <script src="config.js"></script>
-    <!-- Initialize Supabase -->
+    <!-- Initialize Supabase - DO NOT add Supabase CDN script here, supabase-init.js handles it -->
     <script src="supabase-init.js"></script>
     <style>
         * {
@@ -293,6 +293,7 @@
         </div>
     </div>
 
+    <!-- Load app.js AFTER supabase-init.js -->
     <script src="app.js"></script>
     <script>
         'use strict';
