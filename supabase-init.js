@@ -50,7 +50,7 @@ function logSupabase(message, type = 'info') {
 
 /**
  * Supabase REST API Wrapper
- * Works without loading JavaScript library (avoids module conflicts)
+ * Mimics Supabase JS client API but uses native fetch
  */
 class SupabaseRESTClient {
     constructor(url, anonKey) {
@@ -65,24 +65,30 @@ class SupabaseRESTClient {
     }
 
     /**
-     * Execute a REST API call
+     * Execute REST API call
      */
-    async request(method, table, options = {}) {
+    async executeQuery(method, table, options = {}) {
         try {
             const url = new URL(`${this.apiUrl}/${table}`);
             
-            // Add query parameters
+            // Add select parameter
             if (options.select) {
                 url.searchParams.append('select', options.select);
             }
-            if (options.eq) {
-                Object.entries(options.eq).forEach(([key, value]) => {
-                    url.searchParams.append(`${key}=eq.${value}`);
+            
+            // Add filters
+            if (options.filters) {
+                Object.entries(options.filters).forEach(([key, value]) => {
+                    url.searchParams.append(`${key}`, `eq.${value}`);
                 });
             }
+            
+            // Add limit
             if (options.limit) {
                 url.searchParams.append('limit', options.limit);
             }
+            
+            // Add order
             if (options.order) {
                 url.searchParams.append('order', options.order);
             }
@@ -100,56 +106,88 @@ class SupabaseRESTClient {
             
             if (!response.ok) {
                 const error = await response.text();
-                throw new Error(`API Error: ${response.status} - ${error}`);
+                throw new Error(`API Error ${response.status}: ${error}`);
             }
 
-            return await response.json();
+            const data = await response.json();
+            return Array.isArray(data) ? data : [data];
         } catch (error) {
-            logSupabase(`API Error: ${error.message}`, 'error');
+            logSupabase(`Query error: ${error.message}`, 'error');
             throw error;
         }
     }
 
     /**
-     * Query a table with select, filters, etc
+     * Query builder - from().select()
      */
     from(table) {
+        const self = this;
+        let selectCols = '*';
+        let filters = {};
+        let limitVal = null;
+        let orderVal = null;
+
         return {
-            select: (columns = '*') => ({
-                eq: (field, value) => ({
-                    eq: { [field]: value },
-                    select: columns,
-                    table,
-                    execute: () => this.request('GET', table, {
-                        select: columns,
-                        eq: { [field]: value }
-                    })
-                }),
-                // Direct select without filters
-                limit: (count) => ({
-                    table,
-                    select: columns,
-                    limit: count,
-                    order: (column, ascending = true) => ({
-                        table,
-                        select: columns,
-                        limit: count,
-                        order: `${column}.${ascending ? 'asc' : 'desc'}`,
-                        execute: () => this.request('GET', table, {
-                            select: columns,
-                            limit: count,
-                            order: `${column}.${ascending ? 'asc' : 'desc'}`
-                        })
-                    }),
-                    execute: () => this.request('GET', table, {
-                        select: columns,
-                        limit: count
-                    })
-                }),
-                execute: () => this.request('GET', table, {
-                    select: columns
-                })
-            })
+            select: (columns = '*') => {
+                selectCols = columns;
+                return {
+                    /**
+                     * Add filter with eq operator
+                     */
+                    eq: (field, value) => {
+                        filters[field] = value;
+                        return this; // Return self for chaining
+                    },
+                    /**
+                     * Add limit
+                     */
+                    limit: (count) => {
+                        limitVal = count;
+                        return this;
+                    },
+                    /**
+                     * Add ordering
+                     */
+                    order: (field, ascending = true) => {
+                        orderVal = `${field}.${ascending ? 'asc' : 'desc'}`;
+                        return this;
+                    },
+                    /**
+                     * Execute the query
+                     */
+                    execute: async () => {
+                        return self.executeQuery('GET', table, {
+                            select: selectCols,
+                            filters: filters,
+                            limit: limitVal,
+                            order: orderVal
+                        });
+                    },
+                    /**
+                     * Then method for promise-like API
+                     */
+                    then: (onSuccess, onError) => {
+                        return self.executeQuery('GET', table, {
+                            select: selectCols,
+                            filters: filters,
+                            limit: limitVal,
+                            order: orderVal
+                        }).then(onSuccess, onError);
+                    },
+                    /**
+                     * Single method - gets first result
+                     */
+                    single: async () => {
+                        const results = await self.executeQuery('GET', table, {
+                            select: selectCols,
+                            filters: filters,
+                            limit: 1,
+                            order: orderVal
+                        });
+                        return results[0] || null;
+                    }
+                };
+            }
         };
     }
 
@@ -157,8 +195,13 @@ class SupabaseRESTClient {
      * Insert rows
      */
     insert(table, data) {
+        const self = this;
         return {
-            execute: () => this.request('POST', table, { body: Array.isArray(data) ? data : [data] })
+            execute: async () => {
+                return self.executeQuery('POST', table, { 
+                    body: Array.isArray(data) ? data : [data] 
+                });
+            }
         };
     }
 
@@ -166,13 +209,18 @@ class SupabaseRESTClient {
      * Update rows
      */
     update(table, data) {
+        const self = this;
         return {
-            eq: (field, value) => ({
-                execute: () => this.request('PATCH', table, {
-                    body: data,
-                    eq: { [field]: value }
-                })
-            })
+            eq: (field, value) => {
+                return {
+                    execute: async () => {
+                        return self.executeQuery('PATCH', table, {
+                            body: data,
+                            filters: { [field]: value }
+                        });
+                    }
+                };
+            }
         };
     }
 }
@@ -215,7 +263,7 @@ async function initSupabase() {
             // Verify connection works
             try {
                 logSupabase('Testing connection to Supabase...', 'loading');
-                // Simple health check - try to read from users table
+                // Simple health check
                 const result = await supabaseClient.from('users')
                     .select('id')
                     .limit(1)
@@ -246,7 +294,6 @@ async function initSupabase() {
 
 /**
  * Get the Supabase client (waits for initialization if needed)
- * @returns {Promise<Object>} Supabase REST client
  */
 async function getSupabaseClient() {
     if (!supabaseClient || !supabaseReady) {
