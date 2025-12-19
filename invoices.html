@@ -1245,9 +1245,8 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-init.js"></script>
     <script>
-        let supabase;
         let allInvoices = [];
         let allCustomers = [];
         let allServices = [];
@@ -1339,16 +1338,18 @@
 
         async function generateNextInvoiceNumber() {
             try {
+                const supabase = await getSupabaseClient();
                 const istDate = getISTDate();
                 const dateString = formatDateAsYYYYMMDD(istDate);
                 const datePrefix = `DH-${dateString}`;
 
-                const { data: todayInvoices, error } = await supabase
+                const data = await supabase
                     .from('invoices')
                     .select('invoice_number')
-                    .ilike('invoice_number', `${datePrefix}%`);
+                    .ilike('invoice_number', `${datePrefix}%`)
+                    .execute();
 
-                if (error) throw error;
+                let todayInvoices = data.body || [];
 
                 let nextNumber = 1;
                 if (todayInvoices && todayInvoices.length > 0) {
@@ -1736,13 +1737,15 @@
 
         async function loadCustomerQuickServices(customerId) {
             try {
-                const { data: customerServices, error } = await supabase
+                const supabase = await getSupabaseClient();
+                const data = await supabase
                     .from('customer_services')
                     .select('*')
                     .eq('customer_id', customerId)
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .execute();
 
-                if (error) throw error;
+                const customerServices = data.body || [];
 
                 if (customerServices && customerServices.length > 0) {
                     displayQuickServices(customerServices);
@@ -1800,12 +1803,7 @@
             showModalAlert(`✅ ${serviceName} ready to add. Click 'Add to Invoice'`, 'success');
         }
 
-        function initializeApp() {
-            if (typeof window.supabase === 'undefined' || !window.supabase.createClient) {
-                setTimeout(initializeApp, 100);
-                return;
-            }
-
+        async function initializeApp() {
             const user = localStorage.getItem('dreamHarbourUser');
             if (!user) {
                 window.location.href = 'index.html';
@@ -1821,17 +1819,14 @@
                 console.error('Error parsing user data:', e);
             }
 
-            const SUPABASE_URL = 'https://lqrewteclbexiknvhenk.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcmV3dGVjbGJleGlrbnZoZW5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NjQ2MDMsImV4cCI6MjA3NzA0MDYwM30.YLKmzuy3tfa9S09fzk4lYphBcl6a1jkeur3hUBaAHO8';
-            
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            loadBusinessSettings();
-            loadCustomers();
-            loadCategories();
-            loadServices();
-            loadSubServices();
-            loadCustomerServices();
-            loadInvoices();
+            const supabase = await getSupabaseClient();
+            loadBusinessSettings(supabase);
+            loadCustomers(supabase);
+            loadCategories(supabase);
+            loadServices(supabase);
+            loadSubServices(supabase);
+            loadCustomerServices(supabase);
+            loadInvoices(supabase);
         }
 
         function showModalAlert(message, type = 'info') {
@@ -1855,87 +1850,87 @@
             }, 5000);
         }
 
-        async function loadBusinessSettings() {
+        async function loadBusinessSettings(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('business_settings')
                     .select('*')
-                    .limit(1);
+                    .limit(1)
+                    .execute();
 
-                if (error) throw error;
-                allBusinessSettings = data || [];
+                allBusinessSettings = data.body || [];
             } catch (error) {
                 console.error('Error loading business settings:', error);
             }
         }
 
-        async function loadCustomers() {
+        async function loadCustomers(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('customers')
-                    .select('*');
+                    .select('*')
+                    .execute();
 
-                if (error) throw error;
-                allCustomers = data || [];
+                allCustomers = data.body || [];
             } catch (error) {
                 console.error('Error loading customers:', error);
                 showModalAlert('Error loading customers', 'error');
             }
         }
 
-        async function loadCategories() {
+        async function loadCategories(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('service_categories')
                     .select('*')
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .execute();
 
-                if (error) throw error;
-                allCategories = data || [];
+                allCategories = data.body || [];
             } catch (error) {
                 console.error('Error loading categories:', error);
             }
         }
 
-        async function loadServices() {
+        async function loadServices(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('service_items')
                     .select('*')
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .execute();
 
-                if (error) throw error;
-                allServices = data || [];
+                allServices = data.body || [];
             } catch (error) {
                 console.error('Error loading services:', error);
                 showModalAlert('Error loading services', 'error');
             }
         }
 
-        async function loadSubServices() {
+        async function loadSubServices(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('service_sub_items')
                     .select('*')
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .execute();
 
-                if (error) throw error;
-                allSubServices = data || [];
+                allSubServices = data.body || [];
             } catch (error) {
                 console.error('Error loading sub-services:', error);
                 showModalAlert('Error loading sub-services', 'error');
             }
         }
 
-        async function loadCustomerServices() {
+        async function loadCustomerServices(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('customer_services')
                     .select('*')
-                    .eq('is_active', true);
+                    .eq('is_active', true)
+                    .execute();
 
-                if (error) throw error;
-                allCustomerServices = data || [];
+                allCustomerServices = data.body || [];
             } catch (error) {
                 console.error('Error loading customer services:', error);
             }
@@ -1943,6 +1938,7 @@
 
         async function saveGeneratedInvoice() {
             try {
+                const supabase = await getSupabaseClient();
                 const invoiceNumber = document.getElementById('genInvoiceNumber').value;
                 const mobile = document.getElementById('genCustomerMobile').value.trim();
                 const customerName = document.getElementById('genCustomerName').value.trim();
@@ -1989,14 +1985,14 @@
                 if (selectedCustomer && selectedCustomer.id) {
                     customerId = selectedCustomer.id;
                 } else {
-                    const { data: newCustomer, error: customerError } = await supabase
+                    const newCustomerData = await supabase
                         .from('customers')
                         .insert([customerData])
                         .select('id')
-                        .single();
+                        .single()
+                        .execute();
 
-                    if (customerError) throw customerError;
-                    customerId = newCustomer.id;
+                    customerId = newCustomerData.body.id;
                     showModalAlert('✅ New customer record created!', 'info');
                 }
 
@@ -2016,17 +2012,16 @@
                     balance_amount: totalAmount
                 };
 
-                const { error } = await supabase
+                await supabase
                     .from('invoices')
-                    .insert([invoiceData]);
-
-                if (error) throw error;
+                    .insert([invoiceData])
+                    .execute();
 
                 showModalAlert('✅ Invoice saved successfully!', 'success');
                 
                 setTimeout(() => {
                     closeGenerator();
-                    loadInvoices();
+                    loadInvoices(supabase);
                 }, 1000);
                 
             } catch (error) {
@@ -2038,16 +2033,15 @@
             }
         }
 
-        async function loadInvoices() {
+        async function loadInvoices(supabase) {
             try {
-                const { data, error } = await supabase
+                const data = await supabase
                     .from('invoices')
                     .select('*')
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false })
+                    .execute();
 
-                if (error) throw error;
-
-                allInvoices = data || [];
+                allInvoices = data.body || [];
                 filteredInvoices = [...allInvoices];
                 renderInvoices();
             } catch (error) {
@@ -2119,14 +2113,15 @@
             if (!confirm('Are you sure you want to delete this invoice?')) return;
 
             try {
-                const { error } = await supabase
+                const supabase = await getSupabaseClient();
+                await supabase
                     .from('invoices')
                     .delete()
-                    .eq('id', invoiceId);
+                    .eq('id', invoiceId)
+                    .execute();
 
-                if (error) throw error;
                 showModalAlert('✅ Invoice deleted successfully!', 'success');
-                loadInvoices();
+                loadInvoices(supabase);
             } catch (error) {
                 console.error('Error deleting invoice:', error);
                 showModalAlert('Error deleting invoice: ' + error.message, 'error');
