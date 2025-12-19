@@ -3,6 +3,10 @@
  * Ensures Supabase is loaded and initialized only once globally
  * All pages should use this instead of duplicating initialization logic
  * 
+ * IMPORTANT: This file handles loading the Supabase library from CDN.
+ * Do NOT add <script src="@supabase/supabase-js"> in HTML files.
+ * Only include this file and let it handle the library loading.
+ * 
  * Usage: const client = await getSupabaseClient();
  */
 
@@ -54,6 +58,32 @@ function logSupabase(message, type = 'info') {
 }
 
 /**
+ * Check if Supabase library is available in window
+ * Handles both @supabase/supabase-js and supabaseJs naming conventions
+ * @returns {boolean} True if Supabase is available
+ */
+function isSupabaseAvailable() {
+    return (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') ||
+           (typeof window.supabaseJs !== 'undefined' && typeof window.supabaseJs.createClient === 'function');
+}
+
+/**
+ * Get Supabase library from window (handles different naming conventions)
+ * @returns {Object|null} Supabase library or null
+ */
+function getSupabaseLibrary() {
+    // Try standard window.supabase first
+    if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+        return window.supabase;
+    }
+    // Try alternative window.supabaseJs
+    if (typeof window.supabaseJs !== 'undefined' && typeof window.supabaseJs.createClient === 'function') {
+        return window.supabaseJs;
+    }
+    return null;
+}
+
+/**
  * Load the Supabase library from CDN
  * Handles race conditions with multiple simultaneous load attempts
  * @returns {Promise<boolean>} True if library loaded, false otherwise
@@ -61,27 +91,26 @@ function logSupabase(message, type = 'info') {
 function loadSupabaseLibrary() {
     return new Promise((resolve) => {
         // Check if library is already loaded
-        if (typeof window.supabase !== 'undefined' && 
-            typeof window.supabase.createClient === 'function') {
-            logSupabase('Supabase library already available', 'success');
+        if (isSupabaseAvailable()) {
+            logSupabase('Supabase library already available in window', 'success');
             resolve(true);
             return;
         }
 
         // Check if script is already loading
         const existingScript = document.querySelector('script[src*="@supabase/supabase-js"]');
-        if (existingScript) {
-            logSupabase('Supabase script already in progress, waiting for library...', 'loading');
+        if (existingScript && existingScript.getAttribute('data-loading') === 'true') {
+            // Script is already loading, wait for it
+            logSupabase('Supabase script already loading, waiting for library...', 'loading');
             
             let attempts = 0;
             const maxAttempts = 100; // ~10 seconds timeout
             const checkInterval = setInterval(() => {
                 attempts++;
                 
-                if (typeof window.supabase !== 'undefined' && 
-                    typeof window.supabase.createClient === 'function') {
+                if (isSupabaseAvailable()) {
                     clearInterval(checkInterval);
-                    logSupabase('Supabase library loaded successfully', 'success');
+                    logSupabase('Supabase library ready in window', 'success');
                     resolve(true);
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
@@ -97,22 +126,35 @@ function loadSupabaseLibrary() {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
         script.async = true;
-        script.defer = true;
+        script.type = 'text/javascript';
+        script.setAttribute('data-loading', 'true');
         
         script.onload = () => {
-            // Verify library is accessible
-            if (typeof window.supabase !== 'undefined' && 
-                typeof window.supabase.createClient === 'function') {
-                logSupabase('Supabase library loaded from CDN', 'success');
-                resolve(true);
-            } else {
-                logSupabase('Supabase library loaded but createClient not found', 'error');
-                resolve(false);
-            }
+            script.setAttribute('data-loading', 'false');
+            // Give a small delay for the library to be available in window
+            setTimeout(() => {
+                if (isSupabaseAvailable()) {
+                    logSupabase('Supabase library loaded and available', 'success');
+                    resolve(true);
+                } else {
+                    logSupabase('Supabase library loaded but not found in window object', 'warning');
+                    // Try once more
+                    setTimeout(() => {
+                        if (isSupabaseAvailable()) {
+                            logSupabase('Supabase library now available in window', 'success');
+                            resolve(true);
+                        } else {
+                            logSupabase('Failed to access Supabase library', 'error');
+                            resolve(false);
+                        }
+                    }, 200);
+                }
+            }, 200);
         };
         
-        script.onerror = () => {
-            logSupabase('Failed to load Supabase library from CDN', 'error');
+        script.onerror = (error) => {
+            script.setAttribute('data-loading', 'false');
+            logSupabase('Failed to load Supabase library from CDN: ' + error, 'error');
             resolve(false);
         };
         
@@ -128,20 +170,20 @@ function loadSupabaseLibrary() {
 async function initSupabase() {
     // Return existing promise if already initializing
     if (supabaseInitPromise) {
-        logSupabase('Initialization already in progress, using existing promise', 'loading');
+        logSupabase('Initialization already in progress, returning existing promise', 'loading');
         return supabaseInitPromise;
     }
 
     // Return cached client if already initialized
     if (supabaseReady && supabase !== null) {
-        logSupabase('Supabase already initialized, returning cached client', 'success');
+        logSupabase('Supabase already initialized, returning cached instance', 'success');
         return supabase;
     }
 
     // Create initialization promise
     supabaseInitPromise = (async () => {
         try {
-            logSupabase('Starting Supabase initialization...', 'loading');
+            logSupabase('Starting Supabase initialization (attempt ' + (initializationAttempts + 1) + '/' + MAX_INIT_ATTEMPTS + ')...', 'loading');
             initializationAttempts++;
 
             // Load library
@@ -152,59 +194,66 @@ async function initSupabase() {
                 return null;
             }
 
-            // Verify library is in window
-            if (typeof window.supabase === 'undefined') {
-                logSupabase('window.supabase is undefined after loading', 'error');
+            // Get the library from window
+            const supabaseLib = getSupabaseLibrary();
+            if (!supabaseLib) {
+                logSupabase('Supabase library not found in window object', 'error');
                 supabaseInitPromise = null;
                 return null;
             }
 
             // Verify createClient method exists
-            if (typeof window.supabase.createClient !== 'function') {
-                logSupabase('window.supabase.createClient is not a function', 'error');
+            if (typeof supabaseLib.createClient !== 'function') {
+                logSupabase('supabase.createClient is not a function', 'error');
                 supabaseInitPromise = null;
                 return null;
             }
 
             // Validate configuration
             if (!SUPABASE_CONFIG.URL || !SUPABASE_CONFIG.ANON_KEY) {
-                logSupabase('Supabase configuration is invalid', 'error');
+                logSupabase('Supabase configuration is invalid or missing', 'error');
                 supabaseInitPromise = null;
                 return null;
             }
 
             // Create client
-            logSupabase('Creating Supabase client...', 'loading');
-            supabase = window.supabase.createClient(
-                SUPABASE_CONFIG.URL,
-                SUPABASE_CONFIG.ANON_KEY
-            );
+            logSupabase('Creating Supabase client with provided credentials...', 'loading');
+            try {
+                supabase = supabaseLib.createClient(
+                    SUPABASE_CONFIG.URL,
+                    SUPABASE_CONFIG.ANON_KEY
+                );
+            } catch (createError) {
+                logSupabase('Failed to create Supabase client: ' + createError.message, 'error');
+                supabaseInitPromise = null;
+                return null;
+            }
 
             // Verify client was created
             if (!supabase || typeof supabase.from !== 'function') {
-                logSupabase('Failed to create Supabase client', 'error');
+                logSupabase('Supabase client created but invalid (missing methods)', 'error');
                 supabaseInitPromise = null;
                 return null;
             }
 
             supabaseReady = true;
-            logSupabase('Supabase initialized successfully!', 'success');
-            logSupabase('Application is ready', 'info');
+            logSupabase('Supabase initialized successfully! Ready to use.', 'success');
 
             return supabase;
         } catch (error) {
-            logSupabase(`Initialization error: ${error.message}`, 'error');
-            console.error('Full error:', error);
+            logSupabase(`Unexpected error during initialization: ${error.message}`, 'error');
+            console.error('Full error details:', error);
             supabaseReady = false;
             supabaseInitPromise = null; // Reset for retry
             
             // Retry logic
             if (initializationAttempts < MAX_INIT_ATTEMPTS) {
-                logSupabase(`Retrying initialization (attempt ${initializationAttempts}/${MAX_INIT_ATTEMPTS})...`, 'warning');
-                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+                logSupabase(`Retrying initialization in 2 seconds...`, 'warning');
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 return initSupabase();
             }
             
+            logSupabase(`Gave up after ${MAX_INIT_ATTEMPTS} attempts`, 'error');
             return null;
         }
     })();
@@ -224,7 +273,7 @@ async function getSupabaseClient() {
     }
     
     if (!supabase) {
-        const error = new Error('Failed to initialize Supabase client after multiple attempts');
+        const error = new Error('Failed to initialize Supabase client');
         logSupabase(error.message, 'error');
         throw error;
     }
@@ -255,14 +304,14 @@ function resetSupabase() {
 // Auto-initialize on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        logSupabase('DOM loaded, auto-initializing Supabase...', 'info');
+        logSupabase('DOM loaded, starting auto-initialization...', 'info');
         initSupabase().catch(err => {
-            logSupabase(`Failed to auto-initialize: ${err.message}`, 'error');
+            logSupabase(`Auto-initialization error: ${err.message}`, 'error');
         });
     });
 } else {
-    logSupabase('DOM already loaded, auto-initializing Supabase...', 'info');
+    logSupabase('DOM already loaded, starting auto-initialization...', 'info');
     initSupabase().catch(err => {
-        logSupabase(`Failed to auto-initialize: ${err.message}`, 'error');
+        logSupabase(`Auto-initialization error: ${err.message}`, 'error');
     });
 }
