@@ -63,8 +63,12 @@ function logSupabase(message, type = 'info') {
  * @returns {boolean} True if Supabase is available
  */
 function isSupabaseAvailable() {
-    return (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') ||
-           (typeof window.supabaseJs !== 'undefined' && typeof window.supabaseJs.createClient === 'function');
+    try {
+        return (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') ||
+               (typeof window.supabaseJs !== 'undefined' && typeof window.supabaseJs.createClient === 'function');
+    } catch (e) {
+        return false;
+    }
 }
 
 /**
@@ -72,20 +76,37 @@ function isSupabaseAvailable() {
  * @returns {Object|null} Supabase library or null
  */
 function getSupabaseLibrary() {
-    // Try standard window.supabase first
-    if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
-        return window.supabase;
-    }
-    // Try alternative window.supabaseJs
-    if (typeof window.supabaseJs !== 'undefined' && typeof window.supabaseJs.createClient === 'function') {
-        return window.supabaseJs;
+    try {
+        if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+            return window.supabase;
+        }
+        if (typeof window.supabaseJs !== 'undefined' && typeof window.supabaseJs.createClient === 'function') {
+            return window.supabaseJs;
+        }
+    } catch (e) {
+        console.error('Error accessing Supabase library:', e);
     }
     return null;
 }
 
 /**
+ * Clean up old Supabase scripts (prevent conflicts)
+ */
+function cleanupOldScripts() {
+    // Remove any partially loaded Supabase scripts
+    const scripts = document.querySelectorAll('script[src*="supabase-js"]');
+    scripts.forEach((script, index) => {
+        // Keep only the first one that's already loaded
+        if (index > 0 && !isSupabaseAvailable()) {
+            logSupabase('Removing duplicate Supabase script tag', 'warning');
+            script.remove();
+        }
+    });
+}
+
+/**
  * Load the Supabase library from CDN
- * Handles race conditions with multiple simultaneous load attempts
+ * Uses UMD build to avoid module conflicts
  * @returns {Promise<boolean>} True if library loaded, false otherwise
  */
 function loadSupabaseLibrary() {
@@ -98,19 +119,19 @@ function loadSupabaseLibrary() {
         }
 
         // Check if script is already loading
-        const existingScript = document.querySelector('script[src*="@supabase/supabase-js"]');
-        if (existingScript && existingScript.getAttribute('data-loading') === 'true') {
-            // Script is already loading, wait for it
-            logSupabase('Supabase script already loading, waiting for library...', 'loading');
+        const existingScript = document.querySelector('script[src*="supabase-js"]');
+        if (existingScript) {
+            // Script exists, wait for library to be available
+            logSupabase('Supabase script already present, waiting for library...', 'loading');
             
             let attempts = 0;
-            const maxAttempts = 100; // ~10 seconds timeout
+            const maxAttempts = 150; // ~15 seconds timeout
             const checkInterval = setInterval(() => {
                 attempts++;
                 
                 if (isSupabaseAvailable()) {
                     clearInterval(checkInterval);
-                    logSupabase('Supabase library ready in window', 'success');
+                    logSupabase('Supabase library ready', 'success');
                     resolve(true);
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
@@ -121,42 +142,53 @@ function loadSupabaseLibrary() {
             return;
         }
 
-        // Load library from CDN
-        logSupabase('Loading Supabase library from CDN...', 'loading');
+        // Load library from CDN using UMD build (not ESM)
+        logSupabase('Loading Supabase library from CDN (UMD build)...', 'loading');
+        
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-        script.async = true;
+        // Use UMD build which doesn't have module declaration conflicts
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
         script.type = 'text/javascript';
-        script.setAttribute('data-loading', 'true');
+        script.async = true;
+        
+        let scriptLoaded = false;
         
         script.onload = () => {
-            script.setAttribute('data-loading', 'false');
-            // Give a small delay for the library to be available in window
-            setTimeout(() => {
+            scriptLoaded = true;
+            logSupabase('Supabase script onload event fired', 'info');
+            
+            // Wait for library to be available in window
+            let waitAttempts = 0;
+            const waitInterval = setInterval(() => {
+                waitAttempts++;
+                
                 if (isSupabaseAvailable()) {
-                    logSupabase('Supabase library loaded and available', 'success');
+                    clearInterval(waitInterval);
+                    logSupabase('Supabase library successfully loaded from CDN', 'success');
                     resolve(true);
-                } else {
-                    logSupabase('Supabase library loaded but not found in window object', 'warning');
-                    // Try once more
-                    setTimeout(() => {
-                        if (isSupabaseAvailable()) {
-                            logSupabase('Supabase library now available in window', 'success');
-                            resolve(true);
-                        } else {
-                            logSupabase('Failed to access Supabase library', 'error');
-                            resolve(false);
-                        }
-                    }, 200);
+                } else if (waitAttempts >= 50) { // 5 seconds
+                    clearInterval(waitInterval);
+                    logSupabase('Library loaded but not available in window', 'error');
+                    resolve(false);
                 }
-            }, 200);
+            }, 100);
         };
         
         script.onerror = (error) => {
-            script.setAttribute('data-loading', 'false');
-            logSupabase('Failed to load Supabase library from CDN: ' + error, 'error');
+            logSupabase(`CDN script error: ${error}`, 'error');
             resolve(false);
         };
+        
+        // Handle timeout
+        const timeoutId = setTimeout(() => {
+            if (!scriptLoaded) {
+                logSupabase('CDN script loading timeout', 'error');
+                resolve(false);
+            }
+        }, 15000); // 15 second timeout
+        
+        script.addEventListener('load', () => clearTimeout(timeoutId));
+        script.addEventListener('error', () => clearTimeout(timeoutId));
         
         document.head.appendChild(script);
     });
@@ -170,7 +202,7 @@ function loadSupabaseLibrary() {
 async function initSupabase() {
     // Return existing promise if already initializing
     if (supabaseInitPromise) {
-        logSupabase('Initialization already in progress, returning existing promise', 'loading');
+        logSupabase('Initialization already in progress, using existing promise', 'loading');
         return supabaseInitPromise;
     }
 
@@ -183,13 +215,16 @@ async function initSupabase() {
     // Create initialization promise
     supabaseInitPromise = (async () => {
         try {
-            logSupabase('Starting Supabase initialization (attempt ' + (initializationAttempts + 1) + '/' + MAX_INIT_ATTEMPTS + ')...', 'loading');
+            logSupabase(`Starting Supabase initialization (attempt ${initializationAttempts + 1}/${MAX_INIT_ATTEMPTS})...`, 'loading');
             initializationAttempts++;
+
+            // Clean up any old script tags first
+            cleanupOldScripts();
 
             // Load library
             const libraryLoaded = await loadSupabaseLibrary();
             if (!libraryLoaded) {
-                logSupabase('Failed to load Supabase library', 'error');
+                logSupabase('Failed to load Supabase library from CDN', 'error');
                 supabaseInitPromise = null; // Reset for retry
                 return null;
             }
@@ -204,7 +239,7 @@ async function initSupabase() {
 
             // Verify createClient method exists
             if (typeof supabaseLib.createClient !== 'function') {
-                logSupabase('supabase.createClient is not a function', 'error');
+                logSupabase('window.supabase.createClient is not a function', 'error');
                 supabaseInitPromise = null;
                 return null;
             }
@@ -224,7 +259,7 @@ async function initSupabase() {
                     SUPABASE_CONFIG.ANON_KEY
                 );
             } catch (createError) {
-                logSupabase('Failed to create Supabase client: ' + createError.message, 'error');
+                logSupabase(`Failed to create Supabase client: ${createError.message}`, 'error');
                 supabaseInitPromise = null;
                 return null;
             }
@@ -304,13 +339,13 @@ function resetSupabase() {
 // Auto-initialize on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        logSupabase('DOM loaded, starting auto-initialization...', 'info');
+        logSupabase('DOM loaded, auto-initializing Supabase...', 'info');
         initSupabase().catch(err => {
             logSupabase(`Auto-initialization error: ${err.message}`, 'error');
         });
     });
 } else {
-    logSupabase('DOM already loaded, starting auto-initialization...', 'info');
+    logSupabase('DOM already loaded, auto-initializing Supabase...', 'info');
     initSupabase().catch(err => {
         logSupabase(`Auto-initialization error: ${err.message}`, 'error');
     });
