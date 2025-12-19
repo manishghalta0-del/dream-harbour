@@ -254,6 +254,7 @@ class SupabaseRESTClient {
             // For POST/PATCH, data is the inserted/updated record(s)
             // For GET, data is array of records
             // For DELETE, data is typically empty but return it anyway
+            // Always return as array for consistency
             if (Array.isArray(data)) {
                 return data;
             } else if (data) {
