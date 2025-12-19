@@ -1,8 +1,6 @@
 /**
  * Centralized Supabase Initialization Module
  * Uses Supabase REST API directly instead of JavaScript client to avoid module conflicts
- * 
- * Usage: const client = await getSupabaseClient();
  */
 
 'use strict';
@@ -49,8 +47,45 @@ function logSupabase(message, type = 'info') {
 }
 
 /**
+ * Query Builder class for method chaining
+ */
+class QueryBuilder {
+    constructor(client, table, selectCols = '*') {
+        this.client = client;
+        this.table = table;
+        this.selectCols = selectCols;
+        this.filters = {};
+        this.limitVal = null;
+        this.orderVal = null;
+    }
+
+    eq(field, value) {
+        this.filters[field] = value;
+        return this; // Return self for chaining
+    }
+
+    limit(count) {
+        this.limitVal = count;
+        return this;
+    }
+
+    order(field, ascending = true) {
+        this.orderVal = `${field}.${ascending ? 'asc' : 'desc'}`;
+        return this;
+    }
+
+    async execute() {
+        return this.client.executeQuery('GET', this.table, {
+            select: this.selectCols,
+            filters: this.filters,
+            limit: this.limitVal,
+            order: this.orderVal
+        });
+    }
+}
+
+/**
  * Supabase REST API Wrapper
- * Mimics Supabase JS client API but uses native fetch
  */
 class SupabaseRESTClient {
     constructor(url, anonKey) {
@@ -77,9 +112,9 @@ class SupabaseRESTClient {
             }
             
             // Add filters
-            if (options.filters) {
+            if (options.filters && Object.keys(options.filters).length > 0) {
                 Object.entries(options.filters).forEach(([key, value]) => {
-                    url.searchParams.append(`${key}`, `eq.${value}`);
+                    url.searchParams.append(key, `eq.${value}`);
                 });
             }
             
@@ -122,104 +157,9 @@ class SupabaseRESTClient {
      */
     from(table) {
         const self = this;
-        let selectCols = '*';
-        let filters = {};
-        let limitVal = null;
-        let orderVal = null;
-
         return {
             select: (columns = '*') => {
-                selectCols = columns;
-                return {
-                    /**
-                     * Add filter with eq operator
-                     */
-                    eq: (field, value) => {
-                        filters[field] = value;
-                        return this; // Return self for chaining
-                    },
-                    /**
-                     * Add limit
-                     */
-                    limit: (count) => {
-                        limitVal = count;
-                        return this;
-                    },
-                    /**
-                     * Add ordering
-                     */
-                    order: (field, ascending = true) => {
-                        orderVal = `${field}.${ascending ? 'asc' : 'desc'}`;
-                        return this;
-                    },
-                    /**
-                     * Execute the query
-                     */
-                    execute: async () => {
-                        return self.executeQuery('GET', table, {
-                            select: selectCols,
-                            filters: filters,
-                            limit: limitVal,
-                            order: orderVal
-                        });
-                    },
-                    /**
-                     * Then method for promise-like API
-                     */
-                    then: (onSuccess, onError) => {
-                        return self.executeQuery('GET', table, {
-                            select: selectCols,
-                            filters: filters,
-                            limit: limitVal,
-                            order: orderVal
-                        }).then(onSuccess, onError);
-                    },
-                    /**
-                     * Single method - gets first result
-                     */
-                    single: async () => {
-                        const results = await self.executeQuery('GET', table, {
-                            select: selectCols,
-                            filters: filters,
-                            limit: 1,
-                            order: orderVal
-                        });
-                        return results[0] || null;
-                    }
-                };
-            }
-        };
-    }
-
-    /**
-     * Insert rows
-     */
-    insert(table, data) {
-        const self = this;
-        return {
-            execute: async () => {
-                return self.executeQuery('POST', table, { 
-                    body: Array.isArray(data) ? data : [data] 
-                });
-            }
-        };
-    }
-
-    /**
-     * Update rows
-     */
-    update(table, data) {
-        const self = this;
-        return {
-            eq: (field, value) => {
-                return {
-                    execute: async () => {
-                        return self.executeQuery('PATCH', table, {
-                            body: data,
-                            filters: { [field]: value }
-                        });
-                    }
-                };
+                return new QueryBuilder(self, table, columns);
             }
         };
     }
@@ -252,7 +192,7 @@ async function initSupabase() {
                 return null;
             }
 
-            // Create REST API client (no library loading needed!)
+            // Create REST API client
             supabaseClient = new SupabaseRESTClient(
                 SUPABASE_CONFIG.URL,
                 SUPABASE_CONFIG.ANON_KEY
@@ -263,7 +203,6 @@ async function initSupabase() {
             // Verify connection works
             try {
                 logSupabase('Testing connection to Supabase...', 'loading');
-                // Simple health check
                 const result = await supabaseClient.from('users')
                     .select('id')
                     .limit(1)
@@ -272,7 +211,6 @@ async function initSupabase() {
                 logSupabase('Supabase connection verified successfully!', 'success');
             } catch (testError) {
                 logSupabase(`Warning: Could not verify Supabase connection: ${testError.message}`, 'warning');
-                // Continue anyway - might be network issue
             }
 
             supabaseReady = true;
@@ -293,7 +231,7 @@ async function initSupabase() {
 }
 
 /**
- * Get the Supabase client (waits for initialization if needed)
+ * Get the Supabase client
  */
 async function getSupabaseClient() {
     if (!supabaseClient || !supabaseReady) {
@@ -317,7 +255,7 @@ function isSupabaseReady() {
 }
 
 /**
- * Reset Supabase (for testing)
+ * Reset Supabase
  */
 function resetSupabase() {
     logSupabase('Resetting Supabase state...', 'warning');
