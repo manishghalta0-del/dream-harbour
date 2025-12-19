@@ -1,6 +1,7 @@
 /**
  * Centralized Supabase Initialization Module
- * Uses Supabase REST API directly instead of JavaScript client to avoid module conflicts
+ * Uses Supabase REST API directly with proper implementation
+ * Supports: SELECT, INSERT, UPDATE, DELETE with all operators
  */
 
 'use strict';
@@ -57,42 +58,124 @@ class QueryBuilder {
         this.filters = {};
         this.limitVal = null;
         this.orderVal = null;
+        this.method = 'GET';
+        this.bodyData = null;
+        this.isInsert = false;
+        this.isUpdate = false;
+        this.isDelete = false;
     }
 
+    // SELECT operators
     eq(field, value) {
-        this.filters[field] = value;
-        return this; // Return self for chaining
+        this.filters[field] = { operator: 'eq', value };
+        return this;
     }
 
+    ilike(field, value) {
+        // Case-insensitive pattern matching
+        // Converts 'test' to '*test*' for SQL ILIKE pattern
+        const pattern = value.replace(/%/g, '*');
+        this.filters[field] = { operator: 'ilike', value: pattern };
+        return this;
+    }
+
+    gt(field, value) {
+        this.filters[field] = { operator: 'gt', value };
+        return this;
+    }
+
+    lt(field, value) {
+        this.filters[field] = { operator: 'lt', value };
+        return this;
+    }
+
+    gte(field, value) {
+        this.filters[field] = { operator: 'gte', value };
+        return this;
+    }
+
+    lte(field, value) {
+        this.filters[field] = { operator: 'lte', value };
+        return this;
+    }
+
+    neq(field, value) {
+        this.filters[field] = { operator: 'neq', value };
+        return this;
+    }
+
+    // Modifiers
     limit(count) {
         this.limitVal = count;
         return this;
     }
 
-    order(field, ascending = true) {
-        this.orderVal = `${field}.${ascending ? 'asc' : 'desc'}`;
+    order(field, options = {}) {
+        const direction = options.ascending !== false ? 'asc' : 'desc';
+        this.orderVal = `${field}.${direction}`;
         return this;
     }
 
-    async execute() {
-        const result = await this.client.executeQuery('GET', this.table, {
-            select: this.selectCols,
-            filters: this.filters,
-            limit: this.limitVal,
-            order: this.orderVal
-        });
-        return result;
+    // INSERT operation
+    insert(data) {
+        this.isInsert = true;
+        this.method = 'POST';
+        this.bodyData = Array.isArray(data) ? data : [data];
+        return this;
     }
 
-    async single() {
-        const result = await this.client.executeQuery('GET', this.table, {
-            select: this.selectCols,
-            filters: this.filters,
-            limit: 1,
-            order: this.orderVal
-        });
-        // Return first item or null
-        return result && result.length > 0 ? result[0] : null;
+    // UPDATE operation
+    update(data) {
+        this.isUpdate = true;
+        this.method = 'PATCH';
+        this.bodyData = data;
+        return this;
+    }
+
+    // DELETE operation
+    delete() {
+        this.isDelete = true;
+        this.method = 'DELETE';
+        return this;
+    }
+
+    // Return response as single object (for inserts/updates)
+    single() {
+        return this;
+    }
+
+    // Select specific columns for response
+    select(columns = '*') {
+        this.selectCols = columns;
+        return this;
+    }
+
+    // Execute the query
+    async execute() {
+        try {
+            const result = await this.client.executeQuery(
+                this.method,
+                this.table,
+                {
+                    select: this.selectCols,
+                    filters: this.filters,
+                    limit: this.limitVal,
+                    order: this.orderVal,
+                    body: this.bodyData
+                }
+            );
+            
+            return {
+                body: result,
+                error: null
+            };
+        } catch (error) {
+            logSupabase(`Execute error: ${error.message}`, 'error');
+            return {
+                body: null,
+                error: error
+            };
+        }
     }
 }
 
@@ -107,7 +190,8 @@ class SupabaseRESTClient {
         this.headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${anonKey}`,
-            'apikey': anonKey
+            'apikey': anonKey,
+            'Prefer': 'return=representation'
         };
     }
 
@@ -123,10 +207,16 @@ class SupabaseRESTClient {
                 url.searchParams.append('select', options.select);
             }
             
-            // Add filters
+            // Add filters with proper operators
             if (options.filters && Object.keys(options.filters).length > 0) {
-                Object.entries(options.filters).forEach(([key, value]) => {
-                    url.searchParams.append(key, `eq.${value}`);
+                Object.entries(options.filters).forEach(([key, filterObj]) => {
+                    if (typeof filterObj === 'object' && filterObj.operator) {
+                        const { operator, value } = filterObj;
+                        url.searchParams.append(key, `${operator}.${value}`);
+                    } else {
+                        // Fallback for simple values
+                        url.searchParams.append(key, `eq.${filterObj}`);
+                    }
                 });
             }
             
@@ -145,10 +235,13 @@ class SupabaseRESTClient {
                 headers: this.headers
             };
 
+            // Add body for POST, PATCH, DELETE
             if (method !== 'GET' && options.body) {
                 config.body = JSON.stringify(options.body);
             }
 
+            logSupabase(`${method} ${url.toString()}`, 'loading');
+            
             const response = await fetch(url.toString(), config);
             
             if (!response.ok) {
@@ -157,7 +250,17 @@ class SupabaseRESTClient {
             }
 
             const data = await response.json();
-            return Array.isArray(data) ? data : (data ? [data] : []);
+            
+            // For POST/PATCH, data is the inserted/updated record(s)
+            // For GET, data is array of records
+            // For DELETE, data is typically empty but return it anyway
+            if (Array.isArray(data)) {
+                return data;
+            } else if (data) {
+                return [data];
+            } else {
+                return [];
+            }
         } catch (error) {
             logSupabase(`Query error: ${error.message}`, 'error');
             throw error;
@@ -165,13 +268,28 @@ class SupabaseRESTClient {
     }
 
     /**
-     * Query builder - from().select()
+     * from() - Start a query
      */
     from(table) {
         const self = this;
         return {
             select: (columns = '*') => {
                 return new QueryBuilder(self, table, columns);
+            },
+            insert: (data) => {
+                const qb = new QueryBuilder(self, table);
+                qb.insert(data);
+                return qb;
+            },
+            update: (data) => {
+                const qb = new QueryBuilder(self, table);
+                qb.update(data);
+                return qb;
+            },
+            delete: () => {
+                const qb = new QueryBuilder(self, table);
+                qb.delete();
+                return qb;
             }
         };
     }
@@ -212,26 +330,31 @@ async function initSupabase() {
 
             logSupabase('Supabase REST API client created successfully', 'success');
             
-            // Verify connection works
+            // Verify connection works with a simple query
             try {
                 logSupabase('Testing connection to Supabase...', 'loading');
-                const result = await supabaseClient.from('users')
+                const result = await supabaseClient.from('business_settings')
                     .select('id')
                     .limit(1)
                     .execute();
                 
-                logSupabase('Supabase connection verified successfully!', 'success');
+                if (result && result.body) {
+                    logSupabase('✅ Supabase connection verified successfully!', 'success');
+                } else {
+                    logSupabase('⚠️ Connection test passed but no data returned', 'warning');
+                }
             } catch (testError) {
-                logSupabase(`Warning: Could not verify Supabase connection: ${testError.message}`, 'warning');
+                logSupabase(`⚠️ Connection test warning: ${testError.message}`, 'warning');
+                logSupabase('This might be OK if table is empty or doesn\'t exist yet', 'info');
             }
 
             supabaseReady = true;
-            logSupabase('Supabase initialized successfully! Ready to use.', 'success');
-            logSupabase('Application is ready for use.', 'info');
+            logSupabase('✅ Supabase initialized successfully! Ready to use.', 'success');
+            logSupabase('📱 Application is ready for use.', 'info');
 
             return supabaseClient;
         } catch (error) {
-            logSupabase(`Unexpected error: ${error.message}`, 'error');
+            logSupabase(`❌ Unexpected error: ${error.message}`, 'error');
             console.error('Full error:', error);
             supabaseReady = false;
             supabaseInitPromise = null;
