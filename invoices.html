@@ -1,63 +1,8 @@
-                    <div style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e0e0e0;">
-                <button class="btn btn-secondary" onclick="closePreview()">Close</button>
-                <button class="btn btn-primary" onclick="generatePDFFromPreview()">📥 Download PDF</button>
-            </div>
-        </div>
-    </div>
-
-            </div>
-        </div>
-    </div>
-
-    <!-- Invoice Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>✏️ Edit Invoice</span>
-                <button class="close-btn" onclick="closeEditModal()">&times;</button>
-            </div>
-
-            <div class="alert-container-modal" id="editAlertContainer"></div>
-
-            <div class="invoice-number-display">
-                <span>Invoice Number:</span> <strong id="editInvoiceNumber">DH-YYYYMMDD-0001</strong>
-            </div>
-
-            <div class="section-title">📋 Invoice Details</div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Invoice Date *</label>
-                    <input type="date" id="editInvoiceDate" required>
-                </div>
-                <div class="form-group">
-                    <label>Due Date (Optional)</label>
-                    <input type="date" id="editDueDate">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Notes (Optional)</label>
-                <textarea id="editNotes" placeholder="Add payment terms or notes..." style="min-height: 80px; resize: vertical;"></textarea>
-            </div>
-
-            <div class="section-title">💰 Payment Status</div>
-            <div class="form-group">
-                <label>Payment Status *</label>
-                <select id="editPaymentStatus" required>
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="overdue">Overdue</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Amount Paid (₹)</label>
-                <input type="number" id="editAmountPaid" placeholder="0.00" step="0.01" min="0">
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-primary" id="saveEditBtn" onclick="saveEditInvoice()" style="flex: 1;">💾 Save Changes</button>
-                <button class="btn btn-secondary" onclick="closeEditModal()" style="flex: 1;">Cancel</button>
-            </div>
-        </div>
-    </div>
+                    <td>
+                        <div class="actions" style="flex-wrap: wrap;">
+                            <button class="btn btn-sm btn-success" onclick="previewInvoice('${invoice.id}')" title="Preview">👁 Preview</button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadInvoicePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
+                            <button class="btn btn-sm" style="background: #2196F3; color: white;" onclick="openEditModal('${invoice.id}')" title="Edit">✏️ Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
+                        </div>
+                    </td>
