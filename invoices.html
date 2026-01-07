@@ -1061,6 +1061,75 @@
             </div>
         </div>
     </div>
+    <!-- Invoice Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <span>📋 Invoice Preview</span>
+                <button class="close-btn" onclick="closePreview()">&times;</button>
+            </div>
+            <div id="previewContent" style="padding: 30px; background: white; font-family: Arial, sans-serif;">
+                <!-- Preview content will be injected here -->
+            </div>
+            <div style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e0e0e0;">
+                <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+                <button class="btn btn-primary" onclick="generatePDFFromPreview()">📥 Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>✏️ Edit Invoice</span>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+
+            <div class="alert-container-modal" id="editAlertContainer"></div>
+
+            <div class="invoice-number-display">
+                <span>Invoice Number:</span> <strong id="editInvoiceNumber">DH-YYYYMMDD-0001</strong>
+            </div>
+
+            <div class="section-title">📋 Invoice Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Date *</label>
+                    <input type="date" id="editInvoiceDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Due Date (Optional)</label>
+                    <input type="date" id="editDueDate">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea id="editNotes" placeholder="Add payment terms or notes..." style="min-height: 80px; resize: vertical;"></textarea>
+            </div>
+
+            <div class="section-title">💰 Payment Status</div>
+            <div class="form-group">
+                <label>Payment Status *</label>
+                <select id="editPaymentStatus" required>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount Paid (₹)</label>
+                <input type="number" id="editAmountPaid" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" id="saveEditBtn" onclick="saveEditInvoice()" style="flex: 1;">💾 Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Invoice Generator Modal -->
     <div id="generatorModal" class="modal">
@@ -2182,9 +2251,11 @@
                     <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
                     <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
                     <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
-                    <td>
-                        <div class="actions">
-                            <button class="btn btn-sm btn-success" onclick="alert('PDF generation feature coming soon!')" title="Download PDF">📄 PDF</button>
+                                        <td>
+                        <div class="actions" style="flex-wrap: wrap;">
+                            <button class="btn btn-sm btn-success" onclick="previewInvoice('${invoice.id}')" title="Preview">👁️ Preview</button>
+                            <button class="btn btn-sm btn-primary" onclick="downloadInvoicePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
+                            <button class="btn btn-sm" style="background: #2196F3; color: white;" onclick="openEditModal('${invoice.id}')" title="Edit">✏️ Edit</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
                         </div>
                     </td>
@@ -2292,6 +2363,271 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
         });
+        
+        // ============================================
+        // PART 1: INVOICE PREVIEW FUNCTIONALITY
+        // ============================================
+        
+        function previewInvoice(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            const customer = allCustomers.find(c => c.id === invoice.customer_id);
+            const businessSettings = allBusinessSettings[0] || {};
+
+            let itemsHTML = '';
+            let subtotal = invoice.subtotal || 0;
+            let totalGST = invoice.total_gst || 0;
+            let totalAmount = invoice.total_amount || 0;
+
+            // Generate invoice items display
+            itemsHTML = `
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <thead>
+                        <tr style="background: #f0f0f0; border-bottom: 2px solid #333;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Service</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Quantity</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Rate (₹)</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Amount (₹)</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">GST (₹)</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">Services</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">-</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">-</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">₹${subtotal.toFixed(2)}</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">₹${totalGST.toFixed(2)}</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;"><strong>₹${totalAmount.toFixed(2)}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            const previewHTML = `
+                <div style="max-width: 900px; margin: 0 auto; background: white; padding: 40px; border: 1px solid #ddd;">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #667eea; padding-bottom: 20px;">
+                        <h1 style="margin: 0; color: #667eea; font-size: 32px;">INVOICE</h1>
+                        <p style="margin: 5px 0; color: #666; font-size: 14px;">Dream Harbour - Invoice Management System</p>
+                    </div>
+
+                    <!-- Invoice Meta Info -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <div>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px; font-weight: bold; text-transform: uppercase;">Invoice Details</h3>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Invoice #:</strong> ${invoice.invoice_number}</p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Date:</strong> ${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</p>
+                            ${invoice.due_date ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Due Date:</strong> ${new Date(invoice.due_date).toLocaleDateString('en-IN')}</p>` : ''}
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Status:</strong> <span style="background: ${invoice.payment_status === 'paid' ? '#4caf50' : invoice.payment_status === 'overdue' ? '#f44336' : '#ff9800'}; color: white; padding: 3px 8px; border-radius: 3px; text-transform: capitalize;">${invoice.payment_status}</span></p>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px; font-weight: bold; text-transform: uppercase;">Customer Details</h3>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Name:</strong> ${customer?.full_name || 'N/A'}</p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Mobile:</strong> ${customer?.mobile_no || 'N/A'}</p>
+                            ${customer?.email ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Email:</strong> ${customer.email}</p>` : ''}
+                            ${customer?.company_name ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Company:</strong> ${customer.company_name}</p>` : ''}
+                            ${customer?.gstin ? `<p style="margin: 5px 0; font-size: 13px;"><strong>GSTIN:</strong> ${customer.gstin}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    ${itemsHTML}
+
+                    <!-- Summary -->
+                    <div style="float: right; width: 50%; text-align: right;">
+                        <div style="margin: 15px 0; font-size: 14px; padding: 10px 0; border-bottom: 1px solid #ddd;">
+                            <span style="display: inline-block; width: 200px; text-align: left;"><strong>Subtotal:</strong></span>
+                            <span>₹${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div style="margin: 15px 0; font-size: 14px; padding: 10px 0; border-bottom: 1px solid #ddd;">
+                            <span style="display: inline-block; width: 200px; text-align: left;"><strong>Total GST:</strong></span>
+                            <span>₹${totalGST.toFixed(2)}</span>
+                        </div>
+                        <div style="margin: 15px 0; font-size: 16px; padding: 15px 0; border-top: 2px solid #667eea; border-bottom: 2px solid #667eea; background: #f0f0f0;">
+                            <span style="display: inline-block; width: 200px; text-align: left;"><strong>GRAND TOTAL:</strong></span>
+                            <span style="color: #667eea; font-weight: bold;">₹${totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div style="clear: both;"></div>
+
+                    <!-- Notes -->
+                    ${invoice.notes ? `
+                        <div style="margin-top: 30px; padding: 15px; background: #f9f9f9; border-left: 4px solid #667eea;">
+                            <strong>Notes:</strong>
+                            <p style="margin: 10px 0 0 0; color: #666; font-size: 13px;">${invoice.notes}</p>
+                        </div>
+                    ` : ''}
+
+                    <!-- Footer -->
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #999;">
+                        <p style="margin: 5px 0;">Thank you for your business!</p>
+                        <p style="margin: 5px 0;">Dream Harbour - Professional Invoice Management</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('previewContent').innerHTML = previewHTML;
+            document.getElementById('previewModal').style.display = 'block';
+            
+            // Store invoice ID for PDF download
+            document.getElementById('previewModal').dataset.invoiceId = invoiceId;
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        // ============================================
+        // PART 2: PDF DOWNLOAD FUNCTIONALITY
+        // ============================================
+
+        function downloadInvoicePDF(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            // First show preview
+            previewInvoice(invoiceId);
+            
+            // Then trigger PDF download after a short delay
+            setTimeout(() => {
+                generatePDFFromPreview();
+            }, 500);
+        }
+
+        function generatePDFFromPreview() {
+            const element = document.getElementById('previewContent');
+            const invoiceId = document.getElementById('previewModal').dataset.invoiceId;
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+
+            if (!element || !invoice) {
+                alert('Error generating PDF');
+                return;
+            }
+
+            const opt = {
+                margin: 10,
+                filename: `Invoice_${invoice.invoice_number}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+            showModalAlert('✅ PDF downloaded successfully!', 'success');
+        }
+
+        // ============================================
+        // PART 3: EDIT INVOICE FUNCTIONALITY
+        // ============================================
+
+        let currentEditingInvoiceId = null;
+
+        function openEditModal(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            currentEditingInvoiceId = invoiceId;
+
+            document.getElementById('editInvoiceNumber').textContent = invoice.invoice_number;
+            document.getElementById('editInvoiceDate').value = invoice.invoice_date;
+            document.getElementById('editDueDate').value = invoice.due_date || '';
+            document.getElementById('editNotes').value = invoice.notes || '';
+            document.getElementById('editPaymentStatus').value = invoice.payment_status || 'pending';
+            document.getElementById('editAmountPaid').value = invoice.amount_paid || '0';
+            document.getElementById('editAlertContainer').innerHTML = '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditingInvoiceId = null;
+        }
+
+        async function saveEditInvoice() {
+            if (!currentEditingInvoiceId) {
+                showEditAlert('Error: No invoice selected', 'error');
+                return;
+            }
+
+            try {
+                const supabase = await getSupabaseClient();
+                const invoiceDate = document.getElementById('editInvoiceDate').value;
+                const dueDate = document.getElementById('editDueDate').value;
+                const notes = document.getElementById('editNotes').value.trim();
+                const paymentStatus = document.getElementById('editPaymentStatus').value;
+                const amountPaid = parseFloat(document.getElementById('editAmountPaid').value) || 0;
+
+                if (!invoiceDate) {
+                    showEditAlert('Please enter invoice date', 'error');
+                    return;
+                }
+
+                document.getElementById('saveEditBtn').disabled = true;
+                document.getElementById('saveEditBtn').textContent = '⏳ Saving...';
+
+                const updateData = {
+                    invoice_date: invoiceDate,
+                    due_date: dueDate || null,
+                    notes: notes || null,
+                    payment_status: paymentStatus,
+                    amount_paid: amountPaid,
+                    updated_at: new Date().toISOString()
+                };
+
+                await supabase
+                    .from('invoices')
+                    .update(updateData)
+                    .eq('id', currentEditingInvoiceId)
+                    .execute();
+
+                showEditAlert('✅ Invoice updated successfully!', 'success');
+                
+                setTimeout(() => {
+                    closeEditModal();
+                    loadInvoices(supabase);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error updating invoice:', error);
+                showEditAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('saveEditBtn').disabled = false;
+                document.getElementById('saveEditBtn').textContent = '💾 Save Changes';
+            }
+        }
+
+        function showEditAlert(message, type = 'info') {
+            const container = document.getElementById('editAlertContainer');
+            const alertId = 'edit-alert-' + Date.now();
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
+                ${message}
+            `;
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) {
+                    el.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
     </script>
 </body>
 </html>
