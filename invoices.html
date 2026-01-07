@@ -1,8 +1,3000 @@
-                    <td>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Dream Harbour - Invoices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5568d3;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+            --success-color: #4caf50;
+            --error-color: #f44336;
+            --warning-color: #ff9800;
+        }
+
+        html {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--light-bg);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .invoices-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: var(--white);
+            padding: 25px 20px;
+            position: fixed;
+            height: 100vh;
+            width: 260px;
+            overflow-y: auto;
+            z-index: 100;
+            top: 0;
+            left: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-section {
+            margin-bottom: 25px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--white);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-link span {
+            font-size: 18px;
+        }
+
+        .sidebar-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .user-info-label {
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .user-info-value {
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--light-bg);
+            overflow: hidden;
+        }
+
+        .topbar {
+            background: var(--white);
+            padding: 16px 25px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-danger {
+            background: var(--error-color);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #388e3c;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .content-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-area::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content-area::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .header-section {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            min-width: 200px;
+        }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--light-bg);
+            padding: 14px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: var(--light-bg);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .status-paid { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }
+        .status-pending { background: rgba(255, 152, 0, 0.15); color: #e65100; }
+        .status-overdue { background: rgba(244, 67, 54, 0.15); color: #c62828; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 95%;
+            max-width: 900px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .autocomplete-list.show {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+            display: block;
+            text-align: left;
+            width: 100%;
+            background: white;
+            border: none;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background: var(--light-bg);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item-phone {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+
+        .autocomplete-item-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert-container-modal {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 14px 16px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border-left: 4px solid;
+            display: none;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .alert.success {
+            background: rgba(76, 175, 80, 0.1);
+            color: #2e7d32;
+            border-left-color: var(--success-color);
+            display: block;
+        }
+
+        .alert.error {
+            background: rgba(244, 67, 54, 0.1);
+            color: #c62828;
+            border-left-color: var(--error-color);
+            display: block;
+        }
+
+        .alert.warning {
+            background: rgba(255, 152, 0, 0.1);
+            color: #e65100;
+            border-left-color: var(--warning-color);
+            display: block;
+        }
+
+        .alert.info {
+            background: rgba(102, 126, 234, 0.1);
+            color: #3949ab;
+            border-left-color: var(--primary-color);
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .summary-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 16px;
+            border-top: 2px solid var(--border-color);
+            padding-top: 8px;
+            margin-top: 8px;
+            color: var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .invoice-number-display {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .invoice-number-display strong {
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .gst-toggle {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .gst-toggle label {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .gst-toggle input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .gst-info {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-top: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .service-add-section {
+            background: linear-gradient(135deg, #e8f4f8 0%, #f0f8fb 100%);
+            border: 1px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .service-form-section {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .service-inputs-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .sub-services-list {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        .sub-services-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .sub-service-item {
+            padding: 10px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .service-item-display {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .service-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .service-item-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .service-item-remove {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .service-item-remove:hover {
+            background: #d32f2f;
+        }
+
+        .service-item-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .service-item-totals {
+            background: #f0f0f0;
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .service-item-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .service-item-total-row:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            color: var(--primary-color);
+            border-top: 1px solid var(--border-color);
+            padding-top: 4px;
+        }
+
+        .add-service-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .add-service-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .category-header {
+            background: #f0f8f4;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 12px;
+            border-left: 3px solid #2e7d32;
+        }
+
+        .quick-services-section {
+            background: #e8f5e9;
+            border: 1px solid #81c784;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .quick-services-title {
+            font-weight: 600;
+            color: #2e7d32;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .quick-service-item {
+            display: inline-block;
+            background: white;
+            padding: 8px 12px;
+            border: 1px solid #81c784;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .quick-service-item:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .quick-service-item.added {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        @media (max-width: 1024px) {
+            .invoices-container {
+                display: block;
+            }
+
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                height: auto;
+            }
+
+            .content-area {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 12px 15px;
+            }
+
+            .content-area {
+                padding: 15px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions button {
+                flex: 1;
+            }
+
+            .filter-section {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .form-row,
+            .form-row-3,
+            .form-row-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 98%;
+                margin: 10% auto;
+                padding: 15px;
+            }
+
+            .gst-toggle {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .service-inputs-row {
+                grid-template-columns: 1fr;
+            }
+
+            .sub-service-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoices-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🏢</div>
+                <div class="sidebar-title">Dream Harbour</div>
+                <div class="sidebar-subtitle">Invoice Manager</div>
+            </div>
+
+            <div class="nav-section">
+                <a href="dashboard.html" class="nav-link">
+                    <span>📊</span> Overview
+                </a>
+                <a href="invoices.html" class="nav-link active">
+                    <span>📄</span> Invoices
+                </a>
+                <a href="customers.html" class="nav-link">
+                    <span>👥</span> Customers
+                </a>
+                <a href="settings.html" class="nav-link">
+                    <span>⚙️</span> Settings
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-info-label">Logged in as</div>
+                    <div class="user-info-value" id="userNameDisplay">User</div>
+                </div>
+                <button class="btn btn-danger" style="width: 100%;" onclick="logout()">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <div class="page-title">📄 Invoices</div>
+                </div>
+
+                <div class="topbar-right">
+                    <button class="btn btn-danger btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div id="alertContainer"></div>
+
+                <div class="header-section">
+                    <div class="header-top">
+                        <div class="header-title">Invoice Management</div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="openInvoiceGenerator()">✨ Create New Invoice</button>
+                        </div>
+                    </div>
+                    <div class="filter-section">
+                        <input type="text" id="searchInput" class="search-box" placeholder="Search by invoice number, customer..." onkeyup="filterInvoices()">
+                        <select id="statusFilter" class="search-box" onchange="filterInvoices()" style="min-width: auto;">
+                            <option value="">All Status</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="overdue">Overdue</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="loadingState" class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading invoices...</div>
+                </div>
+
+                <div id="tableState" class="table-wrapper" style="display: none;">
+                    <table id="invoicesTable">
+                        <thead>
+                            <tr>
+                                <th>Invoice #</th>
+                                <th>Customer</th>
+                                <th>Mobile</th>
+                                <th>Date</th>
+                                <th>Subtotal</th>
+                                <th>GST</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">📄</div>
+                    <div class="empty-state-text">No invoices found</div>
+                    <button class="btn btn-primary" onclick="openInvoiceGenerator()">Create First Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Invoice Preview Modal -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <span>📋 Invoice Preview</span>
+                <button class="close-btn" onclick="closePreview()">&times;</button>
+            </div>
+            <div id="previewContent" style="padding: 30px; background: white; font-family: Arial, sans-serif;">
+                <!-- Preview content will be injected here -->
+            </div>
+            <div style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e0e0e0;">
+                <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+                <button class="btn btn-primary" onclick="generatePDFFromPreview()">📥 Download PDF</button>
+                    <!-- Payment Recording Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>💰 Record Payment</span>
+                <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+            </div>
+
+            <div class="alert-container-modal" id="paymentAlertContainer"></div>
+
+            <div class="invoice-number-display">
+                <span>Invoice Number:</span> <strong id="paymentInvoiceNumber">-</strong>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Total (₹)</label>
+                    <input type="text" id="paymentInvoiceTotal" readonly style="background: #f9f9f9;">
+                </div>
+                <div class="form-group">
+                    <label>Already Paid (₹)</label>
+                    <input type="text" id="paymentAlreadyPaid" readonly style="background: #f9f9f9;">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Remaining Amount (₹)</label>
+                    <input type="text" id="paymentRemaining" readonly style="background: #f9f9f9; color: #f44336; font-weight: bold;">
+                </div>
+                <div class="form-group">
+                    <label>Amount to Pay Now (₹) *</label>
+                    <input type="number" id="paymentAmount" placeholder="0.00" step="0.01" min="0" onchange="updatePaymentRemaining()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Date *</label>
+                <input type="date" id="paymentDate" required>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select id="paymentMethod">
+                    <option value="cash">Cash</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="online">Online/UPI</option>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Notes (Optional)</label>
+                <textarea id="paymentNotes" placeholder="Reference number, cheque details, etc..." style="min-height: 60px; resize: vertical;"></textarea>
+            </div>
+
+            <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #4caf50;">
+                <strong>New Status:</strong> <span id="paymentNewStatus">Pending</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" id="recordPaymentBtn" onclick="recordPayment()" style="flex: 1;">✅ Record Payment</button>
+                <button class="btn btn-secondary" onclick="closePaymentModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>✏️ Edit Invoice</span>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+
+            <div class="alert-container-modal" id="editAlertContainer"></div>
+
+            <div class="invoice-number-display">
+                <span>Invoice Number:</span> <strong id="editInvoiceNumber">DH-YYYYMMDD-0001</strong>
+            </div>
+
+            <div class="section-title">📋 Invoice Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Date *</label>
+                    <input type="date" id="editInvoiceDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Due Date (Optional)</label>
+                    <input type="date" id="editDueDate">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Notes (Optional)</label>
+                <textarea id="editNotes" placeholder="Add payment terms or notes..." style="min-height: 80px; resize: vertical;"></textarea>
+            </div>
+
+            <div class="section-title">💰 Payment Status</div>
+            <div class="form-group">
+                <label>Payment Status *</label>
+                <select id="editPaymentStatus" required>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount Paid (₹)</label>
+                <input type="number" id="editAmountPaid" placeholder="0.00" step="0.01" min="0">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" id="saveEditBtn" onclick="saveEditInvoice()" style="flex: 1;">💾 Save Changes</button>
+                <button class="btn btn-secondary" onclick="closeEditModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invoice Generator Modal -->
+    <div id="generatorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>✨ Invoice Generator</span>
+                <button class="close-btn" onclick="closeGenerator()">&times;</button>
+            </div>
+
+            <div class="alert-container-modal" id="modalAlertContainer"></div>
+
+            <div class="invoice-number-display">
+                <span>Auto-Generated Invoice Number:</span> <strong id="autoInvoiceNumber">DH-YYYYMMDD-0001</strong>
+            </div>
+
+            <div class="section-title">📋 Invoice Details</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Number *</label>
+                    <input type="text" id="genInvoiceNumber" placeholder="e.g., INV-20251209-0001" required readonly>
+                </div>
+                <div class="form-group">
+                    <label>Invoice Date *</label>
+                    <input type="date" id="genInvoiceDate" required readonly>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Due Date (Optional)</label>
+                    <input type="date" id="genDueDate" placeholder="e.g., 2025-01-09">
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="genNotes" placeholder="Add payment terms or notes..." style="min-height: 60px; resize: vertical;"></textarea>
+                </div>
+            </div>
+
+            <div class="section-title">👥 Customer Details</div>
+            <div class="form-group">
+                <label>Customer Mobile Number *</label>
+                <input type="tel" id="genCustomerMobile" placeholder="Enter or search customer mobile" required onkeyup="searchCustomerByMobile()">
+                <div id="mobileAutoComplete" class="autocomplete-list"></div>
+            </div>
+            <div class="form-row-4">
+                <div class="form-group">
+                    <label>Customer Name *</label>
+                    <input type="text" id="genCustomerName" placeholder="Customer name" required>
+                </div>
+                <div class="form-group">
+                    <label>Customer Email</label>
+                    <input type="email" id="genCustomerEmail" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" id="genCustomerCompany" placeholder="Company name">
+                </div>
+                <div class="form-group">
+                    <label>GSTIN</label>
+                    <input type="text" id="genCustomerGSTIN" placeholder="GSTIN">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Address</label>
+                <textarea id="genCustomerAddress" placeholder="Enter customer address" style="min-height: 60px; resize: vertical;"></textarea>
+            </div>
+
+            <!-- QUICK SERVICES from Customer (SYNC FEATURE) -->
+            <div id="quickServicesContainer" style="display: none;">
+                <div class="quick-services-section">
+                    <div class="quick-services-title">⚡ Customer's Services (Quick Add)</div>
+                    <div id="quickServicesList"></div>
+                </div>
+            </div>
+
+            <div class="section-title">🧾 GST Option</div>
+            <div class="gst-toggle">
+                <label>
+                    <input type="radio" name="gstType" value="with" checked onchange="updateGSTDisplay()">
+                    <span>With GST (Rate includes GST)</span>
+                </label>
+                <label>
+                    <input type="radio" name="gstType" value="without" onchange="updateGSTDisplay()">
+                    <span>Without GST (GST calculated on top)</span>
+                </label>
+            </div>
+            <div class="gst-info" id="gstInfo">
+                📌 <strong>With GST:</strong> The rate you enter already includes GST. GST amount will be calculated backwards from the rate.
+            </div>
+
+            <div class="section-title">📦 Add Services to Invoice</div>
+            
+            <!-- Service Selection -->
+            <div class="service-add-section">
+                <div class="service-form-section">
+                    <div class="form-group">
+                        <label>Service Name *</label>
+                        <input type="text" id="itemName" placeholder="Type to search service..." onkeyup="searchServices()">
+                        <div id="serviceAutoComplete" class="autocomplete-list"></div>
+                    </div>
+
+                    <div id="serviceDetailsContainer" style="display: none;">
+                        <!-- Service details for services WITHOUT sub-services -->
+                        <div id="serviceOnlyFields" style="display: none;">
+                            <div class="service-inputs-row">
+                                <div class="form-group">
+                                    <label>Service Name</label>
+                                    <input type="text" id="serviceName" readonly style="background: #f9f9f9;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Quantity</label>
+                                    <input type="number" id="itemQty" placeholder="1" value="1" min="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Rate (₹)</label>
+                                    <input type="number" id="itemRate" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>GST %</label>
+                                    <select id="itemGST">
+                                        <option value="0">0% (No GST)</option>
+                                        <option value="5">5%</option>
+                                        <option value="12">12%</option>
+                                        <option value="18" selected>18%</option>
+                                        <option value="28">28%</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sub-services for selected service (MAIN items when present) -->
+                        <div id="subServicesContainer" style="display: none;">
+                            <div class="sub-services-list">
+                                <div class="sub-services-title">📋 All Sub-services (Mandatory - All will be added):</div>
+                                <div id="subServicesList"></div>
+                            </div>
+                        </div>
+
+                        <button class="add-service-btn" onclick="addServiceToInvoice()">✅ Add to Invoice</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Added Services List -->
+            <div id="addedServicesContainer" style="display: none;">
+                <div class="section-title">✅ Services in Invoice</div>
+                <div id="invoiceItemsList">
+                    <div id="itemsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary-section">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="genSubtotal">₹0.00</span>
+                </div>
+                <div class="summary-row" id="gstRow">
+                    <span>Total GST:</span>
+                    <span id="genTotalGST">₹0.00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Grand Total:</span>
+                    <span id="genGrandTotal">₹0.00</span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Payment Status *</label>
+                <select id="genPaymentStatus" required>
+                    <option value="pending">Pending</option>
+                    <option value="paid">Paid</option>
+                    <option value="overdue">Overdue</option>
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" id="saveInvoiceBtn" onclick="saveGeneratedInvoice()" style="flex: 1;">💾 Save Invoice</button>
+                <button class="btn btn-secondary" onclick="closeGenerator()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="supabase-init.js"></script>
+    <script>
+        let allInvoices = [];
+        let allCustomers = [];
+        let allServices = [];
+        let allSubServices = [];
+        let allBusinessSettings = [];
+        let allCategories = [];
+        let allCustomerServices = [];
+        let filteredInvoices = [];
+        let generatorItems = [];
+        let selectedCustomer = null;
+        let searchResults = [];
+        let serviceSearchResults = [];
+        let selectedService = null;
+        let currentUser = null;
+        let applyGST = true;
+
+        function numberToWords(num) {
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const scales = ['', 'Thousand', 'Lakh', 'Crore'];
+
+            if (num === 0) return 'Zero';
+
+            let words = '';
+            let scaleIndex = 0;
+
+            while (num > 0) {
+                let part = num % 1000;
+                if (part !== 0) {
+                    words = convertBelowThousand(part, ones, teens, tens) + (scales[scaleIndex] ? ' ' + scales[scaleIndex] : '') + ' ' + words;
+                }
+                num = Math.floor(num / 1000);
+                scaleIndex++;
+            }
+
+            return words.trim();
+        }
+
+        function convertBelowThousand(num, ones, teens, tens) {
+            let words = '';
+            
+            let hundreds = Math.floor(num / 100);
+            if (hundreds > 0) {
+                words += ones[hundreds] + ' Hundred ';
+            }
+
+            let remainder = num % 100;
+            if (remainder >= 10 && remainder < 20) {
+                words += teens[remainder - 10];
+            } else {
+                let ten = Math.floor(remainder / 10);
+                let one = remainder % 10;
+                if (ten > 0) {
+                    words += tens[ten] + ' ';
+                }
+                if (one > 0) {
+                    words += ones[one];
+                }
+            }
+
+            return words.trim();
+        }
+
+        function getISTDate() {
+            const now = new Date();
+            const istTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+            return istTime;
+        }
+
+        function formatDateAsYYYYMMDD(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}${month}${day}`;
+        }
+
+        function updateGSTDisplay() {
+            applyGST = document.querySelector('input[name="gstType"]:checked').value === 'with';
+            const gstInfo = document.getElementById('gstInfo');
+            
+            if (applyGST) {
+                gstInfo.innerHTML = '📌 <strong>With GST:</strong> The rate you enter already includes GST. GST amount will be calculated backwards from the rate.';
+            } else {
+                gstInfo.innerHTML = '📌 <strong>Without GST:</strong> The rate you enter is exclusive. GST will be calculated and added on top.';
+            }
+            updateGeneratorTotals();
+        }
+
+        async function generateCustomerCode(fullName) {
+            try {
+                const supabase = await getSupabaseClient();
+                const firstName = fullName.trim().split(' ')[0].toUpperCase().replace(/[^A-Z]/g, '');
+                if (!firstName) throw new Error('Invalid name');
+
+                const data = await supabase
+                    .from('customers')
+                    .select('customer_code')
+                    .ilike('customer_code', `${firstName}-%`)
+                    .execute();
+
+                let existingCustomers = data.body || [];
+                let maxNumber = 0;
+
+                (existingCustomers || []).forEach(c => {
+                    if (c.customer_code) {
+                        const parts = c.customer_code.split('-');
+                        const num = parseInt(parts[1]) || 0;
+                        if (num > maxNumber) maxNumber = num;
+                    }
+                });
+
+                const nextNumber = maxNumber + 1;
+                return `${firstName}-${String(nextNumber).padStart(3, '0')}`;
+            } catch (error) {
+                console.error('Error generating customer code:', error);
+                return `CUST-${Date.now()}`;
+            }
+        }
+
+        async function generateNextInvoiceNumber() {
+            try {
+                const supabase = await getSupabaseClient();
+                const istDate = getISTDate();
+                const dateString = formatDateAsYYYYMMDD(istDate);
+                const datePrefix = `DH-${dateString}`;
+
+                const data = await supabase
+                    .from('invoices')
+                    .select('invoice_number')
+                    .ilike('invoice_number', `${datePrefix}%`)
+                    .execute();
+
+                let todayInvoices = data.body || [];
+
+                let nextNumber = 1;
+                if (todayInvoices && todayInvoices.length > 0) {
+                    const numbers = todayInvoices.map(inv => {
+                        const parts = inv.invoice_number.split('-');
+                        return parseInt(parts[2]) || 0;
+                    });
+                    nextNumber = Math.max(...numbers) + 1;
+                }
+
+                const invoiceNumber = `${datePrefix}-${String(nextNumber).padStart(4, '0')}`;
+                return invoiceNumber;
+            } catch (error) {
+                console.error('Error generating invoice number:', error);
+                return `DH-${formatDateAsYYYYMMDD(getISTDate())}-0001`;
+            }
+        }
+
+        function formatISTDateForInput() {
+            const istDate = getISTDate();
+            const year = istDate.getFullYear();
+            const month = String(istDate.getMonth() + 1).padStart(2, '0');
+            const day = String(istDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function searchServices() {
+            const serviceName = document.getElementById('itemName').value.trim();
+            const autocompleteList = document.getElementById('serviceAutoComplete');
+            const detailsContainer = document.getElementById('serviceDetailsContainer');
+
+            if (!serviceName || serviceName.length < 1) {
+                autocompleteList.classList.remove('show');
+                detailsContainer.style.display = 'none';
+                return;
+            }
+
+            serviceSearchResults = allServices.filter(s => {
+                if (!s.service_name) return false;
+                return s.service_name.toLowerCase().includes(serviceName.toLowerCase());
+            });
+
+            if (serviceSearchResults.length === 0) {
+                autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No services found</div>';
+                autocompleteList.classList.add('show');
+                detailsContainer.style.display = 'none';
+                return;
+            }
+
+            autocompleteList.innerHTML = serviceSearchResults.map((service, index) => {
+                const category = allCategories.find(c => c.id === service.category_id);
+                return `
+                    <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectService(${index}); return false;">
+                        <div class="autocomplete-item-phone">📦 ${service.service_name}</div>
+                        <div class="autocomplete-item-name">Category: ${category?.category_name || 'N/A'} | SAC: ${service.sac_code || 'N/A'} | Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
+                    </button>
+                `;
+            }).join('');
+
+            autocompleteList.classList.add('show');
+        }
+
+        function selectService(index) {
+            if (index < 0 || index >= serviceSearchResults.length) return;
+
+            selectedService = serviceSearchResults[index];
+            document.getElementById('itemName').value = selectedService.service_name;
+            document.getElementById('serviceName').value = selectedService.service_name;
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+            
+            document.getElementById('serviceDetailsContainer').style.display = 'block';
+
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
+            
+            if (serviceSubServices.length > 0) {
+                document.getElementById('serviceOnlyFields').style.display = 'none';
+                displaySubServices(serviceSubServices);
+            } else {
+                document.getElementById('serviceOnlyFields').style.display = 'block';
+                document.getElementById('subServicesContainer').style.display = 'none';
+                document.getElementById('itemRate').value = selectedService.default_rate || '';
+                document.getElementById('itemGST').value = selectedService.default_gst_percentage || '18';
+                document.getElementById('itemQty').value = '1';
+            }
+        }
+
+        function displaySubServices(serviceSubServices) {
+            const container = document.getElementById('subServicesContainer');
+            const list = document.getElementById('subServicesList');
+
+            if (serviceSubServices.length === 0) {
+                container.style.display = 'none';
+                list.innerHTML = '';
+                return;
+            }
+
+            container.style.display = 'block';
+            list.innerHTML = serviceSubServices.map((subService) => `
+                <div class="sub-service-item" data-id="${subService.id}" data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" data-gst="${subService.default_gst_percentage}">
+                    <span><strong>${subService.sub_service_name}</strong></span>
+                    <input type="number" class="sub-service-qty" value="1" min="1" placeholder="Qty" style="padding: 6px;">
+                    <input type="number" class="sub-service-rate" value="${subService.default_rate}" min="0" step="0.01" placeholder="Rate" style="padding: 6px;">
+                    <select class="sub-service-gst" style="padding: 6px;">
+                        <option value="0">0%</option>
+                        <option value="5">5%</option>
+                        <option value="12">12%</option>
+                        <option value="18" ${subService.default_gst_percentage == 18 ? 'selected' : ''}>18%</option>
+                        <option value="28">28%</option>
+                    </select>
+                </div>
+            `).join('');
+        }
+
+        function addServiceToInvoice() {
+            if (!selectedService) {
+                showModalAlert('Please select a service', 'error');
+                return;
+            }
+
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === selectedService.id);
+            
+            if (serviceSubServices.length > 0) {
+                const parentServiceId = selectedService.id + '-' + Date.now();
+                
+                serviceSubServices.forEach((subService) => {
+                    const row = document.querySelector(`[data-id="${subService.id}"]`);
+                    if (!row) return;
+                    
+                    const qty = parseFloat(row.querySelector('.sub-service-qty').value) || 1;
+                    const rate = parseFloat(row.querySelector('.sub-service-rate').value) || 0;
+                    const gst = parseFloat(row.querySelector('.sub-service-gst').value) || 0;
+
+                    if (!rate) {
+                        showModalAlert('Please enter a rate for all sub-services', 'error');
+                        return;
+                    }
+
+                    let amount, gstAmount;
+                    
+                    if (applyGST) {
+                        amount = qty * rate;
+                        const gstPortion = (rate * (gst / (100 + gst)));
+                        gstAmount = qty * gstPortion;
+                    } else {
+                        amount = qty * rate;
+                        gstAmount = amount * (gst / 100);
+                    }
+
+                    const item = {
+                        id: subService.id + '-' + Date.now(),
+                        parentServiceId: parentServiceId,
+                        serviceId: selectedService.id,
+                        subServiceId: subService.id,
+                        categoryName: allCategories.find(c => c.id === selectedService.category_id)?.category_name || '',
+                        serviceName: selectedService.service_name,
+                        subServiceName: subService.sub_service_name,
+                        qty,
+                        rate,
+                        amount,
+                        gst,
+                        gstAmount,
+                        sac: selectedService.sac_code || '',
+                        gstMode: applyGST ? 'with' : 'without',
+                        hasSubServices: true
+                    };
+
+                    generatorItems.push(item);
+                });
+
+            } else {
+                const qty = parseFloat(document.getElementById('itemQty').value) || 1;
+                const rate = parseFloat(document.getElementById('itemRate').value) || 0;
+                const gst = parseFloat(document.getElementById('itemGST').value) || 0;
+
+                if (!rate) {
+                    showModalAlert('Please enter a rate', 'error');
+                    return;
+                }
+
+                let amount, gstAmount;
+                
+                if (applyGST) {
+                    amount = qty * rate;
+                    const gstPortion = (rate * (gst / (100 + gst)));
+                    gstAmount = qty * gstPortion;
+                } else {
+                    amount = qty * rate;
+                    gstAmount = amount * (gst / 100);
+                }
+
+                const item = {
+                    id: selectedService.id + '-' + Date.now(),
+                    serviceId: selectedService.id,
+                    categoryName: allCategories.find(c => c.id === selectedService.category_id)?.category_name || '',
+                    serviceName: selectedService.service_name,
+                    qty,
+                    rate,
+                    amount,
+                    gst,
+                    gstAmount,
+                    sac: selectedService.sac_code || '',
+                    gstMode: applyGST ? 'with' : 'without',
+                    hasSubServices: false
+                };
+
+                generatorItems.push(item);
+            }
+
+            renderInvoiceItems();
+            resetServiceForm();
+            updateGeneratorTotals();
+            showModalAlert('✅ Service added to invoice successfully!', 'success');
+        }
+
+        function resetServiceForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceDetailsContainer').style.display = 'none';
+            document.getElementById('serviceOnlyFields').style.display = 'none';
+            document.getElementById('subServicesContainer').style.display = 'none';
+            document.getElementById('itemQty').value = '1';
+            document.getElementById('itemRate').value = '';
+            document.getElementById('itemGST').value = '18';
+            selectedService = null;
+            serviceSearchResults = [];
+        }
+
+        function renderInvoiceItems() {
+            const container = document.getElementById('itemsContainer');
+            const listDiv = document.getElementById('addedServicesContainer');
+
+            if (generatorItems.length === 0) {
+                listDiv.style.display = 'none';
+                return;
+            }
+
+            listDiv.style.display = 'block';
+            
+            const groupedByCategory = {};
+            
+            generatorItems.forEach((item) => {
+                const categoryName = item.categoryName || 'Uncategorized';
+                if (!groupedByCategory[categoryName]) {
+                    groupedByCategory[categoryName] = {};
+                }
+                
+                const serviceKey = item.parentServiceId || item.serviceId;
+                if (!groupedByCategory[categoryName][serviceKey]) {
+                    groupedByCategory[categoryName][serviceKey] = [];
+                }
+                groupedByCategory[categoryName][serviceKey].push(item);
+            });
+
+            container.innerHTML = Object.entries(groupedByCategory).map(([categoryName, services]) => {
+                return `
+                    <div style="margin-bottom: 15px;">
+                        <div class="category-header">📁 ${categoryName}</div>
+                        ${Object.entries(services).map(([serviceKey, items]) => {
+                            const firstItem = items[0];
+                            const serviceTotal = items.reduce((sum, item) => sum + item.amount + item.gstAmount, 0);
+                            const totalAmount = items.reduce((sum, item) => sum + item.amount, 0);
+                            const totalGST = items.reduce((sum, item) => sum + item.gstAmount, 0);
+
+                            return `
+                                <div class="service-item-display" style="margin-bottom: 10px;">
+                                    <div class="service-item-header">
+                                        <div>
+                                            <div class="service-item-name">🔧 ${firstItem.serviceName}</div>
+                                            ${firstItem.sac ? `<div class="service-item-details">SAC: ${firstItem.sac}</div>` : ''}
+                                        </div>
+                                        <button class="service-item-remove" onclick="removeServiceGroup('${serviceKey}')">Remove All</button>
+                                    </div>
+                                    
+                                    <div class="service-item-details">
+                                        ${items.map(item => `<div>• ${item.subServiceName || item.serviceName}: ${item.qty} × ₹${item.rate.toFixed(2)}</div>`).join('')}
+                                    </div>
+
+                                    <div class="service-item-totals">
+                                        <div class="service-item-total-row">
+                                            <span>Amount:</span>
+                                            <span>₹${totalAmount.toFixed(2)}</span>
+                                        </div>
+                                        <div class="service-item-total-row">
+                                            <span>GST (${items[0].gst}%):</span>
+                                            <span>₹${totalGST.toFixed(2)}</span>
+                                        </div>
+                                        <div class="service-item-total-row">
+                                            <span><strong>Total:</strong></span>
+                                            <span><strong>₹${serviceTotal.toFixed(2)}</strong></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function removeServiceGroup(serviceKey) {
+            generatorItems = generatorItems.filter(item => {
+                const itemKey = item.parentServiceId || item.serviceId;
+                return itemKey !== serviceKey;
+            });
+            
+            renderInvoiceItems();
+            updateGeneratorTotals();
+            showModalAlert('✅ Service removed from invoice', 'info');
+        }
+
+        function updateGeneratorTotals() {
+            let subtotal = 0;
+            let totalGST = 0;
+
+            generatorItems.forEach(item => {
+                subtotal += item.amount;
+                totalGST += item.gstAmount;
+            });
+
+            const grandTotal = applyGST ? subtotal : (subtotal + totalGST);
+
+            document.getElementById('genSubtotal').textContent = '₹' + subtotal.toFixed(2);
+            document.getElementById('genTotalGST').textContent = '₹' + totalGST.toFixed(2);
+            document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
+        }
+
+        function searchCustomerByMobile() {
+            const mobile = document.getElementById('genCustomerMobile').value.trim();
+            const autocompleteList = document.getElementById('mobileAutoComplete');
+
+            if (!mobile || mobile.length < 1) {
+                autocompleteList.classList.remove('show');
+                document.getElementById('quickServicesContainer').style.display = 'none';
+                return;
+            }
+
+            const normalizedInput = mobile.replace(/\D/g, '');
+
+            if (normalizedInput.length === 0) {
+                autocompleteList.classList.remove('show');
+                document.getElementById('quickServicesContainer').style.display = 'none';
+                return;
+            }
+
+            searchResults = allCustomers.filter(c => {
+                if (!c.mobile_no) return false;
+                const normalizedMobile = String(c.mobile_no).replace(/\D/g, '');
+                return normalizedMobile.includes(normalizedInput);
+            });
+
+            if (searchResults.length === 0) {
+                autocompleteList.innerHTML = '<div style="padding: 10px; text-align: center; color: #999;">No customers found</div>';
+                autocompleteList.classList.add('show');
+                document.getElementById('quickServicesContainer').style.display = 'none';
+                return;
+            }
+
+            autocompleteList.innerHTML = searchResults.map((customer, index) => `
+                <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectCustomer(${index}); return false;">
+                    <div class="autocomplete-item-phone">📱 ${customer.mobile_no}</div>
+                    <div class="autocomplete-item-name">${customer.full_name || 'N/A'}${customer.address ? ' • ' + customer.address : ''}</div>
+                </button>
+            `).join('');
+
+            autocompleteList.classList.add('show');
+        }
+
+        async function selectCustomer(index) {
+            if (index < 0 || index >= searchResults.length) return;
+
+            const customer = searchResults[index];
+            selectedCustomer = customer;
+            
+            document.getElementById('genCustomerMobile').value = customer.mobile_no || '';
+            document.getElementById('genCustomerName').value = customer.full_name || '';
+            document.getElementById('genCustomerEmail').value = customer.email || '';
+            document.getElementById('genCustomerCompany').value = customer.company_name || '';
+            document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
+            document.getElementById('genCustomerAddress').value = customer.address || '';
+            document.getElementById('mobileAutoComplete').classList.remove('show');
+
+            // SYNC: Load customer's services and show quick add
+            await loadCustomerQuickServices(customer.id);
+        }
+
+        async function loadCustomerQuickServices(customerId) {
+            try {
+                const supabase = await getSupabaseClient();
+                const data = await supabase
+                    .from('customer_services')
+                    .select('*')
+                    .eq('customer_id', customerId)
+                    .eq('is_active', true)
+                    .execute();
+
+                const customerServices = data.body || [];
+
+                if (customerServices && customerServices.length > 0) {
+                    displayQuickServices(customerServices);
+                } else {
+                    document.getElementById('quickServicesContainer').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading customer services:', error);
+                document.getElementById('quickServicesContainer').style.display = 'none';
+            }
+        }
+
+        function displayQuickServices(customerServices) {
+            const container = document.getElementById('quickServicesContainer');
+            const list = document.getElementById('quickServicesList');
+
+            if (customerServices.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            list.innerHTML = customerServices.map(cs => `
+                <button type="button" class="quick-service-item" onclick="quickAddServiceToInvoice('${cs.service_id}', '${cs.service_name}'); return false;">
+                    📦 ${cs.service_name}
+                </button>
+            `).join('');
+        }
+
+        async function quickAddServiceToInvoice(serviceId, serviceName) {
+            const service = allServices.find(s => s.id === serviceId);
+            if (!service) {
+                showModalAlert('Service not found', 'error');
+                return;
+            }
+
+            selectedService = service;
+            document.getElementById('itemName').value = service.service_name;
+            document.getElementById('serviceName').value = service.service_name;
+            document.getElementById('serviceDetailsContainer').style.display = 'block';
+
+            const serviceSubServices = allSubServices.filter(s => s.primary_service_id === service.id);
+            
+            if (serviceSubServices.length > 0) {
+                document.getElementById('serviceOnlyFields').style.display = 'none';
+                displaySubServices(serviceSubServices);
+            } else {
+                document.getElementById('serviceOnlyFields').style.display = 'block';
+                document.getElementById('subServicesContainer').style.display = 'none';
+                document.getElementById('itemRate').value = service.default_rate || '';
+                document.getElementById('itemGST').value = service.default_gst_percentage || '18';
+                document.getElementById('itemQty').value = '1';
+            }
+
+            showModalAlert(`✅ ${serviceName} ready to add. Click 'Add to Invoice'`, 'success');
+        }
+
+        async function updateCustomerServicesStatus(customerId, invoiceItems) {
+            try {
+                const supabase = await getSupabaseClient();
+                
+                const serviceIds = [...new Set(invoiceItems.map(item => item.serviceId))];
+                
+                console.log(`📦 Updating ${serviceIds.length} services for customer ${customerId}`);
+                
+                for (const serviceId of serviceIds) {
+                    await supabase
+                        .from('customer_services')
+                        .update({
+                            service_status: 'completed',
+                            is_active: false,
+                            updated_at: new Date().toISOString()
+                        })
+                        .eq('customer_id', customerId)
+                        .eq('service_id', serviceId)
+                        .eq('service_status', 'pending')
+                        .execute();
+                    
+                    console.log(`✅ Service ${serviceId} marked as completed`);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Error updating customer services:', error);
+                return false;
+            }
+        }
+
+        async function initializeApp() {
+            const user = localStorage.getItem('dreamHarbourUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(user);
+                currentUser = userData;
+                const userEl = document.getElementById('userNameDisplay');
+                if (userEl) userEl.textContent = userData.fullName || 'User';
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+
+            const supabase = await getSupabaseClient();
+            loadBusinessSettings(supabase);
+            loadCustomers(supabase);
+            loadCategories(supabase);
+            loadServices(supabase);
+            loadSubServices(supabase);
+            loadCustomerServices(supabase);
+            loadInvoices(supabase);
+        }
+
+        function showModalAlert(message, type = 'info') {
+            const container = document.getElementById('modalAlertContainer');
+            const alertId = 'alert-' + Date.now();
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
+                ${message}
+            `;
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) {
+                    el.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        async function loadBusinessSettings(supabase) {
+            try {
+                const data = await supabase
+                    .from('business_settings')
+                    .select('*')
+                    .limit(1)
+                    .execute();
+
+                allBusinessSettings = data.body || [];
+            } catch (error) {
+                console.error('Error loading business settings:', error);
+            }
+        }
+
+        async function loadCustomers(supabase) {
+            try {
+                const data = await supabase
+                    .from('customers')
+                    .select('*')
+                    .execute();
+
+                allCustomers = data.body || [];
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                showModalAlert('Error loading customers', 'error');
+            }
+        }
+
+        async function loadCategories(supabase) {
+            try {
+                const data = await supabase
+                    .from('service_categories')
+                    .select('*')
+                    .eq('is_active', true)
+                    .execute();
+
+                allCategories = data.body || [];
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadServices(supabase) {
+            try {
+                const data = await supabase
+                    .from('service_items')
+                    .select('*')
+                    .eq('is_active', true)
+                    .execute();
+
+                allServices = data.body || [];
+            } catch (error) {
+                console.error('Error loading services:', error);
+                showModalAlert('Error loading services', 'error');
+            }
+        }
+
+        async function loadSubServices(supabase) {
+            try {
+                const data = await supabase
+                    .from('service_sub_items')
+                    .select('*')
+                    .eq('is_active', true)
+                    .execute();
+
+                allSubServices = data.body || [];
+            } catch (error) {
+                console.error('Error loading sub-services:', error);
+                showModalAlert('Error loading sub-services', 'error');
+            }
+        }
+
+        async function loadCustomerServices(supabase) {
+            try {
+                const data = await supabase
+                    .from('customer_services')
+                    .select('*')
+                    .eq('is_active', true)
+                    .execute();
+
+                allCustomerServices = data.body || [];
+            } catch (error) {
+                console.error('Error loading customer services:', error);
+            }
+        }
+
+        async function saveGeneratedInvoice() {
+            try {
+                const supabase = await getSupabaseClient();
+                const invoiceNumber = document.getElementById('genInvoiceNumber').value;
+                const mobile = document.getElementById('genCustomerMobile').value.trim();
+                const customerName = document.getElementById('genCustomerName').value.trim();
+                const invoiceDate = document.getElementById('genInvoiceDate').value;
+                const dueDate = document.getElementById('genDueDate').value;
+                const notes = document.getElementById('genNotes').value.trim();
+                const paymentStatus = document.getElementById('genPaymentStatus').value;
+                
+                let subtotal = 0;
+                let totalGST = 0;
+
+                generatorItems.forEach(item => {
+                    subtotal += item.amount;
+                    totalGST += item.gstAmount;
+                });
+
+                const totalAmount = applyGST ? subtotal : (subtotal + totalGST);
+
+                if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
+                    showModalAlert('❌ Please fill all required fields and add at least one service', 'error');
+                    return;
+                }
+
+                const normalizedMobile = mobile.replace(/\D/g, '');
+                if (normalizedMobile.length !== 10) {
+                    showModalAlert('❌ Please enter a valid 10-digit mobile number', 'error');
+                    return;
+                }
+
+                document.getElementById('saveInvoiceBtn').disabled = true;
+                document.getElementById('saveInvoiceBtn').textContent = '⏳ Saving...';
+
+                const customerData = {
+                    mobile_no: normalizedMobile,
+                    full_name: customerName,
+                    email: document.getElementById('genCustomerEmail').value.trim() || null,
+                    company_name: document.getElementById('genCustomerCompany').value.trim() || null,
+                    gstin: document.getElementById('genCustomerGSTIN').value.trim() || null,
+                    address: document.getElementById('genCustomerAddress').value.trim() || null
+                };
+
+                let customerId;
+
+                if (selectedCustomer && selectedCustomer.id) {
+                    // Existing customer - Update
+                    customerId = selectedCustomer.id;
+                    await supabase
+                        .from('customers')
+                        .update(customerData)
+                        .eq('id', customerId)
+                        .execute();
+                    showModalAlert('✅ Existing customer updated!', 'info');
+                } else {
+                    // Check for duplicate using mobile + name
+                    const duplicateCheck = await supabase
+                        .from('customers')
+                        .select('*')
+                        .eq('mobile_no', normalizedMobile)
+                        .ilike('full_name', `%${customerName}%`)
+                        .execute();
+
+                    if (duplicateCheck.body && duplicateCheck.body.length > 0) {
+                        // Exact match found - update existing
+                        const existingCustomer = duplicateCheck.body[0];
+                        customerId = existingCustomer.id;
+                        await supabase
+                            .from('customers')
+                            .update(customerData)
+                            .eq('id', customerId)
+                            .execute();
+                        showModalAlert(`⚠️ Customer "${existingCustomer.full_name}" already exists! Details updated.`, 'info');
+                    } else {
+                        // No duplicate - create new customer
+                        customerData.customer_code = await generateCustomerCode(customerName);
+                        const newCustomerResult = await supabase
+                            .from('customers')
+                            .insert([customerData])
+                            .select('id')
+                            .execute();
+
+                        if (!newCustomerResult.body || newCustomerResult.body.length === 0) {
+                            throw new Error('Failed to create customer - no response body');
+                        }
+
+                        customerId = newCustomerResult.body[0].id;
+                        showModalAlert(`✅ New customer created! Code: ${customerData.customer_code}`, 'info');
+                    }
+                }
+
+                const invoiceData = {
+                    invoice_number: invoiceNumber,
+                    customer_id: customerId,
+                    created_by: currentUser.fullName,
+                    invoice_date: invoiceDate,
+                    due_date: dueDate || null,
+                    notes: notes || null,
+                    subtotal: subtotal,
+                    total_gst: totalGST,
+                    total_amount: totalAmount,
+                    payment_status: paymentStatus,
+                    status: 'pending',
+                    amount_paid: 0
+                };
+
+                const invoiceResult = await supabase
+                    .from('invoices')
+                    .insert([invoiceData])
+                    .execute();
+
+                if (invoiceResult.error) {
+                    throw new Error(invoiceResult.error.message);
+                }
+
+                if (paymentStatus === 'paid') {
+                    await updateCustomerServicesStatus(customerId, generatorItems);
+                    showModalAlert('✅ Customer services updated to completed!', 'info');
+                }
+
+                showModalAlert('✅ Invoice saved successfully!', 'success');
+                
+                setTimeout(() => {
+                    closeGenerator();
+                    loadInvoices(supabase);
+                }, 1000);
+                
+            } catch (error) {
+                console.error('❌ Error saving invoice:', error);
+                showModalAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('saveInvoiceBtn').disabled = false;
+                document.getElementById('saveInvoiceBtn').textContent = '💾 Save Invoice';
+            }
+        }
+
+                async function loadInvoicesWithOverdueCheck(supabase) {
+            try {
+                const data = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .execute();
+
+                allInvoices = data.body || [];
+                
+                // Check for overdue invoices
+                checkAndUpdateOverdueStatus();
+                
+                filteredInvoices = [...allInvoices];
+                renderInvoices();
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                showModalAlert('Error loading invoices: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
+        // Keep old name for compatibility
+        async function loadInvoices(supabase) {
+            return loadInvoicesWithOverdueCheck(supabase);
+        }
+
+        function renderInvoices() {
+            const tableBody = document.getElementById('tableBody');
+            const tableState = document.getElementById('tableState');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredInvoices.length === 0) {
+                tableState.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            tableState.style.display = 'block';
+            emptyState.style.display = 'none';
+            tableBody.innerHTML = '';
+
+            filteredInvoices.forEach(invoice => {
+                const statusClass = `status-${(invoice.payment_status || 'pending').toLowerCase()}`;
+                const customer = allCustomers.find(c => c.id === invoice.customer_id);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${invoice.invoice_number || '-'}</strong></td>
+                    <td>${customer?.full_name || 'N/A'}</td>
+                    <td>${customer?.mobile_no || '-'}</td>
+                    <td>${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
+                    <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
+                    <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
+                    <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
+                    <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
+                                        <td>
                         <div class="actions" style="flex-wrap: wrap;">
-                            <button class="btn btn-sm btn-success" onclick="previewInvoice('${invoice.id}')" title="Preview">👁 Preview</button>
+                            <button class="btn btn-sm btn-success" onclick="previewInvoice('${invoice.id}')" title="Preview">👁️ Preview</button>
                             <button class="btn btn-sm btn-primary" onclick="downloadInvoicePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
                             <button class="btn btn-sm" style="background: #2196F3; color: white;" onclick="openEditModal('${invoice.id}')" title="Edit">✏️ Edit</button>
+                            <button class="btn btn-sm" style="background: #FF6B6B; color: white;" onclick="openPaymentModal('${invoice.id}')" title="Record Payment">💳 Payment</button>
+                            <button class="btn btn-sm" style="background: #4ECDC4; color: white;" onclick="sendInvoiceEmail('${invoice.id}')" title="Email">📧 Email</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
                         </div>
                     </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterInvoices() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+
+            filteredInvoices = allInvoices.filter(invoice => {
+                const customer = allCustomers.find(c => c.id === invoice.customer_id);
+                const matchesSearch = 
+                    (invoice.invoice_number?.toLowerCase().includes(searchTerm)) ||
+                    (customer?.full_name?.toLowerCase().includes(searchTerm)) ||
+                    (customer?.mobile_no?.includes(searchTerm));
+                
+                const matchesStatus = !statusFilter || (invoice.payment_status?.toLowerCase() === statusFilter);
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderInvoices();
+        }
+
+        async function deleteInvoice(invoiceId) {
+            if (!confirm('Are you sure you want to delete this invoice?')) return;
+
+            try {
+                const supabase = await getSupabaseClient();
+                await supabase
+                    .from('invoices')
+                    .delete()
+                    .eq('id', invoiceId)
+                    .execute();
+
+                showModalAlert('✅ Invoice deleted successfully!', 'success');
+                loadInvoices(supabase);
+            } catch (error) {
+                console.error('Error deleting invoice:', error);
+                showModalAlert('Error deleting invoice: ' + error.message, 'error');
+            }
+        }
+
+        async function openInvoiceGenerator() {
+            const newInvoiceNumber = await generateNextInvoiceNumber();
+            
+            generatorItems = [];
+            selectedCustomer = null;
+            selectedService = null;
+            searchResults = [];
+            serviceSearchResults = [];
+            applyGST = true;
+            
+            document.getElementById('genInvoiceNumber').value = newInvoiceNumber;
+            document.getElementById('autoInvoiceNumber').textContent = newInvoiceNumber;
+            document.getElementById('genInvoiceDate').value = formatISTDateForInput();
+            document.getElementById('genDueDate').value = '';
+            document.getElementById('genNotes').value = '';
+            document.getElementById('genCustomerMobile').value = '';
+            document.getElementById('genCustomerName').value = '';
+            document.getElementById('genCustomerEmail').value = '';
+            document.getElementById('genCustomerCompany').value = '';
+            document.getElementById('genCustomerGSTIN').value = '';
+            document.getElementById('genCustomerAddress').value = '';
+            document.getElementById('genPaymentStatus').value = 'pending';
+            document.getElementById('addedServicesContainer').style.display = 'none';
+            document.getElementById('quickServicesContainer').style.display = 'none';
+            document.querySelector('input[name="gstType"][value="with"]').checked = true;
+            document.getElementById('modalAlertContainer').innerHTML = '';
+            updateGSTDisplay();
+            updateGeneratorTotals();
+            document.getElementById('generatorModal').style.display = 'block';
+        }
+
+        function closeGenerator() {
+            document.getElementById('generatorModal').style.display = 'none';
+            document.getElementById('mobileAutoComplete').classList.remove('show');
+            document.getElementById('serviceAutoComplete').classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('dreamHarbourUser');
+            localStorage.removeItem('dreamHarbourLoginTime');
+            window.location.href = 'index.html';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('generatorModal');
+            const mobileAutocomplete = document.getElementById('mobileAutoComplete');
+            const serviceAutocomplete = document.getElementById('serviceAutoComplete');
+            
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+            if (!event.target.closest('.form-group') && !event.target.matches('#genCustomerMobile')) {
+                mobileAutocomplete.classList.remove('show');
+            }
+            if (!event.target.closest('.form-group') && !event.target.matches('#itemName')) {
+                serviceAutocomplete.classList.remove('show');
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+        
+        // ============================================
+        // PART 1: INVOICE PREVIEW FUNCTIONALITY
+        // ============================================
+        
+        function previewInvoice(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            const customer = allCustomers.find(c => c.id === invoice.customer_id);
+            const businessSettings = allBusinessSettings[0] || {};
+
+            let itemsHTML = '';
+            let subtotal = invoice.subtotal || 0;
+            let totalGST = invoice.total_gst || 0;
+            let totalAmount = invoice.total_amount || 0;
+
+            // Generate invoice items display
+            itemsHTML = `
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <thead>
+                        <tr style="background: #f0f0f0; border-bottom: 2px solid #333;">
+                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Service</th>
+                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Quantity</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Rate (₹)</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Amount (₹)</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">GST (₹)</th>
+                            <th style="padding: 12px; text-align: right; border: 1px solid #ddd;">Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px; border: 1px solid #ddd;">Services</td>
+                            <td style="padding: 12px; text-align: center; border: 1px solid #ddd;">-</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">-</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">₹${subtotal.toFixed(2)}</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;">₹${totalGST.toFixed(2)}</td>
+                            <td style="padding: 12px; text-align: right; border: 1px solid #ddd;"><strong>₹${totalAmount.toFixed(2)}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            const previewHTML = `
+                <div style="max-width: 900px; margin: 0 auto; background: white; padding: 40px; border: 1px solid #ddd;">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #667eea; padding-bottom: 20px;">
+                        <h1 style="margin: 0; color: #667eea; font-size: 32px;">INVOICE</h1>
+                        <p style="margin: 5px 0; color: #666; font-size: 14px;">Dream Harbour - Invoice Management System</p>
+                    </div>
+
+                    <!-- Invoice Meta Info -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <div>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px; font-weight: bold; text-transform: uppercase;">Invoice Details</h3>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Invoice #:</strong> ${invoice.invoice_number}</p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Date:</strong> ${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</p>
+                            ${invoice.due_date ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Due Date:</strong> ${new Date(invoice.due_date).toLocaleDateString('en-IN')}</p>` : ''}
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Status:</strong> <span style="background: ${invoice.payment_status === 'paid' ? '#4caf50' : invoice.payment_status === 'overdue' ? '#f44336' : '#ff9800'}; color: white; padding: 3px 8px; border-radius: 3px; text-transform: capitalize;">${invoice.payment_status}</span></p>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px; font-weight: bold; text-transform: uppercase;">Customer Details</h3>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Name:</strong> ${customer?.full_name || 'N/A'}</p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Mobile:</strong> ${customer?.mobile_no || 'N/A'}</p>
+                            ${customer?.email ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Email:</strong> ${customer.email}</p>` : ''}
+                            ${customer?.company_name ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Company:</strong> ${customer.company_name}</p>` : ''}
+                            ${customer?.gstin ? `<p style="margin: 5px 0; font-size: 13px;"><strong>GSTIN:</strong> ${customer.gstin}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    ${itemsHTML}
+
+                    <!-- Summary -->
+                    <div style="float: right; width: 50%; text-align: right;">
+                        <div style="margin: 15px 0; font-size: 14px; padding: 10px 0; border-bottom: 1px solid #ddd;">
+                            <span style="display: inline-block; width: 200px; text-align: left;"><strong>Subtotal:</strong></span>
+                            <span>₹${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div style="margin: 15px 0; font-size: 14px; padding: 10px 0; border-bottom: 1px solid #ddd;">
+                            <span style="display: inline-block; width: 200px; text-align: left;"><strong>Total GST:</strong></span>
+                            <span>₹${totalGST.toFixed(2)}</span>
+                        </div>
+                        <div style="margin: 15px 0; font-size: 16px; padding: 15px 0; border-top: 2px solid #667eea; border-bottom: 2px solid #667eea; background: #f0f0f0;">
+                            <span style="display: inline-block; width: 200px; text-align: left;"><strong>GRAND TOTAL:</strong></span>
+                            <span style="color: #667eea; font-weight: bold;">₹${totalAmount.toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div style="clear: both;"></div>
+
+                    <!-- Notes -->
+                    ${invoice.notes ? `
+                        <div style="margin-top: 30px; padding: 15px; background: #f9f9f9; border-left: 4px solid #667eea;">
+                            <strong>Notes:</strong>
+                            <p style="margin: 10px 0 0 0; color: #666; font-size: 13px;">${invoice.notes}</p>
+                        </div>
+                    ` : ''}
+
+                    <!-- Footer -->
+                    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #999;">
+                        <p style="margin: 5px 0;">Thank you for your business!</p>
+                        <p style="margin: 5px 0;">Dream Harbour - Professional Invoice Management</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('previewContent').innerHTML = previewHTML;
+            document.getElementById('previewModal').style.display = 'block';
+            
+            // Store invoice ID for PDF download
+            document.getElementById('previewModal').dataset.invoiceId = invoiceId;
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        // ============================================
+        // PART 2: PDF DOWNLOAD FUNCTIONALITY
+        // ============================================
+
+        function downloadInvoicePDF(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            // First show preview
+            previewInvoice(invoiceId);
+            
+            // Then trigger PDF download after a short delay
+            setTimeout(() => {
+                generatePDFFromPreview();
+            }, 500);
+        }
+
+        function generatePDFFromPreview() {
+            const element = document.getElementById('previewContent');
+            const invoiceId = document.getElementById('previewModal').dataset.invoiceId;
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+
+            if (!element || !invoice) {
+                alert('Error generating PDF');
+                return;
+            }
+
+            const opt = {
+                margin: 10,
+                filename: `Invoice_${invoice.invoice_number}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+            showModalAlert('✅ PDF downloaded successfully!', 'success');
+        }
+
+        // ============================================
+        // PART 3: EDIT INVOICE FUNCTIONALITY
+        // ============================================
+
+        let currentEditingInvoiceId = null;
+
+        function openEditModal(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            currentEditingInvoiceId = invoiceId;
+
+            document.getElementById('editInvoiceNumber').textContent = invoice.invoice_number;
+            document.getElementById('editInvoiceDate').value = invoice.invoice_date;
+            document.getElementById('editDueDate').value = invoice.due_date || '';
+            document.getElementById('editNotes').value = invoice.notes || '';
+            document.getElementById('editPaymentStatus').value = invoice.payment_status || 'pending';
+            document.getElementById('editAmountPaid').value = invoice.amount_paid || '0';
+            document.getElementById('editAlertContainer').innerHTML = '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditingInvoiceId = null;
+        }
+
+        async function saveEditInvoice() {
+            if (!currentEditingInvoiceId) {
+                showEditAlert('Error: No invoice selected', 'error');
+                return;
+            }
+
+            try {
+                const supabase = await getSupabaseClient();
+                const invoiceDate = document.getElementById('editInvoiceDate').value;
+                const dueDate = document.getElementById('editDueDate').value;
+                const notes = document.getElementById('editNotes').value.trim();
+                const paymentStatus = document.getElementById('editPaymentStatus').value;
+                const amountPaid = parseFloat(document.getElementById('editAmountPaid').value) || 0;
+
+                if (!invoiceDate) {
+                    showEditAlert('Please enter invoice date', 'error');
+                    return;
+                }
+
+                document.getElementById('saveEditBtn').disabled = true;
+                document.getElementById('saveEditBtn').textContent = '⏳ Saving...';
+
+                const updateData = {
+                    invoice_date: invoiceDate,
+                    due_date: dueDate || null,
+                    notes: notes || null,
+                    payment_status: paymentStatus,
+                    amount_paid: amountPaid,
+                    updated_at: new Date().toISOString()
+                };
+
+                await supabase
+                    .from('invoices')
+                    .update(updateData)
+                    .eq('id', currentEditingInvoiceId)
+                    .execute();
+
+                showEditAlert('✅ Invoice updated successfully!', 'success');
+                
+                setTimeout(() => {
+                    closeEditModal();
+                    loadInvoices(supabase);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error updating invoice:', error);
+                showEditAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('saveEditBtn').disabled = false;
+                document.getElementById('saveEditBtn').textContent = '💾 Save Changes';
+            }
+        }
+
+        function showEditAlert(message, type = 'info') {
+            const container = document.getElementById('editAlertContainer');
+            const alertId = 'edit-alert-' + Date.now();
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
+                ${message}
+            `;
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) {
+                    el.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
+        
+        // ============================================
+        // PRIORITY 2: PAYMENT RECORDING FUNCTIONALITY
+        // ============================================
+
+        let currentPaymentInvoiceId = null;
+
+        function openPaymentModal(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            currentPaymentInvoiceId = invoiceId;
+            const totalAmount = invoice.total_amount || 0;
+            const alreadyPaid = invoice.amount_paid || 0;
+            const remaining = Math.max(0, totalAmount - alreadyPaid);
+
+            document.getElementById('paymentInvoiceNumber').textContent = invoice.invoice_number;
+            document.getElementById('paymentInvoiceTotal').value = totalAmount.toFixed(2);
+            document.getElementById('paymentAlreadyPaid').value = alreadyPaid.toFixed(2);
+            document.getElementById('paymentRemaining').value = remaining.toFixed(2);
+            document.getElementById('paymentAmount').value = remaining > 0 ? remaining.toFixed(2) : '0.00';
+            document.getElementById('paymentDate').value = formatISTDateForInput();
+            document.getElementById('paymentMethod').value = 'cash';
+            document.getElementById('paymentNotes').value = '';
+            document.getElementById('paymentAlertContainer').innerHTML = '';
+            
+            updatePaymentRemaining();
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            currentPaymentInvoiceId = null;
+        }
+
+        function updatePaymentRemaining() {
+            const invoice = allInvoices.find(i => i.id === currentPaymentInvoiceId);
+            if (!invoice) return;
+
+            const totalAmount = invoice.total_amount || 0;
+            const alreadyPaid = invoice.amount_paid || 0;
+            const paymentAmount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+            const newTotalPaid = alreadyPaid + paymentAmount;
+            const remaining = Math.max(0, totalAmount - newTotalPaid);
+
+            let newStatus = 'Pending';
+            if (newTotalPaid >= totalAmount) {
+                newStatus = '✅ Fully Paid';
+            } else if (newTotalPaid > 0) {
+                newStatus = '⏳ Partially Paid';
+            }
+
+            document.getElementById('paymentNewStatus').textContent = newStatus;
+        }
+
+        async function recordPayment() {
+            if (!currentPaymentInvoiceId) {
+                showPaymentAlert('Error: No invoice selected', 'error');
+                return;
+            }
+
+            try {
+                const supabase = await getSupabaseClient();
+                const invoice = allInvoices.find(i => i.id === currentPaymentInvoiceId);
+                if (!invoice) throw new Error('Invoice not found');
+
+                const paymentAmount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+                const paymentDate = document.getElementById('paymentDate').value;
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                const paymentNotes = document.getElementById('paymentNotes').value.trim();
+
+                if (!paymentAmount || paymentAmount <= 0) {
+                    showPaymentAlert('Please enter a valid payment amount', 'error');
+                    return;
+                }
+
+                if (!paymentDate) {
+                    showPaymentAlert('Please select payment date', 'error');
+                    return;
+                }
+
+                const totalAmount = invoice.total_amount || 0;
+                const alreadyPaid = invoice.amount_paid || 0;
+                const newTotalPaid = alreadyPaid + paymentAmount;
+
+                // Determine new payment status
+                let newPaymentStatus = 'pending';
+                if (newTotalPaid >= totalAmount) {
+                    newPaymentStatus = 'paid';
+                } else if (newTotalPaid > 0) {
+                    newPaymentStatus = 'pending'; // Still pending (partially paid)
+                }
+
+                document.getElementById('recordPaymentBtn').disabled = true;
+                document.getElementById('recordPaymentBtn').textContent = '⏳ Recording...';
+
+                // Update invoice with new payment information
+                const updateData = {
+                    amount_paid: newTotalPaid,
+                    payment_status: newPaymentStatus,
+                    updated_at: new Date().toISOString()
+                };
+
+                await supabase
+                    .from('invoices')
+                    .update(updateData)
+                    .eq('id', currentPaymentInvoiceId)
+                    .execute();
+
+                // Optionally: Save payment record in payment_history table if it exists
+                if (paymentNotes || paymentMethod) {
+                    try {
+                        await supabase
+                            .from('payment_history')
+                            .insert([{
+                                invoice_id: currentPaymentInvoiceId,
+                                amount_paid: paymentAmount,
+                                payment_date: paymentDate,
+                                payment_method: paymentMethod,
+                                notes: paymentNotes,
+                                recorded_at: new Date().toISOString()
+                            }])
+                            .execute();
+                    } catch (e) {
+                        console.log('Payment history table not available, continuing...');
+                    }
+                }
+
+                showPaymentAlert(`✅ Payment recorded! ₹${paymentAmount.toFixed(2)} added (Total Paid: ₹${newTotalPaid.toFixed(2)})`, 'success');
+                
+                setTimeout(() => {
+                    closePaymentModal();
+                    loadInvoices(supabase);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error recording payment:', error);
+                showPaymentAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('recordPaymentBtn').disabled = false;
+                document.getElementById('recordPaymentBtn').textContent = '✅ Record Payment';
+            }
+        }
+
+        function showPaymentAlert(message, type = 'info') {
+            const container = document.getElementById('paymentAlertContainer');
+            const alertId = 'payment-alert-' + Date.now();
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
+                ${message}
+            `;
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) {
+                    el.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ============================================
+        // PRIORITY 2: EMAIL INVOICE FUNCTIONALITY
+        // ============================================
+
+        async function sendInvoiceEmail(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            const customer = allCustomers.find(c => c.id === invoice.customer_id);
+            if (!customer || !customer.email) {
+                alert('❌ Customer email not found. Please update customer details.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const btn = event.target;
+                btn.disabled = true;
+                btn.textContent = '⏳ Sending...';
+
+                // Call your email service endpoint
+                const emailData = {
+                    to: customer.email,
+                    invoiceNumber: invoice.invoice_number,
+                    customerName: customer.full_name,
+                    totalAmount: invoice.total_amount,
+                    dueDate: invoice.due_date,
+                    invoiceDate: invoice.invoice_date,
+                    notes: invoice.notes
+                };
+
+                // Using a generic API endpoint - adjust based on your backend
+                const response = await fetch('/api/send-invoice-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailData)
+                });
+
+                if (response.ok) {
+                    alert('✅ Invoice sent to ' + customer.email);
+                } else {
+                    alert('⚠️ Email might not have been sent. Please try again or send manually.');
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('❌ Error sending email. Make sure your email service is configured.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📧 Email';
+            }
+        }
+
+        // ============================================
+        // PRIORITY 2: AUTOMATIC OVERDUE DETECTION
+        // ============================================
+
+        function checkAndUpdateOverdueStatus() {
+            const supabase = getSupabaseClient();
+            if (!supabase) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            allInvoices.forEach(async (invoice) => {
+                // Skip if already paid
+                if (invoice.payment_status === 'paid') return;
+
+                // Check if invoice has due date and is overdue
+                if (invoice.due_date) {
+                    const dueDate = new Date(invoice.due_date);
+                    dueDate.setHours(0, 0, 0, 0);
+
+                    if (dueDate < today && invoice.payment_status !== 'overdue') {
+                        // Update to overdue status
+                        try {
+                            await supabase
+                                .from('invoices')
+                                .update({ 
+                                    payment_status: 'overdue',
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('id', invoice.id)
+                                .execute();
+                            console.log(`✅ Invoice ${invoice.invoice_number} marked as overdue`);
+                        } catch (error) {
+                            console.error('Error updating overdue status:', error);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Run overdue check when invoices load
+        async function loadInvoicesWithOverdueCheck(supabase) {
+            try {
+                const data = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .execute();
+
+                allInvoices = data.body || [];
+                
+                // Check for overdue invoices
+                checkAndUpdateOverdueStatus();
+                
+                filteredInvoices = [...allInvoices];
+                renderInvoices();
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                showModalAlert('Error loading invoices: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
+    </script>
+</body>
+</html>
