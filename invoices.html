@@ -369,6 +369,7 @@
         .actions {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .status-badge {
@@ -878,6 +879,51 @@
             border-color: #4caf50;
         }
 
+        .pagination {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover {
+            background: var(--light-bg);
+        }
+
+        .pagination button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media print {
+            body, .sidebar, .topbar, .header-section, .header-actions, .filter-section, .actions {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            #previewContent {
+                box-shadow: none !important;
+            }
+        }
+
         @media (max-width: 1024px) {
             .invoices-container {
                 display: block;
@@ -1025,6 +1071,8 @@
                             <option value="pending">Pending</option>
                             <option value="overdue">Overdue</option>
                         </select>
+                        <input type="date" id="dateFromFilter" class="search-box" onchange="filterInvoices()" title="From Date">
+                        <input type="date" id="dateToFilter" class="search-box" onchange="filterInvoices()" title="To Date">
                     </div>
                 </div>
 
@@ -1053,6 +1101,8 @@
                     </table>
                 </div>
 
+                <div id="paginationContainer" class="pagination"></div>
+
                 <div id="emptyState" class="empty-state" style="display: none;">
                     <div class="empty-state-icon">📄</div>
                     <div class="empty-state-text">No invoices found</div>
@@ -1061,6 +1111,7 @@
             </div>
         </div>
     </div>
+
     <!-- Invoice Preview Modal -->
     <div id="previewModal" class="modal">
         <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
@@ -1073,8 +1124,13 @@
             </div>
             <div style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e0e0e0;">
                 <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+                <button class="btn btn-primary" onclick="printInvoice()">🖨️ Print</button>
                 <button class="btn btn-primary" onclick="generatePDFFromPreview()">📥 Download PDF</button>
-                    <!-- Payment Recording Modal -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Recording Modal -->
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1139,10 +1195,6 @@
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn btn-success" id="recordPaymentBtn" onclick="recordPayment()" style="flex: 1;">✅ Record Payment</button>
                 <button class="btn btn-secondary" onclick="closePaymentModal()" style="flex: 1;">Cancel</button>
-            </div>
-        </div>
-    </div>
-
             </div>
         </div>
     </div>
@@ -1249,16 +1301,16 @@
                     <input type="text" id="genCustomerName" placeholder="Customer name" required>
                 </div>
                 <div class="form-group">
-                    <label>Customer Email</label>
-                    <input type="email" id="genCustomerEmail" placeholder="Email">
-                </div>
-                <div class="form-group">
                     <label>Company</label>
                     <input type="text" id="genCustomerCompany" placeholder="Company name">
                 </div>
                 <div class="form-group">
                     <label>GSTIN</label>
-                    <input type="text" id="genCustomerGSTIN" placeholder="GSTIN">
+                    <input type="text" id="genCustomerGSTIN" placeholder="GSTIN" onchange="validateGSTIN()">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="genCustomerEmail" placeholder="Email">
                 </div>
             </div>
             <div class="form-group">
@@ -1385,6 +1437,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="supabase-init.js"></script>
     <script>
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
         let allInvoices = [];
         let allCustomers = [];
         let allServices = [];
@@ -1400,7 +1455,44 @@
         let selectedService = null;
         let currentUser = null;
         let applyGST = true;
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 20;
 
+        // ============================================
+        // VALIDATION FUNCTIONS
+        // ============================================
+        function validateMobileNumber(mobile) {
+            const normalized = mobile.replace(/\D/g, '');
+            if (normalized.length !== 10) return false;
+            if (!/^[6-9]/.test(normalized)) return false; // Indian mobile must start with 6-9
+            return true;
+        }
+
+        function validateEmail(email) {
+            if (!email) return true; // Optional field
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        function validateGSTIN() {
+            const gstin = document.getElementById('genCustomerGSTIN').value.trim();
+            if (!gstin) return true; // Optional field
+            // Indian GSTIN format: 2 digits (state) + 10 digits (PAN) + 1 digit (entity) + 1 digit (check)
+            if (!/^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(gstin)) {
+                showModalAlert('⚠️ Invalid GSTIN format', 'warning');
+                return false;
+            }
+            return true;
+        }
+
+        function sanitizeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
         function numberToWords(num) {
             const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
             const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
@@ -1462,6 +1554,17 @@
             return `${year}${month}${day}`;
         }
 
+        function formatISTDateForInput() {
+            const istDate = getISTDate();
+            const year = istDate.getFullYear();
+            const month = String(istDate.getMonth() + 1).padStart(2, '0');
+            const day = String(istDate.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // ============================================
+        // GST DISPLAY
+        // ============================================
         function updateGSTDisplay() {
             applyGST = document.querySelector('input[name="gstType"]:checked').value === 'with';
             const gstInfo = document.getElementById('gstInfo');
@@ -1474,6 +1577,9 @@
             updateGeneratorTotals();
         }
 
+        // ============================================
+        // CUSTOMER GENERATION & CODE
+        // ============================================
         async function generateCustomerCode(fullName) {
             try {
                 const supabase = await getSupabaseClient();
@@ -1537,14 +1643,9 @@
             }
         }
 
-        function formatISTDateForInput() {
-            const istDate = getISTDate();
-            const year = istDate.getFullYear();
-            const month = String(istDate.getMonth() + 1).padStart(2, '0');
-            const day = String(istDate.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
+        // ============================================
+        // SERVICE SEARCH & SELECTION
+        // ============================================
         function searchServices() {
             const serviceName = document.getElementById('itemName').value.trim();
             const autocompleteList = document.getElementById('serviceAutoComplete');
@@ -1572,8 +1673,8 @@
                 const category = allCategories.find(c => c.id === service.category_id);
                 return `
                     <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectService(${index}); return false;">
-                        <div class="autocomplete-item-phone">📦 ${service.service_name}</div>
-                        <div class="autocomplete-item-name">Category: ${category?.category_name || 'N/A'} | SAC: ${service.sac_code || 'N/A'} | Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
+                        <div class="autocomplete-item-phone">📦 ${sanitizeHTML(service.service_name)}</div>
+                        <div class="autocomplete-item-name">Category: ${sanitizeHTML(category?.category_name || 'N/A')} | SAC: ${sanitizeHTML(service.sac_code || 'N/A')} | Rate: ₹${service.default_rate || '0'} | GST: ${service.default_gst_percentage || '0'}%</div>
                     </button>
                 `;
             }).join('');
@@ -1617,8 +1718,8 @@
 
             container.style.display = 'block';
             list.innerHTML = serviceSubServices.map((subService) => `
-                <div class="sub-service-item" data-id="${subService.id}" data-name="${subService.sub_service_name}" data-rate="${subService.default_rate}" data-gst="${subService.default_gst_percentage}">
-                    <span><strong>${subService.sub_service_name}</strong></span>
+                <div class="sub-service-item" data-id="${subService.id}" data-name="${sanitizeHTML(subService.sub_service_name)}" data-rate="${subService.default_rate}" data-gst="${subService.default_gst_percentage}">
+                    <span><strong>${sanitizeHTML(subService.sub_service_name)}</strong></span>
                     <input type="number" class="sub-service-qty" value="1" min="1" placeholder="Qty" style="padding: 6px;">
                     <input type="number" class="sub-service-rate" value="${subService.default_rate}" min="0" step="0.01" placeholder="Rate" style="padding: 6px;">
                     <select class="sub-service-gst" style="padding: 6px;">
@@ -1632,6 +1733,9 @@
             `).join('');
         }
 
+        // ============================================
+        // SERVICE ADDITION TO INVOICE
+        // ============================================
         function addServiceToInvoice() {
             if (!selectedService) {
                 showModalAlert('Please select a service', 'error');
@@ -1775,7 +1879,7 @@
             container.innerHTML = Object.entries(groupedByCategory).map(([categoryName, services]) => {
                 return `
                     <div style="margin-bottom: 15px;">
-                        <div class="category-header">📁 ${categoryName}</div>
+                        <div class="category-header">📁 ${sanitizeHTML(categoryName)}</div>
                         ${Object.entries(services).map(([serviceKey, items]) => {
                             const firstItem = items[0];
                             const serviceTotal = items.reduce((sum, item) => sum + item.amount + item.gstAmount, 0);
@@ -1786,14 +1890,14 @@
                                 <div class="service-item-display" style="margin-bottom: 10px;">
                                     <div class="service-item-header">
                                         <div>
-                                            <div class="service-item-name">🔧 ${firstItem.serviceName}</div>
-                                            ${firstItem.sac ? `<div class="service-item-details">SAC: ${firstItem.sac}</div>` : ''}
+                                            <div class="service-item-name">🔧 ${sanitizeHTML(firstItem.serviceName)}</div>
+                                            ${firstItem.sac ? `<div class="service-item-details">SAC: ${sanitizeHTML(firstItem.sac)}</div>` : ''}
                                         </div>
                                         <button class="service-item-remove" onclick="removeServiceGroup('${serviceKey}')">Remove All</button>
                                     </div>
                                     
                                     <div class="service-item-details">
-                                        ${items.map(item => `<div>• ${item.subServiceName || item.serviceName}: ${item.qty} × ₹${item.rate.toFixed(2)}</div>`).join('')}
+                                        ${items.map(item => `<div>• ${sanitizeHTML(item.subServiceName || item.serviceName)}: ${item.qty} × ₹${item.rate.toFixed(2)}</div>`).join('')}
                                     </div>
 
                                     <div class="service-item-totals">
@@ -1845,6 +1949,9 @@
             document.getElementById('genGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
         }
 
+        // ============================================
+        // CUSTOMER SEARCH & SELECTION
+        // ============================================
         function searchCustomerByMobile() {
             const mobile = document.getElementById('genCustomerMobile').value.trim();
             const autocompleteList = document.getElementById('mobileAutoComplete');
@@ -1879,7 +1986,7 @@
             autocompleteList.innerHTML = searchResults.map((customer, index) => `
                 <button type="button" class="autocomplete-item" data-index="${index}" onclick="selectCustomer(${index}); return false;">
                     <div class="autocomplete-item-phone">📱 ${customer.mobile_no}</div>
-                    <div class="autocomplete-item-name">${customer.full_name || 'N/A'}${customer.address ? ' • ' + customer.address : ''}</div>
+                    <div class="autocomplete-item-name">${sanitizeHTML(customer.full_name || 'N/A')}${customer.address ? ' • ' + sanitizeHTML(customer.address) : ''}</div>
                 </button>
             `).join('');
 
@@ -1894,13 +2001,12 @@
             
             document.getElementById('genCustomerMobile').value = customer.mobile_no || '';
             document.getElementById('genCustomerName').value = customer.full_name || '';
-            document.getElementById('genCustomerEmail').value = customer.email || '';
             document.getElementById('genCustomerCompany').value = customer.company_name || '';
             document.getElementById('genCustomerGSTIN').value = customer.gstin || '';
+            document.getElementById('genCustomerEmail').value = customer.email || '';
             document.getElementById('genCustomerAddress').value = customer.address || '';
             document.getElementById('mobileAutoComplete').classList.remove('show');
 
-            // SYNC: Load customer's services and show quick add
             await loadCustomerQuickServices(customer.id);
         }
 
@@ -1938,8 +2044,8 @@
 
             container.style.display = 'block';
             list.innerHTML = customerServices.map(cs => `
-                <button type="button" class="quick-service-item" onclick="quickAddServiceToInvoice('${cs.service_id}', '${cs.service_name}'); return false;">
-                    📦 ${cs.service_name}
+                <button type="button" class="quick-service-item" onclick="quickAddServiceToInvoice('${cs.service_id}', '${sanitizeHTML(cs.service_name)}'); return false;">
+                    📦 ${sanitizeHTML(cs.service_name)}
                 </button>
             `).join('');
         }
@@ -1978,8 +2084,6 @@
                 
                 const serviceIds = [...new Set(invoiceItems.map(item => item.serviceId))];
                 
-                console.log(`📦 Updating ${serviceIds.length} services for customer ${customerId}`);
-                
                 for (const serviceId of serviceIds) {
                     await supabase
                         .from('customer_services')
@@ -1992,17 +2096,18 @@
                         .eq('service_id', serviceId)
                         .eq('service_status', 'pending')
                         .execute();
-                    
-                    console.log(`✅ Service ${serviceId} marked as completed`);
                 }
                 
                 return true;
             } catch (error) {
-                console.error('❌ Error updating customer services:', error);
+                console.error('Error updating customer services:', error);
                 return false;
             }
         }
 
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         async function initializeApp() {
             const user = localStorage.getItem('dreamHarbourUser');
             if (!user) {
@@ -2037,7 +2142,7 @@
             alertDiv.className = `alert ${type}`;
             alertDiv.innerHTML = `
                 <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
-                ${message}
+                ${sanitizeHTML(message)}
             `;
             container.appendChild(alertDiv);
             
@@ -2074,7 +2179,6 @@
                 allCustomers = data.body || [];
             } catch (error) {
                 console.error('Error loading customers:', error);
-                showModalAlert('Error loading customers', 'error');
             }
         }
 
@@ -2103,7 +2207,6 @@
                 allServices = data.body || [];
             } catch (error) {
                 console.error('Error loading services:', error);
-                showModalAlert('Error loading services', 'error');
             }
         }
 
@@ -2118,7 +2221,6 @@
                 allSubServices = data.body || [];
             } catch (error) {
                 console.error('Error loading sub-services:', error);
-                showModalAlert('Error loading sub-services', 'error');
             }
         }
 
@@ -2147,6 +2249,28 @@
                 const notes = document.getElementById('genNotes').value.trim();
                 const paymentStatus = document.getElementById('genPaymentStatus').value;
                 
+                // VALIDATE INPUTS
+                if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
+                    showModalAlert('❌ Please fill all required fields and add at least one service', 'error');
+                    return;
+                }
+
+                if (!validateMobileNumber(mobile)) {
+                    showModalAlert('❌ Please enter a valid 10-digit Indian mobile number', 'error');
+                    return;
+                }
+
+                const gstin = document.getElementById('genCustomerGSTIN').value.trim();
+                if (gstin && !validateGSTIN()) {
+                    return;
+                }
+
+                const email = document.getElementById('genCustomerEmail').value.trim();
+                if (email && !validateEmail(email)) {
+                    showModalAlert('❌ Please enter a valid email address', 'error');
+                    return;
+                }
+
                 let subtotal = 0;
                 let totalGST = 0;
 
@@ -2157,33 +2281,22 @@
 
                 const totalAmount = applyGST ? subtotal : (subtotal + totalGST);
 
-                if (!invoiceNumber || !mobile || !customerName || generatorItems.length === 0) {
-                    showModalAlert('❌ Please fill all required fields and add at least one service', 'error');
-                    return;
-                }
-
-                const normalizedMobile = mobile.replace(/\D/g, '');
-                if (normalizedMobile.length !== 10) {
-                    showModalAlert('❌ Please enter a valid 10-digit mobile number', 'error');
-                    return;
-                }
-
                 document.getElementById('saveInvoiceBtn').disabled = true;
                 document.getElementById('saveInvoiceBtn').textContent = '⏳ Saving...';
 
+                const normalizedMobile = mobile.replace(/\D/g, '');
                 const customerData = {
                     mobile_no: normalizedMobile,
                     full_name: customerName,
-                    email: document.getElementById('genCustomerEmail').value.trim() || null,
+                    email: email || null,
                     company_name: document.getElementById('genCustomerCompany').value.trim() || null,
-                    gstin: document.getElementById('genCustomerGSTIN').value.trim() || null,
+                    gstin: gstin || null,
                     address: document.getElementById('genCustomerAddress').value.trim() || null
                 };
 
                 let customerId;
 
                 if (selectedCustomer && selectedCustomer.id) {
-                    // Existing customer - Update
                     customerId = selectedCustomer.id;
                     await supabase
                         .from('customers')
@@ -2192,7 +2305,6 @@
                         .execute();
                     showModalAlert('✅ Existing customer updated!', 'info');
                 } else {
-                    // Check for duplicate using mobile + name
                     const duplicateCheck = await supabase
                         .from('customers')
                         .select('*')
@@ -2201,7 +2313,6 @@
                         .execute();
 
                     if (duplicateCheck.body && duplicateCheck.body.length > 0) {
-                        // Exact match found - update existing
                         const existingCustomer = duplicateCheck.body[0];
                         customerId = existingCustomer.id;
                         await supabase
@@ -2211,7 +2322,6 @@
                             .execute();
                         showModalAlert(`⚠️ Customer "${existingCustomer.full_name}" already exists! Details updated.`, 'info');
                     } else {
-                        // No duplicate - create new customer
                         customerData.customer_code = await generateCustomerCode(customerName);
                         const newCustomerResult = await supabase
                             .from('customers')
@@ -2220,7 +2330,7 @@
                             .execute();
 
                         if (!newCustomerResult.body || newCustomerResult.body.length === 0) {
-                            throw new Error('Failed to create customer - no response body');
+                            throw new Error('Failed to create customer');
                         }
 
                         customerId = newCustomerResult.body[0].id;
@@ -2273,21 +2383,22 @@
             }
         }
 
-                async function loadInvoicesWithOverdueCheck(supabase) {
+        async function loadInvoices(supabase) {
             try {
+                currentPage = 1;
                 const data = await supabase
                     .from('invoices')
-                    .select('*')
+                    .select('*', { count: 'exact' })
                     .order('created_at', { ascending: false })
+                    .range(0, ITEMS_PER_PAGE - 1)
                     .execute();
 
                 allInvoices = data.body || [];
-                
-                // Check for overdue invoices
                 checkAndUpdateOverdueStatus();
                 
                 filteredInvoices = [...allInvoices];
                 renderInvoices();
+                renderPagination(data.count || 0);
             } catch (error) {
                 console.error('Error loading invoices:', error);
                 showModalAlert('Error loading invoices: ' + error.message, 'error');
@@ -2296,9 +2407,66 @@
             }
         }
 
-        // Keep old name for compatibility
-        async function loadInvoices(supabase) {
-            return loadInvoicesWithOverdueCheck(supabase);
+        function renderPagination(totalCount) {
+            const container = document.getElementById('paginationContainer');
+            const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // Previous button
+            if (currentPage > 1) {
+                html += `<button onclick="goToPage(${currentPage - 1})">← Previous</button>`;
+            }
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="active" disabled>${i}</button>`;
+                } else if (i <= 3 || i > totalPages - 3 || Math.abs(i - currentPage) <= 1) {
+                    html += `<button onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === 4 || i === totalPages - 3) {
+                    html += `<span style="padding: 8px;">...</span>`;
+                }
+            }
+
+            // Next button
+            if (currentPage < totalPages) {
+                html += `<button onclick="goToPage(${currentPage + 1})">Next →</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function goToPage(page) {
+            currentPage = page;
+            try {
+                const supabase = await getSupabaseClient();
+                const start = (page - 1) * ITEMS_PER_PAGE;
+                const end = start + ITEMS_PER_PAGE - 1;
+
+                const data = await supabase
+                    .from('invoices')
+                    .select('*', { count: 'exact' })
+                    .order('created_at', { ascending: false })
+                    .range(start, end)
+                    .execute();
+
+                allInvoices = data.body || [];
+                filteredInvoices = [...allInvoices];
+                renderInvoices();
+                renderPagination(data.count || 0);
+
+                // Scroll to top
+                document.querySelector('.content-area').scrollTop = 0;
+            } catch (error) {
+                console.error('Error loading page:', error);
+                showModalAlert('Error loading page: ' + error.message, 'error');
+            }
         }
 
         function renderInvoices() {
@@ -2321,21 +2489,20 @@
                 const customer = allCustomers.find(c => c.id === invoice.customer_id);
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><strong>${invoice.invoice_number || '-'}</strong></td>
-                    <td>${customer?.full_name || 'N/A'}</td>
-                    <td>${customer?.mobile_no || '-'}</td>
+                    <td><strong>${sanitizeHTML(invoice.invoice_number || '-')}</strong></td>
+                    <td>${sanitizeHTML(customer?.full_name || 'N/A')}</td>
+                    <td>${sanitizeHTML(customer?.mobile_no || '-')}</td>
                     <td>${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</td>
                     <td>₹${parseFloat(invoice.subtotal || 0).toFixed(2)}</td>
                     <td>₹${parseFloat(invoice.total_gst || 0).toFixed(2)}</td>
                     <td><strong>₹${parseFloat(invoice.total_amount || 0).toFixed(2)}</strong></td>
                     <td><span class="status-badge ${statusClass}">${invoice.payment_status || 'pending'}</span></td>
-                                        <td>
+                    <td>
                         <div class="actions" style="flex-wrap: wrap;">
                             <button class="btn btn-sm btn-success" onclick="previewInvoice('${invoice.id}')" title="Preview">👁️ Preview</button>
                             <button class="btn btn-sm btn-primary" onclick="downloadInvoicePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
                             <button class="btn btn-sm" style="background: #2196F3; color: white;" onclick="openEditModal('${invoice.id}')" title="Edit">✏️ Edit</button>
                             <button class="btn btn-sm" style="background: #FF6B6B; color: white;" onclick="openPaymentModal('${invoice.id}')" title="Record Payment">💳 Payment</button>
-                            <button class="btn btn-sm" style="background: #4ECDC4; color: white;" onclick="sendInvoiceEmail('${invoice.id}')" title="Email">📧 Email</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
                         </div>
                     </td>
@@ -2347,6 +2514,8 @@
         function filterInvoices() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const dateFrom = document.getElementById('dateFromFilter').value;
+            const dateTo = document.getElementById('dateToFilter').value;
 
             filteredInvoices = allInvoices.filter(invoice => {
                 const customer = allCustomers.find(c => c.id === invoice.customer_id);
@@ -2356,10 +2525,20 @@
                     (customer?.mobile_no?.includes(searchTerm));
                 
                 const matchesStatus = !statusFilter || (invoice.payment_status?.toLowerCase() === statusFilter);
-                return matchesSearch && matchesStatus;
+                
+                let matchesDate = true;
+                if (dateFrom || dateTo) {
+                    const invDate = new Date(invoice.invoice_date);
+                    if (dateFrom && invDate < new Date(dateFrom)) matchesDate = false;
+                    if (dateTo && invDate > new Date(dateTo)) matchesDate = false;
+                }
+                
+                return matchesSearch && matchesStatus && matchesDate;
             });
             
+            currentPage = 1;
             renderInvoices();
+            renderPagination(filteredInvoices.length);
         }
 
         async function deleteInvoice(invoiceId) {
@@ -2443,11 +2622,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             initializeApp();
         });
-        
+
         // ============================================
-        // PART 1: INVOICE PREVIEW FUNCTIONALITY
+        // INVOICE PREVIEW
         // ============================================
-        
         function previewInvoice(invoiceId) {
             const invoice = allInvoices.find(i => i.id === invoiceId);
             if (!invoice) {
@@ -2463,7 +2641,6 @@
             let totalGST = invoice.total_gst || 0;
             let totalAmount = invoice.total_amount || 0;
 
-            // Generate invoice items display
             itemsHTML = `
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
                     <thead>
@@ -2491,35 +2668,30 @@
 
             const previewHTML = `
                 <div style="max-width: 900px; margin: 0 auto; background: white; padding: 40px; border: 1px solid #ddd;">
-                    <!-- Header -->
                     <div style="text-align: center; margin-bottom: 40px; border-bottom: 2px solid #667eea; padding-bottom: 20px;">
                         <h1 style="margin: 0; color: #667eea; font-size: 32px;">INVOICE</h1>
                         <p style="margin: 5px 0; color: #666; font-size: 14px;">Dream Harbour - Invoice Management System</p>
                     </div>
 
-                    <!-- Invoice Meta Info -->
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
                         <div>
                             <h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px; font-weight: bold; text-transform: uppercase;">Invoice Details</h3>
-                            <p style="margin: 5px 0; font-size: 13px;"><strong>Invoice #:</strong> ${invoice.invoice_number}</p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Invoice #:</strong> ${sanitizeHTML(invoice.invoice_number)}</p>
                             <p style="margin: 5px 0; font-size: 13px;"><strong>Date:</strong> ${new Date(invoice.invoice_date).toLocaleDateString('en-IN')}</p>
                             ${invoice.due_date ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Due Date:</strong> ${new Date(invoice.due_date).toLocaleDateString('en-IN')}</p>` : ''}
                             <p style="margin: 5px 0; font-size: 13px;"><strong>Status:</strong> <span style="background: ${invoice.payment_status === 'paid' ? '#4caf50' : invoice.payment_status === 'overdue' ? '#f44336' : '#ff9800'}; color: white; padding: 3px 8px; border-radius: 3px; text-transform: capitalize;">${invoice.payment_status}</span></p>
                         </div>
                         <div>
                             <h3 style="margin: 0 0 10px 0; color: #333; font-size: 14px; font-weight: bold; text-transform: uppercase;">Customer Details</h3>
-                            <p style="margin: 5px 0; font-size: 13px;"><strong>Name:</strong> ${customer?.full_name || 'N/A'}</p>
-                            <p style="margin: 5px 0; font-size: 13px;"><strong>Mobile:</strong> ${customer?.mobile_no || 'N/A'}</p>
-                            ${customer?.email ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Email:</strong> ${customer.email}</p>` : ''}
-                            ${customer?.company_name ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Company:</strong> ${customer.company_name}</p>` : ''}
-                            ${customer?.gstin ? `<p style="margin: 5px 0; font-size: 13px;"><strong>GSTIN:</strong> ${customer.gstin}</p>` : ''}
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Name:</strong> ${sanitizeHTML(customer?.full_name || 'N/A')}</p>
+                            <p style="margin: 5px 0; font-size: 13px;"><strong>Mobile:</strong> ${sanitizeHTML(customer?.mobile_no || 'N/A')}</p>
+                            ${customer?.company_name ? `<p style="margin: 5px 0; font-size: 13px;"><strong>Company:</strong> ${sanitizeHTML(customer.company_name)}</p>` : ''}
+                            ${customer?.gstin ? `<p style="margin: 5px 0; font-size: 13px;"><strong>GSTIN:</strong> ${sanitizeHTML(customer.gstin)}</p>` : ''}
                         </div>
                     </div>
 
-                    <!-- Items Table -->
                     ${itemsHTML}
 
-                    <!-- Summary -->
                     <div style="float: right; width: 50%; text-align: right;">
                         <div style="margin: 15px 0; font-size: 14px; padding: 10px 0; border-bottom: 1px solid #ddd;">
                             <span style="display: inline-block; width: 200px; text-align: left;"><strong>Subtotal:</strong></span>
@@ -2536,15 +2708,13 @@
                     </div>
                     <div style="clear: both;"></div>
 
-                    <!-- Notes -->
                     ${invoice.notes ? `
                         <div style="margin-top: 30px; padding: 15px; background: #f9f9f9; border-left: 4px solid #667eea;">
                             <strong>Notes:</strong>
-                            <p style="margin: 10px 0 0 0; color: #666; font-size: 13px;">${invoice.notes}</p>
+                            <p style="margin: 10px 0 0 0; color: #666; font-size: 13px;">${sanitizeHTML(invoice.notes)}</p>
                         </div>
                     ` : ''}
 
-                    <!-- Footer -->
                     <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; font-size: 12px; color: #999;">
                         <p style="margin: 5px 0;">Thank you for your business!</p>
                         <p style="margin: 5px 0;">Dream Harbour - Professional Invoice Management</p>
@@ -2554,8 +2724,6 @@
 
             document.getElementById('previewContent').innerHTML = previewHTML;
             document.getElementById('previewModal').style.display = 'block';
-            
-            // Store invoice ID for PDF download
             document.getElementById('previewModal').dataset.invoiceId = invoiceId;
         }
 
@@ -2563,9 +2731,9 @@
             document.getElementById('previewModal').style.display = 'none';
         }
 
-        // ============================================
-        // PART 2: PDF DOWNLOAD FUNCTIONALITY
-        // ============================================
+        function printInvoice() {
+            window.print();
+        }
 
         function downloadInvoicePDF(invoiceId) {
             const invoice = allInvoices.find(i => i.id === invoiceId);
@@ -2574,10 +2742,8 @@
                 return;
             }
 
-            // First show preview
             previewInvoice(invoiceId);
             
-            // Then trigger PDF download after a short delay
             setTimeout(() => {
                 generatePDFFromPreview();
             }, 500);
@@ -2593,22 +2759,26 @@
                 return;
             }
 
-            const opt = {
-                margin: 10,
-                filename: `Invoice_${invoice.invoice_number}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
+            try {
+                const opt = {
+                    margin: 10,
+                    filename: `Invoice_${invoice.invoice_number}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+                };
 
-            html2pdf().set(opt).from(element).save();
-            showModalAlert('✅ PDF downloaded successfully!', 'success');
+                html2pdf().set(opt).from(element).save();
+                showModalAlert('✅ PDF downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('❌ Error generating PDF. Please try again.');
+            }
         }
 
         // ============================================
-        // PART 3: EDIT INVOICE FUNCTIONALITY
+        // EDIT INVOICE
         // ============================================
-
         let currentEditingInvoiceId = null;
 
         function openEditModal(invoiceId) {
@@ -2696,7 +2866,7 @@
             alertDiv.className = `alert ${type}`;
             alertDiv.innerHTML = `
                 <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
-                ${message}
+                ${sanitizeHTML(message)}
             `;
             container.appendChild(alertDiv);
             
@@ -2708,11 +2878,10 @@
                 }
             }, 5000);
         }
-        
-        // ============================================
-        // PRIORITY 2: PAYMENT RECORDING FUNCTIONALITY
-        // ============================================
 
+        // ============================================
+        // PAYMENT RECORDING
+        // ============================================
         let currentPaymentInvoiceId = null;
 
         function openPaymentModal(invoiceId) {
@@ -2796,18 +2965,14 @@
                 const alreadyPaid = invoice.amount_paid || 0;
                 const newTotalPaid = alreadyPaid + paymentAmount;
 
-                // Determine new payment status
                 let newPaymentStatus = 'pending';
                 if (newTotalPaid >= totalAmount) {
                     newPaymentStatus = 'paid';
-                } else if (newTotalPaid > 0) {
-                    newPaymentStatus = 'pending'; // Still pending (partially paid)
                 }
 
                 document.getElementById('recordPaymentBtn').disabled = true;
                 document.getElementById('recordPaymentBtn').textContent = '⏳ Recording...';
 
-                // Update invoice with new payment information
                 const updateData = {
                     amount_paid: newTotalPaid,
                     payment_status: newPaymentStatus,
@@ -2819,25 +2984,6 @@
                     .update(updateData)
                     .eq('id', currentPaymentInvoiceId)
                     .execute();
-
-                // Optionally: Save payment record in payment_history table if it exists
-                if (paymentNotes || paymentMethod) {
-                    try {
-                        await supabase
-                            .from('payment_history')
-                            .insert([{
-                                invoice_id: currentPaymentInvoiceId,
-                                amount_paid: paymentAmount,
-                                payment_date: paymentDate,
-                                payment_method: paymentMethod,
-                                notes: paymentNotes,
-                                recorded_at: new Date().toISOString()
-                            }])
-                            .execute();
-                    } catch (e) {
-                        console.log('Payment history table not available, continuing...');
-                    }
-                }
 
                 showPaymentAlert(`✅ Payment recorded! ₹${paymentAmount.toFixed(2)} added (Total Paid: ₹${newTotalPaid.toFixed(2)})`, 'success');
                 
@@ -2863,7 +3009,7 @@
             alertDiv.className = `alert ${type}`;
             alertDiv.innerHTML = `
                 <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
-                ${message}
+                ${sanitizeHTML(message)}
             `;
             container.appendChild(alertDiv);
             
@@ -2877,64 +3023,8 @@
         }
 
         // ============================================
-        // PRIORITY 2: EMAIL INVOICE FUNCTIONALITY
+        // OVERDUE CHECK
         // ============================================
-
-        async function sendInvoiceEmail(invoiceId) {
-            const invoice = allInvoices.find(i => i.id === invoiceId);
-            if (!invoice) {
-                alert('Invoice not found');
-                return;
-            }
-
-            const customer = allCustomers.find(c => c.id === invoice.customer_id);
-            if (!customer || !customer.email) {
-                alert('❌ Customer email not found. Please update customer details.');
-                return;
-            }
-
-            try {
-                // Show loading state
-                const btn = event.target;
-                btn.disabled = true;
-                btn.textContent = '⏳ Sending...';
-
-                // Call your email service endpoint
-                const emailData = {
-                    to: customer.email,
-                    invoiceNumber: invoice.invoice_number,
-                    customerName: customer.full_name,
-                    totalAmount: invoice.total_amount,
-                    dueDate: invoice.due_date,
-                    invoiceDate: invoice.invoice_date,
-                    notes: invoice.notes
-                };
-
-                // Using a generic API endpoint - adjust based on your backend
-                const response = await fetch('/api/send-invoice-email', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(emailData)
-                });
-
-                if (response.ok) {
-                    alert('✅ Invoice sent to ' + customer.email);
-                } else {
-                    alert('⚠️ Email might not have been sent. Please try again or send manually.');
-                }
-            } catch (error) {
-                console.error('Error sending email:', error);
-                alert('❌ Error sending email. Make sure your email service is configured.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '📧 Email';
-            }
-        }
-
-        // ============================================
-        // PRIORITY 2: AUTOMATIC OVERDUE DETECTION
-        // ============================================
-
         function checkAndUpdateOverdueStatus() {
             const supabase = getSupabaseClient();
             if (!supabase) return;
@@ -2943,16 +3033,13 @@
             today.setHours(0, 0, 0, 0);
 
             allInvoices.forEach(async (invoice) => {
-                // Skip if already paid
                 if (invoice.payment_status === 'paid') return;
 
-                // Check if invoice has due date and is overdue
                 if (invoice.due_date) {
                     const dueDate = new Date(invoice.due_date);
                     dueDate.setHours(0, 0, 0, 0);
 
                     if (dueDate < today && invoice.payment_status !== 'overdue') {
-                        // Update to overdue status
                         try {
                             await supabase
                                 .from('invoices')
@@ -2962,7 +3049,6 @@
                                 })
                                 .eq('id', invoice.id)
                                 .execute();
-                            console.log(`✅ Invoice ${invoice.invoice_number} marked as overdue`);
                         } catch (error) {
                             console.error('Error updating overdue status:', error);
                         }
@@ -2970,31 +3056,6 @@
                 }
             });
         }
-
-        // Run overdue check when invoices load
-        async function loadInvoicesWithOverdueCheck(supabase) {
-            try {
-                const data = await supabase
-                    .from('invoices')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .execute();
-
-                allInvoices = data.body || [];
-                
-                // Check for overdue invoices
-                checkAndUpdateOverdueStatus();
-                
-                filteredInvoices = [...allInvoices];
-                renderInvoices();
-            } catch (error) {
-                console.error('Error loading invoices:', error);
-                showModalAlert('Error loading invoices: ' + error.message, 'error');
-            } finally {
-                document.getElementById('loadingState').style.display = 'none';
-            }
-        }
-
     </script>
 </body>
 </html>
