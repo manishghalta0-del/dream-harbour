@@ -1074,6 +1074,75 @@
             <div style="padding: 20px; background: #f9f9f9; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid #e0e0e0;">
                 <button class="btn btn-secondary" onclick="closePreview()">Close</button>
                 <button class="btn btn-primary" onclick="generatePDFFromPreview()">📥 Download PDF</button>
+                    <!-- Payment Recording Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>💰 Record Payment</span>
+                <button class="close-btn" onclick="closePaymentModal()">&times;</button>
+            </div>
+
+            <div class="alert-container-modal" id="paymentAlertContainer"></div>
+
+            <div class="invoice-number-display">
+                <span>Invoice Number:</span> <strong id="paymentInvoiceNumber">-</strong>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Invoice Total (₹)</label>
+                    <input type="text" id="paymentInvoiceTotal" readonly style="background: #f9f9f9;">
+                </div>
+                <div class="form-group">
+                    <label>Already Paid (₹)</label>
+                    <input type="text" id="paymentAlreadyPaid" readonly style="background: #f9f9f9;">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Remaining Amount (₹)</label>
+                    <input type="text" id="paymentRemaining" readonly style="background: #f9f9f9; color: #f44336; font-weight: bold;">
+                </div>
+                <div class="form-group">
+                    <label>Amount to Pay Now (₹) *</label>
+                    <input type="number" id="paymentAmount" placeholder="0.00" step="0.01" min="0" onchange="updatePaymentRemaining()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Date *</label>
+                <input type="date" id="paymentDate" required>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Method</label>
+                <select id="paymentMethod">
+                    <option value="cash">Cash</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="online">Online/UPI</option>
+                    <option value="credit_card">Credit Card</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Payment Notes (Optional)</label>
+                <textarea id="paymentNotes" placeholder="Reference number, cheque details, etc..." style="min-height: 60px; resize: vertical;"></textarea>
+            </div>
+
+            <div style="background: #e8f5e9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #4caf50;">
+                <strong>New Status:</strong> <span id="paymentNewStatus">Pending</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" id="recordPaymentBtn" onclick="recordPayment()" style="flex: 1;">✅ Record Payment</button>
+                <button class="btn btn-secondary" onclick="closePaymentModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
             </div>
         </div>
     </div>
@@ -2204,7 +2273,7 @@
             }
         }
 
-        async function loadInvoices(supabase) {
+                async function loadInvoicesWithOverdueCheck(supabase) {
             try {
                 const data = await supabase
                     .from('invoices')
@@ -2213,6 +2282,10 @@
                     .execute();
 
                 allInvoices = data.body || [];
+                
+                // Check for overdue invoices
+                checkAndUpdateOverdueStatus();
+                
                 filteredInvoices = [...allInvoices];
                 renderInvoices();
             } catch (error) {
@@ -2221,6 +2294,11 @@
             } finally {
                 document.getElementById('loadingState').style.display = 'none';
             }
+        }
+
+        // Keep old name for compatibility
+        async function loadInvoices(supabase) {
+            return loadInvoicesWithOverdueCheck(supabase);
         }
 
         function renderInvoices() {
@@ -2256,6 +2334,8 @@
                             <button class="btn btn-sm btn-success" onclick="previewInvoice('${invoice.id}')" title="Preview">👁️ Preview</button>
                             <button class="btn btn-sm btn-primary" onclick="downloadInvoicePDF('${invoice.id}')" title="Download PDF">📄 PDF</button>
                             <button class="btn btn-sm" style="background: #2196F3; color: white;" onclick="openEditModal('${invoice.id}')" title="Edit">✏️ Edit</button>
+                            <button class="btn btn-sm" style="background: #FF6B6B; color: white;" onclick="openPaymentModal('${invoice.id}')" title="Record Payment">💳 Payment</button>
+                            <button class="btn btn-sm" style="background: #4ECDC4; color: white;" onclick="sendInvoiceEmail('${invoice.id}')" title="Email">📧 Email</button>
                             <button class="btn btn-sm btn-danger" onclick="deleteInvoice('${invoice.id}')" title="Delete">🗑️ Delete</button>
                         </div>
                     </td>
@@ -2628,6 +2708,293 @@
                 }
             }, 5000);
         }
+        
+        // ============================================
+        // PRIORITY 2: PAYMENT RECORDING FUNCTIONALITY
+        // ============================================
+
+        let currentPaymentInvoiceId = null;
+
+        function openPaymentModal(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            currentPaymentInvoiceId = invoiceId;
+            const totalAmount = invoice.total_amount || 0;
+            const alreadyPaid = invoice.amount_paid || 0;
+            const remaining = Math.max(0, totalAmount - alreadyPaid);
+
+            document.getElementById('paymentInvoiceNumber').textContent = invoice.invoice_number;
+            document.getElementById('paymentInvoiceTotal').value = totalAmount.toFixed(2);
+            document.getElementById('paymentAlreadyPaid').value = alreadyPaid.toFixed(2);
+            document.getElementById('paymentRemaining').value = remaining.toFixed(2);
+            document.getElementById('paymentAmount').value = remaining > 0 ? remaining.toFixed(2) : '0.00';
+            document.getElementById('paymentDate').value = formatISTDateForInput();
+            document.getElementById('paymentMethod').value = 'cash';
+            document.getElementById('paymentNotes').value = '';
+            document.getElementById('paymentAlertContainer').innerHTML = '';
+            
+            updatePaymentRemaining();
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+            currentPaymentInvoiceId = null;
+        }
+
+        function updatePaymentRemaining() {
+            const invoice = allInvoices.find(i => i.id === currentPaymentInvoiceId);
+            if (!invoice) return;
+
+            const totalAmount = invoice.total_amount || 0;
+            const alreadyPaid = invoice.amount_paid || 0;
+            const paymentAmount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+            const newTotalPaid = alreadyPaid + paymentAmount;
+            const remaining = Math.max(0, totalAmount - newTotalPaid);
+
+            let newStatus = 'Pending';
+            if (newTotalPaid >= totalAmount) {
+                newStatus = '✅ Fully Paid';
+            } else if (newTotalPaid > 0) {
+                newStatus = '⏳ Partially Paid';
+            }
+
+            document.getElementById('paymentNewStatus').textContent = newStatus;
+        }
+
+        async function recordPayment() {
+            if (!currentPaymentInvoiceId) {
+                showPaymentAlert('Error: No invoice selected', 'error');
+                return;
+            }
+
+            try {
+                const supabase = await getSupabaseClient();
+                const invoice = allInvoices.find(i => i.id === currentPaymentInvoiceId);
+                if (!invoice) throw new Error('Invoice not found');
+
+                const paymentAmount = parseFloat(document.getElementById('paymentAmount').value) || 0;
+                const paymentDate = document.getElementById('paymentDate').value;
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                const paymentNotes = document.getElementById('paymentNotes').value.trim();
+
+                if (!paymentAmount || paymentAmount <= 0) {
+                    showPaymentAlert('Please enter a valid payment amount', 'error');
+                    return;
+                }
+
+                if (!paymentDate) {
+                    showPaymentAlert('Please select payment date', 'error');
+                    return;
+                }
+
+                const totalAmount = invoice.total_amount || 0;
+                const alreadyPaid = invoice.amount_paid || 0;
+                const newTotalPaid = alreadyPaid + paymentAmount;
+
+                // Determine new payment status
+                let newPaymentStatus = 'pending';
+                if (newTotalPaid >= totalAmount) {
+                    newPaymentStatus = 'paid';
+                } else if (newTotalPaid > 0) {
+                    newPaymentStatus = 'pending'; // Still pending (partially paid)
+                }
+
+                document.getElementById('recordPaymentBtn').disabled = true;
+                document.getElementById('recordPaymentBtn').textContent = '⏳ Recording...';
+
+                // Update invoice with new payment information
+                const updateData = {
+                    amount_paid: newTotalPaid,
+                    payment_status: newPaymentStatus,
+                    updated_at: new Date().toISOString()
+                };
+
+                await supabase
+                    .from('invoices')
+                    .update(updateData)
+                    .eq('id', currentPaymentInvoiceId)
+                    .execute();
+
+                // Optionally: Save payment record in payment_history table if it exists
+                if (paymentNotes || paymentMethod) {
+                    try {
+                        await supabase
+                            .from('payment_history')
+                            .insert([{
+                                invoice_id: currentPaymentInvoiceId,
+                                amount_paid: paymentAmount,
+                                payment_date: paymentDate,
+                                payment_method: paymentMethod,
+                                notes: paymentNotes,
+                                recorded_at: new Date().toISOString()
+                            }])
+                            .execute();
+                    } catch (e) {
+                        console.log('Payment history table not available, continuing...');
+                    }
+                }
+
+                showPaymentAlert(`✅ Payment recorded! ₹${paymentAmount.toFixed(2)} added (Total Paid: ₹${newTotalPaid.toFixed(2)})`, 'success');
+                
+                setTimeout(() => {
+                    closePaymentModal();
+                    loadInvoices(supabase);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error recording payment:', error);
+                showPaymentAlert('❌ Error: ' + error.message, 'error');
+            } finally {
+                document.getElementById('recordPaymentBtn').disabled = false;
+                document.getElementById('recordPaymentBtn').textContent = '✅ Record Payment';
+            }
+        }
+
+        function showPaymentAlert(message, type = 'info') {
+            const container = document.getElementById('paymentAlertContainer');
+            const alertId = 'payment-alert-' + Date.now();
+            const alertDiv = document.createElement('div');
+            alertDiv.id = alertId;
+            alertDiv.className = `alert ${type}`;
+            alertDiv.innerHTML = `
+                <strong>${type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️'}</strong>
+                ${message}
+            `;
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) {
+                    el.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ============================================
+        // PRIORITY 2: EMAIL INVOICE FUNCTIONALITY
+        // ============================================
+
+        async function sendInvoiceEmail(invoiceId) {
+            const invoice = allInvoices.find(i => i.id === invoiceId);
+            if (!invoice) {
+                alert('Invoice not found');
+                return;
+            }
+
+            const customer = allCustomers.find(c => c.id === invoice.customer_id);
+            if (!customer || !customer.email) {
+                alert('❌ Customer email not found. Please update customer details.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const btn = event.target;
+                btn.disabled = true;
+                btn.textContent = '⏳ Sending...';
+
+                // Call your email service endpoint
+                const emailData = {
+                    to: customer.email,
+                    invoiceNumber: invoice.invoice_number,
+                    customerName: customer.full_name,
+                    totalAmount: invoice.total_amount,
+                    dueDate: invoice.due_date,
+                    invoiceDate: invoice.invoice_date,
+                    notes: invoice.notes
+                };
+
+                // Using a generic API endpoint - adjust based on your backend
+                const response = await fetch('/api/send-invoice-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(emailData)
+                });
+
+                if (response.ok) {
+                    alert('✅ Invoice sent to ' + customer.email);
+                } else {
+                    alert('⚠️ Email might not have been sent. Please try again or send manually.');
+                }
+            } catch (error) {
+                console.error('Error sending email:', error);
+                alert('❌ Error sending email. Make sure your email service is configured.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📧 Email';
+            }
+        }
+
+        // ============================================
+        // PRIORITY 2: AUTOMATIC OVERDUE DETECTION
+        // ============================================
+
+        function checkAndUpdateOverdueStatus() {
+            const supabase = getSupabaseClient();
+            if (!supabase) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            allInvoices.forEach(async (invoice) => {
+                // Skip if already paid
+                if (invoice.payment_status === 'paid') return;
+
+                // Check if invoice has due date and is overdue
+                if (invoice.due_date) {
+                    const dueDate = new Date(invoice.due_date);
+                    dueDate.setHours(0, 0, 0, 0);
+
+                    if (dueDate < today && invoice.payment_status !== 'overdue') {
+                        // Update to overdue status
+                        try {
+                            await supabase
+                                .from('invoices')
+                                .update({ 
+                                    payment_status: 'overdue',
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('id', invoice.id)
+                                .execute();
+                            console.log(`✅ Invoice ${invoice.invoice_number} marked as overdue`);
+                        } catch (error) {
+                            console.error('Error updating overdue status:', error);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Run overdue check when invoices load
+        async function loadInvoicesWithOverdueCheck(supabase) {
+            try {
+                const data = await supabase
+                    .from('invoices')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .execute();
+
+                allInvoices = data.body || [];
+                
+                // Check for overdue invoices
+                checkAndUpdateOverdueStatus();
+                
+                filteredInvoices = [...allInvoices];
+                renderInvoices();
+            } catch (error) {
+                console.error('Error loading invoices:', error);
+                showModalAlert('Error loading invoices: ' + error.message, 'error');
+            } finally {
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
     </script>
 </body>
 </html>
